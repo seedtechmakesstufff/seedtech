@@ -6,10 +6,12 @@ All tokens live in `tailwind.config.ts` under `theme.extend.fontSize` and `theme
 
 | Role      | Font           | CSS Variable              | Tailwind Class   |
 | --------- | -------------- | ------------------------- | ---------------- |
-| Headings  | Space Grotesk  | `--font-space-grotesk`    | `font-display`   |
+| Headings  | League Gothic  | `--font-league-gothic`    | `font-display`   |
 | Body      | Inter          | `--font-inter`            | `font-body`      |
 
 Loaded via `next/font/google` in `src/app/layout.tsx`.
+
+> **Note:** League Gothic is a condensed display typeface — it works best at large sizes (hero, section headings, stat callouts). Avoid using `font-display` at small sizes (`text-body-sm` or below).
 
 ## Type Scale
 
@@ -37,7 +39,7 @@ Each scale token maps to a component in `src/components/kit/Typography.tsx`:
 ## Rules
 
 - One `<Display>` per page — hero only
-- Headings use `font-display` (Space Grotesk)
+- Headings use `font-display` (League Gothic)
 - Body uses `font-body` (Inter)
 - Eyebrow labels: uppercase, tracked, `text-seed-400` on dark / `text-seed-600` on light
 - Gradient text: wrap in `<GradientText>` or use `.text-gradient-brand` utility class

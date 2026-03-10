@@ -45,7 +45,7 @@ const config: Config = {
 
       /* ── Typography ── */
       fontFamily: {
-        display: ["var(--font-space-grotesk)", "system-ui", "sans-serif"],
+        display: ["var(--font-league-gothic)", "system-ui", "sans-serif"],
         body: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       fontSize: {
