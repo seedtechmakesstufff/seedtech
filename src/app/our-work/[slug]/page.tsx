@@ -20,6 +20,7 @@ import {
   GlassCard,
   GradientText,
   ProcessStep,
+  TechPill,
 } from "@/components/kit";
 import { GradientOrb } from "@/components/kit";
 import { projects, getProjectBySlug } from "@/data/projects";
@@ -187,12 +188,7 @@ export default function ProjectPage({ params }: Props) {
                 <p className="text-body-sm text-light-base/35 uppercase tracking-wider mb-2">Tech Stack</p>
                 <div className="flex flex-wrap gap-1.5">
                   {project.techStack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-1 text-xs rounded-md bg-dark-overlay border border-white/[0.06] text-light-base/60"
-                    >
-                      {tech}
-                    </span>
+                    <TechPill key={tech}>{tech}</TechPill>
                   ))}
                 </div>
               </div>

@@ -22,15 +22,22 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         className
       )}
     >
-      {/* Top color bar — gradient per department */}
-      <div
-        className={cn(
-          "h-1 w-full",
+      {/* Image placeholder */}
+      <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-dark-overlay to-dark-elevated overflow-hidden">
+        {/* TODO: replace with <Image src={project.image} fill alt={project.title} className="object-cover" /> */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <p className="text-white/10 text-xs">Image placeholder</p>
+        </div>
+        {/* Department colour tint overlay */}
+        <div className={cn(
+          "absolute inset-0 opacity-10",
           project.department === "web-development"
             ? "bg-gradient-web"
             : "bg-gradient-brand"
-        )}
-      />
+        )} />
+        {/* Bottom fade into card */}
+        <div className="absolute bottom-0 inset-x-0 h-12 bg-gradient-to-t from-dark-elevated to-transparent" />
+      </div>
 
       <div className="flex flex-col flex-1 p-6 gap-4">
         {/* Department + featured badge */}
