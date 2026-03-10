@@ -1,23 +1,28 @@
 import Link from "next/link";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { SiBehance, SiX } from "react-icons/si";
+import { SiBehance, SiInstagram, SiTiktok } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa";
 
 const socialLinks = [
   {
-    label: "Behance",
-    href: "https://www.behance.net/samuelcolby",
-    icon: <SiBehance className="w-4 h-4" />,
-  },
-  {
     label: "LinkedIn",
-    href: "https://linkedin.com",
+    href: "https://www.linkedin.com/company/seedtechllc/",
     icon: <FaLinkedinIn className="w-4 h-4" />,
   },
   {
-    label: "X",
-    href: "https://x.com",
-    icon: <SiX className="w-4 h-4" />,
+    label: "Instagram",
+    href: "https://www.instagram.com/seedtechmedia/",
+    icon: <SiInstagram className="w-4 h-4" />,
+  },
+  {
+    label: "TikTok",
+    href: "https://www.tiktok.com/@seedtechmedia",
+    icon: <SiTiktok className="w-4 h-4" />,
+  },
+  {
+    label: "Behance",
+    href: "https://www.behance.net/SeedTech",
+    icon: <SiBehance className="w-4 h-4" />,
   },
 ];
 
