@@ -44,7 +44,7 @@ export function Footer() {
     <footer className="border-t border-white/[0.06] bg-dark-base">
       <div className="mx-auto max-w-6xl px-6 py-20">
         {/* Top Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           {/* Brand */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-3">
@@ -97,6 +97,23 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Helpful Resources */}
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-5">Helpful Resources</h4>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/pricing/it-support" className="text-sm text-white/50 hover:text-white transition-colors">
+                  IT Support Pricing
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing/web-development" className="text-sm text-white/50 hover:text-white transition-colors">
+                  Website Development Pricing
+                </Link>
+              </li>
             </ul>
           </div>
 
