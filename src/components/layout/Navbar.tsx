@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,13 +31,15 @@ export function Navbar() {
       <div className="mx-auto max-w-6xl px-6">
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center shadow-glowSeed group-hover:shadow-glowSeedLg transition-shadow duration-300">
-              <span className="font-display text-lg font-bold text-white">S</span>
-            </div>
-            <span className="font-display text-xl font-bold text-white">
-              SeedTech
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/seedtechlogo_white-scaled.webp"
+              alt="SeedTech"
+              width={160}
+              height={48}
+              className="h-10 w-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* Desktop Nav */}
