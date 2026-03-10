@@ -58,9 +58,8 @@ export function TechPill({ children, className }: TechPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-5 py-3 rounded-full text-sm font-medium",
-        "bg-white/[0.04] border border-white/[0.06] text-white/70",
-        "hover:bg-white/[0.08] hover:text-white transition-all",
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "bg-white/[0.06] border border-white/[0.08] text-white/60",
         className
       )}
     >
