@@ -1,15 +1,89 @@
+"use client";
+
+import { useState } from "react";
 import { Section } from "@/components/layout/Section";
-import { SectionHeader } from "@/components/layout/SectionHeader";
+import { ProjectCard } from "@/components/projects/ProjectCard";
+import { GradientOrb, GridPattern, CTABanner } from "@/components/kit";
+import { projects } from "@/data/projects";
+import type { Department } from "@/data/projects";
+import { cn } from "@/lib/utils";
+
+type Filter = "all" | Department;
+
+const filters: { label: string; value: Filter }[] = [
+  { label: "All Projects", value: "all" },
+  { label: "Web Development", value: "web-development" },
+  { label: "IT Support", value: "it-support" },
+];
 
 export default function OurWorkPage() {
+  const [active, setActive] = useState<Filter>("all");
+
+  const filtered =
+    active === "all" ? projects : projects.filter((p) => p.department === active);
+
   return (
     <div className="pt-20">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-dark-base py-24 text-center">
+        <GradientOrb color="seed" size="xl" className="-top-40 left-1/2 -translate-x-1/2 opacity-20" />
+        <GridPattern />
+        <div className="relative z-10 mx-auto max-w-4xl px-6">
+          <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-4">Our Work</p>
+          <h1 className="font-display text-title md:text-display font-bold text-white">
+            Projects That Drive{" "}
+            <span className="text-gradient-brand">Real Results</span>
+          </h1>
+          <p className="mt-6 text-body-lg text-light-base/60 max-w-2xl mx-auto">
+            From custom ecommerce platforms to managed IT infrastructure — here's what we've built and the outcomes we've delivered.
+          </p>
+        </div>
+      </section>
+
+      {/* Filter tabs + grid */}
       <Section>
-        <SectionHeader
-          eyebrow="Portfolio"
-          title="Our"
-          titleHighlight="Work"
-          description="Real results for real businesses — browse our case studies and see the impact we've made."
+        {/* Filter tabs */}
+        <div className="flex justify-center mb-12">
+          <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-dark-overlay border border-white/[0.06]">
+            {filters.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setActive(f.value)}
+                className={cn(
+                  "px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                  active === f.value
+                    ? "bg-gradient-brand text-white shadow-glowSeed"
+                    : "text-light-base/50 hover:text-light-base/80"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Project count */}
+        <p className="text-center text-body-sm text-light-base/30 mb-8">
+          {filtered.length} {filtered.length === 1 ? "project" : "projects"}
+        </p>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((project) => (
+            <ProjectCard key={project.slug} project={project} />
+          ))}
+        </div>
+      </Section>
+
+      {/* CTA */}
+      <Section>
+        <CTABanner
+          title="Want Results Like These?"
+          description="Let's talk about your project. We'll scope it out, give you an honest quote, and start building."
+          primaryLabel="Start a Project"
+          primaryHref="/contact"
+          secondaryLabel="View Our Services"
+          secondaryHref="/services"
         />
       </Section>
     </div>
