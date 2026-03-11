@@ -11,6 +11,8 @@ interface CTABannerProps {
   secondaryLabel?: string;
   secondaryHref?: string;
   className?: string;
+  /** When provided, the primary CTA renders as a button instead of a link. */
+  onPrimaryClick?: () => void;
 }
 
 export function CTABanner({
@@ -21,6 +23,7 @@ export function CTABanner({
   secondaryLabel,
   secondaryHref,
   className,
+  onPrimaryClick,
 }: CTABannerProps) {
   return (
     <div className={cn("relative py-24 text-center overflow-hidden", className)}>
@@ -33,11 +36,19 @@ export function CTABanner({
           {description}
         </p>
         <div className="flex items-center justify-center gap-4 pt-2">
-          <Link href={primaryHref}>
-            <Button variant="primary" icon="arrow">
-              {primaryLabel}
-            </Button>
-          </Link>
+          {onPrimaryClick ? (
+            <button onClick={onPrimaryClick}>
+              <Button variant="primary" icon="arrow">
+                {primaryLabel}
+              </Button>
+            </button>
+          ) : (
+            <Link href={primaryHref}>
+              <Button variant="primary" icon="arrow">
+                {primaryLabel}
+              </Button>
+            </Link>
+          )}
           {secondaryLabel && secondaryHref && (
             <Link href={secondaryHref}>
               <Button variant="secondary" icon="none">

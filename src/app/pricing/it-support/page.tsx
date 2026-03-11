@@ -28,6 +28,7 @@ import {
   CTABanner,
 } from "@/components/kit";
 import { QuotePriceCalculator } from "@/components/quote-generator";
+import { useQuoteFlow } from "@/components/quote-flow";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const highlights = [
@@ -134,6 +135,7 @@ const faqs = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ITSupportPricingPage() {
   const [calcStep, setCalcStep] = useState(0);
+  const { openQuoteFlow } = useQuoteFlow();
 
   return (
     <div className="pt-20">
@@ -366,7 +368,7 @@ export default function ITSupportPricingPage() {
           title="Ready to Simplify Your IT?"
           description="Get a custom quote in under 60 seconds, or schedule a free consultation with our team."
           primaryLabel="Get Instant Quote"
-          primaryHref="#calculator"
+          onPrimaryClick={() => openQuoteFlow("it-support")}
           secondaryLabel="Contact Us"
           secondaryHref="/contact"
         />

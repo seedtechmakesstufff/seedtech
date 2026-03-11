@@ -7,6 +7,7 @@ import { GradientOrb, GridPattern, CTABanner } from "@/components/kit";
 import { projects } from "@/data/projects";
 import type { Department } from "@/data/projects";
 import { cn } from "@/lib/utils";
+import { useQuoteFlow } from "@/components/quote-flow";
 
 type Filter = "all" | Department;
 
@@ -18,6 +19,7 @@ const filters: { label: string; value: Filter }[] = [
 
 export default function OurWorkPage() {
   const [active, setActive] = useState<Filter>("all");
+  const { openQuoteFlow } = useQuoteFlow();
 
   const filtered =
     active === "all" ? projects : projects.filter((p) => p.department === active);
@@ -81,7 +83,7 @@ export default function OurWorkPage() {
           title="Want Results Like These?"
           description="Let's talk about your project. We'll scope it out, give you an honest quote, and start building."
           primaryLabel="Start a Project"
-          primaryHref="/contact"
+          onPrimaryClick={() => openQuoteFlow()}
           secondaryLabel="View Our Services"
           secondaryHref="/services"
         />

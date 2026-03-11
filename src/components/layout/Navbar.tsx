@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuoteFlow } from "@/components/quote-flow";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -25,6 +26,7 @@ const navLinks = [
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const { openQuoteFlow } = useQuoteFlow();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -83,12 +85,12 @@ export function Navbar() {
           </div>
 
           {/* CTA */}
-          <Link
-            href="/contact"
+          <button
+            onClick={() => openQuoteFlow()}
             className="hidden md:inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-gradient-brand rounded-xl hover:shadow-glowSeed transition-all duration-300"
           >
             Get a Quote
-          </Link>
+          </button>
 
           {/* Mobile Toggle */}
           <button
@@ -141,13 +143,15 @@ export function Navbar() {
                 </Link>
               )
             )}
-            <Link
-              href="/contact"
-              onClick={() => setMobileOpen(false)}
-              className="block mt-2 text-center px-5 py-3 text-sm font-medium text-white bg-gradient-brand rounded-xl"
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                openQuoteFlow();
+              }}
+              className="block w-full mt-2 text-center px-5 py-3 text-sm font-medium text-white bg-gradient-brand rounded-xl"
             >
               Get a Quote
-            </Link>
+            </button>
           </div>
         </div>
       )}

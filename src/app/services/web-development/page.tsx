@@ -33,6 +33,7 @@ import {
   IconBox,
   ProcessStep,
 } from "@/components/kit";
+import { QuoteButton } from "@/components/quote-flow";
 
 export const metadata = {
   title: "Web Development Services — SeedTech",
@@ -248,13 +249,13 @@ export default function WebDevelopmentPage() {
               We design and build custom websites, ecommerce platforms, and web applications that are fast, beautiful, and built to grow with your business.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/contact"
+              <QuoteButton
+                service="web-development"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-brand text-white text-sm font-medium hover:shadow-glowSeed transition-all duration-200"
               >
                 Start Your Project
                 <ArrowRight className="w-4 h-4" />
-              </Link>
+              </QuoteButton>
               <Link
                 href="/pricing/web-development"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-white/[0.06] border border-white/[0.10] text-white text-sm font-medium hover:bg-white/[0.10] transition-all duration-200"

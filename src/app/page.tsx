@@ -2,6 +2,8 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Button, GradientText, BodyLg } from "@/components/kit";
 import { GradientOrb, GridPattern } from "@/components/kit";
+import { QuoteButton } from "@/components/quote-flow";
+import { ArrowRight } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -26,9 +28,10 @@ export default function HomePage() {
             and data-driven marketing — all under one roof.
           </BodyLg>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="primary" size="lg" icon="arrow" href="/contact">
+            <QuoteButton className="inline-flex items-center justify-center gap-3 px-8 py-4 text-base rounded-xl font-medium transition-all duration-300 bg-gradient-brand text-white hover:shadow-glowSeed">
               Get a Free Quote
-            </Button>
+              <ArrowRight className="w-4 h-4" />
+            </QuoteButton>
             <Button variant="ghost" size="lg" href="/services">
               Explore Services
             </Button>

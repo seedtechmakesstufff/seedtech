@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, CTABanner, GradientText, GlassCard } from "@/components/kit";
+import { QuoteButton } from "@/components/quote-flow";
 
 export const metadata = {
   title: "Web Development Pricing — SeedTech",
@@ -193,8 +194,8 @@ export default function WebDevelopmentPricingPage() {
 
               {/* CTA */}
               <div className="mt-auto pt-2">
-                <Link
-                  href="/contact"
+                <QuoteButton
+                  service="web-development"
                   className={`w-full inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     tier.highlighted
                       ? "bg-gradient-brand text-white hover:shadow-glowSeed"
@@ -202,7 +203,7 @@ export default function WebDevelopmentPricingPage() {
                   }`}
                 >
                   Get a Quote
-                </Link>
+                </QuoteButton>
               </div>
             </div>
           ))}
@@ -240,12 +241,12 @@ export default function WebDevelopmentPricingPage() {
           <p className="text-body-lg text-light-base/60 mb-8 max-w-xl mx-auto">
             We'll help determine the best solution for your business and budget. Schedule a consultation to discuss your project.
           </p>
-          <Link
-            href="/contact"
+          <QuoteButton
+            service="web-development"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-brand text-white text-sm font-medium hover:shadow-glowSeed transition-all duration-200"
           >
             Schedule a Consultation
-          </Link>
+          </QuoteButton>
         </GlassCard>
       </Section>
 
