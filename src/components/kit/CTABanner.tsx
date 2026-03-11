@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { AmbientGlow } from "./BackgroundEffects";
 import { Button } from "./Button";
@@ -37,24 +36,18 @@ export function CTABanner({
         </p>
         <div className="flex items-center justify-center gap-4 pt-2">
           {onPrimaryClick ? (
-            <button onClick={onPrimaryClick}>
-              <Button variant="primary" icon="arrow">
-                {primaryLabel}
-              </Button>
-            </button>
+            <Button variant="primary" icon="arrow" onClick={onPrimaryClick}>
+              {primaryLabel}
+            </Button>
           ) : (
-            <Link href={primaryHref}>
-              <Button variant="primary" icon="arrow">
-                {primaryLabel}
-              </Button>
-            </Link>
+            <Button variant="primary" icon="arrow" href={primaryHref}>
+              {primaryLabel}
+            </Button>
           )}
           {secondaryLabel && secondaryHref && (
-            <Link href={secondaryHref}>
-              <Button variant="secondary" icon="none">
-                {secondaryLabel}
-              </Button>
-            </Link>
+            <Button variant="secondary" icon="none" href={secondaryHref}>
+              {secondaryLabel}
+            </Button>
           )}
         </div>
       </div>
