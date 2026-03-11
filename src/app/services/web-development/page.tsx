@@ -157,9 +157,10 @@ export default function WebDevelopmentPage() {
           ══════════════════════════════════════════════════════════════════════ */}
       <section className="bg-dark-base py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6 text-center mb-14">
-          <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-4">
-            Trusted
-          </p>
+          {/* Validated pill */}
+          <span className="inline-block rounded-full border border-white/[0.08] bg-dark-elevated px-5 py-1.5 text-xs font-medium text-white/60 tracking-wide mb-6">
+            Validated
+          </span>
           <h2 className="font-display text-heading md:text-title text-white leading-[1.1] mb-6">
             Websites Built for Businesses That Mean It
           </h2>
@@ -170,39 +171,41 @@ export default function WebDevelopmentPage() {
           </p>
         </div>
 
-        {/* Animated logo marquee with edge blur */}
-        <div className="relative overflow-hidden">
-          {/* Left blur */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 z-10 bg-gradient-to-r from-dark-base to-transparent pointer-events-none" />
-          {/* Right blur */}
-          <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 z-10 bg-gradient-to-l from-dark-base to-transparent pointer-events-none" />
+        {/* Animated logo marquee with edge blur — contained */}
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="relative overflow-hidden">
+            {/* Left blur */}
+            <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 z-10 bg-gradient-to-r from-dark-base to-transparent pointer-events-none" />
+            {/* Right blur */}
+            <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 z-10 bg-gradient-to-l from-dark-base to-transparent pointer-events-none" />
 
-          {/* Row 1 — left to right */}
-          <div className="flex animate-marquee-reverse whitespace-nowrap mb-4">
-            {logoRowTop.map((name, i) => (
-              <div
-                key={`top-${i}`}
-                className="mx-2 shrink-0 flex items-center justify-center px-8 py-4 rounded-xl border border-white/[0.06] bg-dark-elevated/50"
-              >
-                <span className="text-sm font-semibold text-white/25 tracking-wide">
-                  {name}
-                </span>
-              </div>
-            ))}
-          </div>
+            {/* Row 1 — left to right */}
+            <div className="flex animate-marquee-reverse whitespace-nowrap mb-4">
+              {logoRowTop.map((name, i) => (
+                <div
+                  key={`top-${i}`}
+                  className="mx-2 shrink-0 flex items-center justify-center px-8 py-4 rounded-xl border border-white/[0.06] bg-dark-elevated/50"
+                >
+                  <span className="text-sm font-semibold text-white/25 tracking-wide">
+                    {name}
+                  </span>
+                </div>
+              ))}
+            </div>
 
-          {/* Row 2 — right to left */}
-          <div className="flex animate-marquee whitespace-nowrap">
-            {logoRowBottom.map((name, i) => (
-              <div
-                key={`bottom-${i}`}
-                className="mx-2 shrink-0 flex items-center justify-center px-8 py-4 rounded-xl border border-white/[0.06] bg-dark-elevated/50"
-              >
-                <span className="text-sm font-semibold text-white/25 tracking-wide">
-                  {name}
-                </span>
-              </div>
-            ))}
+            {/* Row 2 — right to left */}
+            <div className="flex animate-marquee whitespace-nowrap">
+              {logoRowBottom.map((name, i) => (
+                <div
+                  key={`bottom-${i}`}
+                  className="mx-2 shrink-0 flex items-center justify-center px-8 py-4 rounded-xl border border-white/[0.06] bg-dark-elevated/50"
+                >
+                  <span className="text-sm font-semibold text-white/25 tracking-wide">
+                    {name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
