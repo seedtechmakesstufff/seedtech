@@ -14,7 +14,7 @@ export const metadata = {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const clients = [
-  "Paddlers Cove",
+  "PaddlersCove",
   "Drew & Rogers",
   "Bright Imaginations",
   "Star Communications",
@@ -23,12 +23,12 @@ const clients = [
 
 // Two rows for the animated marquee — duplicate for seamless loop
 const logoRowTop = [
-  "Paddlers Cove",
+  "PaddlersCove",
   "Drew & Rogers",
   "Bright Imaginations",
   "Star Communications",
   "Megasafe",
-  "Paddlers Cove",
+  "PaddlersCove",
   "Drew & Rogers",
   "Bright Imaginations",
   "Star Communications",
@@ -40,12 +40,12 @@ const logoRowBottom = [
   "Star Communications",
   "Bright Imaginations",
   "Drew & Rogers",
-  "Paddlers Cove",
+  "PaddlersCove",
   "Megasafe",
   "Star Communications",
   "Bright Imaginations",
   "Drew & Rogers",
-  "Paddlers Cove",
+  "PaddlersCove",
 ];
 
 const featuredWork = projects

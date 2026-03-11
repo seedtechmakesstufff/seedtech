@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ArrowRight,
@@ -24,6 +25,7 @@ import {
 } from "@/components/kit";
 import { GradientOrb } from "@/components/kit";
 import { projects, getProjectBySlug } from "@/data/projects";
+import { getCaseStudy } from "@/data/case-studies";
 
 interface Props {
   params: { slug: string };
@@ -96,6 +98,7 @@ export default function ProjectPage({ params }: Props) {
   const isWeb = project.department === "web-development";
   const currentIndex = projects.findIndex((p) => p.slug === params.slug);
   const nextProject = projects[(currentIndex + 1) % projects.length];
+  const cs = getCaseStudy(params.slug);
 
   return (
     <div>
@@ -122,53 +125,60 @@ export default function ProjectPage({ params }: Props) {
               <GlassCard theme="dark" className="p-6 space-y-3" hover={false}>
                 <p className="text-eyebrow uppercase tracking-widest text-brand-blue/80 text-xs">The Challenge</p>
                 <p className="text-white font-display text-card-title">
-                  {/* TODO: replace with real challenge headline */}
-                  Placeholder challenge headline for this project.
+                  {cs?.challenge.headline ?? "Placeholder challenge headline for this project."}
                 </p>
                 <p className="text-body-sm text-light-base/50 leading-relaxed">
-                  {/* TODO: 2–3 sentences on the core problem */}
-                  This is a placeholder for the key business or technical problem the client was facing before engaging SeedTech. Replace with the real challenge.
+                  {cs?.challenge.body ?? "This is a placeholder for the key business or technical problem the client was facing before engaging SeedTech. Replace with the real challenge."}
                 </p>
               </GlassCard>
 
               <GlassCard theme="dark" className="p-6 space-y-3 border-seed-600/20" hover={false}>
                 <p className="text-eyebrow uppercase tracking-widest text-seed-400 text-xs">Our Solution</p>
                 <p className="text-white font-display text-card-title">
-                  {/* TODO: replace with real solution headline */}
-                  Placeholder solution headline for this project.
+                  {cs?.solution.headline ?? "Placeholder solution headline for this project."}
                 </p>
                 <p className="text-body-sm text-light-base/50 leading-relaxed">
-                  {/* TODO: 2–3 sentences on the approach */}
-                  This is a placeholder for the specific approach, tools, and decisions that made this project a success. Replace with the real solution.
+                  {cs?.solution.body ?? "This is a placeholder for the specific approach, tools, and decisions that made this project a success. Replace with the real solution."}
                 </p>
               </GlassCard>
             </div>
 
-            {/* Screenshot / visual placeholder */}
+            {/* Screenshot / visual */}
             <div>
               <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-4 text-xs">Screenshots</p>
               <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
-                {/* TODO: replace with <Image> */}
-                <div className="aspect-video w-full flex items-center justify-center bg-gradient-to-br from-dark-elevated to-dark-overlay">
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto">
-                      <ExternalLink className="w-5 h-5 text-white/20" />
-                    </div>
-                    <p className="text-white/30 text-sm font-medium">1600 × 900 px</p>
-                    <p className="text-white/20 text-xs">16:9 · case study screenshot</p>
-                    {project.url && (
-                      <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-seed-400/60 hover:text-seed-400 text-xs transition-colors"
-                      >
-                        {project.url.replace(/^https?:\/\//, "")}
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
+                {cs?.mainScreenshot ? (
+                  <div className="relative aspect-video w-full">
+                    <Image
+                      src={cs.mainScreenshot}
+                      alt={`${project.client} screenshot`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 66vw"
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div className="aspect-video w-full flex items-center justify-center bg-gradient-to-br from-dark-elevated to-dark-overlay">
+                    <div className="text-center space-y-2">
+                      <div className="w-12 h-12 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto">
+                        <ExternalLink className="w-5 h-5 text-white/20" />
+                      </div>
+                      <p className="text-white/30 text-sm font-medium">1600 × 900 px</p>
+                      <p className="text-white/20 text-xs">16:9 · case study screenshot</p>
+                      {project.url && (
+                        <a
+                          href={project.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-seed-400/60 hover:text-seed-400 text-xs transition-colors"
+                        >
+                          {project.url.replace(/^https?:\/\//, "")}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -181,8 +191,8 @@ export default function ProjectPage({ params }: Props) {
                 label="Department"
                 value={isWeb ? "Web Development" : "IT Support"}
               />
-              <MetaRow label="Timeline" value="— weeks / months" note="TODO: replace" />
-              <MetaRow label="Team Size" value="— people" note="TODO: replace" />
+              <MetaRow label="Timeline" value={cs?.timeline ?? "—"} note={cs ? undefined : "TODO: replace"} />
+              <MetaRow label="Team Size" value={cs?.teamSize ?? "—"} note={cs ? undefined : "TODO: replace"} />
 
               {/* Tech stack */}
               <div>
@@ -239,17 +249,16 @@ export default function ProjectPage({ params }: Props) {
         <SectionHeader
           eyebrow="By the Numbers"
           title="Results & Impact"
-          description="Key metrics from this engagement. Replace placeholders with real figures once available."
+          description={cs ? "Key metrics from this engagement." : "Key metrics from this engagement. Replace placeholders with real figures once available."}
           theme="light"
           align="center"
         />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {PLACEHOLDER_STATS.map((stat, i) => (
+          {(cs?.stats ?? PLACEHOLDER_STATS).map((stat, i) => (
             <div
               key={i}
               className="rounded-2xl bg-white border border-black/[0.05] shadow-cardLight p-6 text-center space-y-2"
             >
-              {/* TODO: replace "—" with real number */}
               <p className="font-display text-display text-seed-600">{stat.value}</p>
               <p className="text-body-sm text-dark-base/50">{stat.label}</p>
             </div>
@@ -267,14 +276,13 @@ export default function ProjectPage({ params }: Props) {
           align="left"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {PLACEHOLDER_DELIVERABLES.map((d, i) => {
+          {(cs?.deliverables ?? PLACEHOLDER_DELIVERABLES).map((d, i) => {
             const Icon = d.icon;
             return (
               <ElevatedCard key={i} className="space-y-4">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isWeb ? "bg-brand-blue/10" : "bg-seed-600/10"}`}>
                   <Icon className={`w-5 h-5 ${isWeb ? "text-brand-blue" : "text-seed-500"}`} />
                 </div>
-                {/* TODO: replace placeholder title + body */}
                 <h3 className="font-display text-card-title text-white">{d.title}</h3>
                 <p className="text-body-sm text-light-base/50 leading-relaxed">{d.body}</p>
               </ElevatedCard>
@@ -293,7 +301,7 @@ export default function ProjectPage({ params }: Props) {
           align="center"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PLACEHOLDER_PROCESS.map((step) => (
+          {(cs?.process ?? PLACEHOLDER_PROCESS).map((step) => (
             <ProcessStep
               key={step.step}
               step={step.step}
@@ -320,7 +328,7 @@ export default function ProjectPage({ params }: Props) {
             />
           </div>
 
-          {/* Testimonial placeholder */}
+          {/* Testimonial */}
           <div className="relative">
             <GradientOrb color={isWeb ? "blue" : "seed"} size="md" className="-top-10 -right-10 opacity-10" />
             <div className="relative z-10 rounded-2xl bg-dark-elevated border border-white/[0.06] p-8 space-y-6">
@@ -328,9 +336,8 @@ export default function ProjectPage({ params }: Props) {
                 <MessageSquareQuote className="w-5 h-5 text-seed-400" />
                 <p className="text-eyebrow uppercase tracking-widest text-seed-400 text-xs">Client Testimonial</p>
               </div>
-              {/* TODO: replace with real quote */}
               <blockquote className="font-display text-card-title text-white leading-snug">
-                &ldquo;This is a placeholder testimonial. Replace with a real quote from {project.client} once available.&rdquo;
+                &ldquo;{cs?.testimonial?.quote ?? `This is a placeholder testimonial. Replace with a real quote from ${project.client} once available.`}&rdquo;
               </blockquote>
               <div className="flex items-center gap-3 pt-2 border-t border-white/[0.05]">
                 {/* Avatar placeholder */}
@@ -340,9 +347,8 @@ export default function ProjectPage({ params }: Props) {
                   </span>
                 </div>
                 <div>
-                  {/* TODO: replace with real name + role */}
-                  <p className="text-white font-medium text-body-sm">Contact Name</p>
-                  <p className="text-light-base/40 text-xs">Role · {project.client}</p>
+                  <p className="text-white font-medium text-body-sm">{cs?.testimonial?.name ?? "Contact Name"}</p>
+                  <p className="text-light-base/40 text-xs">{cs?.testimonial?.role ?? "Role"} · {project.client}</p>
                 </div>
               </div>
             </div>

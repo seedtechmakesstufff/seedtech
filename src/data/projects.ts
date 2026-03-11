@@ -8,6 +8,7 @@ export interface Project {
   tagline: string;
   description: string;
   url?: string;
+  image?: string;
   techStack: string[];
   tags: string[];
   highlights: string[];
@@ -19,12 +20,13 @@ export const projects: Project[] = [
   {
     slug: "paddlers-cove",
     department: "web-development",
-    client: "Paddlers Cove",
+    client: "PaddlersCove",
     title: "BigCommerce Storefront & Custom Inventory Platform",
     tagline: "A fully custom ecommerce experience with a proprietary inventory management system syncing BigCommerce and Square in real time.",
     description:
-      "Paddlers Cove is a specialty kayak retailer that needed far more than an off-the-shelf storefront. We built a heavily customized BigCommerce storefront on Stencil with a unique UX tailored to high-consideration outdoor equipment. Beyond the store, we engineered a custom product and inventory management platform built on Next.js that integrates both Square POS and BigCommerce via API — giving the team a single source of truth for stock levels, pricing, and orders across all channels.",
+      "PaddlersCove is a specialty kayak retailer that needed far more than an off-the-shelf storefront. We built a heavily customized BigCommerce storefront on Stencil with a unique UX tailored to high-consideration outdoor equipment. Beyond the store, we engineered a custom product and inventory management platform built on Next.js that integrates both Square POS and BigCommerce via API — giving the team a single source of truth for stock levels, pricing, and orders across all channels.",
     url: "https://paddlerscove.com",
+    image: "/img/use_case_card_paddlerscove_1x.webp",
     techStack: ["BigCommerce", "Stencil", "Next.js", "Square API", "Vercel", "REST APIs"],
     tags: ["Ecommerce", "Custom Platform", "API Integration", "Inventory Management"],
     highlights: [
@@ -45,6 +47,7 @@ export const projects: Project[] = [
     description:
       "Short Run Custom Boxes required a sophisticated ecommerce presence that could handle highly configurable custom packaging orders. We designed and built a modern, conversion-focused site allowing customers to specify dimensions, materials, quantities, and print options — all feeding into a streamlined quote and order workflow.",
     url: "https://www.shortruncustomboxes.com",
+    image: "/img/use_case_card_shortruncustomboxes_1x.webp",
     techStack: ["WordPress", "WooCommerce", "Custom Plugins", "PHP", "JavaScript"],
     tags: ["Ecommerce", "Custom Configuration", "WordPress", "Manufacturing"],
     highlights: [
