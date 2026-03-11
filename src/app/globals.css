@@ -87,4 +87,13 @@
   .solid-divider {
     @apply h-px w-full bg-white/[0.08];
   }
+
+  /* Hide scrollbar but keep scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
