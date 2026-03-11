@@ -2,8 +2,8 @@
 
 > **Primary Focus:** IT Support (MSP) Department
 > **Business:** SeedTech — Managed IT, Web Development, Digital Marketing
-> **Location:** Austin, TX
-> **Domain:** seedtech.dev
+> **Location:** Hopatcong, NJ
+> **Domain:** seedtechllc.com
 > **Last Updated:** March 11, 2026
 
 ---
@@ -28,20 +28,20 @@
 
 ## 1. Executive Summary
 
-SeedTech is an Austin-based MSP and web agency. **IT Support (Managed IT / MSP) is the primary revenue driver and the focus of this SEO strategy.** Web Development and Marketing are secondary service lines that strengthen authority and cross-sell opportunities.
+SeedTech is an New jersey-based MSP and web agency. **IT Support (Managed IT / MSP) is the primary revenue driver and the focus of this SEO strategy.** Web Development and Marketing are secondary service lines that strengthen authority and cross-sell opportunities.
 
 ### Strategic Thesis
 
-The Austin MSP market is competitive but highly local. Decision-makers searching for IT support are typically:
+The Northern New Jersey MSP market is competitive but highly local. Decision-makers searching for IT support are typically:
 - Small-to-midsize business owners (5–150 employees)
 - Office managers or operations leads doing vendor research
 - CTOs/IT directors at growing companies outgrowing break-fix
 
-**Our edge:** Per-user pricing transparency, no contracts, a real interactive pricing calculator, and the credibility of a web-forward technical brand. The SEO strategy leans into **transactional local intent** (people ready to buy IT support in Austin) while building **topical authority** through educational content.
+**Our edge:** Per-user pricing transparency, no contracts, a real interactive pricing calculator, and the credibility of a web-forward technical brand. The SEO strategy leans into **transactional local intent** (people ready to buy IT support in Northern New Jersey) while building **topical authority** through educational content.
 
 ### Primary Objective
 
-Rank on page 1 for **"managed IT services Austin"**, **"IT support Austin TX"**, and the surrounding long-tail cluster within 6–12 months.
+Rank on page 1 for **"managed IT services NJ"**, **"IT support Northern NJ"**, and the surrounding long-tail cluster within 6–12 months.
 
 ---
 
@@ -84,11 +84,11 @@ These are the money keywords. People searching these are ready to buy or shortli
 
 | Keyword | Est. Monthly Volume | Difficulty | Intent | Target Page |
 |---------|---------------------|------------|--------|-------------|
-| managed IT services Austin | 300–500 | Medium-High | Transactional | `/services/managed-it` |
-| IT support Austin TX | 400–600 | Medium | Transactional | `/services/managed-it` |
-| IT support company Austin | 200–350 | Medium | Transactional | `/services/managed-it` |
-| managed service provider Austin | 150–250 | Medium | Transactional | `/services/managed-it` |
-| Austin IT services | 200–400 | Medium | Transactional | `/services/managed-it` |
+| managed IT services NJ | 300–500 | Medium-High | Transactional | `/services/managed-it` |
+| IT support Northern NJ | 400–600 | Medium | Transactional | `/services/managed-it` |
+| IT support company NJ | 200–350 | Medium | Transactional | `/services/managed-it` |
+| managed service provider NJ | 150–250 | Medium | Transactional | `/services/managed-it` |
+| NJ IT services | 200–400 | Medium | Transactional | `/services/managed-it` |
 | IT support pricing | 300–500 | Medium | Commercial | `/pricing/it-support` |
 | managed IT pricing per user | 150–250 | Low-Medium | Commercial | `/pricing/it-support` |
 
@@ -97,10 +97,10 @@ People comparing, evaluating, almost ready.
 
 | Keyword | Est. Volume | Difficulty | Intent | Target Page |
 |---------|-------------|------------|--------|-------------|
-| best managed IT services Austin | 100–200 | Medium | Commercial | `/services/managed-it` |
-| small business IT support Austin | 150–300 | Low-Medium | Commercial | `/services/managed-it` |
-| outsourced IT support Austin | 100–200 | Low-Medium | Commercial | `/services/managed-it` |
-| IT help desk Austin | 100–150 | Low | Commercial | `/services/managed-it` |
+| best managed IT services NJ | 100–200 | Medium | Commercial | `/services/managed-it` |
+| small business IT support NJ | 150–300 | Low-Medium | Commercial | `/services/managed-it` |
+| outsourced IT support NJ | 100–200 | Low-Medium | Commercial | `/services/managed-it` |
+| IT help desk NJ | 100–150 | Low | Commercial | `/services/managed-it` |
 | remote IT support Texas | 100–200 | Low | Commercial | `/services/managed-it` |
 | IT support no contract | 50–100 | Low | Commercial | `/pricing/it-support` |
 | per user IT pricing | 50–150 | Low | Commercial | `/pricing/it-support` |
@@ -117,7 +117,7 @@ Educational queries that build authority and capture leads earlier.
 | IT support for small business cost | 200–350 | Low | Informational | Blog → `/pricing/it-support` |
 | how to choose an MSP | 150–300 | Low | Informational | Blog |
 | managed IT vs in-house IT | 200–400 | Low-Medium | Informational | Blog |
-| cybersecurity for small business Austin | 100–200 | Low | Informational | Blog |
+| cybersecurity for small business NJ | 100–200 | Low | Informational | Blog |
 | what is endpoint monitoring | 50–100 | Low | Informational | Blog |
 | IT onboarding checklist | 100–200 | Low | Informational | Blog (lead magnet) |
 | Microsoft 365 setup for business | 200–400 | Low | Informational | Blog |
@@ -125,13 +125,13 @@ Educational queries that build authority and capture leads earlier.
 ### Keyword Mapping Summary
 
 ```
-/                               → "SeedTech" (brand), "IT support web development Austin"
-/services/managed-it            → "managed IT services Austin" (PILLAR PAGE)
+/                               → "SeedTech" (brand), "IT support web development NJ"
+/services/managed-it            → "managed IT services NJ" (PILLAR PAGE)
 /pricing/it-support             → "IT support pricing", "managed IT cost per user"
-/services/web-development       → "web development Austin" (secondary)
+/services/web-development       → "web development NJ" (secondary)
 /pricing/web-development        → "web development pricing" (secondary)
-/about                          → "SeedTech Austin", "IT company Austin"
-/contact                        → "IT support quote Austin", "contact managed IT Austin"
+/about                          → "SeedTech NJ", "IT company NJ"
+/contact                        → "IT support quote NJ", "contact managed IT NJ"
 /our-work                       → "IT support case studies", "MSP portfolio"
 /blog/*                         → Long-tail informational cluster (to be created)
 ```
@@ -187,28 +187,28 @@ Educational queries that build authority and capture leads earlier.
 
 ### 🔴 CRITICAL — `/services/managed-it` (MSP Pillar Page)
 
-This is the single most important page for SEO. It's currently a stub with ~20 words. It needs to be a **comprehensive, 2,000+ word pillar page** targeting "managed IT services Austin."
+This is the single most important page for SEO. It's currently a stub with ~20 words. It needs to be a **comprehensive, 2,000+ word pillar page** targeting "managed IT services NJ."
 
 **Target Keywords:**
-- Primary: "managed IT services Austin"
-- Secondary: "IT support Austin TX", "managed service provider Austin"
-- Supporting: "small business IT support", "outsourced IT Austin", "proactive IT management"
+- Primary: "managed IT services NJ"
+- Secondary: "IT support Northern NJ", "managed service provider NJ"
+- Supporting: "small business IT support", "outsourced IT NJ", "proactive IT management"
 
 **Proposed Title Tag:**
 ```
-Managed IT Services Austin | Proactive IT Support — SeedTech
+Managed IT Services NJ | Proactive IT Support — SeedTech
 ```
 (57 characters)
 
 **Proposed Meta Description:**
 ```
-Proactive managed IT services in Austin, TX. Unlimited help desk, endpoint monitoring, cybersecurity & cloud backup. Per-user pricing, no contracts. Get a free quote.
+Proactive managed IT services in Northern New Jersey. Unlimited help desk, endpoint monitoring, cybersecurity & cloud backup. Per-user pricing, no contracts. Get a free quote.
 ```
-(163 characters)
+(173 characters)
 
 **Proposed Page Sections:**
 1. **Hero** — Bold statement, primary keyword in H1, CTA to quote flow
-2. **Trust Strip** — Client logos / "Trusted by X Austin businesses"
+2. **Trust Strip** — Client logos / "Trusted by NJ businesses"
 3. **What's Included** — Grid of service features (help desk, monitoring, patching, backup, security, vCIO)
 4. **How It Works** — 3-step process (Onboard → Monitor → Support)
 5. **Plans Overview** — Summary of 3 tiers linking to `/pricing/it-support`
@@ -218,7 +218,7 @@ Proactive managed IT services in Austin, TX. Unlimited help desk, endpoint monit
 9. **CTA** — "Get Your Free IT Assessment" → quote flow modal
 
 **Content Requirements:**
-- H1 must contain "Managed IT Services" and "Austin"
+- H1 must contain "Managed IT Services" and a New Jersey location signal
 - First paragraph must contain primary keyword naturally
 - Include at least 8 internal links (to pricing, blog posts, case studies, contact)
 - FAQ answers should be 40-60 words each (featured snippet length)
@@ -259,43 +259,43 @@ Transparent IT support pricing starting at $110/user/month. 3 tiers, no contract
 
 **Target Keywords:**
 - Primary: "SeedTech" (brand)
-- Secondary: "IT support and web development Austin"
+- Secondary: "IT support and web development NJ"
 
 **Proposed Title Tag:**
 ```
-SeedTech | Managed IT Services & Web Development in Austin, TX
+SeedTech | Managed IT Services & Web Development in Northern NJ
 ```
-(62 characters — slightly over but acceptable)
+(63 characters — acceptable)
 
 **Proposed Meta Description:**
 ```
-Austin's all-in-one tech partner. Proactive managed IT support, custom web development, and digital marketing. Per-user pricing, no contracts. Get a free quote.
+Northern New Jersey's all-in-one tech partner. Proactive managed IT support, custom web development, and digital marketing. Per-user pricing, no contracts. Get a free quote.
 ```
-(160 characters)
+(171 characters)
 
 **On-Page Optimization Needed:**
 - Add explicit metadata export to `page.tsx` (currently only in layout)
 - Ensure homepage H1 is descriptive (currently "Technology That Grows Your Business" — good for brand but weak for keywords)
 - Add more content sections — the page is mostly placeholders
-- Include an "Austin" mention naturally in above-the-fold content
+- Include a "Northern New Jersey" or "NJ" mention naturally in above-the-fold content
 
 ---
 
 ### 🟡 IMPORTANT — `/about`
 
-**Target Keywords:** "SeedTech Austin", "Austin IT company", "about SeedTech"
+**Target Keywords:** "SeedTech NJ", "NJ IT company", "about SeedTech"
 
 **Proposed Title Tag:**
 ```
-About SeedTech | Austin IT Support & Web Development Team
+About SeedTech | NJ IT Support & Web Development Team
 ```
-(57 characters)
+(53 characters)
 
 **Proposed Meta Description:**
 ```
-Meet the team behind SeedTech — Austin-based IT support and web development experts. We help small and mid-size businesses thrive with proactive technology.
+Meet the team behind SeedTech — Northern New Jersey-based IT support and web development experts. We help small and mid-size businesses thrive with proactive technology.
 ```
-(156 characters)
+(167 characters)
 
 **Status:** Stub — needs full buildout with team info, mission, E-E-A-T signals.
 
@@ -303,31 +303,31 @@ Meet the team behind SeedTech — Austin-based IT support and web development ex
 
 ### 🟡 IMPORTANT — `/contact`
 
-**Target Keywords:** "contact IT support Austin", "IT support quote"
+**Target Keywords:** "contact IT support NJ", "IT support quote NJ"
 
 **Proposed Title Tag:**
 ```
-Contact SeedTech | Get a Free IT Support Quote — Austin, TX
+Contact SeedTech | Get a Free IT Support Quote — Northern NJ
 ```
-(59 characters)
+(60 characters)
 
 **Proposed Meta Description:**
 ```
-Get in touch with SeedTech for managed IT support, web development, or marketing. Austin-based team, fast response. Call, email, or request a free quote.
+Get in touch with SeedTech for managed IT support, web development, or marketing. Northern New Jersey-based team, fast response. Call, email, or request a free quote.
 ```
-(153 characters)
+(165 characters)
 
 ---
 
 ### 🟢 SECONDARY — `/services/web-development`
 
-Already well-built. Needs metadata optimization for "web development Austin."
+Already well-built. Needs metadata optimization for "web development NJ."
 
 **Proposed Title Tag:**
 ```
-Custom Web Development Austin | Websites That Convert — SeedTech
+Custom Web Development NJ | Websites That Convert — SeedTech
 ```
-(64 characters — trim if needed)
+(61 characters)
 
 **Current Meta:** Has a metadata export — audit and refine keywords.
 
@@ -343,7 +343,7 @@ Our Work | Web Development & IT Case Studies — SeedTech
 
 **Proposed Meta Description:**
 ```
-See real results from SeedTech projects — custom ecommerce builds, inventory platforms, and managed IT solutions for Austin businesses.
+See real results from SeedTech projects — custom ecommerce builds, inventory platforms, and managed IT solutions for NJ businesses.
 ```
 (134 characters)
 
@@ -366,7 +366,7 @@ The **pillar page** is `/services/managed-it`. Every blog post in the IT cluster
                     │   /services/managed-it    │
                     │    (PILLAR PAGE)          │
                     │  "Managed IT Services     │
-                    │        Austin"            │
+                    │          NJ"              │
                     └────────────┬─────────────┘
                                  │
           ┌──────────────────────┼──────────────────────┐
@@ -385,7 +385,7 @@ The **pillar page** is `/services/managed-it`. Every blog post in the IT cluster
    ├─ IT support for        ├─ Managed IT vs        ├─ Phishing prevention
    │  small business cost   │  in-house IT           │  for employees
    └─ Per-user pricing      └─ Top MSP questions    └─ Data backup strategy
-      explained                for Austin biz          for SMBs
+      explained                for NJ biz              for SMBs
 ```
 
 ### Blog Content Calendar — First 12 Posts
@@ -401,7 +401,7 @@ Priority order. Each post targets a Tier 3 keyword and links to the pillar page.
 | 5 | Managed IT vs. In-House IT: A Cost Comparison | managed IT vs in-house IT | 1,800 | Mid |
 | 6 | IT Support for Small Business: What to Expect & What It Costs | IT support for small business cost | 1,800 | Top → Mid |
 | 7 | What Does a Managed Service Provider Actually Do? | what does a managed service provider do | 1,500 | Top |
-| 8 | Cybersecurity Basics for Small Businesses in Austin | cybersecurity for small business Austin | 1,500 | Top |
+| 8 | Cybersecurity Basics for Small Businesses in New Jersey | cybersecurity for small business NJ | 1,500 | Top |
 | 9 | What Is Endpoint Monitoring (And Why Does Your Business Need It)? | what is endpoint monitoring | 1,200 | Top |
 | 10 | The IT Onboarding Checklist Every Growing Team Needs | IT onboarding checklist | 1,500 | Top (lead magnet) |
 | 11 | Microsoft 365 Setup for Business: A Step-by-Step Guide | Microsoft 365 setup for business | 1,800 | Top |
@@ -456,7 +456,7 @@ See Section 11.
 
 ## 8. Local SEO Strategy
 
-SeedTech is Austin-based. **Local SEO is critical for MSP keywords** because "IT support" queries have strong local intent (Google surfaces map packs).
+SeedTech is based in Hopatcong, NJ. **Local SEO is critical for MSP keywords** because "IT support" queries have strong local intent (Google surfaces map packs).
 
 ### Google Business Profile (GBP)
 
@@ -477,9 +477,9 @@ Ensure the exact same format appears everywhere:
 
 ```
 SeedTech
-Austin, TX
+Hopatcong, NJ
 hello@seedtech.dev
-(XXX) XXX-XXXX
+(201) 614-7333
 ```
 
 **Directories to list on:**
@@ -496,10 +496,10 @@ hello@seedtech.dev
 
 ### Local Content Signals
 
-- Mention "Austin, TX" naturally on key pages (homepage, managed-it, about, contact)
-- Consider a "/locations/austin" page if expanding to other markets later
+- Mention "Hopatcong, NJ" and "Northern New Jersey" naturally on key pages (homepage, managed-it, about, contact)
+- Consider a "/locations/northern-nj" page if expanding to other markets later
 - Reference local businesses in case studies
-- Blog about Austin-specific IT topics ("Austin small business cybersecurity")
+- Blog about NJ-specific IT topics ("New Jersey small business cybersecurity")
 
 ### Review Strategy
 
@@ -519,19 +519,19 @@ hello@seedtech.dev
   "@context": "https://schema.org",
   "@type": ["Organization", "LocalBusiness"],
   "name": "SeedTech",
-  "url": "https://seedtech.dev",
-  "logo": "https://seedtech.dev/img/logo.png",
-  "description": "Austin-based managed IT services, web development, and digital marketing.",
+  "url": "https://seedtechllc.com",
+  "logo": "https://seedtechllc.com/img/logo.png",
+  "description": "Northern New Jersey-based managed IT services, web development, and digital marketing.",
   "email": "hello@seedtech.dev",
   "address": {
     "@type": "PostalAddress",
-    "addressLocality": "Austin",
-    "addressRegion": "TX",
+    "addressLocality": "Hopatcong",
+    "addressRegion": "NJ",
     "addressCountry": "US"
   },
   "areaServed": {
-    "@type": "City",
-    "name": "Austin"
+    "@type": "State",
+    "name": "New Jersey"
   },
   "sameAs": [
     "https://www.linkedin.com/company/seedtechmedia",
@@ -550,7 +550,7 @@ hello@seedtech.dev
   "name": "Managed IT Services",
   "provider": { "@type": "Organization", "name": "SeedTech" },
   "serviceType": "Managed IT Support",
-  "areaServed": { "@type": "City", "name": "Austin" },
+  "areaServed": { "@type": "State", "name": "New Jersey" },
   "description": "Proactive managed IT services including unlimited help desk, endpoint monitoring, cybersecurity, and cloud backup.",
   "offers": {
     "@type": "AggregateOffer",
@@ -607,9 +607,9 @@ Each blog post should get Article schema and breadcrumbs.
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://seedtech.dev" },
-    { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://seedtech.dev/services" },
-    { "@type": "ListItem", "position": 3, "name": "Managed IT", "item": "https://seedtech.dev/services/managed-it" }
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://seedtechllc.com" },
+    { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://seedtechllc.com/services" },
+    { "@type": "ListItem", "position": 3, "name": "Managed IT", "item": "https://seedtechllc.com/services/managed-it" }
   ]
 }
 ```
@@ -708,8 +708,8 @@ Homepage
 |--------|-------------------|-----------------|-----------------|-----------------|
 | Organic traffic (sessions/mo) | ~0 (new site) | 200 | 800 | 2,500+ |
 | Indexed pages | ~10 | 20 | 35+ | 50+ |
-| Avg. keyword position — "managed IT services Austin" | Not ranking | Top 30 | Top 15 | Top 5 |
-| Avg. keyword position — "IT support Austin" | Not ranking | Top 30 | Top 10 | Top 5 |
+| Avg. keyword position — "managed IT services NJ" | Not ranking | Top 30 | Top 15 | Top 5 |
+| Avg. keyword position — "IT support NJ" | Not ranking | Top 30 | Top 10 | Top 5 |
 | Google Business Profile views/mo | 0 | 200 | 500 | 1,000+ |
 | Organic leads (quote requests) | 0 | 2 | 8 | 20+ |
 | Blog posts published | 0 | 4 | 12 | 24+ |
@@ -772,8 +772,8 @@ Set up GA4 events for:
 - [ ] Build out `/about` page fully (E-E-A-T signals, team bios)
 - [ ] Build out remaining service stubs (`/services`, `/services/marketing`)
 - [ ] Create lead magnet (IT Onboarding Checklist PDF → `/resources`)
-- [ ] Begin local link-building (Austin business directories, chamber of commerce)
-- [ ] Guest post or get quoted in Austin Business Journal, local tech publications
+- [ ] Begin local link-building (NJ business directories, chamber of commerce)
+- [ ] Guest post or get quoted in NJ Business Journal, local tech publications
 - [ ] List on MSP directories (Clutch, UpCity, ChannelE2E)
 - [ ] Actively collect Google reviews (target 15+)
 
@@ -790,19 +790,19 @@ Set up GA4 events for:
 
 ---
 
-## Appendix: Competitor Landscape (Austin MSP Market)
+## Appendix: Competitor Landscape (Northern NJ / NYC Metro MSP Market)
 
 Research these competitors to understand what's ranking and identify content gaps:
 
 | Competitor | Domain | Notes |
 |------------|--------|-------|
-| Gravity Systems | gravitysystems.io | Well-established Austin MSP, likely strong local SEO |
-| Managed Solution | managedsolution.com | Regional MSP with content marketing |
-| Eureka Process | eurekaprocess.com | Austin IT consulting |
-| IT Support Austin (generic) | Various | Check who's ranking for the primary keyword |
+| Ntiva | ntiva.com | Regional MSP with strong content marketing, covers NJ/NY |
+| Kraft Technology Group | krafttg.com | NJ-based MSP |
+| Dataprise | dataprise.com | Mid-Atlantic/NJ regional MSP |
+| Kite Technology | kitetech.com | NJ-area IT services firm |
 
 **Competitor Audit Tasks:**
-- [ ] Search "managed IT services Austin" — note top 5 organic results
+- [ ] Search "managed IT services NJ" — note top 5 organic results
 - [ ] Analyze their title tags, meta descriptions, content depth
 - [ ] Identify content topics they cover that SeedTech doesn't
 - [ ] Note their schema markup usage

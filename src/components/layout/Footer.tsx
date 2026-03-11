@@ -131,7 +131,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3 text-sm text-white/50">
                 <MapPin className="w-4 h-4 text-seed-500 shrink-0" />
-                Austin, TX
+                Hopatcong, NJ
               </li>
             </ul>
           </div>

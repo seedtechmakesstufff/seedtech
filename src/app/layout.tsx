@@ -20,7 +20,7 @@ const leagueGothic = League_Gothic({
 export const metadata: Metadata = {
   title: "SeedTech | Premium IT Support, Web Development & Marketing",
   description:
-    "Premium IT support, web development, and marketing solutions that help businesses grow. Based in Austin, TX.",
+    "Premium IT support, web development, and marketing solutions that help businesses grow. Based in Northern New Jersey.",
 };
 
 export default function RootLayout({
