@@ -26,7 +26,10 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-dark-overlay to-dark-elevated overflow-hidden">
         {/* TODO: replace with <Image src={project.image} fill alt={project.title} className="object-cover" /> */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-white/10 text-xs">Image placeholder</p>
+          <div className="text-center space-y-1">
+            <p className="text-white/30 text-sm font-medium">1200 × 675 px</p>
+            <p className="text-white/15 text-xs">16:9 · card thumbnail</p>
+          </div>
         </div>
         {/* Department colour tint overlay */}
         <div className={cn(

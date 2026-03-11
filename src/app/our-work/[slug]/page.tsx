@@ -154,7 +154,8 @@ export default function ProjectPage({ params }: Props) {
                     <div className="w-12 h-12 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto">
                       <ExternalLink className="w-5 h-5 text-white/20" />
                     </div>
-                    <p className="text-body-sm text-white/20">Screenshot placeholder — replace with next/image</p>
+                    <p className="text-white/30 text-sm font-medium">1600 × 900 px</p>
+                    <p className="text-white/20 text-xs">16:9 · case study screenshot</p>
                     {project.url && (
                       <a
                         href={project.url}
@@ -223,9 +224,10 @@ export default function ProjectPage({ params }: Props) {
             {/* Second screenshot placeholder */}
             <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
               <div className="aspect-square w-full flex items-center justify-center bg-gradient-to-b from-dark-elevated to-dark-overlay">
-                <p className="text-white/15 text-xs text-center px-4">
-                  Additional screenshot<br />placeholder
-                </p>
+                <div className="text-center space-y-1">
+                  <p className="text-white/30 text-sm font-medium">700 × 700 px</p>
+                  <p className="text-white/15 text-xs">1:1 · sidebar image</p>
+                </div>
               </div>
             </div>
           </aside>
