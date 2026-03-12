@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Settings,
   Key,
@@ -67,6 +67,22 @@ export default function SettingsPage() {
   });
   const [testingGsc, setTestingGsc] = useState(false);
 
+  /* ── Env Vars Status (fetched from server) ── */
+  const [envVars, setEnvVars] = useState<Record<string, boolean>>({});
+  const [envLoaded, setEnvLoaded] = useState(false);
+  useEffect(() => {
+    fetch("/api/admin/settings/env-status")
+      .then((r) => r.json())
+      .then((d) => {
+        setEnvVars(d);
+        setEnvLoaded(true);
+        if (!d.GOOGLE_SERVICE_ACCOUNT_EMAIL || !d.GOOGLE_SERVICE_ACCOUNT_KEY) {
+          setGscStatus({ status: "disconnected", message: "Google Search Console is not configured. Add service account credentials to .env.local" });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   /* ── Test OpenAI key ── */
   const testOpenAI = useCallback(async () => {
     setTestingKey(true);
@@ -102,6 +118,13 @@ export default function SettingsPage() {
     }
     setTestingGsc(false);
   }, []);
+
+  // Auto-test GSC once env vars are confirmed present
+  useEffect(() => {
+    if (envLoaded && envVars.GOOGLE_SERVICE_ACCOUNT_EMAIL && envVars.GOOGLE_SERVICE_ACCOUNT_KEY && envVars.GOOGLE_SEARCH_CONSOLE_SITE) {
+      testGSC();
+    }
+  }, [envLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const statusCfg = STATUS_CONFIG[openaiStatus.status];
   const StatusIcon = statusCfg.icon;
@@ -339,16 +362,16 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://seedtechllc.com`}</pre>
               <p className="text-sm font-medium text-white">Environment Variables Status</p>
             </div>
             <div className="space-y-1.5">
-              <EnvRow name="NEXTAUTH_URL" present />
-              <EnvRow name="NEXTAUTH_SECRET" present />
-              <EnvRow name="OPENAI_API_KEY" present />
-              <EnvRow name="ADMIN_EMAILS" present />
-              <EnvRow name="ADMIN_PASSWORD" present />
-              <EnvRow name="GOOGLE_SERVICE_ACCOUNT_EMAIL" present={false} />
-              <EnvRow name="GOOGLE_SERVICE_ACCOUNT_KEY" present={false} />
-              <EnvRow name="GOOGLE_SEARCH_CONSOLE_SITE" present={false} />
-              <EnvRow name="PAGESPEED_API_KEY" present={false} optional />
-              <EnvRow name="INDEXNOW_API_KEY" present={false} optional />
+              <EnvRow name="NEXTAUTH_URL" present={envVars.NEXTAUTH_URL ?? true} />
+              <EnvRow name="NEXTAUTH_SECRET" present={envVars.NEXTAUTH_SECRET ?? true} />
+              <EnvRow name="OPENAI_API_KEY" present={envVars.OPENAI_API_KEY ?? true} />
+              <EnvRow name="ADMIN_EMAILS" present={envVars.ADMIN_EMAILS ?? true} />
+              <EnvRow name="ADMIN_PASSWORD" present={envVars.ADMIN_PASSWORD ?? true} />
+              <EnvRow name="GOOGLE_SERVICE_ACCOUNT_EMAIL" present={envVars.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? false} />
+              <EnvRow name="GOOGLE_SERVICE_ACCOUNT_KEY" present={envVars.GOOGLE_SERVICE_ACCOUNT_KEY ?? false} />
+              <EnvRow name="GOOGLE_SEARCH_CONSOLE_SITE" present={envVars.GOOGLE_SEARCH_CONSOLE_SITE ?? false} />
+              <EnvRow name="PAGESPEED_API_KEY" present={envVars.PAGESPEED_API_KEY ?? false} optional />
+              <EnvRow name="INDEXNOW_API_KEY" present={envVars.INDEXNOW_API_KEY ?? false} optional />
             </div>
           </div>
 
