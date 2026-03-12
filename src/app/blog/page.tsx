@@ -39,7 +39,7 @@ export default async function BlogIndexPage() {
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="group bg-dark-elevated border border-white/[0.06] rounded-xl p-6 hover:border-seed-500/20 transition-colors flex flex-col sm:flex-row sm:items-start gap-4"
+                className="relative group bg-dark-elevated border border-white/[0.06] rounded-xl p-6 hover:border-seed-500/20 transition-colors flex flex-col sm:flex-row sm:items-start gap-4"
               >
                 <div className="flex-1 min-w-0">
                   {/* Category */}
@@ -67,7 +67,7 @@ export default async function BlogIndexPage() {
                   </div>
                 </div>
 
-                <span className="text-white/20 group-hover:text-seed-400 transition-colors text-lg shrink-0 self-center">→</span>
+                <span className="hidden sm:block absolute bottom-4 right-5 text-seed-400 text-lg opacity-0 group-hover:opacity-100 transition-opacity">→</span>
               </Link>
             ))}
           </div>
