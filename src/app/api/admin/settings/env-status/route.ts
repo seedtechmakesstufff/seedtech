@@ -17,5 +17,6 @@ export async function GET() {
     GOOGLE_SEARCH_CONSOLE_SITE: !!process.env.GOOGLE_SEARCH_CONSOLE_SITE,
     PAGESPEED_API_KEY: !!process.env.PAGESPEED_API_KEY,
     INDEXNOW_API_KEY: !!process.env.INDEXNOW_API_KEY,
+    NEXT_PUBLIC_GA_MEASUREMENT_ID: !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
   });
 }

@@ -19,6 +19,7 @@ import {
   Gauge,
   Send,
   ExternalLink,
+  BarChart2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -310,7 +311,48 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://seedtechllc.com`}</pre>
 
           <hr className="border-white/[0.06]" />
 
-          {/* IndexNow */}
+          {/* Google Analytics */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                <BarChart2 className="w-4 h-4 text-orange-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-white">Google Analytics 4</h3>
+                <p className="text-xs text-white/35">Page views, sessions, traffic sources, and user behavior.</p>
+              </div>
+              {envVars.NEXT_PUBLIC_GA_MEASUREMENT_ID ? (
+                <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">Active</span>
+              ) : (
+                <span className="text-xs bg-white/[0.04] text-white/30 px-2 py-0.5 rounded-full border border-white/[0.06]">Not configured</span>
+              )}
+            </div>
+
+            <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06] text-xs text-white/30 space-y-2">
+              <p className="font-medium text-white/50">Setup Instructions:</p>
+              <ol className="list-decimal list-inside space-y-1.5 leading-relaxed">
+                <li>Go to <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="text-seed-400 hover:underline">analytics.google.com</a> and sign in with your Google account</li>
+                <li>Click <strong className="text-white/50">Admin</strong> (bottom-left gear icon) → <strong className="text-white/50">Create Account</strong> if you don&apos;t have one yet</li>
+                <li>Under your account, click <strong className="text-white/50">Create Property</strong> → name it &ldquo;SeedTech&rdquo; → select your timezone &amp; currency</li>
+                <li>Choose <strong className="text-white/50">Web</strong> as the platform → enter <code className="bg-white/[0.06] px-1 py-0.5 rounded">seedtechllc.com</code> as the URL</li>
+                <li>Copy your <strong className="text-white/50">Measurement ID</strong> — it looks like <code className="bg-white/[0.06] px-1 py-0.5 rounded">G-XXXXXXXXXX</code></li>
+                <li>Add it to <code className="bg-white/[0.06] px-1 py-0.5 rounded">.env.local</code> and to Vercel → Settings → Environment Variables:</li>
+              </ol>
+              <pre className="bg-white/[0.03] rounded px-3 py-2 mt-2 text-white/40 overflow-x-auto">{`NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX`}</pre>
+              <p className="text-white/25 mt-1">⚡ Restart the dev server after adding. On Vercel, redeploy after saving the variable.</p>
+            </div>
+
+            <a
+              href="https://analytics.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/60 transition-colors"
+            >
+              Open Google Analytics <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          <hr className="border-white/[0.06]" />
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
@@ -376,6 +418,7 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://seedtechllc.com`}</pre>
               <EnvRow name="GOOGLE_SEARCH_CONSOLE_SITE" present={envVars.GOOGLE_SEARCH_CONSOLE_SITE ?? false} />
               <EnvRow name="PAGESPEED_API_KEY" present={envVars.PAGESPEED_API_KEY ?? false} optional />
               <EnvRow name="INDEXNOW_API_KEY" present={envVars.INDEXNOW_API_KEY ?? false} optional />
+              <EnvRow name="NEXT_PUBLIC_GA_MEASUREMENT_ID" present={envVars.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? false} optional />
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, League_Gothic } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { headers } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
@@ -40,6 +41,23 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${leagueGothic.variable}`}>
       <body className="font-body">
+        {/* Google Analytics 4 — only loads when NEXT_PUBLIC_GA_MEASUREMENT_ID is set */}
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', { page_path: window.location.pathname });
+              `}
+            </Script>
+          </>
+        )}
         {isAdmin ? (
           children
         ) : (
