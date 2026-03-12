@@ -1,0 +1,302 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  Loader2,
+  Save,
+  Eye,
+  Trash2,
+  Calendar,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body: string;
+  author: string;
+  category: string;
+  tags: string[];
+  targetKeyword: string;
+  metaTitle: string;
+  metaDescription: string;
+  status: "draft" | "published" | "scheduled";
+  publishedAt: string | null;
+  scheduledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  wordCount: number;
+}
+
+export default function EditBlogPostPage() {
+  const router = useRouter();
+  const params = useParams();
+  const postId = params.id as string;
+
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  // Editable fields
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [body, setBody] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [category, setCategory] = useState("IT Support");
+  const [status, setStatus] = useState<"draft" | "published" | "scheduled">("draft");
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch(`/api/blog/${postId}`);
+        if (!res.ok) throw new Error("Post not found");
+        const data = await res.json();
+        setPost(data);
+        setTitle(data.title);
+        setSlug(data.slug);
+        setBody(data.body);
+        setExcerpt(data.excerpt);
+        setMetaTitle(data.metaTitle);
+        setMetaDescription(data.metaDescription);
+        setCategory(data.category);
+        setStatus(data.status);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [postId]);
+
+  async function handleSave() {
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/blog/${postId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          slug,
+          body,
+          excerpt,
+          metaTitle,
+          metaDescription,
+          category,
+          status,
+          publishedAt: status === "published" ? (post?.publishedAt || new Date().toISOString()) : null,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      router.push("/admin/blog");
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    try {
+      await fetch(`/api/blog/${postId}`, { method: "DELETE" });
+      router.push("/admin/blog");
+      router.refresh();
+    } catch {
+      setError("Failed to delete post");
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error && !post) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-400">{error}</p>
+      </div>
+    );
+  }
+
+  const wordCount = body.split(/\s+/).filter(Boolean).length;
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push("/admin/blog")}
+            className="p-2 text-white/40 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-2xl font-semibold text-white">Edit Post</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-2 text-red-400/60 hover:text-red-400 text-sm transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 disabled:opacity-50 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-sm text-red-400">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Editor */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-6 space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-white/40 mb-1">Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-seed-500/50 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-white/40 mb-1">
+                Body (Markdown) — {wordCount} words
+              </label>
+              <textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                rows={30}
+                className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-4 py-3 text-white text-sm font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-seed-500/50 transition-colors resize-y"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-4">
+          {/* Status */}
+          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-white">Status</h3>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as any)}
+              className="w-full rounded bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
+            >
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="scheduled">Scheduled</option>
+            </select>
+          </div>
+
+          {/* SEO */}
+          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-white">SEO</h3>
+
+            <div>
+              <label className="block text-xs text-white/40 mb-1">Slug</label>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-white/20 font-mono">/blog/</span>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  className="flex-1 rounded bg-dark-base border border-white/[0.08] px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:ring-1 focus:ring-seed-500/50"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/40 mb-1">
+                Meta Title ({metaTitle.length}/60)
+              </label>
+              <input
+                type="text"
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                className="w-full rounded bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/40 mb-1">
+                Meta Description ({metaDescription.length}/160)
+              </label>
+              <textarea
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                rows={3}
+                className="w-full rounded bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50 resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/40 mb-1">Excerpt</label>
+              <textarea
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                rows={2}
+                className="w-full rounded bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50 resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/40 mb-1">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
+              >
+                <option value="IT Support">IT Support</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="Business">Business</option>
+                <option value="Cloud">Cloud</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Preview Link */}
+          {status === "published" && (
+            <a
+              href={`/blog/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-dark-elevated border border-white/[0.06] rounded-xl p-4 text-sm text-white/50 hover:text-white hover:border-seed-500/20 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              View Published Post
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

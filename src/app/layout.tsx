@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, League_Gothic } from "next/font/google";
 import "./globals.css";
+import { headers } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { QuoteFlowProvider, QuoteFlowModal } from "@/components/quote-flow";
@@ -28,15 +29,24 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  /* Admin routes render their own chrome (sidebar, topbar). Skip Navbar/Footer. */
+  const headersList = headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+  const isAdmin = pathname.startsWith("/admin");
+
   return (
     <html lang="en" className={`${inter.variable} ${leagueGothic.variable}`}>
       <body className="font-body">
-        <QuoteFlowProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <QuoteFlowModal />
-        </QuoteFlowProvider>
+        {isAdmin ? (
+          children
+        ) : (
+          <QuoteFlowProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <QuoteFlowModal />
+          </QuoteFlowProvider>
+        )}
       </body>
     </html>
   );
