@@ -1,4 +1,4 @@
-import { getPublishedPosts, getPostBySlug } from "@/lib/blog";
+import { getPostBySlug } from "@/lib/blog";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import type { Metadata } from "next";

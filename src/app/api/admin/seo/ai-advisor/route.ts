@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   const {
     question,
     includeSearchConsole = true,
-    includePageSpeed = false,
+    includePageSpeed: _includePageSpeed = false,
     pageSpeedData,
   } = body;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
 import {
   Inbox,
@@ -57,11 +57,7 @@ export default function SubmissionsPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSubmissions();
-  }, [filterSource, filterStatus]);
-
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (filterSource !== "all") params.set("source", filterSource);
@@ -75,7 +71,11 @@ export default function SubmissionsPage() {
       setSubmissions([]);
     }
     setLoading(false);
-  };
+  }, [filterSource, filterStatus]);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
 
   const updateStatus = async (id: string, newStatus: string) => {
     await fetch("/api/admin/submissions", {

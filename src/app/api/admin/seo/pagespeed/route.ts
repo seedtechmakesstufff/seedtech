@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { analyzeUrl, auditSite, type PageSpeedResult } from "@/lib/pagespeed";
+import { analyzeUrl, auditSite } from "@/lib/pagespeed";
 
 /**
  * GET /api/admin/seo/pagespeed

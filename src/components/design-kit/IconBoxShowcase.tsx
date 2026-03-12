@@ -2,7 +2,7 @@ import { IconBox } from "@/components/kit";
 import { Shield, Globe, BarChart3, Cloud, Code, Zap } from "lucide-react";
 
 export function IconBoxShowcase() {
-  const variants = ["gradient", "soft-dark", "soft-light", "outline"] as const;
+  const _variants = ["gradient", "soft-dark", "soft-light", "outline"] as const;
   const sizes = ["sm", "md", "lg", "xl"] as const;
 
   return (

@@ -13,8 +13,8 @@ type AnimatedCounterProps = {
 const DURATION = 800; // Animation duration in ms
 
 export function AnimatedCounter({ value, className, prefix = "", decimals = 2 }: AnimatedCounterProps) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const prevValueRef = useRef(0);
+  const [displayValue, setDisplayValue] = useState(value);
+  const prevValueRef = useRef(value);
   const animationFrameId = useRef<number>();
 
   useEffect(() => {
@@ -50,11 +50,6 @@ export function AnimatedCounter({ value, className, prefix = "", decimals = 2 }:
     }
 
   }, [value]);
-
-  useEffect(() => {
-    setDisplayValue(value);
-    prevValueRef.current = value;
-  }, []);
 
   return (
     <span className={className}>

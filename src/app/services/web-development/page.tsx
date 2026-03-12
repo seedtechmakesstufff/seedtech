@@ -13,7 +13,7 @@ export const metadata = {
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const clients = [
+const _clients = [
   "PaddlersCove",
   "Drew & Rogers",
   "Bright Imaginations",

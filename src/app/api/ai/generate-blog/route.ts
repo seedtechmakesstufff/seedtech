@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { TRACKED_KEYWORDS, CONTENT_CALENDAR } from "@/data/seo-strategy";
+import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
 import { buildStrategyPrompt } from "@/lib/business-context";
 
 /**

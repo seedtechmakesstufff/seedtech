@@ -37,7 +37,7 @@ export default function OurWorkPage() {
             <span className="text-gradient-brand">Real Results</span>
           </h1>
           <p className="mt-6 text-body-lg text-light-base/60 max-w-2xl mx-auto">
-            From custom ecommerce platforms to managed IT infrastructure — here's what we've built and the outcomes we've delivered.
+            From custom ecommerce platforms to managed IT infrastructure — here&apos;s what we&apos;ve built and the outcomes we&apos;ve delivered.
           </p>
         </div>
       </section>
@@ -81,7 +81,7 @@ export default function OurWorkPage() {
       <Section>
         <CTABanner
           title="Want Results Like These?"
-          description="Let's talk about your project. We'll scope it out, give you an honest quote, and start building."
+          description="Let&apos;s talk about your project. We&apos;ll scope it out, give you an honest quote, and start building."
           primaryLabel="Start a Project"
           onPrimaryClick={() => openQuoteFlow()}
           secondaryLabel="View Our Services"

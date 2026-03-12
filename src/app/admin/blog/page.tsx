@@ -2,12 +2,9 @@ import { getAllPosts } from "@/lib/blog";
 import Link from "next/link";
 import {
   FileText,
-  Plus,
   Sparkles,
-  Calendar,
   Eye,
   Pencil,
-  MoreVertical,
 } from "lucide-react";
 import { format } from "date-fns";
 

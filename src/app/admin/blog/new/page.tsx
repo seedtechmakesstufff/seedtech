@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Sparkles,
   ArrowLeft,
-  ArrowRight,
   Check,
   Loader2,
   FileText,
@@ -17,9 +16,7 @@ import {
   Calendar,
   Save,
   Brain,
-  Search,
   CheckCircle2,
-  Zap,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -99,7 +96,7 @@ export default function NewBlogPostPage() {
   }
 
   /* ── AI API Call Helper ── */
-  async function callAI(payload: Record<string, any>) {
+  async function callAI(payload: Record<string, unknown>) {
     const res = await fetch("/api/ai/generate-blog", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -163,9 +160,9 @@ export default function NewBlogPostPage() {
       await sleep(600);
       setProgressOpen(false);
       setStep(2);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setProgressOpen(false);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : "Outline generation failed");
     } finally {
       setLoading(false);
     }
@@ -215,9 +212,9 @@ export default function NewBlogPostPage() {
       await sleep(600);
       setProgressOpen(false);
       setStep(3);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setProgressOpen(false);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : "Draft generation failed");
     } finally {
       setLoading(false);
     }
@@ -261,8 +258,8 @@ export default function NewBlogPostPage() {
 
       router.push("/admin/blog");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save post");
     } finally {
       setLoading(false);
     }
@@ -289,7 +286,7 @@ export default function NewBlogPostPage() {
 
       {/* Progress Bar */}
       <div className="flex items-center gap-2">
-        {STEPS.map((s, i) => (
+        {STEPS.map((s, _i) => (
           <div key={s.id} className="flex items-center gap-2 flex-1">
             <div
               className={cn(

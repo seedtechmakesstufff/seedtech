@@ -14,10 +14,8 @@ import { AnimatedCounter } from "@/components/animated-counter";
 import {
   Smartphone,
   BookCheck,
-  ChevronDown,
   ArrowRight,
   ArrowLeft,
-  Check,
   X as XIcon,
 } from "lucide-react";
 import {

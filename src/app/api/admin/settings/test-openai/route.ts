@@ -8,7 +8,7 @@ import { authOptions } from "@/lib/auth-options";
  * Tests the Claude API key by sending a minimal request.
  * Returns connection status, model, and latency.
  */
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

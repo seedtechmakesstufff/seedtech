@@ -19,7 +19,6 @@ import {
   Loader2,
   Zap,
   BarChart3,
-  ExternalLink,
   Send,
 } from "lucide-react";
 import { TRACKED_KEYWORDS, SEO_TASKS, CONTENT_CALENDAR } from "@/data/seo-strategy";

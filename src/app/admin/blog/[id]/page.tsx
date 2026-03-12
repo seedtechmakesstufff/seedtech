@@ -8,9 +8,7 @@ import {
   Save,
   Eye,
   Trash2,
-  Calendar,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface BlogPost {
   id: string;
@@ -67,8 +65,8 @@ export default function EditBlogPostPage() {
         setMetaDescription(data.metaDescription);
         setCategory(data.category);
         setStatus(data.status);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load post");
       } finally {
         setLoading(false);
       }
@@ -98,8 +96,8 @@ export default function EditBlogPostPage() {
       if (!res.ok) throw new Error("Failed to save");
       router.push("/admin/blog");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save");
     } finally {
       setSaving(false);
     }
@@ -207,7 +205,7 @@ export default function EditBlogPostPage() {
             <h3 className="text-sm font-semibold text-white">Status</h3>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as any)}
+              onChange={(e) => setStatus(e.target.value as "draft" | "published" | "scheduled")}
               className="w-full rounded bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
             >
               <option value="draft">Draft</option>

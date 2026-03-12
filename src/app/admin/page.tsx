@@ -1,10 +1,8 @@
 import {
   Globe,
-  Users,
   FileText,
   TrendingUp,
   Search,
-  MousePointerClick,
   Clock,
   ArrowUpRight,
 } from "lucide-react";

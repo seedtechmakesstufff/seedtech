@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, CTABanner, GradientText, GlassCard } from "@/components/kit";
@@ -239,7 +238,7 @@ export default function WebDevelopmentPricingPage() {
             Every project is different.
           </h2>
           <p className="text-body-lg text-light-base/60 mb-8 max-w-xl mx-auto">
-            We'll help determine the best solution for your business and budget. Schedule a consultation to discuss your project.
+            We&apos;ll help determine the best solution for your business and budget. Schedule a consultation to discuss your project.
           </p>
           <QuoteButton
             service="web-development"

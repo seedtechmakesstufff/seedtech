@@ -19,12 +19,9 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   Badge,
-  GlassCard,
   GradientOrb,
   GridPattern,
   GradientText,
-  ElevatedCard,
-  IconBox,
   CTABanner,
 } from "@/components/kit";
 import { QuotePriceCalculator } from "@/components/quote-generator";

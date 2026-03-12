@@ -1,12 +1,9 @@
 import {
   BarChart3,
   Globe,
-  MousePointerClick,
-  TrendingUp,
   Clock,
   Monitor,
   Smartphone,
-  Users,
   Eye,
   ArrowUpRight,
 } from "lucide-react";
