@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 const statusColors: Record<string, string> = {
   published: "bg-seed-500/20 text-seed-400",
   draft: "bg-yellow-500/20 text-yellow-400",
