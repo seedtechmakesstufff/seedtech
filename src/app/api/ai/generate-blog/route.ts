@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { TRACKED_KEYWORDS, CONTENT_CALENDAR } from "@/data/seo-strategy";
+import { buildStrategyPrompt } from "@/lib/business-context";
 
 /**
  * POST /api/ai/generate-blog
@@ -31,20 +32,13 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { step, topic, keyword, outline, tone = "professional", wordCount = 1500 } = body;
 
-  // Build context about SeedTech's SEO strategy
+  // Build context from editable business profile + SEO keywords
+  const businessContext = buildStrategyPrompt();
   const strategyContext = `
-SeedTech is a managed IT services and web development company based in Hopatcong, NJ (Northern New Jersey).
-Domain: seedtechllc.com
-Primary service: Managed IT support (per-user pricing, no contracts)
-Secondary: Web development, digital marketing
-Target audience: Small and mid-size businesses in Northern NJ / NYC metro area
+${businessContext}
 
 Current SEO keywords being targeted:
 ${TRACKED_KEYWORDS.slice(0, 10).map((k) => `- "${k.keyword}" (Tier ${k.tier}, ${k.intent})`).join("\n")}
-
-The blog should always link back to the managed IT pillar page (/services/managed-it) and pricing page (/pricing/it-support) where relevant.
-Include natural internal links. Write for humans first, search engines second.
-Location: Northern New Jersey. Never mention Austin.
 `;
 
   let systemPrompt = "";

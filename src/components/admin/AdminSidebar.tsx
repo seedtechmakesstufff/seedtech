@@ -7,6 +7,7 @@ import {
   BarChart3,
   Search,
   FileEdit,
+  Settings,
   Sprout,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,11 @@ const NAV_ITEMS = [
     label: "Blog Manager",
     href: "/admin/blog",
     icon: FileEdit,
+  },
+  {
+    label: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
   },
 ];
 

@@ -10,6 +10,7 @@ import {
   BarChart3,
   Search,
   FileEdit,
+  Settings,
   Sprout,
   X,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "SEO", href: "/admin/seo", icon: Search },
   { label: "Blog Manager", href: "/admin/blog", icon: FileEdit },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 interface AdminTopbarProps {
