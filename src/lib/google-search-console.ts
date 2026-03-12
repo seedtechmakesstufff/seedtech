@@ -24,9 +24,20 @@ export function isSearchConsoleConfigured(): boolean {
 /** Create an authenticated Search Console client */
 function getClient() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
-  // The key is stored with literal \n in env — convert to real newlines
-  const key = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!.replace(/\\n/g, "\n");
   const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE!;
+
+  // GOOGLE_SERVICE_ACCOUNT_KEY can be either:
+  //   1. The full service account JSON object (paste the whole .json file)
+  //   2. Just the private_key PEM string with literal \n sequences
+  let key: string = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
+  try {
+    // Try parsing as full JSON service account file
+    const parsed = JSON.parse(key);
+    if (parsed.private_key) key = parsed.private_key;
+  } catch {
+    // Not JSON — treat as raw PEM string, replace literal \n with real newlines
+    key = key.replace(/\\n/g, "\n");
+  }
 
   const auth = new google.auth.JWT({
     email,
