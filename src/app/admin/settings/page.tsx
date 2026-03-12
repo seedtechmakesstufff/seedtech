@@ -111,7 +111,10 @@ export default function SettingsPage() {
           siteUrl: data.siteUrl,
         });
       } else {
-        setGscStatus({ status: "error", message: data.message });
+        const sitesHint = data.availableSites?.length
+          ? ` Available sites: ${data.availableSites.join(", ")}`
+          : " (No sites found — add the service account as a user in Search Console first)";
+        setGscStatus({ status: "error", message: data.message + sitesHint });
       }
     } catch {
       setGscStatus({ status: "error", message: "Failed to reach the server." });

@@ -226,6 +226,20 @@ export async function testConnection(): Promise<{
   }
 }
 
+/**
+ * List all sites the service account has access to.
+ * Useful for debugging — shows the exact siteUrl format needed.
+ */
+export async function listSites(): Promise<string[]> {
+  try {
+    const { searchconsole } = getClient();
+    const res = await searchconsole.sites.list();
+    return (res.data.siteEntry || []).map((s: any) => s.siteUrl || "");
+  } catch {
+    return [];
+  }
+}
+
 /* ── Helpers ── */
 
 function fmt(d: Date): string {

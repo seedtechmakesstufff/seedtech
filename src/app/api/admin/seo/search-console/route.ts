@@ -6,6 +6,7 @@ import {
   testConnection,
   getSearchConsoleSummary,
   getTrackedKeywordPositions,
+  listSites,
 } from "@/lib/google-search-console";
 import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
 
@@ -39,8 +40,9 @@ export async function GET(req: NextRequest) {
   try {
     switch (action) {
       case "test": {
+        const sites = await listSites();
         const result = await testConnection();
-        return NextResponse.json({ configured: true, ...result });
+        return NextResponse.json({ configured: true, ...result, availableSites: sites });
       }
 
       case "keywords": {
