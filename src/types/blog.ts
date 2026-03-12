@@ -1,7 +1,6 @@
 /* ── Blog Post Data Model ──
- * JSON file-based storage for blog posts.
- * Each post is stored as a JSON object in /content/blog/
- * with Markdown body content.
+ * Stored in Neon PostgreSQL via Prisma ORM.
+ * Body content is Markdown.
  */
 
 export interface BlogPost {

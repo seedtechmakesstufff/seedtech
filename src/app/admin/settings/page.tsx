@@ -396,8 +396,8 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://seedtechllc.com`}</pre>
               icon={<Brain className="w-4 h-4 text-white/40" />}
             />
             <InfoCard
-              label="Blog Storage"
-              value="File-based JSON (content/blog/)"
+              label="Database"
+              value="Neon PostgreSQL (Prisma ORM)"
               icon={<Building2 className="w-4 h-4 text-white/40" />}
             />
           </div>
