@@ -1,0 +1,104 @@
+// ── SeedTech Database Schema ──
+// PostgreSQL on Neon, managed via Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Blog Posts ──────────────────────────────────────
+
+enum PostStatus {
+  draft
+  published
+  scheduled
+}
+
+model BlogPost {
+  id              String     @id @default(uuid())
+  title           String
+  slug            String     @unique
+  excerpt         String
+  body            String     // Markdown content
+  author          String     @default("SeedTech")
+  category        String
+  tags            String[]   @default([])
+  targetKeyword   String     @default("")
+  metaTitle       String     @default("")
+  metaDescription String     @default("")
+  status          PostStatus @default(draft)
+  wordCount       Int        @default(0)
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("blog_posts")
+}
+
+// ── Contacts ────────────────────────────────────────
+
+model Contact {
+  id          String    @id @default(uuid())
+  fullName    String
+  email       String
+  phone       String?
+  company     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  submissions FormSubmission[]
+
+  @@index([email])
+  @@map("contacts")
+}
+
+// ── Form Submissions ────────────────────────────────
+
+enum FormSource {
+  contact_page        // /contact page form
+  quote_it            // IT Support quote flow
+  quote_web           // Web Dev quote flow
+}
+
+enum SubmissionStatus {
+  new
+  read
+  replied
+  archived
+}
+
+model FormSubmission {
+  id           String           @id @default(uuid())
+  source       FormSource
+  status       SubmissionStatus @default(new)
+
+  // Contact info (denormalized for quick access)
+  fullName     String
+  email        String
+  phone        String?
+  company      String?
+
+  // Submission details
+  service      String?   // "Managed IT Support", "Web Development", etc.
+  message      String?   // Free-text message from contact page
+  tier         String?   // "Starter", "Growth", etc. for quote flows
+  metadata     Json?     // Any extra structured data (quote config, etc.)
+
+  // Relations
+  contactId    String?
+  contact      Contact?  @relation(fields: [contactId], references: [id])
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
+  @@index([source])
+  @@index([createdAt])
+  @@map("form_submissions")
+}

@@ -239,13 +239,56 @@ export function QuoteFlowModal() {
   };
 
   // ── Web Dev form submit ──
-  const handleWebSubmit = () => {
-    // In production this would POST to an API
+  const handleWebSubmit = async () => {
+    try {
+      await fetch("/api/quote-submission", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source: "quote_web",
+          fullName: webForm.fullName,
+          email: webForm.email,
+          phone: webForm.phone,
+          company: webForm.businessName,
+          tier: selectedTier,
+          metadata: {
+            currentSiteUrl: webForm.currentSiteUrl,
+            notes: webForm.notes,
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to save web quote:", err);
+    }
     setStep("thank-you");
   };
 
   // ── IT Support submit handler ──
-  const handleItSubmit = () => {
+  const handleItSubmit = async (itData?: Record<string, unknown>) => {
+    try {
+      await fetch("/api/quote-submission", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source: "quote_it",
+          fullName: (itData?.fullName as string) ?? "",
+          email: (itData?.email as string) ?? "",
+          phone: (itData?.phone as string) ?? "",
+          company: (itData?.clientName as string) ?? "",
+          tier: (itData?.selectedPlan as string) ?? "",
+          metadata: {
+            seats: itData?.seats,
+            includeMdm: itData?.includeMdm,
+            mdmSeats: itData?.mdmSeats,
+            yearlyCost: itData?.yearlyCost,
+            mdmMonthlyCost: itData?.mdmMonthlyCost,
+            dealNotes: itData?.dealNotes,
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to save IT quote:", err);
+    }
     setStep("thank-you");
   };
 
@@ -464,7 +507,7 @@ export function QuoteFlowModal() {
                       setCurrentStep={setItStep}
                       renderSubmitActions={(data) => (
                         <button
-                          onClick={handleItSubmit}
+                          onClick={() => handleItSubmit(data as unknown as Record<string, unknown>)}
                           disabled={data.isSubmitDisabled}
                           className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-brand text-white text-sm font-medium hover:shadow-glowSeed transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                         >

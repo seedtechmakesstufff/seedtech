@@ -18,5 +18,6 @@ export async function GET() {
     PAGESPEED_API_KEY: !!process.env.PAGESPEED_API_KEY,
     INDEXNOW_API_KEY: !!process.env.INDEXNOW_API_KEY,
     NEXT_PUBLIC_GA_MEASUREMENT_ID: !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+    DATABASE_URL: !!process.env.DATABASE_URL,
   });
 }

@@ -419,6 +419,7 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://seedtechllc.com`}</pre>
               <EnvRow name="PAGESPEED_API_KEY" present={envVars.PAGESPEED_API_KEY ?? false} optional />
               <EnvRow name="INDEXNOW_API_KEY" present={envVars.INDEXNOW_API_KEY ?? false} optional />
               <EnvRow name="NEXT_PUBLIC_GA_MEASUREMENT_ID" present={envVars.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? false} optional />
+              <EnvRow name="DATABASE_URL" present={envVars.DATABASE_URL ?? false} />
             </div>
           </div>
 

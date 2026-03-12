@@ -1,19 +1,10 @@
 /* ── Blog Storage Layer ──
- * Reads/writes blog posts as JSON files in /content/blog/
- * Simple file-based persistence — no database needed for now.
+ * CRUD operations for blog posts using Prisma + Neon PostgreSQL.
+ * Exports maintain the same signatures as the original file-based version.
  */
 
-import fs from "fs/promises";
-import path from "path";
-import { v4 as uuid } from "uuid";
+import { prisma } from "@/lib/prisma";
 import type { BlogPost, BlogPostCreate, BlogPostUpdate } from "@/types/blog";
-
-const BLOG_DIR = path.join(process.cwd(), "content", "blog");
-
-/** Ensure the blog directory exists */
-async function ensureDir() {
-  await fs.mkdir(BLOG_DIR, { recursive: true });
-}
 
 /** Count words in a markdown string */
 function countWords(text: string): number {
@@ -23,89 +14,123 @@ function countWords(text: string): number {
     .filter(Boolean).length;
 }
 
-/** Get all blog posts */
+/** Map a Prisma record to our BlogPost interface */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toAppPost(p: any): BlogPost {
+  return {
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    excerpt: p.excerpt,
+    body: p.body,
+    author: p.author,
+    category: p.category,
+    tags: p.tags,
+    targetKeyword: p.targetKeyword,
+    metaTitle: p.metaTitle,
+    metaDescription: p.metaDescription,
+    status: p.status,
+    wordCount: p.wordCount,
+    publishedAt: p.publishedAt ? new Date(p.publishedAt).toISOString() : null,
+    scheduledAt: p.scheduledAt ? new Date(p.scheduledAt).toISOString() : null,
+    createdAt: new Date(p.createdAt).toISOString(),
+    updatedAt: new Date(p.updatedAt).toISOString(),
+  };
+}
+
+/** Get all blog posts (newest first) */
 export async function getAllPosts(): Promise<BlogPost[]> {
-  await ensureDir();
-  const files = await fs.readdir(BLOG_DIR);
-  const jsonFiles = files.filter((f) => f.endsWith(".json"));
-
-  const posts: BlogPost[] = [];
-  for (const file of jsonFiles) {
-    const raw = await fs.readFile(path.join(BLOG_DIR, file), "utf-8");
-    posts.push(JSON.parse(raw));
-  }
-
-  // Sort by creation date descending
-  posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  return posts;
+  const posts = await prisma.blogPost.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+  return posts.map(toAppPost);
 }
 
 /** Get published posts only */
 export async function getPublishedPosts(): Promise<BlogPost[]> {
-  const all = await getAllPosts();
-  return all.filter((p) => p.status === "published");
+  const posts = await prisma.blogPost.findMany({
+    where: { status: "published" },
+    orderBy: { createdAt: "desc" },
+  });
+  return posts.map(toAppPost);
 }
 
 /** Get a single post by slug */
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const posts = await getAllPosts();
-  return posts.find((p) => p.slug === slug) ?? null;
+  const post = await prisma.blogPost.findUnique({ where: { slug } });
+  return post ? toAppPost(post) : null;
 }
 
 /** Get a single post by ID */
 export async function getPostById(id: string): Promise<BlogPost | null> {
-  await ensureDir();
-  const filePath = path.join(BLOG_DIR, `${id}.json`);
+  const post = await prisma.blogPost.findUnique({ where: { id } });
+  return post ? toAppPost(post) : null;
+}
+
+/** Create a new blog post */
+export async function createPost(data: BlogPostCreate): Promise<BlogPost> {
+  const post = await prisma.blogPost.create({
+    data: {
+      title: data.title,
+      slug: data.slug,
+      excerpt: data.excerpt,
+      body: data.body,
+      author: data.author,
+      category: data.category,
+      tags: data.tags,
+      targetKeyword: data.targetKeyword,
+      metaTitle: data.metaTitle,
+      metaDescription: data.metaDescription,
+      status: data.status,
+      wordCount: countWords(data.body),
+      publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+      scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
+    },
+  });
+  return toAppPost(post);
+}
+
+/** Update an existing blog post */
+export async function updatePost(id: string, data: BlogPostUpdate): Promise<BlogPost | null> {
   try {
-    const raw = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(raw);
+    const post = await prisma.blogPost.update({
+      where: { id },
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.slug !== undefined && { slug: data.slug }),
+        ...(data.excerpt !== undefined && { excerpt: data.excerpt }),
+        ...(data.body !== undefined && {
+          body: data.body,
+          wordCount: countWords(data.body),
+        }),
+        ...(data.author !== undefined && { author: data.author }),
+        ...(data.category !== undefined && { category: data.category }),
+        ...(data.tags !== undefined && { tags: data.tags }),
+        ...(data.targetKeyword !== undefined && { targetKeyword: data.targetKeyword }),
+        ...(data.metaTitle !== undefined && { metaTitle: data.metaTitle }),
+        ...(data.metaDescription !== undefined && { metaDescription: data.metaDescription }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.publishedAt !== undefined && {
+          publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+        }),
+        ...(data.scheduledAt !== undefined && {
+          scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
+        }),
+      },
+    });
+    return toAppPost(post);
   } catch {
     return null;
   }
 }
 
-/** Create a new blog post */
-export async function createPost(data: BlogPostCreate): Promise<BlogPost> {
-  await ensureDir();
-  const now = new Date().toISOString();
-  const id = uuid();
-
-  const post: BlogPost = {
-    ...data,
-    id,
-    wordCount: countWords(data.body),
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  await fs.writeFile(path.join(BLOG_DIR, `${id}.json`), JSON.stringify(post, null, 2));
-  return post;
-}
-
-/** Update an existing blog post */
-export async function updatePost(id: string, data: BlogPostUpdate): Promise<BlogPost | null> {
-  const existing = await getPostById(id);
-  if (!existing) return null;
-
-  const updated: BlogPost = {
-    ...existing,
-    ...data,
-    id: existing.id,
-    createdAt: existing.createdAt,
-    updatedAt: new Date().toISOString(),
-    wordCount: data.body ? countWords(data.body) : existing.wordCount,
-  };
-
-  await fs.writeFile(path.join(BLOG_DIR, `${id}.json`), JSON.stringify(updated, null, 2));
-  return updated;
-}
-
 /** Delete a blog post */
 export async function deletePost(id: string): Promise<boolean> {
   try {
-    await fs.unlink(path.join(BLOG_DIR, `${id}.json`));
+    await prisma.blogPost.delete({ where: { id } });
     return true;
   } catch {
     return false;
   }
 }
+
