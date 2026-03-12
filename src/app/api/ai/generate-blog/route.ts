@@ -81,10 +81,12 @@ Requirements:
 - Use proper Markdown: ## for H2, ### for H3, **bold** for emphasis, bullet lists
 - Include a compelling introduction that hooks the reader
 - End with a clear CTA mentioning SeedTech's services
-- Include natural places for internal links (mark with [INTERNAL: /path] notation)
+- For internal links, use standard Markdown links with the full path, e.g. [View Pricing](/pricing/it-support) or [Learn about our managed IT services](/services/managed-it). NEVER use [INTERNAL: ...] notation.
 - Write for Northern New Jersey business owners
 - Be specific and actionable — avoid fluff
 - Include statistics or data points where relevant
+- Use horizontal rules (---) between major sections for visual separation
+- Keep paragraphs short (2-4 sentences max) for readability
 
 Return the full Markdown blog post content only, no JSON wrapper.`;
       break;

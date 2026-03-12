@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Sparkles,
@@ -16,7 +16,13 @@ import {
   Eye,
   Calendar,
   Save,
+  Brain,
+  Search,
+  CheckCircle2,
+  Zap,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { TRACKED_KEYWORDS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 
@@ -75,6 +81,23 @@ export default function NewBlogPostPage() {
   const [publishAction, setPublishAction] = useState<"draft" | "publish" | "schedule">("draft");
   const [scheduleDate, setScheduleDate] = useState("");
 
+  // Progress modal
+  const [progressOpen, setProgressOpen] = useState(false);
+  const [progressTitle, setProgressTitle] = useState("");
+  const [progressSteps, setProgressSteps] = useState<ProgressStep[]>([]);
+
+  interface ProgressStep {
+    label: string;
+    status: "pending" | "active" | "done";
+    detail?: string;
+  }
+
+  function updateStep(index: number, updates: Partial<ProgressStep>) {
+    setProgressSteps((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, ...updates } : s))
+    );
+  }
+
   /* ── AI API Call Helper ── */
   async function callAI(payload: Record<string, any>) {
     const res = await fetch("/api/ai/generate-blog", {
@@ -87,12 +110,32 @@ export default function NewBlogPostPage() {
     return data.result;
   }
 
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
   /* ── Step Handlers ── */
 
   async function handleGenerateOutline() {
     setLoading(true);
     setError("");
+    setProgressTitle("Generating Outline");
+    setProgressSteps([
+      { label: "Analyzing topic & target keyword", status: "active" },
+      { label: "Researching SEO strategy context", status: "pending" },
+      { label: "Generating structured outline with Claude", status: "pending" },
+      { label: "Extracting metadata & internal links", status: "pending" },
+    ]);
+    setProgressOpen(true);
+
     try {
+      // Simulate visible progress for each phase
+      await sleep(600);
+      updateStep(0, { status: "done", detail: `"${keyword}"` });
+      updateStep(1, { status: "active" });
+
+      await sleep(500);
+      updateStep(1, { status: "done", detail: "Loaded tracked keywords & calendar" });
+      updateStep(2, { status: "active" });
+
       const result = await callAI({
         step: "outline",
         topic,
@@ -100,6 +143,9 @@ export default function NewBlogPostPage() {
         tone,
         wordCount,
       });
+
+      updateStep(2, { status: "done", detail: "claude-opus-4-6" });
+      updateStep(3, { status: "active" });
 
       if (typeof result === "object") {
         setOutline(result as Outline);
@@ -110,8 +156,15 @@ export default function NewBlogPostPage() {
         setCategory(result.category || "IT Support");
         setTags(result.tags || []);
       }
+
+      await sleep(400);
+      updateStep(3, { status: "done", detail: `${(result as Outline)?.sections?.length || 0} sections` });
+
+      await sleep(600);
+      setProgressOpen(false);
       setStep(2);
     } catch (err: any) {
+      setProgressOpen(false);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -121,7 +174,20 @@ export default function NewBlogPostPage() {
   async function handleGenerateDraft() {
     setLoading(true);
     setError("");
+    setProgressTitle("Writing Full Draft");
+    setProgressSteps([
+      { label: "Loading outline & SEO context", status: "active" },
+      { label: "Generating blog content with Claude", status: "pending" },
+      { label: "Formatting Markdown & internal links", status: "pending" },
+      { label: "Counting words & finalizing", status: "pending" },
+    ]);
+    setProgressOpen(true);
+
     try {
+      await sleep(500);
+      updateStep(0, { status: "done", detail: `${outline?.sections?.length || 0} sections loaded` });
+      updateStep(1, { status: "active", detail: "This may take 15-30 seconds…" });
+
       const result = await callAI({
         step: "draft",
         topic: outline?.title || topic,
@@ -131,9 +197,26 @@ export default function NewBlogPostPage() {
         wordCount,
       });
 
-      setDraft(typeof result === "string" ? result : JSON.stringify(result));
+      const draftText = typeof result === "string" ? result : JSON.stringify(result);
+      const words = draftText.split(/\s+/).filter(Boolean).length;
+
+      updateStep(1, { status: "done", detail: "claude-opus-4-6" });
+      updateStep(2, { status: "active" });
+
+      await sleep(400);
+      updateStep(2, { status: "done", detail: "Links resolved" });
+      updateStep(3, { status: "active" });
+
+      setDraft(draftText);
+
+      await sleep(400);
+      updateStep(3, { status: "done", detail: `${words.toLocaleString()} words` });
+
+      await sleep(600);
+      setProgressOpen(false);
       setStep(3);
     } catch (err: any) {
+      setProgressOpen(false);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -446,10 +529,8 @@ export default function NewBlogPostPage() {
               </span>
             </div>
 
-            <div className="bg-dark-base rounded-lg p-6 border border-white/[0.04] prose prose-invert prose-sm max-w-none max-h-[60vh] overflow-y-auto">
-              <pre className="whitespace-pre-wrap text-sm text-white/70 font-body leading-relaxed">
-                {draft}
-              </pre>
+            <div className="bg-dark-base rounded-lg p-6 border border-white/[0.04] prose prose-invert prose-sm max-w-none max-h-[60vh] overflow-y-auto prose-headings:font-display prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-2 prose-h2:border-b prose-h2:border-white/[0.06] prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2 prose-p:text-white/55 prose-p:leading-relaxed prose-a:text-seed-400 prose-strong:text-white/75 prose-li:text-white/55 prose-hr:border-white/[0.08] prose-hr:my-6 prose-table:text-xs prose-th:bg-dark-elevated prose-th:px-3 prose-th:py-2 prose-th:text-white/60 prose-th:border prose-th:border-white/[0.08] prose-td:px-3 prose-td:py-2 prose-td:text-white/45 prose-td:border prose-td:border-white/[0.06]">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{draft}</ReactMarkdown>
             </div>
           </div>
 
@@ -734,6 +815,70 @@ export default function NewBlogPostPage() {
                 ? "Schedule Post"
                 : "Save Draft"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Progress Modal ── */}
+      {progressOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-dark-elevated border border-white/[0.08] rounded-2xl w-full max-w-md mx-4 overflow-hidden shadow-2xl animate-fade-in">
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-white/[0.06] flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-seed-500/10 flex items-center justify-center">
+                <Brain className="w-5 h-5 text-seed-400 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">{progressTitle}</h3>
+                <p className="text-xs text-white/30 mt-0.5">Claude Opus 4.6 is working…</p>
+              </div>
+            </div>
+
+            {/* Steps */}
+            <div className="px-6 py-5 space-y-4">
+              {progressSteps.map((ps, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  {/* Icon */}
+                  <div className="mt-0.5 shrink-0">
+                    {ps.status === "done" ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    ) : ps.status === "active" ? (
+                      <Loader2 className="w-5 h-5 text-seed-400 animate-spin" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-white/10" />
+                    )}
+                  </div>
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className={cn(
+                        "text-sm font-medium transition-colors",
+                        ps.status === "done"
+                          ? "text-white/50"
+                          : ps.status === "active"
+                          ? "text-white"
+                          : "text-white/20"
+                      )}
+                    >
+                      {ps.label}
+                    </p>
+                    {ps.detail && (
+                      <p className="text-xs text-white/30 mt-0.5 truncate">{ps.detail}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer progress bar */}
+            <div className="h-1 bg-white/[0.04]">
+              <div
+                className="h-full bg-gradient-to-r from-seed-500 to-seed-400 transition-all duration-500 ease-out"
+                style={{
+                  width: `${(progressSteps.filter((s) => s.status === "done").length / progressSteps.length) * 100}%`,
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
