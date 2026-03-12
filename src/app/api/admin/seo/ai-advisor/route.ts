@@ -169,7 +169,7 @@ Be specific and actionable. Reference real numbers from the data.`;
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: "claude-opus-4-6",
         max_tokens: 8192,
         system: systemPrompt,
         messages: [{ role: "user", content: `${dataBlock}\n\n---\n\n${userPrompt}` }],
