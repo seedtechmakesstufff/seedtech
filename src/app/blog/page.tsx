@@ -34,25 +34,26 @@ export default async function BlogIndexPage() {
             <p className="text-white/30 text-lg">Coming soon — our first articles are on the way.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-4">
             {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="group bg-dark-elevated border border-white/[0.06] rounded-xl p-6 hover:border-seed-500/20 transition-colors"
+                className="group bg-dark-elevated border border-white/[0.06] rounded-xl p-6 hover:border-seed-500/20 transition-colors flex flex-col sm:flex-row sm:items-start gap-4"
               >
+                <div className="flex-1 min-w-0">
                   {/* Category */}
                   <span className="text-xs text-seed-400 font-medium uppercase tracking-wider">
                     {post.category}
                   </span>
 
                   {/* Title */}
-                  <h2 className="text-lg font-semibold text-white mt-2 group-hover:text-seed-400 transition-colors line-clamp-2">
+                  <h2 className="text-lg font-semibold text-white mt-1.5 group-hover:text-seed-400 transition-colors">
                     {post.title}
                   </h2>
 
                   {/* Excerpt */}
-                  <p className="text-sm text-white/40 mt-2 line-clamp-3">
+                  <p className="text-sm text-white/40 mt-2 line-clamp-2">
                     {post.excerpt}
                   </p>
 
@@ -61,7 +62,12 @@ export default async function BlogIndexPage() {
                     <span>{format(new Date(post.publishedAt || post.createdAt), "MMM d, yyyy")}</span>
                     <span>·</span>
                     <span>{Math.ceil(post.wordCount / 200)} min read</span>
+                    <span>·</span>
+                    <span>{post.tags?.[0]}</span>
                   </div>
+                </div>
+
+                <span className="text-white/20 group-hover:text-seed-400 transition-colors text-lg shrink-0 self-center">→</span>
               </Link>
             ))}
           </div>
