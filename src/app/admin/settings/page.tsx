@@ -147,11 +147,12 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* ─── OpenAI API Key Section ─── */}
+      {/* ─── Claude AI API Key Section ─── */}
       <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3">
           <Key className="w-5 h-5 text-seed-400" />
-          <h2 className="font-semibold text-white">OpenAI API Key</h2>
+          <h2 className="font-semibold text-white">Claude AI API Key</h2>
+          <span className="text-xs text-white/30 bg-white/[0.04] border border-white/[0.06] px-2 py-0.5 rounded-full">claude-sonnet-4-5</span>
         </div>
 
         <div className="p-6 space-y-5">
@@ -349,7 +350,7 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://seedtechllc.com`}</pre>
             />
             <InfoCard
               label="AI Model"
-              value="GPT-4o (OpenAI)"
+              value="claude-sonnet-4-5 (Anthropic)"
               icon={<Brain className="w-4 h-4 text-white/40" />}
             />
             <InfoCard
@@ -367,7 +368,7 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://seedtechllc.com`}</pre>
             <div className="space-y-1.5">
               <EnvRow name="NEXTAUTH_URL" present={envVars.NEXTAUTH_URL ?? true} />
               <EnvRow name="NEXTAUTH_SECRET" present={envVars.NEXTAUTH_SECRET ?? true} />
-              <EnvRow name="OPENAI_API_KEY" present={envVars.OPENAI_API_KEY ?? true} />
+              <EnvRow name="CLAUDE_API_KEY" present={envVars.CLAUDE_API_KEY ?? false} />
               <EnvRow name="ADMIN_EMAILS" present={envVars.ADMIN_EMAILS ?? true} />
               <EnvRow name="ADMIN_PASSWORD" present={envVars.ADMIN_PASSWORD ?? true} />
               <EnvRow name="GOOGLE_SERVICE_ACCOUNT_EMAIL" present={envVars.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? false} />

@@ -21,10 +21,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey || apiKey.startsWith("sk-replace")) {
+  const apiKey = process.env.CLAUDE_API_KEY;
+  if (!apiKey) {
     return NextResponse.json(
-      { error: "OpenAI API key not configured. Add OPENAI_API_KEY to .env.local" },
+      { error: "Claude API key not configured. Add CLAUDE_API_KEY to .env.local" },
       { status: 500 }
     );
   }
@@ -109,33 +109,31 @@ Return JSON:
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 4096,
+        model: "claude-sonnet-4-5",
+        max_tokens: 8192,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
       }),
     });
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       return NextResponse.json(
-        { error: `OpenAI API error: ${err.error?.message || response.statusText}` },
+        { error: `Claude API error: ${err.error?.message || response.statusText}` },
         { status: response.status }
       );
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content ?? "";
+    const content = data.content?.[0]?.text ?? "";
 
     // Try to parse as JSON if it's an outline or meta step
     if (step === "outline" || step === "meta") {

@@ -5,8 +5,8 @@ import { authOptions } from "@/lib/auth-options";
 /**
  * POST /api/admin/settings/test-openai
  *
- * Sends a minimal request to OpenAI to verify the API key is valid.
- * Returns the model, remaining quota info if available, and latency.
+ * Tests the Claude API key by sending a minimal request.
+ * Returns connection status, model, and latency.
  */
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -14,35 +14,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.CLAUDE_API_KEY;
 
-  // Check if key is present
-  if (!apiKey || apiKey.startsWith("sk-replace")) {
+  if (!apiKey) {
     return NextResponse.json({
       status: "missing",
-      message: "No OpenAI API key configured. Add OPENAI_API_KEY to .env.local",
+      message: "No Claude API key configured. Add CLAUDE_API_KEY to .env.local",
     });
   }
 
-  // Mask the key for display
-  const maskedKey = apiKey.slice(0, 7) + "..." + apiKey.slice(-4);
-
+  const maskedKey = apiKey.slice(0, 10) + "..." + apiKey.slice(-4);
   const start = Date.now();
 
   try {
-    // Use a tiny, cheap call — list models — to validate the key
-    const response = await fetch("https://api.openai.com/v1/models/gpt-4o", {
-      headers: { Authorization: `Bearer ${apiKey}` },
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5",
+        max_tokens: 10,
+        messages: [{ role: "user", content: "Hi" }],
+      }),
     });
 
     const latency = Date.now() - start;
 
     if (response.ok) {
-      const data = await response.json();
       return NextResponse.json({
         status: "connected",
-        message: "API key is valid and working",
-        model: data.id,
+        message: "Claude API key is valid and working",
+        model: "claude-sonnet-4-5",
         maskedKey,
         latencyMs: latency,
       });
@@ -51,7 +56,7 @@ export async function POST(req: NextRequest) {
     if (response.status === 401) {
       return NextResponse.json({
         status: "invalid",
-        message: "API key is invalid or has been revoked",
+        message: "Claude API key is invalid or has been revoked",
         maskedKey,
         latencyMs: latency,
       });

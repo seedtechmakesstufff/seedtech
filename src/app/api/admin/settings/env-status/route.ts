@@ -9,7 +9,7 @@ export async function GET() {
   return NextResponse.json({
     NEXTAUTH_URL: !!process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: !!process.env.NEXTAUTH_SECRET,
-    OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+    CLAUDE_API_KEY: !!process.env.CLAUDE_API_KEY,
     ADMIN_EMAILS: !!process.env.ADMIN_EMAILS,
     ADMIN_PASSWORD: !!process.env.ADMIN_PASSWORD,
     GOOGLE_SERVICE_ACCOUNT_EMAIL: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
