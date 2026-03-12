@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Search,
   Target,
@@ -9,9 +12,11 @@ import {
   Sparkles,
   FileText,
   AlertTriangle,
+  Brain,
 } from "lucide-react";
 import { TRACKED_KEYWORDS, SEO_TASKS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 import Link from "next/link";
+import { BusinessContextModal } from "@/components/admin/BusinessContextModal";
 
 const tierColors: Record<number, string> = {
   1: "bg-seed-500/20 text-seed-400 border-seed-500/30",
@@ -26,6 +31,8 @@ const statusIcons: Record<string, React.ReactNode> = {
 };
 
 export default function SEODashboardPage() {
+  const [contextOpen, setContextOpen] = useState(false);
+
   const tier1 = TRACKED_KEYWORDS.filter((k) => k.tier === 1);
   const tier2 = TRACKED_KEYWORDS.filter((k) => k.tier === 2);
   const tier3 = TRACKED_KEYWORDS.filter((k) => k.tier === 3);
@@ -45,14 +52,27 @@ export default function SEODashboardPage() {
           <h1 className="text-2xl font-semibold text-white">SEO Dashboard</h1>
           <p className="text-white/40 mt-1">Keyword tracking, strategy progress, and content engine.</p>
         </div>
-        <Link
-          href="/admin/blog/new"
-          className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
-        >
-          <Sparkles className="w-4 h-4" />
-          AI Blog Writer
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setContextOpen(true)}
+            className="flex items-center gap-2 bg-dark-elevated hover:bg-white/[0.06] border border-white/[0.08] text-white/70 hover:text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+            title="AI Business Context"
+          >
+            <Brain className="w-4 h-4 text-seed-400" />
+            <span className="hidden sm:inline">AI Context</span>
+          </button>
+          <Link
+            href="/admin/blog/new"
+            className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+          >
+            <Sparkles className="w-4 h-4" />
+            AI Blog Writer
+          </Link>
+        </div>
       </div>
+
+      {/* Business Context Modal */}
+      <BusinessContextModal open={contextOpen} onClose={() => setContextOpen(false)} />
 
       {/* Strategy Score Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

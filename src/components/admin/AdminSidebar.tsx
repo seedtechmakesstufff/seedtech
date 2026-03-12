@@ -9,10 +9,18 @@ import {
   FileEdit,
   Settings,
   Sprout,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  children?: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[];
+}
+
+const NAV_ITEMS: NavItem[] = [
   {
     label: "Dashboard",
     href: "/admin",
@@ -27,11 +35,13 @@ const NAV_ITEMS = [
     label: "SEO",
     href: "/admin/seo",
     icon: Search,
-  },
-  {
-    label: "Blog Manager",
-    href: "/admin/blog",
-    icon: FileEdit,
+    children: [
+      {
+        label: "Blog Manager",
+        href: "/admin/blog",
+        icon: FileEdit,
+      },
+    ],
   },
   {
     label: "Settings",
@@ -54,27 +64,62 @@ export function AdminSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1">
+      <nav className="flex-1 py-4 px-3 space-y-0.5">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === "/admin"
               ? pathname === "/admin"
               : pathname.startsWith(item.href);
+          const isChildActive = item.children?.some((c) => pathname.startsWith(c.href)) ?? false;
+          const isExpanded = isActive || isChildActive;
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-seed-500/10 text-seed-400"
-                  : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-seed-500/10 text-seed-400"
+                    : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                )}
+              >
+                <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-seed-400" : "text-white/40")} />
+                <span className="flex-1">{item.label}</span>
+                {item.children && (
+                  <ChevronDown
+                    className={cn(
+                      "w-4 h-4 shrink-0 transition-transform text-white/20",
+                      isExpanded && "rotate-180 text-white/40"
+                    )}
+                  />
+                )}
+              </Link>
+
+              {/* Sub-items */}
+              {item.children && isExpanded && (
+                <div className="ml-5 pl-3 mt-0.5 mb-1 border-l border-white/[0.06] space-y-0.5">
+                  {item.children.map((child) => {
+                    const childActive = pathname.startsWith(child.href);
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={cn(
+                          "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                          childActive
+                            ? "text-seed-400 bg-seed-500/5"
+                            : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
+                        )}
+                      >
+                        <child.icon className={cn("w-4 h-4 shrink-0", childActive ? "text-seed-400" : "text-white/30")} />
+                        {child.label}
+                      </Link>
+                    );
+                  })}
+                </div>
               )}
-            >
-              <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-seed-400" : "text-white/40")} />
-              {item.label}
-            </Link>
+            </div>
           );
         })}
       </nav>

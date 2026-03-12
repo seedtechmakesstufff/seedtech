@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Settings,
   Key,
@@ -9,7 +9,6 @@ import {
   AlertCircle,
   Loader2,
   RefreshCw,
-  Save,
   Building2,
   Brain,
   Shield,
@@ -26,20 +25,6 @@ interface OpenAIStatus {
   maskedKey?: string;
   model?: string;
   latencyMs?: number;
-}
-
-interface BusinessContext {
-  companyName: string;
-  tagline: string;
-  location: string;
-  domain: string;
-  primaryService: string;
-  secondaryServices: string[];
-  targetAudience: string;
-  uniqueSellingPoints: string[];
-  toneOfVoice: string;
-  customInstructions: string;
-  updatedAt: string;
 }
 
 /* ── Helpers ── */
@@ -63,23 +48,6 @@ export default function SettingsPage() {
   });
   const [testingKey, setTestingKey] = useState(false);
 
-  /* ── Business Context State ── */
-  const [context, setContext] = useState<BusinessContext | null>(null);
-  const [contextLoading, setContextLoading] = useState(true);
-  const [contextSaving, setContextSaving] = useState(false);
-  const [contextSaved, setContextSaved] = useState(false);
-
-  /* ── Load business context on mount ── */
-  useEffect(() => {
-    fetch("/api/admin/settings/business-context")
-      .then((r) => r.json())
-      .then((data) => {
-        setContext(data);
-        setContextLoading(false);
-      })
-      .catch(() => setContextLoading(false));
-  }, []);
-
   /* ── Test OpenAI key ── */
   const testOpenAI = useCallback(async () => {
     setTestingKey(true);
@@ -92,38 +60,6 @@ export default function SettingsPage() {
     }
     setTestingKey(false);
   }, []);
-
-  /* ── Save business context ── */
-  const saveContext = useCallback(async () => {
-    if (!context) return;
-    setContextSaving(true);
-    setContextSaved(false);
-    try {
-      const res = await fetch("/api/admin/settings/business-context", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(context),
-      });
-      const data = await res.json();
-      setContext(data);
-      setContextSaved(true);
-      setTimeout(() => setContextSaved(false), 3000);
-    } catch {
-      // silent
-    }
-    setContextSaving(false);
-  }, [context]);
-
-  /* ── Update helpers ── */
-  const updateField = (field: keyof BusinessContext, value: string) => {
-    if (!context) return;
-    setContext({ ...context, [field]: value });
-  };
-
-  const updateArrayField = (field: keyof BusinessContext, value: string) => {
-    if (!context) return;
-    setContext({ ...context, [field]: value.split("\n").filter(Boolean) });
-  };
 
   const statusCfg = STATUS_CONFIG[openaiStatus.status];
   const StatusIcon = statusCfg.icon;
@@ -211,132 +147,6 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* ─── AI Business Context Section ─── */}
-      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Brain className="w-5 h-5 text-seed-400" />
-            <div>
-              <h2 className="font-semibold text-white">AI Business Context</h2>
-              <p className="text-xs text-white/40 mt-0.5">
-                This is what the AI knows about SeedTech. Edit it to improve content generation.
-              </p>
-            </div>
-          </div>
-          {context?.updatedAt && (
-            <span className="text-xs text-white/30 hidden sm:block">
-              Last updated: {new Date(context.updatedAt).toLocaleDateString()}
-            </span>
-          )}
-        </div>
-
-        {contextLoading ? (
-          <div className="p-12 flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-white/30" />
-          </div>
-        ) : context ? (
-          <div className="p-6 space-y-6">
-            {/* Company basics - 2 col */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <FieldInput
-                label="Company Name"
-                value={context.companyName}
-                onChange={(v) => updateField("companyName", v)}
-              />
-              <FieldInput
-                label="Domain"
-                value={context.domain}
-                onChange={(v) => updateField("domain", v)}
-              />
-              <FieldInput
-                label="Location"
-                value={context.location}
-                onChange={(v) => updateField("location", v)}
-              />
-              <FieldInput
-                label="Tagline"
-                value={context.tagline}
-                onChange={(v) => updateField("tagline", v)}
-              />
-            </div>
-
-            {/* Services */}
-            <FieldInput
-              label="Primary Service"
-              value={context.primaryService}
-              onChange={(v) => updateField("primaryService", v)}
-            />
-            <FieldTextarea
-              label="Other Services"
-              hint="One per line"
-              value={context.secondaryServices.join("\n")}
-              onChange={(v) => updateArrayField("secondaryServices", v)}
-              rows={4}
-            />
-
-            {/* Audience */}
-            <FieldTextarea
-              label="Target Audience"
-              value={context.targetAudience}
-              onChange={(v) => updateField("targetAudience", v)}
-              rows={2}
-            />
-
-            {/* USPs */}
-            <FieldTextarea
-              label="Unique Selling Points"
-              hint="One per line"
-              value={context.uniqueSellingPoints.join("\n")}
-              onChange={(v) => updateArrayField("uniqueSellingPoints", v)}
-              rows={5}
-            />
-
-            {/* Tone */}
-            <FieldTextarea
-              label="Tone of Voice"
-              hint="Describe how the AI should write"
-              value={context.toneOfVoice}
-              onChange={(v) => updateField("toneOfVoice", v)}
-              rows={3}
-            />
-
-            {/* Custom instructions */}
-            <FieldTextarea
-              label="Custom Instructions"
-              hint="Any additional rules — linking strategy, topics to avoid, keywords to always include, etc."
-              value={context.customInstructions}
-              onChange={(v) => updateField("customInstructions", v)}
-              rows={4}
-            />
-
-            {/* Save button */}
-            <div className="flex items-center gap-4 pt-2">
-              <button
-                onClick={saveContext}
-                disabled={contextSaving}
-                className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 disabled:opacity-50 text-white font-medium text-sm px-5 py-2.5 rounded-lg transition-colors"
-              >
-                {contextSaving ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                {contextSaving ? "Saving…" : "Save Context"}
-              </button>
-              {contextSaved && (
-                <span className="text-sm text-green-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" /> Saved
-                </span>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="p-12 text-center text-white/40 text-sm">
-            Failed to load business context.
-          </div>
-        )}
-      </section>
-
       {/* ─── Admin & Environment Section ─── */}
       <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3">
@@ -393,58 +203,7 @@ export default function SettingsPage() {
   );
 }
 
-/* ── Reusable Field Components ── */
-
-function FieldInput({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-white/60 mb-1.5">{label}</label>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-seed-500/50 focus:border-seed-500/50 transition-colors"
-      />
-    </div>
-  );
-}
-
-function FieldTextarea({
-  label,
-  value,
-  onChange,
-  rows = 3,
-  hint,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  rows?: number;
-  hint?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-white/60 mb-1.5">
-        {label}
-        {hint && <span className="text-white/30 font-normal ml-2">— {hint}</span>}
-      </label>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-seed-500/50 focus:border-seed-500/50 transition-colors resize-y"
-      />
-    </div>
-  );
-}
+/* ── Reusable Components ── */
 
 function InfoCard({
   label,
