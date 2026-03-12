@@ -114,6 +114,11 @@ export function Footer() {
                   Website Development Pricing
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
 

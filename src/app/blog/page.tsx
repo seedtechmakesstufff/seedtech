@@ -39,16 +39,8 @@ export default async function BlogIndexPage() {
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="group bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden hover:border-seed-500/20 transition-colors"
+                className="group bg-dark-elevated border border-white/[0.06] rounded-xl p-6 hover:border-seed-500/20 transition-colors"
               >
-                {/* Cover Image Placeholder */}
-                <div className="aspect-[16/9] bg-dark-overlay flex items-center justify-center">
-                  <span className="text-white/10 text-4xl font-display">
-                    {post.category.charAt(0)}
-                  </span>
-                </div>
-
-                <div className="p-5">
                   {/* Category */}
                   <span className="text-xs text-seed-400 font-medium uppercase tracking-wider">
                     {post.category}
@@ -60,7 +52,7 @@ export default async function BlogIndexPage() {
                   </h2>
 
                   {/* Excerpt */}
-                  <p className="text-sm text-white/40 mt-2 line-clamp-2">
+                  <p className="text-sm text-white/40 mt-2 line-clamp-3">
                     {post.excerpt}
                   </p>
 
@@ -70,7 +62,6 @@ export default async function BlogIndexPage() {
                     <span>·</span>
                     <span>{Math.ceil(post.wordCount / 200)} min read</span>
                   </div>
-                </div>
               </Link>
             ))}
           </div>
