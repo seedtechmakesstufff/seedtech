@@ -18,13 +18,11 @@ import {
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
-  Badge,
   GradientOrb,
   GridPattern,
   GradientText,
   CTABanner,
   LiquidGlassPill,
-  LiquidGlassButton,
 } from "@/components/kit";
 import { QuotePriceCalculator } from "@/components/quote-generator";
 import { useQuoteFlow } from "@/components/quote-flow";

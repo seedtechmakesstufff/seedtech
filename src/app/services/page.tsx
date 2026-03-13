@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Shield, Globe, BarChart3 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
-import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
@@ -10,8 +9,6 @@ import {
   LiquidGlassPill,
   CTABanner,
   IconBox,
-  CardTitle,
-  Body,
   CheckList,
 } from "@/components/kit";
 

@@ -5,17 +5,14 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  DotPattern,
   GradientText,
   LiquidGlassCard,
   LiquidGlassPill,
-  LiquidGlassBar,
   CTABanner,
   IconBox,
   CardTitle,
   Body,
   CheckList,
-  GlassCard,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 

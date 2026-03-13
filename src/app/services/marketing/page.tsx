@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Search, FileText, Target, TrendingUp, BarChart3, Globe } from "lucide-react";
+import { ArrowRight, Search, FileText, Target } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import {

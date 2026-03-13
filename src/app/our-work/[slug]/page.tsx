@@ -191,8 +191,6 @@ export default function ProjectPage({ params }: Props) {
                 label="Department"
                 value={isWeb ? "Web Development" : "IT Support"}
               />
-              <MetaRow label="Timeline" value={cs?.timeline ?? "—"} note={cs ? undefined : "TODO: replace"} />
-              <MetaRow label="Team Size" value={cs?.teamSize ?? "—"} note={cs ? undefined : "TODO: replace"} />
 
               {/* Tech stack */}
               <div>

@@ -4,7 +4,6 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  DotPattern,
   GradientText,
   GlassCard,
   CardTitle,
