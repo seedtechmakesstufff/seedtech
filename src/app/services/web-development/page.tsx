@@ -18,8 +18,11 @@ const _clients = [
   "PaddlersCove",
   "Drew & Rogers",
   "Bright Imaginations",
-  "Star Communications",
+  "StarCom Fiber",
   "Megasafe",
+  "Imperia",
+  "Trevor Noah",
+  "Ron White",
 ];
 
 // Two rows for the animated marquee — duplicate for seamless loop
@@ -27,23 +30,35 @@ const logoRowTop = [
   "PaddlersCove",
   "Drew & Rogers",
   "Bright Imaginations",
-  "Star Communications",
+  "StarCom Fiber",
   "Megasafe",
+  "Imperia",
+  "Trevor Noah",
+  "Ron White",
   "PaddlersCove",
   "Drew & Rogers",
   "Bright Imaginations",
-  "Star Communications",
+  "StarCom Fiber",
   "Megasafe",
+  "Imperia",
+  "Trevor Noah",
+  "Ron White",
 ];
 
 const logoRowBottom = [
+  "Ron White",
+  "Trevor Noah",
+  "Imperia",
   "Megasafe",
-  "Star Communications",
+  "StarCom Fiber",
   "Bright Imaginations",
   "Drew & Rogers",
   "PaddlersCove",
+  "Ron White",
+  "Trevor Noah",
+  "Imperia",
   "Megasafe",
-  "Star Communications",
+  "StarCom Fiber",
   "Bright Imaginations",
   "Drew & Rogers",
   "PaddlersCove",
@@ -51,7 +66,7 @@ const logoRowBottom = [
 
 const featuredWork = projects
   .filter((p) => p.department === "web-development")
-  .slice(0, 5);
+  .slice(0, 8);
 
 const stats = [
   { value: "5+", label: "Years shipping production web projects" },
