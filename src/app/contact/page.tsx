@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
-import { FormInput, FormTextarea, FormSelect, Button } from "@/components/kit";
+import { FormInput, FormTextarea, FormSelect, Button, LiquidGlassCard } from "@/components/kit";
 import { CheckCircle2 } from "lucide-react";
 
 export default function ContactPage() {
@@ -82,7 +82,8 @@ export default function ContactPage() {
           description="Tell us about your project or IT challenge, and we'll get back to you within one business day."
         />
 
-        <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">
+        <LiquidGlassCard className="mx-auto max-w-2xl p-8 md:p-12">
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormInput
               label="Full Name"
@@ -146,7 +147,8 @@ export default function ContactPage() {
               {status === "submitting" ? "Sending…" : "Send Message"}
             </Button>
           </div>
-        </form>
+          </form>
+        </LiquidGlassCard>
       </Section>
     </div>
   );

@@ -1,15 +1,132 @@
+import Link from "next/link";
+import { ArrowRight, Shield, Globe, BarChart3 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
+import {
+  GradientOrb,
+  GridPattern,
+  GradientText,
+  LiquidGlassCard,
+  LiquidGlassPill,
+  CTABanner,
+  IconBox,
+  CardTitle,
+  Body,
+  CheckList,
+} from "@/components/kit";
+
+const services = [
+  {
+    icon: Shield,
+    label: "Managed IT",
+    variant: "seed" as const,
+    href: "/services/managed-it",
+    title: "Managed IT Support",
+    headline: "Your IT. Fully Covered.",
+    description:
+      "Proactive monitoring, unlimited remote support, and rapid on-site response — all for one flat monthly rate per user.",
+    features: [
+      "24/7 endpoint monitoring",
+      "Unlimited remote help desk",
+      "Patch & antivirus management",
+      "Cloud backup included",
+      "No long-term contracts",
+    ],
+  },
+  {
+    icon: Globe,
+    label: "Web Development",
+    variant: "blue" as const,
+    href: "/services/web-development",
+    title: "Web Development",
+    headline: "Websites That Work.",
+    description:
+      "Custom-coded websites, ecommerce platforms, and web applications built for performance, SEO, and conversion.",
+    features: [
+      "100% custom design — no templates",
+      "Mobile-responsive & lightning fast",
+      "SEO-ready architecture",
+      "Ecommerce & web application builds",
+      "Post-launch support available",
+    ],
+  },
+  {
+    icon: BarChart3,
+    label: "Marketing",
+    variant: "cyan" as const,
+    href: "/services/marketing",
+    title: "Digital Marketing",
+    headline: "Growth That Compounds.",
+    description:
+      "Data-driven SEO, content strategy, and paid advertising that builds long-term visibility and measurable ROI.",
+    features: [
+      "Local & national SEO",
+      "Content strategy & production",
+      "Google & Meta ad management",
+      "Conversion rate optimization",
+      "Monthly reporting & analytics",
+    ],
+  },
+];
 
 export default function ServicesPage() {
   return (
     <div className="pt-20">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-dark-base py-28 text-center">
+        <GradientOrb color="seed" size="xl" className="-top-40 left-1/2 -translate-x-1/2 opacity-20" />
+        <GridPattern />
+        <div className="relative z-10 mx-auto max-w-4xl px-6">
+          <LiquidGlassPill variant="seed" className="mb-6">What We Do</LiquidGlassPill>
+          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6">
+            Three Pillars of{" "}
+            <GradientText as="span">Technology</GradientText>
+          </h1>
+          <p className="text-body-lg text-light-base/60 max-w-2xl mx-auto leading-relaxed">
+            IT support, web development, and digital marketing — designed to work together
+            to keep your business running, visible, and growing.
+          </p>
+        </div>
+      </section>
+
+      {/* Service Cards */}
       <Section>
-        <SectionHeader
-          eyebrow="What We Do"
-          title="Our"
-          titleHighlight="Services"
-          description="Three pillars of technology — IT support, web development, and digital marketing — designed to keep your business running, visible, and growing."
+        <div className="space-y-8">
+          {services.map((svc) => (
+            <LiquidGlassCard key={svc.href} className="p-8 md:p-10">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+                <div>
+                  <div className="flex items-center gap-3 mb-5">
+                    <IconBox icon={svc.icon} variant="gradient" />
+                    <LiquidGlassPill variant={svc.variant}>{svc.label}</LiquidGlassPill>
+                  </div>
+                  <h2 className="font-display text-heading text-white mb-2">{svc.headline}</h2>
+                  <p className="text-body text-light-base/60 leading-relaxed mb-6">{svc.description}</p>
+                  <Link
+                    href={svc.href}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-seed-400 hover:text-seed-300 transition-colors"
+                  >
+                    Learn more <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+                <div>
+                  <CheckList theme="dark" items={svc.features} />
+                </div>
+              </div>
+            </LiquidGlassCard>
+          ))}
+        </div>
+      </Section>
+
+      {/* CTA */}
+      <Section>
+        <CTABanner
+          title="Not Sure Where to Start?"
+          description="We'll help you figure out exactly what your business needs. Free consultation, no pressure."
+          primaryLabel="Get a Free Quote"
+          primaryHref="/contact"
+          secondaryLabel="See Pricing"
+          secondaryHref="/pricing/it-support"
         />
       </Section>
     </div>

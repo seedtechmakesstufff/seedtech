@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
-import { GradientOrb, GridPattern, GradientText } from "@/components/kit";
+import { GradientOrb, GridPattern, GradientText, LiquidGlassPill } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { projects } from "@/data/projects";
 
@@ -174,9 +174,7 @@ export default function WebDevelopmentPage() {
       <section className="bg-dark-base py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6 text-center mb-14">
           {/* Validated pill */}
-          <span className="inline-block rounded-full border border-white/[0.08] bg-dark-elevated px-5 py-1.5 text-xs font-medium text-white/60 tracking-wide mb-6">
-            Validated
-          </span>
+          <LiquidGlassPill variant="default" className="mb-6">Validated</LiquidGlassPill>
           <h2 className="font-display text-heading md:text-title text-white leading-[1.1] mb-6">
             Websites Built for Businesses That Mean It
           </h2>
@@ -257,7 +255,7 @@ export default function WebDevelopmentPage() {
                 className="group block"
               >
                 {/* Image area */}
-                <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated mb-6">
+                <div className="liquid-glass rounded-2xl overflow-hidden mb-6">
                   <div className="aspect-[16/9] relative">
                     {project.image ? (
                       <>
@@ -295,12 +293,7 @@ export default function WebDevelopmentPage() {
                   </div>
                   <div className="flex flex-wrap gap-2 shrink-0">
                     {project.techStack.slice(0, 3).map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 rounded-full text-xs font-medium bg-white/[0.04] border border-white/[0.06] text-white/40"
-                      >
-                        {tech}
-                      </span>
+                      <LiquidGlassPill key={tech} size="sm" variant="default">{tech}</LiquidGlassPill>
                     ))}
                   </div>
                 </div>
@@ -359,10 +352,10 @@ export default function WebDevelopmentPage() {
             {pricing.map((tier) => (
               <div
                 key={tier.name}
-                className={`min-w-[260px] snap-start rounded-2xl border p-6 flex flex-col transition-all duration-300 ${
+                className={`min-w-[260px] snap-start liquid-glass rounded-2xl p-6 flex flex-col transition-all duration-300 ${
                   tier.highlighted
-                    ? "bg-dark-elevated border-seed-600/40 shadow-pricingHighlight"
-                    : "bg-dark-elevated border-white/[0.06]"
+                    ? "liquid-glass-tinted-seed"
+                    : ""
                 }`}
               >
                 <p className="font-display text-subheading md:text-heading text-seed-400 mb-1">
@@ -389,10 +382,10 @@ export default function WebDevelopmentPage() {
                 <div className="mt-auto">
                   <QuoteButton
                     service="web-development"
-                    className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative overflow-hidden ${
                       tier.highlighted
-                        ? "bg-gradient-brand text-white hover:shadow-glowSeed"
-                        : "bg-white/[0.06] border border-white/[0.08] text-white hover:bg-white/[0.10]"
+                        ? "liquid-glass-tinted-seed liquid-glass-hover text-white"
+                        : "liquid-glass text-white"
                     }`}
                   >
                     Get a Quote

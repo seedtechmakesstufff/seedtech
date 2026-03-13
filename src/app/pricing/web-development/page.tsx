@@ -1,6 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
-import { GradientOrb, GridPattern, CTABanner, GradientText, GlassCard } from "@/components/kit";
+import { GradientOrb, GridPattern, CTABanner, GradientText, GlassCard, LiquidGlassPill } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
 export const metadata = {
@@ -113,7 +113,7 @@ export default function WebDevelopmentPricingPage() {
         <GradientOrb color="blue" size="xl" className="-top-40 left-1/2 -translate-x-1/2 opacity-20" />
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-4xl px-6">
-          <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-4">Pricing</p>
+          <LiquidGlassPill variant="seed" className="mb-4">Pricing</LiquidGlassPill>
           <h1 className="font-display text-title md:text-display text-white mb-6">
             Web Development{" "}
             <GradientText as="span">Pricing</GradientText>
@@ -130,10 +130,10 @@ export default function WebDevelopmentPricingPage() {
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative rounded-2xl border p-8 flex flex-col gap-6 transition-all duration-300 ${
+              className={`relative liquid-glass rounded-2xl p-8 flex flex-col gap-6 transition-all duration-300 ${
                 tier.highlighted
-                  ? "bg-dark-elevated border-seed-600/40 shadow-pricingHighlight"
-                  : "bg-dark-elevated border-white/[0.06]"
+                  ? "liquid-glass-tinted-seed"
+                  : ""
               }`}
             >
               {tier.highlighted && (
@@ -181,12 +181,7 @@ export default function WebDevelopmentPricingPage() {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {tier.bestFor.map((item) => (
-                    <span
-                      key={item}
-                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/[0.06] border border-white/[0.08] text-white/60"
-                    >
-                      {item}
-                    </span>
+                    <LiquidGlassPill key={item} size="sm" variant="default">{item}</LiquidGlassPill>
                   ))}
                 </div>
               </div>

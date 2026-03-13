@@ -39,7 +39,7 @@ export default async function BlogIndexPage() {
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="relative group bg-dark-elevated border border-white/[0.06] rounded-xl p-6 hover:border-seed-500/20 transition-colors flex flex-col sm:flex-row sm:items-start gap-4"
+                className="relative group liquid-glass liquid-glass-hover rounded-xl p-6 flex flex-col sm:flex-row sm:items-start gap-4 transition-all duration-300 overflow-hidden"
               >
                 <div className="flex-1 min-w-0">
                   {/* Category */}

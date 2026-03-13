@@ -17,9 +17,9 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
     <Link
       href={`/our-work/${project.slug}`}
       className={cn(
-        "group relative flex flex-col rounded-2xl border border-white/[0.06] bg-dark-elevated",
+        "group relative flex flex-col rounded-2xl liquid-glass",
         "overflow-hidden transition-all duration-300",
-        "hover:border-seed-600/30 hover:shadow-cardDark hover:-translate-y-1",
+        "hover:-translate-y-1 hover:shadow-cardDark",
         className
       )}
     >

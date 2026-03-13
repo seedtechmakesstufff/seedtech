@@ -29,9 +29,9 @@ export function Navbar() {
   const { openQuoteFlow } = useQuoteFlow();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
-      <div className="mx-auto max-w-6xl px-6">
-        <nav className="flex items-center justify-between h-20">
+    <header className="fixed top-0 left-0 right-0 z-50 pt-3">
+      <div className="mx-auto max-w-6xl px-4">
+        <nav className="liquid-glass rounded-2xl flex items-center justify-between h-14 px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image
@@ -59,7 +59,7 @@ export function Navbar() {
                     <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", servicesOpen && "rotate-180")} />
                   </button>
                   {servicesOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-56 rounded-xl bg-dark-elevated/95 backdrop-blur-xl border border-white/[0.06] shadow-dropdown p-2 animate-fade-in">
+                    <div className="absolute top-full left-0 mt-2 w-56 liquid-glass rounded-xl p-2 animate-fade-in">
                       {link.children.map((child) => (
                         <Link
                           key={child.href}
@@ -87,7 +87,7 @@ export function Navbar() {
           {/* CTA */}
           <button
             onClick={() => openQuoteFlow()}
-            className="hidden md:inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-gradient-brand rounded-xl hover:shadow-glowSeed transition-all duration-300"
+            className="hidden md:inline-flex items-center px-5 py-2 text-sm font-medium text-white liquid-glass-tinted-seed liquid-glass-hover rounded-xl transition-all duration-300 relative overflow-hidden"
           >
             Get a Quote
           </button>
@@ -105,8 +105,8 @@ export function Navbar() {
 
       {/* Mobile Nav */}
       {mobileOpen && (
-        <div className="md:hidden bg-dark-raised/95 backdrop-blur-xl border-t border-white/[0.06] animate-fade-in">
-          <div className="max-w-6xl mx-auto px-6 py-4 space-y-1">
+        <div className="md:hidden mt-2 mx-4 liquid-glass rounded-2xl animate-fade-in">
+          <div className="px-4 py-4 space-y-1">
             {navLinks.map((link) =>
               link.children ? (
                 <div key={link.label}>
@@ -148,7 +148,7 @@ export function Navbar() {
                 setMobileOpen(false);
                 openQuoteFlow();
               }}
-              className="block w-full mt-2 text-center px-5 py-3 text-sm font-medium text-white bg-gradient-brand rounded-xl"
+              className="block w-full mt-2 text-center px-5 py-3 text-sm font-medium text-white liquid-glass-tinted-seed liquid-glass-hover rounded-xl relative overflow-hidden"
             >
               Get a Quote
             </button>
@@ -156,8 +156,7 @@ export function Navbar() {
         </div>
       )}
 
-      {/* Nav backdrop blur bar */}
-      <div className="absolute inset-0 -z-10 bg-dark-base/80 backdrop-blur-xl border-b border-white/[0.04]" />
+
     </header>
   );
 }

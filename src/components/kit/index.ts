@@ -14,3 +14,4 @@ export * from "./ProcessStep";
 export * from "./TestimonialCard";
 export * from "./FormFields";
 export * from "./CTABanner";
+export * from "./LiquidGlass";

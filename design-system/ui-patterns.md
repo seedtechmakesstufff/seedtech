@@ -180,3 +180,97 @@ import { CTABanner } from "@/components/kit"
   secondaryHref="/our-work"
 />
 ```
+
+---
+
+## Liquid Glass System
+
+Based on **Apple Human Interface Guidelines — Liquid Glass (2025)**.
+Reference: `developer.apple.com/design/human-interface-guidelines/materials`
+
+All components import from `@/components/kit`.
+
+### Apple Usage Rules (always follow)
+
+| Rule | Description |
+| ---- | ----------- |
+| Controls / nav only | Liquid Glass belongs in the **functional layer** (controls, nav, bars) — never in the content layer |
+| Tint sparingly | Apply tint to **ONE primary action per group** max (like iOS Done button) |
+| Clear variant = media only | `LiquidGlassClearCard` only floats over photos/video/rich gradients |
+| Dimming | Add `dimming` prop on `LiquidGlassClearCard` when background is bright |
+| Labels must be legible | Always ensure sufficient contrast on text inside liquid glass containers |
+
+### Components
+
+#### LiquidGlassCard — Regular variant
+```tsx
+<LiquidGlassCard hover>
+  {/* feature card, service card, interactive panel */}
+</LiquidGlassCard>
+```
+
+#### LiquidGlassClearCard — Clear variant (media backgrounds only)
+```tsx
+<LiquidGlassClearCard dimming={false}>
+  {/* floating panel over hero image / video */}
+</LiquidGlassClearCard>
+```
+
+#### LiquidGlassPill — iOS-style pill / status badge
+```tsx
+// Variants: "default" | "seed" | "blue" | "cyan" | "emerald"
+// Sizes:    "sm" | "md" | "lg"
+<LiquidGlassPill variant="seed" size="sm" dot>Active</LiquidGlassPill>
+<LiquidGlassPill variant="blue" size="md">Managed IT</LiquidGlassPill>
+```
+
+#### LiquidGlassButton — Tinted CTA (one per group max)
+```tsx
+// Primary action with seed tint
+<LiquidGlassButton variant="seed" size="lg" href="/contact">
+  Get a Free Quote
+</LiquidGlassButton>
+
+// Secondary (untinted) alongside a tinted primary
+<LiquidGlassButton variant="default" size="lg" icon={false}>
+  Learn More
+</LiquidGlassButton>
+```
+
+#### LiquidGlassBar — Floating toolbar / control group
+```tsx
+// pill = iOS tab bar style   |   card = macOS toolbar style
+<LiquidGlassBar rounded="pill">
+  <button>…</button>
+  <LiquidGlassDivider className="w-px h-5" />
+  <button>…</button>
+</LiquidGlassBar>
+```
+
+#### LiquidGlassDivider — Frosted separator
+```tsx
+<LiquidGlassDivider />
+```
+
+### Material Variants
+
+| CSS class | Usage |
+| --------- | ----- |
+| `liquid-glass` | Regular — blur + luminosity, most controls |
+| `liquid-glass-clear` | Clear — over media/rich backgrounds only |
+| `liquid-glass-tinted-seed` | Brand green — primary CTA emphasis |
+| `liquid-glass-tinted-blue` | IT services accent |
+| `liquid-glass-tinted-cyan` | Marketing accent |
+| `liquid-glass-tinted-emerald` | Status / success |
+
+Add `liquid-glass-hover` to any container for lift + specular sweep on hover.
+
+### When to use Liquid Glass vs existing GlassCard
+
+| Situation | Use |
+| --------- | --- |
+| Interactive control, nav element, CTA button | `LiquidGlass*` |
+| Feature / service card in content grid | `GlassCard` |
+| Pricing tier | `ElevatedCard` |
+| Floating status pill / label | `LiquidGlassPill` |
+| Floating toolbar / grouped buttons | `LiquidGlassBar` |

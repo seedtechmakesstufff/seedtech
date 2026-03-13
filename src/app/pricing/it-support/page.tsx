@@ -23,6 +23,8 @@ import {
   GridPattern,
   GradientText,
   CTABanner,
+  LiquidGlassPill,
+  LiquidGlassButton,
 } from "@/components/kit";
 import { QuotePriceCalculator } from "@/components/quote-generator";
 import { useQuoteFlow } from "@/components/quote-flow";
@@ -152,13 +154,9 @@ export default function ITSupportPricingPage() {
         <div className="relative z-10 mx-auto max-w-6xl px-6">
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <Badge variant="glass-dark">IT Support Pricing</Badge>
-              <Badge variant="outline" size="sm">
-                Per-User
-              </Badge>
-              <Badge variant="outline" size="sm">
-                No Contracts
-              </Badge>
+              <LiquidGlassPill variant="seed">IT Support Pricing</LiquidGlassPill>
+              <LiquidGlassPill variant="default">Per-User</LiquidGlassPill>
+              <LiquidGlassPill variant="default">No Contracts</LiquidGlassPill>
             </div>
             <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6">
               Predictable IT Costs.{" "}
@@ -171,14 +169,14 @@ export default function ITSupportPricingPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="#calculator"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-brand text-white text-sm font-medium hover:shadow-glowSeed transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl liquid-glass-tinted-seed liquid-glass-hover relative overflow-hidden text-white text-sm font-medium transition-all duration-200"
               >
                 Get Instant Quote
                 <ArrowRight className="w-4 h-4" />
               </a>
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-white/[0.06] border border-white/[0.10] text-white text-sm font-medium hover:bg-white/[0.10] transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl liquid-glass text-white text-sm font-medium transition-all duration-200"
               >
                 Talk to a Human
               </Link>
@@ -200,10 +198,10 @@ export default function ITSupportPricingPage() {
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`rounded-2xl p-6 border flex flex-col ${
+              className={`liquid-glass rounded-2xl p-6 flex flex-col ${
                 tier.highlight
-                  ? "bg-dark-elevated border-seed-600/30 shadow-pricingHighlight"
-                  : "bg-dark-elevated border-white/[0.06]"
+                  ? "liquid-glass-tinted-seed"
+                  : ""
               }`}
             >
               {tier.highlight && (
@@ -243,10 +241,10 @@ export default function ITSupportPricingPage() {
               </ul>
               <a
                 href="#calculator"
-                className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative overflow-hidden ${
                   tier.highlight
-                    ? "bg-gradient-brand text-white hover:shadow-glowSeed"
-                    : "bg-white/[0.06] border border-white/[0.10] text-white hover:bg-white/[0.10]"
+                    ? "liquid-glass-tinted-seed liquid-glass-hover text-white"
+                    : "liquid-glass text-white"
                 }`}
               >
                 Get Quote
@@ -294,7 +292,7 @@ export default function ITSupportPricingPage() {
           align="center"
           theme="dark"
         />
-        <div className="rounded-2xl border border-white/[0.06] bg-dark-raised overflow-hidden">
+        <div className="liquid-glass rounded-2xl overflow-hidden">
           {/* Step indicator */}
           <div className="border-b border-white/[0.06] px-6 py-4">
             <div className="flex items-center gap-2 text-sm">
@@ -307,9 +305,9 @@ export default function ITSupportPricingPage() {
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                         i === calcStep
-                          ? "bg-seed-600/20 text-seed-400"
+                          ? "liquid-glass-tinted-seed text-white"
                           : i < calcStep
-                            ? "bg-white/[0.06] text-white/50"
+                            ? "liquid-glass text-white/50"
                             : "text-white/25"
                       }`}
                     >

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Section } from "@/components/layout/Section";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { GradientOrb, GridPattern, CTABanner } from "@/components/kit";
+import { GradientOrb, GridPattern, CTABanner, LiquidGlassPill } from "@/components/kit";
 import { projects } from "@/data/projects";
 import type { Department } from "@/data/projects";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ export default function OurWorkPage() {
         <GradientOrb color="seed" size="xl" className="-top-40 left-1/2 -translate-x-1/2 opacity-20" />
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-4xl px-6">
-          <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-4">Our Work</p>
+          <LiquidGlassPill variant="seed" className="mb-4">Our Work</LiquidGlassPill>
           <h1 className="font-display text-title md:text-display font-bold text-white">
             Projects That Drive{" "}
             <span className="text-gradient-brand">Real Results</span>
@@ -46,7 +46,7 @@ export default function OurWorkPage() {
       <Section>
         {/* Filter tabs */}
         <div className="flex justify-center mb-12">
-          <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-dark-overlay border border-white/[0.06]">
+          <div className="inline-flex items-center gap-1 p-1 liquid-glass rounded-xl">
             {filters.map((f) => (
               <button
                 key={f.value}
@@ -54,7 +54,7 @@ export default function OurWorkPage() {
                 className={cn(
                   "px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                   active === f.value
-                    ? "bg-gradient-brand text-white shadow-glowSeed"
+                    ? "liquid-glass-tinted-seed text-white"
                     : "text-light-base/50 hover:text-light-base/80"
                 )}
               >

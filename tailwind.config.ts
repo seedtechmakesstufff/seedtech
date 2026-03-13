@@ -75,6 +75,11 @@ const config: Config = {
         dropdown: "0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)",
         pricingHighlight: "0 0 40px rgba(64,166,96,0.2), 0 8px 32px rgba(0,0,0,0.3)",
         elevated: "0 2px 8px rgba(0,0,0,0.3), 0 8px 32px rgba(0,0,0,0.2)",
+        /* Liquid Glass shadow tokens */
+        liquidGlass: "inset 0 1.5px 0 rgba(255,255,255,0.14), inset 0 -1px 0 rgba(0,0,0,0.10), 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12)",
+        liquidGlassHover: "inset 0 1.5px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.10), 0 12px 40px rgba(0,0,0,0.22), 0 4px 12px rgba(0,0,0,0.14)",
+        liquidGlassSeed: "inset 0 1.5px 0 rgba(100,220,140,0.22), inset 0 -1px 0 rgba(0,0,0,0.10), 0 8px 32px rgba(64,166,96,0.18), 0 2px 8px rgba(0,0,0,0.12)",
+        liquidGlassBlue: "inset 0 1.5px 0 rgba(120,180,255,0.20), inset 0 -1px 0 rgba(0,0,0,0.10), 0 8px 32px rgba(59,130,246,0.16), 0 2px 8px rgba(0,0,0,0.12)",
       },
 
       /* ── Background gradients ── */
@@ -113,6 +118,10 @@ const config: Config = {
           "0%, 100%": { opacity: "0.4" },
           "50%": { opacity: "0.8" },
         },
+        "lg-sweep": {
+          "0%":   { left: "-100%" },
+          "100%": { left: "120%" },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.6s ease-out forwards",
@@ -121,6 +130,7 @@ const config: Config = {
         "marquee-reverse": "marquee-reverse 30s linear infinite",
         float: "float 6s ease-in-out infinite",
         "pulse-glow": "pulse-glow 4s ease-in-out infinite",
+        "lg-sweep": "lg-sweep 0.55s ease-out forwards",
       },
     },
   },
