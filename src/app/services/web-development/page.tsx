@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
@@ -234,7 +235,7 @@ export default function WebDevelopmentPage() {
           </div>
 
           <div className="space-y-20">
-            {featuredWork.map((project, i) => (
+            {featuredWork.map((project) => (
               <Link
                 key={project.slug}
                 href={`/our-work/${project.slug}`}
@@ -242,11 +243,28 @@ export default function WebDevelopmentPage() {
               >
                 {/* Image area */}
                 <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated mb-6">
-                  <div className="aspect-[16/9] flex items-center justify-center relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent" />
-                    <p className="relative z-10 font-display text-heading-lg md:text-title text-white/[0.06] select-none">
-                      {String(i + 1).padStart(2, "0")}
-                    </p>
+                  <div className="aspect-[16/9] relative">
+                    {project.image ? (
+                      <>
+                        <Image
+                          src={project.image}
+                          alt={project.client}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          sizes="(max-width: 768px) 100vw, 960px"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-dark-elevated/60 to-transparent" />
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-white/[0.02] to-transparent">
+                        <div className="text-center space-y-1">
+                          <p className="text-white/30 text-sm font-medium">
+                            {project.client}
+                          </p>
+                          <p className="text-white/15 text-xs">Screenshot coming soon</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
