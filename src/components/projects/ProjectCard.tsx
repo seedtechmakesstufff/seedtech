@@ -30,7 +30,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
             src={project.image}
             alt={project.title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         ) : (
