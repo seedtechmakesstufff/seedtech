@@ -16,3 +16,4 @@ export * from "./FormFields";
 export * from "./CTABanner";
 export * from "./LiquidGlass";
 export * from "./SplitTextReveal";
+export * from "./AnimatedH1";

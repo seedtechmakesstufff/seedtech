@@ -25,6 +25,7 @@ import {
   LiquidGlassPill,
   CTABanner,
   IconBox,
+  AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { mdmAddon } from "@/lib/plans";
@@ -132,10 +133,9 @@ export default function MDMPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">SeedCare Add-On</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6 max-w-4xl">
-            <GradientText as="span">Mobile Device Management</GradientText>{" "}
-            for Small Business
-          </h1>
+          <AnimatedH1 highlightWords={["Mobile", "Device", "Management"]} className="mb-6 max-w-4xl">
+            Mobile Device Management for Small Business
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed mb-4">
             Secure and manage every phone and tablet in your fleet. Remote lock &amp; wipe, app
             deployment, compliance enforcement, and full visibility — from a single console.

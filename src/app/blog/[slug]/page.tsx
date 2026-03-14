@@ -6,6 +6,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
+import { AnimatedH1 } from "@/components/kit";
 
 export const dynamic = "force-dynamic";
 
@@ -96,9 +97,9 @@ export default async function BlogPostPage({
           <span className="text-seed-400 text-xs font-medium uppercase tracking-wider">
             {post.category}
           </span>
-          <h1 className="font-display text-heading-lg text-white mt-3 leading-tight">
+          <AnimatedH1 className="text-heading-lg mt-3 leading-tight">
             {post.title}
-          </h1>
+          </AnimatedH1>
           <div className="flex items-center gap-4 mt-4 text-sm text-white/40">
             <span>By {post.author}</span>
             <span>·</span>

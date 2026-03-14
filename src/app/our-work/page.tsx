@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Section } from "@/components/layout/Section";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { GradientOrb, GridPattern, CTABanner, LiquidGlassPill } from "@/components/kit";
+import { GradientOrb, GridPattern, CTABanner, LiquidGlassPill, AnimatedH1 } from "@/components/kit";
 import { projects } from "@/data/projects";
 import type { Department } from "@/data/projects";
 import { cn } from "@/lib/utils";
@@ -32,10 +32,9 @@ export default function OurWorkPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-4xl px-6">
           <LiquidGlassPill variant="seed" className="mb-4">Our Work</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display font-bold text-white">
-            Projects That Drive{" "}
-            <span className="text-gradient-brand">Real Results</span>
-          </h1>
+          <AnimatedH1 highlightWords={["Real", "Results"]}>
+            Projects That Drive Real Results
+          </AnimatedH1>
           <p className="mt-6 text-body-lg text-light-base/60 max-w-2xl mx-auto">
             From custom ecommerce platforms to managed IT infrastructure — here&apos;s what we&apos;ve built and the outcomes we&apos;ve delivered.
           </p>

@@ -15,12 +15,17 @@ interface SplitTextRevealProps {
   /** Animation duration per word (seconds). Default 0.65. */
   duration?: number;
   as?: "h1" | "h2" | "h3" | "h4" | "p" | "span";
+  /**
+   * "mount"  — animates once on component mount (hero use-case)
+   * "inView" — animates each time the element enters the viewport (section use-case)
+   */
+  mode?: "mount" | "inView";
 }
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const wordVariants: Variants = {
-  hidden: { y: "110%", opacity: 0, filter: "blur(8px)" },
+  hidden: { y: "110%", opacity: 0, filter: "blur(28px)" },
   visible: (custom: { delay: number; duration: number }) => ({
     y: 0,
     opacity: 1,
@@ -41,8 +46,10 @@ export function SplitTextReveal({
   stagger = 0.06,
   duration = 0.65,
   as: Tag = "h1",
+  mode = "mount",
 }: SplitTextRevealProps) {
   const words = text.split(" ");
+  const isInView = mode === "inView";
 
   return (
     <Tag className={className} aria-label={text}>
@@ -55,17 +62,17 @@ export function SplitTextReveal({
         );
 
         return (
-          // overflow-hidden clips the word as it slides up — the key to the effect
           <span key={i} className="inline-block overflow-hidden align-bottom">
             <motion.span
               className="inline-block"
               variants={wordVariants}
               initial="hidden"
-              animate="visible"
+              {...(isInView
+                ? { whileInView: "visible", viewport: { once: true, margin: "-60px" } }
+                : { animate: "visible" })}
               custom={{ delay: delay + i * stagger, duration }}
             >
               {inner}
-              {/* non-breaking space preserves word gap */}
               {i < words.length - 1 ? "\u00A0" : ""}
             </motion.span>
           </span>

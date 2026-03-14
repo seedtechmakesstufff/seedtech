@@ -13,6 +13,7 @@ import {
   CTABanner,
   IconBox,
   CheckList,
+  AnimatedH1,
 } from "@/components/kit";
 
 const values = [
@@ -59,10 +60,9 @@ export default function AboutPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">About SeedTech</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6 max-w-3xl">
-            The Team Behind{" "}
-            <GradientText as="span">SeedTech</GradientText>
-          </h1>
+          <AnimatedH1 highlightWords={["SeedTech"]} className="mb-6 max-w-3xl">
+            The Team Behind SeedTech
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed">
             We&apos;re a tight-knit crew of engineers, designers, and strategists based in New Jersey —
             passionate about helping businesses grow through technology done right.

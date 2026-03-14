@@ -23,6 +23,7 @@ import {
   LiquidGlassPill,
   CTABanner,
   IconBox,
+  AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
@@ -161,11 +162,9 @@ export default function OnboardingPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">Zero-Disruption Transition</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6 max-w-4xl">
-            Switch IT Providers in{" "}
-            <GradientText as="span">30 Days</GradientText>{" "}
-            — Zero Downtime
-          </h1>
+          <AnimatedH1 highlightWords={["30", "Days"]} className="mb-6 max-w-4xl">
+            Switch IT Providers in 30 Days — Zero Downtime
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed mb-10">
             Afraid of disruption during a provider switch? Our 4-week phased rollout deploys
             silently alongside your current provider. Most teams are fully onboarded in 5-10 business days.

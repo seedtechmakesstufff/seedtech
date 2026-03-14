@@ -23,6 +23,7 @@ import {
   GradientText,
   CTABanner,
   LiquidGlassPill,
+  AnimatedH1,
 } from "@/components/kit";
 import { QuotePriceCalculator } from "@/components/quote-generator";
 import { useQuoteFlow } from "@/components/quote-flow";
@@ -156,10 +157,9 @@ export default function ITSupportPricingPage() {
               <LiquidGlassPill variant="default">Per-User</LiquidGlassPill>
               <LiquidGlassPill variant="default">No Contracts</LiquidGlassPill>
             </div>
-            <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6">
-              Predictable IT Costs.{" "}
-              <GradientText as="span">Zero Surprises.</GradientText>
-            </h1>
+            <AnimatedH1 highlightWords={["Zero", "Surprises."]} className="mb-6">
+              Predictable IT Costs. Zero Surprises.
+            </AnimatedH1>
             <p className="text-body-lg text-light-base/60 max-w-2xl mb-10 leading-relaxed">
               Transparent per-user pricing with unlimited remote support on
               every plan. Get an instant quote in under 60 seconds.

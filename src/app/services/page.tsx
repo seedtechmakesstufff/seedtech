@@ -10,6 +10,7 @@ import {
   CTABanner,
   IconBox,
   CheckList,
+  AnimatedH1,
 } from "@/components/kit";
 
 const services = [
@@ -75,10 +76,9 @@ export default function ServicesPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-4xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">What We Do</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6">
-            Three Pillars of{" "}
-            <GradientText as="span">Technology</GradientText>
-          </h1>
+          <AnimatedH1 highlightWords={["Technology"]} className="mb-6">
+            Three Pillars of Technology
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl mx-auto leading-relaxed">
             IT support, web development, and digital marketing — designed to work together
             to keep your business running, visible, and growing.

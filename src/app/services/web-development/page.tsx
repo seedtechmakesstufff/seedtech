@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
-import { GradientOrb, GridPattern, GradientText, LiquidGlassPill } from "@/components/kit";
+import { GradientOrb, GridPattern, GradientText, LiquidGlassPill, AnimatedH1 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { projects } from "@/data/projects";
 
@@ -149,10 +149,9 @@ export default function WebDevelopmentPage() {
           <p className="text-eyebrow uppercase tracking-[0.2em] text-seed-400 mb-6">
             Web Development
           </p>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-8">
-            We Build Websites That{" "}
-            <GradientText as="span">Actually Work</GradientText>
-          </h1>
+          <AnimatedH1 highlightWords={["Actually", "Work"]} className="mb-8 text-center">
+            We Build Websites That Actually Work
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/50 max-w-2xl mx-auto mb-12 leading-relaxed">
             Custom websites, ecommerce platforms, and web applications —
             designed and built from scratch for businesses that take their

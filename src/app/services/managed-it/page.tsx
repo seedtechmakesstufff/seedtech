@@ -29,10 +29,9 @@ import {
   CardTitle,
   Body,
   CheckList,
+  AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
-
-/* ─── SEO Metadata ────────────────────────────────────────────────────────── */
 export const metadata: Metadata = {
   title: "Managed IT Services NJ | Proactive IT Support — SeedTech",
   description:
@@ -157,11 +156,9 @@ export default function ManagedITPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">Managed IT Services in Northern NJ</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6 max-w-4xl">
-            Proactive Managed IT{" "}
-            <GradientText as="span">Services</GradientText>{" "}
-            for Growing Businesses
-          </h1>
+          <AnimatedH1 highlightWords={["Services"]} className="mb-6 max-w-4xl">
+            Proactive Managed IT Services for Growing Businesses
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed mb-10">
             24/7 monitoring, unlimited help desk, and rapid on-site response — all for one flat
             monthly rate per user. No contracts, no hidden fees, no ticket limits.

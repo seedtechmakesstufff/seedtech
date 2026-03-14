@@ -20,6 +20,7 @@ import {
   LiquidGlassPill,
   CTABanner,
   IconBox,
+  AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { newPlans, mdmAddon } from "@/lib/plans";
@@ -110,9 +111,9 @@ export default function PlansPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <LiquidGlassPill variant="seed" className="mb-6">Transparent Per-User Pricing</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6 max-w-4xl mx-auto">
-            <GradientText as="span">SeedCare</GradientText> Plans &amp; Pricing
-          </h1>
+          <AnimatedH1 highlightWords={["SeedCare"]} className="mb-6 max-w-4xl mx-auto text-center">
+            SeedCare Plans &amp; Pricing
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl mx-auto leading-relaxed mb-10">
             Simple per-user pricing. No hidden fees, no long-term contracts. Every plan includes
             unlimited remote help desk and 15-minute triage SLA.

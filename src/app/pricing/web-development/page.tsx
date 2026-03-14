@@ -1,6 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
-import { GradientOrb, GridPattern, CTABanner, GradientText, GlassCard, LiquidGlassPill } from "@/components/kit";
+import { GradientOrb, GridPattern, CTABanner, GradientText, GlassCard, LiquidGlassPill, AnimatedH1 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
 export const metadata = {
@@ -114,10 +114,9 @@ export default function WebDevelopmentPricingPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-4xl px-6">
           <LiquidGlassPill variant="seed" className="mb-4">Pricing</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white mb-6">
-            Web Development{" "}
-            <GradientText as="span">Pricing</GradientText>
-          </h1>
+          <AnimatedH1 highlightWords={["Pricing"]} className="mb-6">
+            Web Development Pricing
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl mx-auto">
             Professional websites built to grow with your business. Every project is tailored to your goals, but most fall within the ranges below.
           </p>

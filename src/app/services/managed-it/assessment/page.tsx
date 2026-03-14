@@ -20,6 +20,7 @@ import {
   LiquidGlassCard,
   LiquidGlassPill,
   CTABanner,
+  AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
@@ -105,11 +106,9 @@ export default function AssessmentPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">Zero-Obligation IT Audit</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6 max-w-4xl">
-            Get a{" "}
-            <GradientText as="span">Free IT Assessment</GradientText>{" "}
-            for Your Business
-          </h1>
+          <AnimatedH1 highlightWords={["Free", "IT", "Assessment"]} className="mb-6 max-w-4xl">
+            Get a Free IT Assessment for Your Business
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed mb-10">
             In 45-60 minutes, we evaluate your infrastructure, security, backups, and compliance
             posture. You receive a written report with prioritized findings and a clear action plan —

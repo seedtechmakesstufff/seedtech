@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { SplitTextReveal } from "@/components/kit";
 
 interface SectionHeaderProps {
   eyebrow?: string;
@@ -20,6 +23,10 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   const isDark = theme === "dark";
+  // Combine title + titleHighlight into one string for SplitTextReveal,
+  // marking the highlight word(s) so they get GradientText treatment.
+  const fullTitle = titleHighlight ? `${title} ${titleHighlight}` : title;
+  const highlightWords = titleHighlight ? titleHighlight.trim().split(" ") : [];
 
   return (
     <div
@@ -37,15 +44,19 @@ export function SectionHeader({
           {eyebrow}
         </p>
       )}
-      <h2 className={cn(
-        "font-display text-heading md:text-heading-lg",
-        isDark ? "text-white" : "text-dark-base"
-      )}>
-        {title}
-        {titleHighlight && (
-          <span className="text-gradient-brand"> {titleHighlight}</span>
+      <SplitTextReveal
+        text={fullTitle}
+        as="h2"
+        mode="inView"
+        delay={0}
+        stagger={0.055}
+        duration={0.65}
+        highlightWords={highlightWords}
+        className={cn(
+          "font-display text-heading md:text-heading-lg",
+          isDark ? "text-white" : "text-dark-base"
         )}
-      </h2>
+      />
       {description && (
         <p className={cn(
           "mt-5 text-body-lg leading-relaxed",

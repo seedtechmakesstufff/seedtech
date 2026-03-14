@@ -14,6 +14,7 @@ import {
   Body,
   CheckList,
   GlassCard,
+  AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
@@ -61,10 +62,9 @@ export default function MarketingPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">Digital Marketing</LiquidGlassPill>
-          <h1 className="font-display text-title md:text-display text-white leading-[1.05] mb-6 max-w-3xl">
-            Data-Driven{" "}
-            <GradientText as="span">Marketing</GradientText>
-          </h1>
+          <AnimatedH1 highlightWords={["Marketing"]} className="mb-6 max-w-3xl">
+            Data-Driven Marketing
+          </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed mb-10">
             SEO, content strategy, and paid advertising that compounds over time — built around
             your actual business goals, not vanity metrics.
