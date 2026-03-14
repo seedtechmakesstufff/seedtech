@@ -1,9 +1,21 @@
+"use client";
+
+import { motion, type Transition } from "framer-motion";
 import { GradientOrb, FloatingOrb, GridPattern } from "@/components/kit";
-import { GradientText, BodyLg } from "@/components/kit";
+import { BodyLg } from "@/components/kit";
 import { LiquidGlassPill, LiquidGlassBar } from "@/components/kit";
+import { SplitTextReveal } from "@/components/kit";
 import { Button } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { ArrowRight } from "lucide-react";
+
+const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+const fadeUp = (delay: number) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, delay, ease: EXPO_OUT } as Transition,
+});
 
 export function HeroSection() {
   return (
@@ -31,7 +43,10 @@ export function HeroSection() {
       <div className="relative z-10 mx-auto max-w-5xl px-6 pt-32 pb-24 text-center w-full">
 
         {/* Liquid Glass service pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+        <motion.div
+          className="flex flex-wrap items-center justify-center gap-2 mb-8"
+          {...fadeUp(0.1)}
+        >
           <LiquidGlassPill variant="default" size="sm" dot>
             Managed IT Support
           </LiquidGlassPill>
@@ -41,23 +56,32 @@ export function HeroSection() {
           <LiquidGlassPill variant="blue" size="sm" dot>
             Digital Marketing
           </LiquidGlassPill>
-        </div>
+        </motion.div>
 
-        {/* Hero headline */}
-        <h1 className="font-display text-display leading-[1.05] text-white">
-          Technology That{" "}
-          <GradientText>Grows</GradientText>{" "}
-          Your Business
-        </h1>
+        {/* Hero headline — word-by-word reveal */}
+        <SplitTextReveal
+          text="Technology That Grows Your Business"
+          as="h1"
+          delay={0.25}
+          stagger={0.07}
+          duration={0.7}
+          highlightWords={["Grows"]}
+          className="font-display text-display leading-[1.05] text-white"
+        />
 
         {/* Subline */}
-        <BodyLg className="mt-6 max-w-2xl mx-auto">
-          SeedTech delivers proactive managed IT, stunning web experiences,
-          and data-driven marketing — all under one roof.
-        </BodyLg>
+        <motion.div {...fadeUp(0.7)}>
+          <BodyLg className="mt-6 max-w-2xl mx-auto">
+            SeedTech delivers proactive managed IT, stunning web experiences,
+            and data-driven marketing — all under one roof.
+          </BodyLg>
+        </motion.div>
 
-        {/* CTA row — primary uses Liquid Glass tinted seed per Apple HIG */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* CTA row */}
+        <motion.div
+          className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+          {...fadeUp(0.85)}
+        >
           <QuoteButton
             className={[
               "liquid-glass-tinted-seed liquid-glass-hover",
@@ -73,10 +97,13 @@ export function HeroSection() {
           <Button variant="ghost" size="lg" icon="arrow" href="/services">
             Explore Services
           </Button>
-        </div>
+        </motion.div>
 
-        {/* Floating stat bar — Liquid Glass Bar per Apple HIG pattern */}
-        <div className="mt-16 flex justify-center">
+        {/* Floating stat bar */}
+        <motion.div
+          className="mt-16 flex justify-center"
+          {...fadeUp(1.0)}
+        >
           <LiquidGlassBar rounded="pill" className="gap-0 px-2 py-2">
             <div className="text-center px-6 py-1">
               <p className="font-display text-subheading text-white leading-none">200+</p>
@@ -93,7 +120,7 @@ export function HeroSection() {
               <p className="text-body-sm text-white/50 mt-1">Years Experience</p>
             </div>
           </LiquidGlassBar>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
