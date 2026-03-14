@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView, type Variants } from "framer-motion";
 import { GradientText } from "./Typography";
 
 interface SplitTextRevealProps {
@@ -17,7 +18,7 @@ interface SplitTextRevealProps {
   as?: "h1" | "h2" | "h3" | "h4" | "p" | "span";
   /**
    * "mount"  — animates once on component mount (hero use-case)
-   * "inView" — animates each time the element enters the viewport (section use-case)
+   * "inView" — animates when element enters viewport (section use-case)
    */
   mode?: "mount" | "inView";
 }
@@ -49,10 +50,17 @@ export function SplitTextReveal({
   mode = "mount",
 }: SplitTextRevealProps) {
   const words = text.split(" ");
-  const isInView = mode === "inView";
+
+  // useInView is more reliable than whileInView — it fires even when the element
+  // is already in the viewport on mount, which whileInView sometimes misses.
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px 0px" });
+
+  // For mount mode, always animate. For inView mode, only animate once visible.
+  const shouldAnimate = mode === "mount" ? true : inView;
 
   return (
-    <Tag className={className} aria-label={text}>
+    <Tag ref={ref as React.RefObject<never>} className={className} aria-label={text}>
       {words.map((word, i) => {
         const isHighlighted = highlightWords.includes(word);
         const inner = isHighlighted ? (
@@ -67,9 +75,7 @@ export function SplitTextReveal({
               className="inline-block"
               variants={wordVariants}
               initial="hidden"
-              {...(isInView
-                ? { whileInView: "visible", viewport: { once: true, margin: "-60px" } }
-                : { animate: "visible" })}
+              animate={shouldAnimate ? "visible" : "hidden"}
               custom={{ delay: delay + i * stagger, duration }}
             >
               {inner}
