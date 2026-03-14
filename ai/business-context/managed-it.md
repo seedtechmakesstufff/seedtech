@@ -129,14 +129,11 @@ With large MSPs, a simple issue can bounce between 3–4 people before anyone
 actually fixes it. At SeedTech, the person who picks up the alert owns it through
 resolution.
 
-### Addressing the Size Concern
+### Why Structure Matters More Than Headcount
 
-The common objection: *"You're worried we don't have enough technicians."*
-
-But the real question prospects should ask their current large provider:
-
-> *"Even with 6 techs, is there anyone who truly knows your environment or takes
-> ownership of it?"*
+Effective IT management doesn't require a pit crew — it requires the right structure.
+The real question isn't how many technicians a provider has, but whether any of them
+actually know your environment.
 
 **The issues with large, high-headcount providers:**
 
@@ -144,7 +141,7 @@ But the real question prospects should ask their current large provider:
 - ❌ Repeating the same issue because no one built a permanent fix
 - ❌ No one taking real ownership — tickets just get "closed"
 
-**SeedTech's size allows us to:**
+**SeedTech's structure allows us to:**
 
 - ✅ Know your file structure
 - ✅ Know your QuickBooks environment (and other LOB apps)
@@ -163,7 +160,7 @@ where they experienced:
 - **Generic solutions** — cookie-cutter scripts that don't fit their environment
 - **No strategic guidance** — just break-fix with a monthly invoice
 
-SeedTech wins these clients by being the opposite: small enough to know you,
+SeedTech wins these clients by being the opposite: focused enough to know you,
 skilled enough to protect you, accountable enough to own every outcome.
 
 ### Content & SEO Guidance for This Messaging
@@ -379,7 +376,8 @@ lifting in the background.*
 - "Per-device pricing" (we price per user, covering all their devices)
 - "Hourly billing" (our model is the opposite)
 - "Minimum seats" or "annual commitment" (we have neither)
-- "We're a small company" (reframe: our size is the advantage, not a limitation)
+- "We're a small company" (NEVER express concern over team size — reframe as: effective IT requires the right structure, not a large team)
+- "Not enough technicians" or "smaller team" (never plant doubt about team size on site or in content)
 
 ### Competitor Positioning
 SeedTech vs. large MSPs / traditional IT providers:

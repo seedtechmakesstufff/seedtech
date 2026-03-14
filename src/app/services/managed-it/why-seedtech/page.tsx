@@ -55,7 +55,7 @@ const seedtechAdvantages = [
 ];
 
 const faqs = [
-  { q: "How can a smaller team handle our needs?", a: "Our size is the advantage, not a limitation. Even with 6 technicians, most large MSPs have no one who truly knows your environment. At SeedTech, our team knows your systems because they built the automation, documented the environment, and handle your tickets — consistently." },
+  { q: "How is SeedTech structured differently from larger MSPs?", a: "Most large MSPs rely on tiered support — your issue bounces between L1, L2, and engineering before anyone resolves it. At SeedTech, the person who picks up the alert has the authority and context to act. One owner, start to finish." },
   { q: "What if we need after-hours support?", a: "Emergency support is available on every plan. Real-time monitoring means we often detect and begin resolving issues before you even know about them — including nights and weekends." },
   { q: "How do you handle on-site issues?", a: "SeedCare Plus includes up to 4 hours per month of on-site support. SeedCare Pro includes unlimited on-site. For Essentials clients, on-site can be added as needed." },
   { q: "What happens during the transition from our current provider?", a: "We follow a 4-week phased rollout: discovery, silent deployment, go-live, and optimization. We deploy in the background with zero disruption. Most teams are fully onboarded in 5-10 business days." },
@@ -192,24 +192,23 @@ export default function WhySeedTechPage() {
         </div>
       </Section>
 
-      {/* Size Concern */}
+      {/* Structure Advantage */}
       <Section theme="light">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <p className="text-eyebrow uppercase tracking-widest mb-4 text-seed-600">Addressing the Concern</p>
+          <p className="text-eyebrow uppercase tracking-widest mb-4 text-seed-600">Our Philosophy</p>
           <h2 className="font-display text-heading md:text-heading-lg text-dark-base mb-6">
-            &ldquo;You&apos;re worried we don&apos;t have enough technicians.&rdquo;
+            Effective IT Doesn&apos;t Require a Pit Crew
           </h2>
           <p className="text-body-lg text-dark-base/60 leading-relaxed">
-            But right now, even with 6 techs, there&apos;s no one who truly knows your environment
-            or takes ownership of it. Having to re-explain your setup every time, repeating the
-            same issue because no one built a permanent fix, no one taking real ownership — tickets
-            just get &ldquo;closed.&rdquo;
+            Headcount doesn&apos;t fix problems — structure does. A focused team that
+            knows your environment, builds automation for repeat issues, and owns every
+            outcome will always outperform a rotating cast of strangers reading from a script.
           </p>
         </div>
         <SectionHeader
-          eyebrow="Our Size is the Advantage"
+          eyebrow="How We're Built"
           title="What Our Structure Allows"
-          description="Smaller team. Deeper knowledge. Direct accountability."
+          description="Deep familiarity. Direct authority. Clear ownership of every outcome."
           theme="light"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -233,7 +232,7 @@ export default function WhySeedTechPage() {
             <GradientText as="span">You get people who know your environment.</GradientText>&rdquo;
           </blockquote>
           <p className="text-light-base/40 text-body-sm">
-            Small enough to know you. Skilled enough to protect you.
+            Focused enough to know you. Skilled enough to protect you.
             Accountable enough to own every outcome.
           </p>
         </div>
