@@ -128,7 +128,7 @@ export function Footer() {
             <ul className="space-y-4">
               <li className="flex items-center gap-3 text-sm text-white/50">
                 <Mail className="w-4 h-4 text-seed-500 shrink-0" />
-                hello@seedtech.dev
+                info@seedtechllc.com
               </li>
               <li className="flex items-center gap-3 text-sm text-white/50">
                 <Phone className="w-4 h-4 text-seed-500 shrink-0" />
@@ -136,24 +136,34 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3 text-sm text-white/50">
                 <MapPin className="w-4 h-4 text-seed-500 shrink-0" />
-                Hopatcong, NJ
+                Northern NJ
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom */}
+        {/* Privacy Fine Print */}
         <div className="gradient-divider mb-8" />
+        <p className="text-[11px] leading-relaxed text-white/25 mb-8 max-w-4xl">
+          SeedTech LLC prioritizes user privacy and outlines how consumer contact information is handled. Contact
+          details are voluntarily provided and used for service updates, inquiries, promotions, and service
+          improvement. Information is never sold, leased, or traded, but may be shared when required by law or
+          with trusted providers under confidentiality agreements. Reasonable data protection measures are
+          employed. Consumers have access, correction, and deletion rights by contacting support. Policy updates
+          will be communicated. For inquiries, contact{" "}
+          <a href="mailto:info@seedtechllc.com" className="underline underline-offset-2 hover:text-white/50 transition-colors">
+            info@seedtechllc.com
+          </a>.
+        </p>
+
+        {/* Bottom */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} SeedTech. All rights reserved.
+            © {new Date().getFullYear()} SeedTech LLC. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="text-xs text-white/30 hover:text-white/60 transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="text-xs text-white/30 hover:text-white/60 transition-colors">
-              Terms of Service
+            <Link href="/terms-conditions" className="text-xs text-white/30 hover:text-white/60 transition-colors">
+              Privacy Policy &amp; Terms
             </Link>
           </div>
         </div>
