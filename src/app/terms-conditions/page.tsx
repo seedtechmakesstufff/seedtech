@@ -47,12 +47,12 @@ export default function TermsConditionsPage() {
               <strong className="text-white/80">Alerts:</strong> Get exclusive access to the latest events,
               mouth-watering specials, and valuable coupons from your favorite dining spots with DineSavvy Alerts.
               Enroll now and never miss out on an opportunity to enhance your dining experience and save at the same
-              time. We're bringing the best of the culinary world directly to your phone.
+              time. We&apos;re bringing the best of the culinary world directly to your phone.
             </p>
             <ul className="mt-4 space-y-2 list-disc list-inside marker:text-seed-500">
               <li>
-                You can cancel the SMS service at any time. Just text <strong className="text-white/80">"STOP"</strong>{" "}
-                to the short code. After you send the SMS message "STOP" to us, we will send you an SMS message to
+                You can cancel the SMS service at any time. Just text <strong className="text-white/80">&ldquo;STOP&rdquo;</strong>{" "}
+                to the short code. After you send the SMS message &ldquo;STOP&rdquo; to us, we will send you an SMS message to
                 confirm that you have been unsubscribed. After this, you will no longer receive SMS messages from us.
                 If you want to join again, just sign up as you did the first time and we will start sending SMS
                 messages to you again.
@@ -95,7 +95,7 @@ export default function TermsConditionsPage() {
             <ul className="mt-3 space-y-2 list-disc list-inside marker:text-seed-500">
               <li>Required by law.</li>
               <li>
-                It's necessary for third-party service providers we use, such as email services, under strict
+                It&apos;s necessary for third-party service providers we use, such as email services, under strict
                 confidentiality agreements.
               </li>
             </ul>
