@@ -4,7 +4,6 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  GradientText,
   GlassCard,
   CardTitle,
   Body,
@@ -14,6 +13,7 @@ import {
   IconBox,
   CheckList,
   AnimatedH1,
+  AnimatedH2,
 } from "@/components/kit";
 
 const values = [
@@ -87,10 +87,12 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <LiquidGlassPill variant="default" className="mb-5">Our Story</LiquidGlassPill>
-            <h2 className="font-display text-heading md:text-title text-white mb-6">
-              Built for Businesses That{" "}
-              <GradientText as="span">Mean It</GradientText>
-            </h2>
+            <AnimatedH2
+              className="font-display text-heading md:text-title text-white mb-6"
+              highlightWords={["Mean", "It"]}
+            >
+              Built for Businesses That Mean It
+            </AnimatedH2>
             <p className="text-body text-light-base/60 leading-relaxed mb-5">
               SeedTech was founded with a simple idea: small and mid-sized businesses deserve the same
               quality of technology support that enterprise companies get — without the enterprise price tag.

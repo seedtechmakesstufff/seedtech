@@ -16,11 +16,11 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  GradientText,
   LiquidGlassCard,
   LiquidGlassPill,
   CTABanner,
   AnimatedH1,
+  AnimatedH2,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
@@ -170,9 +170,9 @@ export default function AssessmentPage() {
       <Section theme="light">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-eyebrow uppercase tracking-widest mb-4 text-seed-600">Why Now?</p>
-          <h2 className="font-display text-heading md:text-heading-lg text-dark-base mb-8">
+          <AnimatedH2 className="font-display text-heading md:text-heading-lg text-dark-base mb-8">
             Most Businesses Don&apos;t Know Their Gaps Until It&apos;s Too Late
-          </h2>
+          </AnimatedH2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
             {[
               { stat: "60%", label: "of small businesses close within 6 months of a major cyberattack" },

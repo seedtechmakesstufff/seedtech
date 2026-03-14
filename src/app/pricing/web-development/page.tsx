@@ -1,6 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
-import { GradientOrb, GridPattern, CTABanner, GradientText, GlassCard, LiquidGlassPill, AnimatedH1 } from "@/components/kit";
+import { GradientOrb, GridPattern, CTABanner, GlassCard, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
 export const metadata = {
@@ -145,7 +145,7 @@ export default function WebDevelopmentPricingPage() {
 
               {/* Name + price */}
               <div>
-                <h2 className="font-display text-subheading text-white mb-2">{tier.name}</h2>
+                <AnimatedH2 className="font-display text-subheading text-white mb-2">{tier.name}</AnimatedH2>
                 <p className="font-display text-heading text-seed-400">
                   Starting at {tier.starting}
                 </p>
@@ -207,9 +207,9 @@ export default function WebDevelopmentPricingPage() {
       <Section theme="light">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-eyebrow uppercase tracking-widest text-seed-600 mb-3">Optional Add-Ons</p>
-          <h2 className="font-display text-heading text-dark-base mb-10">
+          <AnimatedH2 className="font-display text-heading text-dark-base mb-10">
             Extend Your Website
-          </h2>
+          </AnimatedH2>
           <div className="flex flex-wrap justify-center gap-3">
             {addOns.map((item) => (
               <span
@@ -228,9 +228,9 @@ export default function WebDevelopmentPricingPage() {
       <Section>
         <GlassCard theme="dark" className="max-w-3xl mx-auto text-center p-12" hover={false}>
           <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-3">Not Sure What You Need?</p>
-          <h2 className="font-display text-heading text-white mb-4">
+          <AnimatedH2 className="font-display text-heading text-white mb-4">
             Every project is different.
-          </h2>
+          </AnimatedH2>
           <p className="text-body-lg text-light-base/60 mb-8 max-w-xl mx-auto">
             We&apos;ll help determine the best solution for your business and budget. Schedule a consultation to discuss your project.
           </p>

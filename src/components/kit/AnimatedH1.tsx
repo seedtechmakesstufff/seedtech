@@ -31,3 +31,32 @@ export function AnimatedH1({ children, className, highlightWords, delay = 0.15 }
     />
   );
 }
+
+interface AnimatedH2Props {
+  children: string;
+  className?: string;
+  /** Words to render with GradientText */
+  highlightWords?: string[];
+  /** Start delay in seconds. Default 0. */
+  delay?: number;
+}
+
+/**
+ * Drop-in replacement for bare section-level <h2> headings on public pages.
+ * Animates on scroll (inView mode) — fires once when the element enters the viewport.
+ * Uses the same SplitTextReveal word-by-word blur+slide effect.
+ */
+export function AnimatedH2({ children, className, highlightWords, delay = 0 }: AnimatedH2Props) {
+  return (
+    <SplitTextReveal
+      text={children}
+      as="h2"
+      mode="inView"
+      delay={delay}
+      stagger={0.055}
+      duration={0.65}
+      highlightWords={highlightWords}
+      className={className}
+    />
+  );
+}

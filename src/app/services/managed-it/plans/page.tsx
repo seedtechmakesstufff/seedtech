@@ -15,12 +15,12 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  GradientText,
   LiquidGlassCard,
   LiquidGlassPill,
   CTABanner,
   IconBox,
   AnimatedH1,
+  AnimatedH2,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { newPlans, mdmAddon } from "@/lib/plans";
@@ -228,7 +228,7 @@ export default function PlansPage() {
             <div className="flex items-start gap-5 mb-6">
               <IconBox icon={Smartphone} className="text-seed-400" />
               <div>
-                <h2 className="font-display text-heading text-white mb-2">{mdmAddon.name} Add-On</h2>
+                <AnimatedH2 className="font-display text-heading text-white mb-2">{`${mdmAddon.name} Add-On`}</AnimatedH2>
                 <p className="text-body text-light-base/50">{mdmAddon.description}</p>
               </div>
             </div>

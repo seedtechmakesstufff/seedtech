@@ -1,6 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { AmbientGlow } from "./BackgroundEffects";
 import { Button } from "./Button";
+import { AnimatedH2 } from "./AnimatedH1";
 
 interface CTABannerProps {
   title: string;
@@ -37,9 +40,9 @@ export function CTABanner({
     )}>
       <AmbientGlow />
       <div className="relative z-10 space-y-6">
-        <h2 className="font-display text-heading md:text-heading-lg text-white">
+        <AnimatedH2 className="font-display text-heading md:text-heading-lg text-white">
           {title}
-        </h2>
+        </AnimatedH2>
         <p className="text-body-lg text-white/60 max-w-md mx-auto">
           {description}
         </p>

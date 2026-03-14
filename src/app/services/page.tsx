@@ -4,13 +4,13 @@ import { Section } from "@/components/layout/Section";
 import {
   GradientOrb,
   GridPattern,
-  GradientText,
   LiquidGlassCard,
   LiquidGlassPill,
   CTABanner,
   IconBox,
   CheckList,
   AnimatedH1,
+  AnimatedH2,
 } from "@/components/kit";
 
 const services = [
@@ -97,7 +97,7 @@ export default function ServicesPage() {
                     <IconBox icon={svc.icon} variant="gradient" />
                     <LiquidGlassPill variant={svc.variant}>{svc.label}</LiquidGlassPill>
                   </div>
-                  <h2 className="font-display text-heading text-white mb-2">{svc.headline}</h2>
+                  <AnimatedH2 className="font-display text-heading text-white mb-2">{svc.headline}</AnimatedH2>
                   <p className="text-body text-light-base/60 leading-relaxed mb-6">{svc.description}</p>
                   <Link
                     href={svc.href}

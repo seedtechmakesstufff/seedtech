@@ -20,12 +20,12 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  GradientText,
   LiquidGlassCard,
   LiquidGlassPill,
   CTABanner,
   IconBox,
   AnimatedH1,
+  AnimatedH2,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { mdmAddon } from "@/lib/plans";
@@ -199,9 +199,9 @@ export default function MDMPage() {
       <Section theme="light">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-eyebrow uppercase tracking-widest mb-4 text-seed-600">Supported Platforms</p>
-          <h2 className="font-display text-heading md:text-heading-lg text-dark-base mb-8">
+          <AnimatedH2 className="font-display text-heading md:text-heading-lg text-dark-base mb-8">
             iOS • iPadOS • Android
-          </h2>
+          </AnimatedH2>
           <p className="text-body text-dark-base/60 max-w-xl mx-auto mb-8">
             Manage iPhones, iPads, Samsung Galaxy, Google Pixel, and ruggedized devices from
             manufacturers like Zebra and Honeywell — all from one dashboard.

@@ -20,7 +20,6 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  GradientText,
   CTABanner,
   LiquidGlassPill,
   AnimatedH1,

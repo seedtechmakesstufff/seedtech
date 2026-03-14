@@ -22,6 +22,7 @@ import {
   LiquidGlassPill,
   CTABanner,
   AnimatedH1,
+  AnimatedH2,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
@@ -195,9 +196,9 @@ export default function WhySeedTechPage() {
       <Section theme="light">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <p className="text-eyebrow uppercase tracking-widest mb-4 text-seed-600">Our Philosophy</p>
-          <h2 className="font-display text-heading md:text-heading-lg text-dark-base mb-6">
+          <AnimatedH2 className="font-display text-heading md:text-heading-lg text-dark-base mb-6">
             Effective IT Doesn&apos;t Require a Pit Crew
-          </h2>
+          </AnimatedH2>
           <p className="text-body-lg text-dark-base/60 leading-relaxed">
             Headcount doesn&apos;t fix problems — structure does. A focused team that
             knows your environment, builds automation for repeat issues, and owns every

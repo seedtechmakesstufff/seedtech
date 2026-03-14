@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
-import { GradientOrb, GridPattern, GradientText, LiquidGlassPill, AnimatedH1 } from "@/components/kit";
+import { GradientOrb, GridPattern, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { projects } from "@/data/projects";
 
@@ -174,9 +174,9 @@ export default function WebDevelopmentPage() {
         <div className="mx-auto max-w-5xl px-6 text-center mb-14">
           {/* Validated pill */}
           <LiquidGlassPill variant="default" className="mb-6">Validated</LiquidGlassPill>
-          <h2 className="font-display text-heading md:text-title text-white leading-[1.1] mb-6">
+          <AnimatedH2 className="font-display text-heading md:text-title text-white leading-[1.1] mb-6">
             Websites Built for Businesses That Mean It
-          </h2>
+          </AnimatedH2>
           <p className="text-body-lg text-light-base/40 max-w-2xl mx-auto leading-relaxed">
             We&apos;ve built custom websites, ecommerce platforms, and web
             applications for businesses across industries — from specialty
@@ -233,9 +233,9 @@ export default function WebDevelopmentPage() {
               <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-3">
                 Featured Work
               </p>
-              <h2 className="font-display text-heading md:text-title text-white">
+              <AnimatedH2 className="font-display text-heading md:text-title text-white">
                 Recent Projects
-              </h2>
+              </AnimatedH2>
             </div>
             <Link
               href="/our-work"
@@ -341,9 +341,9 @@ export default function WebDevelopmentPage() {
             <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-3">
               Pricing
             </p>
-            <h2 className="font-display text-heading md:text-title text-white">
+            <AnimatedH2 className="font-display text-heading md:text-title text-white">
               Simple, Transparent Pricing
-            </h2>
+            </AnimatedH2>
           </div>
 
           {/* Horizontal scroll on mobile, 4-col row on desktop */}
@@ -412,9 +412,9 @@ export default function WebDevelopmentPage() {
           ══════════════════════════════════════════════════════════════════════ */}
       <section className="bg-dark-base py-28 md:py-36">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="font-display text-heading md:text-title text-white mb-6">
+          <AnimatedH2 className="font-display text-heading md:text-title text-white mb-6">
             Let&apos;s Build Something Great.
-          </h2>
+          </AnimatedH2>
           <p className="text-body-lg text-light-base/40 mb-10 max-w-lg mx-auto">
             Tell us about your project and we&apos;ll put together a tailored
             proposal within 48 hours.

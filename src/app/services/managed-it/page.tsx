@@ -21,7 +21,6 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
   GradientOrb,
   GridPattern,
-  GradientText,
   LiquidGlassCard,
   LiquidGlassPill,
   CTABanner,
