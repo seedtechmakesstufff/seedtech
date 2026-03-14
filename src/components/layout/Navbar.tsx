@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuoteFlow } from "@/components/quote-flow";
@@ -26,12 +26,25 @@ const navLinks = [
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { openQuoteFlow } = useQuoteFlow();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    handleScroll(); // check on mount
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pt-3">
       <div className="mx-auto max-w-6xl px-4">
-        <nav className="liquid-glass rounded-2xl flex items-center justify-between h-14 px-4">
+        <nav className={cn(
+          "rounded-2xl flex items-center justify-between h-14 px-4 transition-all duration-300",
+          scrolled
+            ? "bg-dark-base/80 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/20"
+            : "liquid-glass"
+        )}>
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image

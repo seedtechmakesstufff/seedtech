@@ -264,6 +264,7 @@ export default function OnboardingPage() {
       {/* CTA */}
       <Section theme="light">
         <CTABanner
+          theme="light"
           title="Ready to Make the Switch?"
           description="Start with a free assessment. We will evaluate your environment and map out your onboarding in detail."
           primaryLabel="Schedule Free Assessment"

@@ -76,7 +76,7 @@ export function ServicesSection() {
             {/* Header row */}
             <div className="flex items-start justify-between gap-4">
               <IconBox icon={s.icon} variant="gradient" size="lg" />
-              <LiquidGlassPill variant={s.pillVariant} size="sm" dot>
+              <LiquidGlassPill variant={s.pillVariant} size="sm" dot onLight>
                 {s.label}
               </LiquidGlassPill>
             </div>

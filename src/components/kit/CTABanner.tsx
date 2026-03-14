@@ -12,6 +12,8 @@ interface CTABannerProps {
   className?: string;
   /** When provided, the primary CTA renders as a button instead of a link. */
   onPrimaryClick?: () => void;
+  /** When "light", wraps the banner in a dark rounded container so it's visible on white backgrounds. */
+  theme?: "dark" | "light";
 }
 
 export function CTABanner({
@@ -23,9 +25,16 @@ export function CTABanner({
   secondaryHref,
   className,
   onPrimaryClick,
+  theme = "dark",
 }: CTABannerProps) {
+  const isOnLight = theme === "light";
+
   return (
-    <div className={cn("relative py-24 text-center overflow-hidden", className)}>
+    <div className={cn(
+      "relative py-24 text-center overflow-hidden",
+      isOnLight && "bg-dark-base rounded-3xl px-6",
+      className
+    )}>
       <AmbientGlow />
       <div className="relative z-10 space-y-6">
         <h2 className="font-display text-heading md:text-heading-lg text-white">

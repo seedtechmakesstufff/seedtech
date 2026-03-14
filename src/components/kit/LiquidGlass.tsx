@@ -91,6 +91,8 @@ interface LiquidGlassPillProps {
   size?: PillSize;
   /** Adds a small colored dot before the label (status indicator) */
   dot?: boolean;
+  /** Use light-background-optimized glass style with dark text */
+  onLight?: boolean;
   className?: string;
 }
 
@@ -100,6 +102,14 @@ const pillVariantClass: Record<PillVariant, string> = {
   blue: "liquid-glass-tinted-blue text-white",
   cyan: "liquid-glass-tinted-cyan text-white",
   emerald: "liquid-glass-tinted-emerald text-white",
+};
+
+const pillVariantLightClass: Record<PillVariant, string> = {
+  default: "liquid-glass-on-light text-dark-base/70",
+  seed: "liquid-glass-on-light-seed text-seed-700",
+  blue: "liquid-glass-on-light-blue text-blue-700",
+  cyan: "liquid-glass-on-light-cyan text-cyan-700",
+  emerald: "liquid-glass-on-light-emerald text-emerald-700",
 };
 
 const pillSizeClass: Record<PillSize, string> = {
@@ -113,13 +123,14 @@ export function LiquidGlassPill({
   variant = "default",
   size = "sm",
   dot = false,
+  onLight = false,
   className,
 }: LiquidGlassPillProps) {
   return (
     <span
       className={cn(
         "inline-flex items-center rounded-full font-medium relative overflow-hidden",
-        pillVariantClass[variant],
+        onLight ? pillVariantLightClass[variant] : pillVariantClass[variant],
         pillSizeClass[size],
         className
       )}

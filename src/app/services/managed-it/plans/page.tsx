@@ -292,6 +292,7 @@ export default function PlansPage() {
       {/* CTA */}
       <Section theme="light">
         <CTABanner
+          theme="light"
           title="Not Sure Which Plan?"
           description="Get a free IT assessment. We will evaluate your environment and recommend the right SeedCare plan for your team."
           primaryLabel="Schedule Free Assessment"
