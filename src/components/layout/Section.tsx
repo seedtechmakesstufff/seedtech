@@ -11,6 +11,7 @@ export function Section({ children, className, theme = "dark", id }: SectionProp
   return (
     <section
       id={id}
+      data-section-theme={theme}
       className={cn(
         "relative py-24 md:py-32 overflow-hidden",
         theme === "dark" ? "bg-dark-base text-white" : "bg-light-base text-dark-base",

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuoteFlow } from "@/components/quote-flow";
@@ -23,26 +23,85 @@ const navLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
+/**
+ * Watches all `[data-section-theme="light"]` elements and returns `true`
+ * whenever any of them overlap the navbar zone (top 80px of the viewport).
+ */
+function useOverLightSection() {
+  const [overLight, setOverLight] = useState(false);
+  const activeRef = useRef(new Set<Element>());
+
+  const observe = useCallback(() => {
+    // Shrink the intersection root to just the top 80px of the viewport
+    const bottomMargin = -(window.innerHeight - 80);
+    activeRef.current.clear();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            activeRef.current.add(entry.target);
+          } else {
+            activeRef.current.delete(entry.target);
+          }
+        });
+        setOverLight(activeRef.current.size > 0);
+      },
+      {
+        rootMargin: `0px 0px ${bottomMargin}px 0px`,
+        threshold: 0,
+      }
+    );
+
+    const lightSections = document.querySelectorAll('[data-section-theme="light"]');
+    lightSections.forEach((el) => observer.observe(el));
+
+    return observer;
+  }, []);
+
+  useEffect(() => {
+    let observer = observe();
+
+    // Re-observe on client-side navigation (DOM mutations)
+    const mutationObserver = new MutationObserver(() => {
+      observer.disconnect();
+      observer = observe();
+    });
+    mutationObserver.observe(document.querySelector("main") || document.body, {
+      childList: true,
+      subtree: false,
+    });
+
+    // Re-calculate on resize (bottomMargin depends on viewport height)
+    const handleResize = () => {
+      observer.disconnect();
+      observer = observe();
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [observe]);
+
+  return overLight;
+}
+
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const overLight = useOverLightSection();
   const { openQuoteFlow } = useQuoteFlow();
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    handleScroll(); // check on mount
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pt-3">
       <div className="mx-auto max-w-6xl px-4">
         <nav className={cn(
           "rounded-2xl flex items-center justify-between h-14 px-4 transition-all duration-300",
-          scrolled
-            ? "bg-dark-base/80 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/20"
+          overLight
+            ? "bg-dark-base/90 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/20"
             : "liquid-glass"
         )}>
           {/* Logo */}
