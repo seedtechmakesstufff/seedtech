@@ -180,6 +180,21 @@ export default function ProjectPage({ params }: Props) {
                   </div>
                 )}
               </div>
+
+              {/* Video embed — shown when project has a videoUrl */}
+              {project.videoUrl && (
+                <div className="mt-4 rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
+                  <div className="relative aspect-video w-full">
+                    <iframe
+                      src={project.videoUrl}
+                      title={`${project.client} — video`}
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0 w-full h-full"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
