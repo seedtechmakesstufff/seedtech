@@ -122,27 +122,28 @@ export function Navbar() {
               link.children ? (
                 <div
                   key={link.label}
-                  className="relative"
-                  onMouseEnter={() => setServicesOpen(true)}
-                  onMouseLeave={() => setServicesOpen(false)}
+                  className="relative group"
                 >
                   <button className="flex items-center gap-1 px-4 py-2 text-sm text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/[0.04]">
                     {link.label}
-                    <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", servicesOpen && "rotate-180")} />
+                    <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" />
                   </button>
-                  {servicesOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-56 liquid-glass rounded-xl p-2 animate-fade-in">
-                      {link.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className="block px-3 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  {/* Invisible bridge fills the gap so mouseleave doesn't fire */}
+                  <div className="absolute top-full left-0 w-full h-3 bg-transparent" />
+                  <div className="absolute top-[calc(100%+0.5rem)] left-0 w-56 bg-[#1a1a2e] border border-white/[0.10] rounded-xl p-2 shadow-xl shadow-black/40
+                    opacity-0 invisible translate-y-1
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 ease-out">
+                    {link.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className="block px-3 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/[0.06] rounded-lg transition-colors"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <Link
