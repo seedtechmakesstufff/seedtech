@@ -154,7 +154,7 @@ export const projects: Project[] = [
     description:
       "This was an extremely comprehensive custom-built platform for Trevor Noah's Back to Abnormal world tour. The platform allowed fans to purchase tickets, vote for Trevor to tour their country, and explore a fully custom interactive map interface where users could hover over their country and cast a vote. A real-time tally displayed the top 10 most-voted countries, giving management teams direct insight into new potential markets to add to the tour. The platform included a massive backend system to manage tours, presale codes, votes, and customer engagement — all built on Next.js and deployed on Google Cloud servers.",
     image: "/img/use_case_card_trevor_noah_1x.webp",
-    videoUrl: "https://player.vimeo.com/video/1173486304",
+    videoUrl: "https://player.vimeo.com/video/1173486304?autoplay=1&loop=1&muted=1&controls=0&background=1",
     techStack: ["Next.js", "Google Cloud", "Node.js", "REST APIs", "Interactive Maps", "Real-time Data"],
     tags: ["Entertainment", "Custom Platform", "Interactive Map", "Tour Management"],
     highlights: [
