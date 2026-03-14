@@ -7,6 +7,7 @@ React
 TypeScript
 TailwindCSS
 ShadCN UI
+neon via vercel integration
 
 Rules:
 
