@@ -111,7 +111,7 @@ export function Navbar() {
               alt="SeedTech"
               width={160}
               height={48}
-              className="h-10 w-auto object-contain"
+              className="h-6 w-auto object-contain"
               priority
             />
           </Link>
