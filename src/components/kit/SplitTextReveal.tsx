@@ -20,10 +20,11 @@ interface SplitTextRevealProps {
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const wordVariants: Variants = {
-  hidden: { y: "110%", opacity: 0 },
+  hidden: { y: "110%", opacity: 0, filter: "blur(8px)" },
   visible: (custom: { delay: number; duration: number }) => ({
     y: 0,
     opacity: 1,
+    filter: "blur(0px)",
     transition: {
       duration: custom.duration,
       delay: custom.delay,
