@@ -101,7 +101,7 @@ export function Navbar() {
         <nav className={cn(
           "rounded-2xl flex items-center justify-between h-14 px-4 transition-all duration-300",
           overLight
-            ? "bg-dark-base/90 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/20"
+            ? "bg-[#1a1a2e] border border-white/[0.10] shadow-lg shadow-black/30"
             : "liquid-glass"
         )}>
           {/* Logo */}
