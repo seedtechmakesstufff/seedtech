@@ -317,25 +317,57 @@ export default function LawFirmsPage() {
           align="center"
         />
         <div className="max-w-4xl mx-auto">
-          {/* Chart visual placeholder */}
-          <div className="relative rounded-3xl border border-white/[0.08] bg-dark-elevated overflow-hidden mb-8">
-            {/*
-              VISUAL PLACEHOLDER — Intake Impact Bar Chart
-              Replace with: Horizontal or vertical bar chart graphic showing the 5 stats below
-              Recommended: Clean bar chart on dark background, seed-green bars
-              Size: Full-width, ~320px tall
-              Message: Intake optimization is a revenue issue, not just a UX issue
-            */}
-            <div className="relative aspect-[16/7] flex items-center justify-center bg-white/[0.02]">
-              <Image src="/industries/law-firms-intake-chart.jpg" alt="Bar chart showing digital intake impact on law firm performance" fill className="object-cover" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-white/15 text-sm text-center px-8 font-mono leading-relaxed">
-                  VISUAL: Bar chart — &quot;How Digital Intake Impacts Law Firm Performance&quot;<br />
-                  Recommended: Horizontal bars, dark bg, seed-green accent<br />
-                  ~1140×500px
-                </p>
-              </div>
+          {/* Intake Impact Bar Chart */}
+          <div className="relative rounded-3xl border border-white/[0.08] bg-[#0c0c0f] overflow-hidden mb-8 px-6 sm:px-10 py-8 sm:py-10" role="img" aria-label="Bar chart showing how digital intake impacts law firm performance">
+            {/* Chart title */}
+            <p className="font-display text-base sm:text-lg font-semibold text-white/80 mb-8 text-center tracking-wide uppercase">
+              How Digital Intake Impacts Law Firm Performance
+            </p>
+            {/* Horizontal bar chart */}
+            <div className="space-y-5 max-w-3xl mx-auto">
+              {[
+                { label: "Digital Intake Tools", metric: "+53%", sublabel: "Revenue Increase", pct: 53 },
+                { label: "Online Forms & Scheduling", metric: "+48%", sublabel: "More Leads", pct: 48 },
+                { label: "E-Signature Integration", metric: "+10%", sublabel: "Conversion Lift", pct: 10 },
+                { label: "Text Message Follow-Up", metric: "+7%", sublabel: "Conversion Lift", pct: 7 },
+                { label: "Online Intake Forms", metric: "+5%", sublabel: "Conversion Lift", pct: 5 },
+              ].map((bar) => (
+                <div key={bar.label}>
+                  <div className="flex items-baseline justify-between mb-1.5">
+                    <span className="text-white/70 text-xs sm:text-sm font-medium">{bar.label}</span>
+                    <span className="text-white font-display text-sm sm:text-base font-bold ml-3 tabular-nums">{bar.metric} <span className="text-white/35 font-sans text-[11px] font-normal">{bar.sublabel}</span></span>
+                  </div>
+                  {/* Bar track */}
+                  <div className="relative h-7 sm:h-8 w-full rounded-md bg-white/[0.04] overflow-hidden">
+                    {/* Filled bar */}
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-md"
+                      style={{
+                        width: `${Math.max(bar.pct, 4)}%`,
+                        background: "linear-gradient(90deg, #0f9c45, #10b981)",
+                        boxShadow: "0 0 20px rgba(16,185,129,0.25)",
+                      }}
+                    />
+                    {/* Subtle shine */}
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-md opacity-30"
+                      style={{
+                        width: `${Math.max(bar.pct, 4)}%`,
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 60%)",
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
+            {/* Scale labels */}
+            <div className="flex justify-between max-w-3xl mx-auto mt-3 px-px">
+              {["0%", "10%", "20%", "30%", "40%", "50%", "60%"].map((tick) => (
+                <span key={tick} className="text-[10px] text-white/20 font-mono">{tick}</span>
+              ))}
+            </div>
+            {/* Source */}
+            <p className="text-center text-[10px] text-white/20 mt-5 font-mono">Source: Clio 2025 Legal Trends Report — Solo & Small Firm Segment</p>
           </div>
           {/* Stat cards below chart */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
