@@ -46,7 +46,7 @@ export function ServicesSection() {
     <Section theme="light">
       <SectionHeader
         eyebrow="Services"
-        title="Two Services. One Partner."
+        title="Two Services."
         titleHighlight="One Partner."
         description="Most businesses juggle separate vendors for their website and IT. We handle both — so your technology actually works together."
         align="center"

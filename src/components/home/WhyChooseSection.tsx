@@ -29,7 +29,7 @@ export function WhyChooseSection() {
     <Section theme="dark">
       <SectionHeader
         eyebrow="Why SeedTech"
-        title="Why Companies Choose SeedTech"
+        title="Why Companies Choose"
         titleHighlight="SeedTech"
         description="Three things that make us different from every other agency or IT vendor you've worked with."
         align="center"
