@@ -116,7 +116,7 @@ export default function TruckingPage() {
   return (
     <div>
       {/* ── Hero ── */}
-      <section className="relative bg-dark-base pt-36 pb-0">
+      <section className="relative bg-dark-base pt-36 pb-6">
         <GradientOrb color="seed" size="xl" className="top-0 left-1/4 -translate-y-1/3 opacity-20" />
         <GradientOrb color="blue" size="lg" className="bottom-0 right-0 translate-y-1/3 opacity-10" />
         <GridPattern />
@@ -156,9 +156,9 @@ export default function TruckingPage() {
           </div>
         </div>
 
-        {/* Image mosaic — 4 images flush to bottom, rounded top corners only */}
-        <div className="relative z-10 mx-auto max-w-6xl px-6 pb-0">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-end">
+        {/* Image mosaic — 4 images, rounded top corners only */}
+        <div className="relative z-10 mx-auto max-w-6xl px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {/*
               IMAGE 1 — Semi truck / tractor-trailer on highway or yard
               File: /public/industries/trucking-hero-1.jpg
