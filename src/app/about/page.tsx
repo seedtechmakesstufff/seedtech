@@ -1,4 +1,4 @@
-import { Shield, Globe, BarChart3, Zap, Heart, Users } from "lucide-react";
+import { Shield, Globe, Zap, Heart, Users } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
@@ -44,7 +44,6 @@ const stats = [
 const whatWeDo = [
   "Managed IT support & monitoring",
   "Custom web development",
-  "Digital marketing & SEO",
   "Cloud infrastructure & backups",
   "Cybersecurity & endpoint protection",
   "vCIO strategy consulting",
@@ -99,7 +98,7 @@ export default function AboutPage() {
             </p>
             <p className="text-body text-light-base/60 leading-relaxed mb-8">
               We started by solving one problem at a time for local businesses in New Jersey. Now we support
-              over 200 companies across the country with managed IT, custom websites, and marketing services
+              over 200 companies across the country with managed IT and custom web development
               that actually move the needle.
             </p>
             <CheckList theme="dark" items={whatWeDo} />
@@ -125,18 +124,6 @@ export default function AboutPage() {
                   <Body className="text-light-base/55">
                     Every website we build is engineered for performance, SEO, and conversion —
                     not just aesthetics. We measure success in leads and revenue, not page views.
-                  </Body>
-                </div>
-              </div>
-            </LiquidGlassCard>
-            <LiquidGlassCard className="p-6">
-              <div className="flex items-start gap-4">
-                <IconBox icon={BarChart3} variant="gradient" />
-                <div>
-                  <CardTitle className="mb-1">Growth-Driven Marketing</CardTitle>
-                  <Body className="text-light-base/55">
-                    Data-driven SEO, content, and advertising strategies that compound over time.
-                    We optimize for your CAC, not vanity metrics.
                   </Body>
                 </div>
               </div>

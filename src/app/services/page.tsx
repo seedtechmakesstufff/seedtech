@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Shield, Globe, BarChart3 } from "lucide-react";
+import { ArrowRight, Shield, Globe } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import {
   GradientOrb,
@@ -48,23 +48,6 @@ const services = [
       "Post-launch support available",
     ],
   },
-  {
-    icon: BarChart3,
-    label: "Marketing",
-    variant: "cyan" as const,
-    href: "/services/marketing",
-    title: "Digital Marketing",
-    headline: "Growth That Compounds.",
-    description:
-      "Data-driven SEO, content strategy, and paid advertising that builds long-term visibility and measurable ROI.",
-    features: [
-      "Local & national SEO",
-      "Content strategy & production",
-      "Google & Meta ad management",
-      "Conversion rate optimization",
-      "Monthly reporting & analytics",
-    ],
-  },
 ];
 
 export default function ServicesPage() {
@@ -77,11 +60,10 @@ export default function ServicesPage() {
         <div className="relative z-10 mx-auto max-w-4xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">What We Do</LiquidGlassPill>
           <AnimatedH1 highlightWords={["Technology"]} className="mb-6">
-            Three Pillars of Technology
+            Two Pillars of Technology
           </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl mx-auto leading-relaxed">
-            IT support, web development, and digital marketing — designed to work together
-            to keep your business running, visible, and growing.
+            IT support and web development — built to keep your business running, visible, and growing.
           </p>
         </div>
       </section>

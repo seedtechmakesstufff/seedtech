@@ -2,7 +2,7 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { GlassCard, IconBox, CardTitle, Body, GradientText, CheckList } from "@/components/kit";
 import { GradientOrb } from "@/components/kit";
-import { Shield, Zap, TrendingUp } from "lucide-react";
+import { Shield, Zap } from "lucide-react";
 
 const features = [
   {
@@ -18,13 +18,6 @@ const features = [
     highlight: "Convert",
     body: "Websites engineered for performance, SEO, and revenue — not just aesthetics.",
     items: ["Next.js & custom React builds", "Core Web Vitals optimized", "E-commerce & client portals"],
-  },
-  {
-    icon: TrendingUp,
-    title: "Growth-Driven Marketing",
-    highlight: "Growth-Driven",
-    body: "Data-backed campaigns that turn your marketing spend into measurable business results.",
-    items: ["SEO & paid media strategy", "Email & content campaigns", "Monthly analytics reporting"],
   },
 ];
 
@@ -42,11 +35,11 @@ export function WhySeedTechSection() {
         eyebrow="Why SeedTech"
         title="Your All-in-One"
         titleHighlight="Technology Partner"
-        description="From keeping the lights on to driving new revenue — we cover every layer of your technology stack so you can focus on running the business."
+        description="From keeping the lights on to building your online presence — we cover every layer of your technology stack so you can focus on running the business."
         align="center"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
         {features.map((f) => (
           <GlassCard key={f.title} theme="dark" className="flex flex-col gap-5">
             <IconBox icon={f.icon} variant="gradient" size="lg" />

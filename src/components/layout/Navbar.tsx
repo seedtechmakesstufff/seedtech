@@ -15,7 +15,6 @@ const navLinks = [
     children: [
       { label: "Managed IT Support", href: "/services/managed-it" },
       { label: "Web Development", href: "/services/web-development" },
-      { label: "Marketing", href: "/services/marketing" },
     ],
   },
   {
