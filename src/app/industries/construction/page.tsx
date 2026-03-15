@@ -11,6 +11,7 @@ import {
   Building2,
   ChevronDown,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -107,35 +108,122 @@ export default function ConstructionPage() {
   return (
     <div>
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-dark-base pt-40 pb-28">
+      <section className="relative overflow-hidden bg-dark-base pt-36 pb-0">
         <GradientOrb color="seed" size="xl" className="top-0 left-1/4 -translate-y-1/3 opacity-20" />
         <GradientOrb color="blue" size="lg" className="bottom-0 right-0 translate-y-1/3 opacity-10" />
         <GridPattern />
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <LiquidGlassPill variant="seed" className="mb-6">
-            <HardHat className="w-3.5 h-3.5 inline mr-1.5" />
-            Construction & Rigging
-          </LiquidGlassPill>
-          <AnimatedH1 highlightWords={["Win More Trust"]} delay={0.15}>
-            Construction Companies That Win More Trust — Before the First Meeting
-          </AnimatedH1>
-          <p className="mt-6 text-body-lg text-light-base/55 max-w-2xl mx-auto leading-relaxed">
-            Your website is the first thing serious buyers check before calling. SeedTech helps construction, rigging, and specialty trade companies build digital infrastructure that proves capability, attracts qualified labor, and keeps operations running — reliably.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/free-audit"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-seed-600 to-seed-500 text-white font-medium hover:shadow-glowSeed transition-all duration-200"
-            >
-              Get a Free Technology Audit
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl liquid-glass text-white font-medium transition-all duration-200"
-            >
-              Talk to Us
-            </Link>
+
+        {/* Top row: headline left, CTA right */}
+        <div className="relative z-10 mx-auto max-w-6xl px-6 pb-12">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            {/* Headline block */}
+            <div className="max-w-3xl">
+              <LiquidGlassPill variant="seed" className="mb-6">
+                <HardHat className="w-3.5 h-3.5 inline mr-1.5" />
+                Construction & Rigging
+              </LiquidGlassPill>
+              <AnimatedH1 highlightWords={["Win More Trust"]} delay={0.15} className="text-left">
+                Construction Companies That Win More Trust — Before the First Meeting
+              </AnimatedH1>
+              <p className="mt-6 text-body-lg text-light-base/55 max-w-xl leading-relaxed">
+                Your website is the first thing serious buyers check before calling. SeedTech helps construction, rigging, and specialty trade companies build digital infrastructure that proves capability, attracts qualified labor, and keeps operations running — reliably.
+              </p>
+            </div>
+            {/* CTA block — pinned bottom-right on desktop */}
+            <div className="flex flex-col sm:flex-row lg:flex-col items-start gap-4 lg:items-end lg:shrink-0">
+              <Link
+                href="/free-audit"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-seed-600 to-seed-500 text-white font-medium hover:shadow-glowSeed transition-all duration-200 whitespace-nowrap"
+              >
+                Get a Free Audit
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl liquid-glass text-white font-medium transition-all duration-200 whitespace-nowrap"
+              >
+                Talk to Us
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Image mosaic — 4 images, 2×2 grid, flush to bottom of section */}
+        <div className="relative z-10 mx-auto max-w-6xl px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {/*
+              IMAGE 1 — Full-width jobsite or aerial project photo
+              File: /public/industries/construction-hero-1.jpg
+              Recommended size: 720×540px (4:3) — heavy equipment, crane, active job site
+            */}
+            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+              <Image
+                src="/industries/construction-hero-1.jpg"
+                alt="Active construction job site with heavy equipment"
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
+                  720×540px<br />Active job site / crane / equipment
+                </p>
+              </div>
+            </div>
+            {/*
+              IMAGE 2 — Close-up of rigging, steel, or specialty trade work
+              File: /public/industries/construction-hero-2.jpg
+              Recommended size: 720×540px (4:3) — rigging cables, steel beams, precision work
+            */}
+            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+              <Image
+                src="/industries/construction-hero-2.jpg"
+                alt="Rigging and specialty trade work close-up"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
+                  720×540px<br />Rigging / steel / specialty trade
+                </p>
+              </div>
+            </div>
+            {/*
+              IMAGE 3 — Completed project showcase: building exterior or infrastructure
+              File: /public/industries/construction-hero-3.jpg
+              Recommended size: 720×540px (4:3) — completed commercial build, exterior
+            */}
+            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+              <Image
+                src="/industries/construction-hero-3.jpg"
+                alt="Completed construction project showcase"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
+                  720×540px<br />Completed project / building exterior
+                </p>
+              </div>
+            </div>
+            {/*
+              IMAGE 4 — SeedTech website mockup on device (laptop/tablet)
+              File: /public/industries/construction-hero-4.jpg
+              Recommended size: 720×540px (4:3) — device mockup showing construction site/portal
+            */}
+            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+              <Image
+                src="/industries/construction-hero-4.jpg"
+                alt="Construction company website mockup on device"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
+                  720×540px<br />Website / portal mockup on device
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
