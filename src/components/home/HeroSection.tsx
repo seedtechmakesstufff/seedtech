@@ -60,20 +60,19 @@ export function HeroSection() {
 
         {/* Hero headline — word-by-word reveal */}
         <SplitTextReveal
-          text="Technology That Grows Your Business"
+          text="Technology Partner for Growing Businesses"
           as="h1"
           delay={0.25}
           stagger={0.07}
           duration={0.7}
-          highlightWords={["Grows"]}
+          highlightWords={["Growing"]}
           className="font-display text-display leading-[1.05] text-white"
         />
 
         {/* Subline */}
         <motion.div {...fadeUp(0.7)}>
           <BodyLg className="mt-6 max-w-2xl mx-auto">
-            SeedTech delivers proactive managed IT, stunning web experiences,
-            and data-driven marketing — all under one roof.
+            Launch better websites faster with professionally-accelerated development and proactive IT support.
           </BodyLg>
         </motion.div>
 
