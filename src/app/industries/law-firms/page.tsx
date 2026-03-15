@@ -16,6 +16,10 @@ import {
   Zap,
   TrendingUp,
   HeartHandshake,
+  Search,
+  Brain,
+  FileText,
+  Sparkles,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -674,6 +678,65 @@ export default function LawFirmsPage() {
               </LiquidGlassCard>
             ))}
           </div>
+        </div>
+      </Section>
+
+      {/* ── SEO Autopilot ── */}
+      <Section theme="light">
+        <SectionHeader
+          eyebrow="Built-In SEO"
+          title="Your website comes with an"
+          titleHighlight="SEO command center."
+          description="Every SeedTech site includes our proprietary SEO Autopilot system — live keyword rankings, AI-powered strategy, and automated content generation. No agency retainer. No third-party subscriptions. It's built into your admin panel."
+          align="center"
+          theme="light"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {[
+            {
+              icon: Search,
+              title: "Live Keyword Rankings",
+              body: "See exactly where your firm ranks on Google for terms like \"personal injury lawyer NJ\" or \"family law attorney near me\" — updated in real time from Search Console.",
+            },
+            {
+              icon: Brain,
+              title: "AI SEO Advisor",
+              body: "Ask any question — \"How do I rank for estate planning?\" — and get specific, data-backed recommendations using your actual traffic data and rankings.",
+            },
+            {
+              icon: FileText,
+              title: "AI Blog Writer",
+              body: "Generate full, SEO-optimized legal blog posts from a keyword. The AI knows your practice areas, your tone, and your target audience. Publish in minutes, not weeks.",
+            },
+            {
+              icon: BarChart3,
+              title: "Performance Audits",
+              body: "One-click PageSpeed and Core Web Vitals audits on any page. Know exactly what's fast, what's slow, and what Google penalizes.",
+            },
+            {
+              icon: Zap,
+              title: "Instant Indexing",
+              body: "New blog post or updated practice-area page? One click notifies search engines instantly via IndexNow — no waiting for crawlers.",
+            },
+            {
+              icon: Sparkles,
+              title: "Your Firm, Your Voice",
+              body: "The AI knows your firm — your practice areas, credentials, tone, and compliance requirements. You control the business context that drives every recommendation.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight p-6 flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-xl bg-seed-50 flex items-center justify-center">
+                <item.icon className="w-5 h-5 text-seed-600" />
+              </div>
+              <h3 className="font-display text-card-title text-dark-base">{item.title}</h3>
+              <p className="text-body-sm text-dark-base/55 leading-relaxed">{item.body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-10 max-w-3xl mx-auto text-center">
+          <p className="text-body-sm text-dark-base/45 leading-relaxed">
+            Most law firm websites are static brochures. Yours comes with a full SEO engine — keyword tracking that replaces $300/mo tools, an AI strategist that replaces agency retainers, and a content system that turns one keyword into a published blog post in minutes.
+          </p>
         </div>
       </Section>
 
