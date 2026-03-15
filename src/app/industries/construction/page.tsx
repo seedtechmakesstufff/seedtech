@@ -154,9 +154,9 @@ export default function ConstructionPage() {
             {/*
               IMAGE 1 — Full-width jobsite or aerial project photo
               File: /public/industries/construction-hero-1.jpg
-              Recommended size: 720×540px (4:3) — heavy equipment, crane, active job site
+              Recommended size: 273×400px (portrait) — heavy equipment, crane, active job site
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/construction-hero-1.jpg"
                 alt="Active construction job site with heavy equipment"
@@ -166,16 +166,16 @@ export default function ConstructionPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Active job site / crane / equipment
+                  273×400px<br />Active job site / crane / equipment
                 </p>
               </div>
             </div>
             {/*
               IMAGE 2 — Close-up of rigging, steel, or specialty trade work
               File: /public/industries/construction-hero-2.jpg
-              Recommended size: 720×540px (4:3) — rigging cables, steel beams, precision work
+              Recommended size: 273×400px (portrait) — rigging cables, steel beams, precision work
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/construction-hero-2.jpg"
                 alt="Rigging and specialty trade work close-up"
@@ -184,16 +184,16 @@ export default function ConstructionPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Rigging / steel / specialty trade
+                  273×400px<br />Rigging / steel / specialty trade
                 </p>
               </div>
             </div>
             {/*
               IMAGE 3 — Completed project showcase: building exterior or infrastructure
               File: /public/industries/construction-hero-3.jpg
-              Recommended size: 720×540px (4:3) — completed commercial build, exterior
+              Recommended size: 273×400px (portrait) — completed commercial build, exterior
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/construction-hero-3.jpg"
                 alt="Completed construction project showcase"
@@ -202,16 +202,16 @@ export default function ConstructionPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Completed project / building exterior
+                  273×400px<br />Completed project / building exterior
                 </p>
               </div>
             </div>
             {/*
               IMAGE 4 — SeedTech website mockup on device (laptop/tablet)
               File: /public/industries/construction-hero-4.jpg
-              Recommended size: 720×540px (4:3) — device mockup showing construction site/portal
+              Recommended size: 273×400px (portrait) — device mockup showing construction site/portal
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/construction-hero-4.jpg"
                 alt="Construction company website mockup on device"
@@ -220,7 +220,7 @@ export default function ConstructionPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Website / portal mockup on device
+                  273×400px<br />Website / portal mockup on device
                 </p>
               </div>
             </div>

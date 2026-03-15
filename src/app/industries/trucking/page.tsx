@@ -162,9 +162,9 @@ export default function TruckingPage() {
             {/*
               IMAGE 1 — Semi truck / tractor-trailer on highway or yard
               File: /public/industries/trucking-hero-1.jpg
-              Recommended size: 720×540px (4:3) — Class 8 truck, highway, motion or parked fleet
+              Recommended size: 273×400px (portrait) — Class 8 truck, highway, motion or parked fleet
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/trucking-hero-1.jpg"
                 alt="Semi truck fleet on highway"
@@ -174,16 +174,16 @@ export default function TruckingPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Semi / fleet on highway or yard
+                  273×400px<br />Semi / fleet on highway or yard
                 </p>
               </div>
             </div>
             {/*
               IMAGE 2 — Bulk hauling, flatbed, or specialty freight load
               File: /public/industries/trucking-hero-2.jpg
-              Recommended size: 720×540px (4:3) — flatbed with steel, bulk tanker, or specialized load
+              Recommended size: 273×400px (portrait) — flatbed with steel, bulk tanker, or specialized load
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/trucking-hero-2.jpg"
                 alt="Flatbed or bulk freight specialty load"
@@ -192,16 +192,16 @@ export default function TruckingPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Flatbed / bulk / specialty freight
+                  273×400px<br />Flatbed / bulk / specialty freight
                 </p>
               </div>
             </div>
             {/*
               IMAGE 3 — Dispatch office or driver operations environment
               File: /public/industries/trucking-hero-3.jpg
-              Recommended size: 720×540px (4:3) — dispatcher at screens, logistics ops room
+              Recommended size: 273×400px (portrait) — dispatcher at screens, logistics ops room
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/trucking-hero-3.jpg"
                 alt="Trucking dispatch operations office"
@@ -210,16 +210,16 @@ export default function TruckingPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Dispatch office / logistics ops
+                  273×400px<br />Dispatch office / logistics ops
                 </p>
               </div>
             </div>
             {/*
               IMAGE 4 — SeedTech website / driver portal mockup on device
               File: /public/industries/trucking-hero-4.jpg
-              Recommended size: 720×540px (4:3) — device mockup showing driver app or trucking site
+              Recommended size: 273×400px (portrait) — device mockup showing driver app or trucking site
             */}
-            <div className="relative aspect-[4/3] rounded-t-2xl overflow-hidden bg-white/[0.05]">
+            <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
                 src="/industries/trucking-hero-4.jpg"
                 alt="Trucking company website mockup on device"
@@ -228,7 +228,7 @@ export default function TruckingPage() {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
                 <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  720×540px<br />Website / driver portal mockup
+                  273×400px<br />Website / driver portal mockup
                 </p>
               </div>
             </div>
