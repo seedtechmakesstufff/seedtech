@@ -192,7 +192,7 @@ export default function ConstructionPage() {
       <Section>
         <SectionHeader
           eyebrow="Why Digital Infrastructure Matters"
-          title="Buyers validate before they contact."
+          title="Buyers validate"
           titleHighlight="before they contact."
           description="Modern commercial buyers don't call the first result they find. They cross-check multiple sources, watch video proof, look for certifications, and form a trust impression before anyone picks up the phone."
           align="center"
@@ -254,7 +254,7 @@ export default function ConstructionPage() {
       <Section>
         <SectionHeader
           eyebrow="How It Works"
-          title="From brief to live site — fast."
+          title="From brief to live site —"
           titleHighlight="fast."
           description="Our AI-accelerated development process compresses timelines without cutting corners on quality or industry fit."
           align="center"

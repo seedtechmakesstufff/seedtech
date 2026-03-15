@@ -200,8 +200,8 @@ export default function TruckingPage() {
       <Section>
         <SectionHeader
           eyebrow="Why Digital Infrastructure Matters"
-          title="Your website needs to do three things well."
-          titleHighlight="three things"
+          title="Your website needs to do"
+          titleHighlight="three things well."
           description="Trucking and logistics buyers don't just browse — they validate. Build trust, generate load requests, and reduce recruiting friction all from the same digital presence."
           align="center"
         />
@@ -292,8 +292,8 @@ export default function TruckingPage() {
       <Section theme="light">
         <SectionHeader
           eyebrow="How It Works"
-          title="From brief to live site — on a real timeline."
-          titleHighlight="real timeline."
+          title="From brief to live site —"
+          titleHighlight="on a real timeline."
           description="Our AI-accelerated process cuts build time significantly without sacrificing the industry-specific depth your company needs."
           align="center"
           theme="light"
