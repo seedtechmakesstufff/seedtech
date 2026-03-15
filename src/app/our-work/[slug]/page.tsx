@@ -185,7 +185,7 @@ export default function ProjectPage({ params }: Props) {
               {project.videoUrl && (
                 <div className="mt-4 rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
                   <div className="relative aspect-video w-full">
-                    <iframe
+                  <iframe
                       src={project.videoUrl}
                       title={`${project.client} — video`}
                       allow="autoplay; fullscreen; picture-in-picture"

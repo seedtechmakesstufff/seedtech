@@ -18,6 +18,16 @@ const navLinks = [
       { label: "Marketing", href: "/services/marketing" },
     ],
   },
+  {
+    label: "Industries",
+    href: "/industries",
+    children: [
+      { label: "Trucking & Logistics", href: "/industries/trucking" },
+      { label: "Construction & Rigging", href: "/industries/construction" },
+      { label: "Law Firms", href: "/industries/law-firms" },
+      { label: "Medical Practices", href: "/industries/medical" },
+    ],
+  },
   { label: "Our Work", href: "/our-work" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

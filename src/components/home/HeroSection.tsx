@@ -3,11 +3,9 @@
 import { motion, type Transition } from "framer-motion";
 import { GradientOrb, FloatingOrb, GridPattern } from "@/components/kit";
 import { BodyLg } from "@/components/kit";
-import { LiquidGlassPill, LiquidGlassBar } from "@/components/kit";
+import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
 import { Button } from "@/components/kit";
-import { QuoteButton } from "@/components/quote-flow";
-import { ArrowRight } from "lucide-react";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -54,25 +52,25 @@ export function HeroSection() {
             Web Development
           </LiquidGlassPill>
           <LiquidGlassPill variant="blue" size="sm" dot>
-            Digital Marketing
+            AI-Accelerated Development
           </LiquidGlassPill>
         </motion.div>
 
         {/* Hero headline — word-by-word reveal */}
         <SplitTextReveal
-          text="Technology Partner for Growing Businesses"
+          text="Technology Infrastructure & Websites Built for High-Performance Businesses"
           as="h1"
           delay={0.25}
-          stagger={0.07}
+          stagger={0.06}
           duration={0.7}
-          highlightWords={["Growing"]}
+          highlightWords={["High-Performance"]}
           className="font-display text-display leading-[1.05] text-white"
         />
 
         {/* Subline */}
         <motion.div {...fadeUp(0.7)}>
           <BodyLg className="mt-6 max-w-2xl mx-auto">
-            Launch better websites faster with professionally-accelerated development and proactive IT support.
+            SeedTech helps trucking companies, construction firms, law practices, and medical clinics launch faster websites, secure their technology, and streamline operations with AI-accelerated development and proactive IT support.
           </BodyLg>
         </motion.div>
 
@@ -81,44 +79,30 @@ export function HeroSection() {
           className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           {...fadeUp(0.85)}
         >
-          <QuoteButton
-            className={[
-              "liquid-glass-tinted-seed liquid-glass-hover",
-              "inline-flex items-center justify-center gap-3",
-              "px-8 py-4 text-base rounded-2xl font-medium",
-              "text-white relative overflow-hidden transition-colors duration-300",
-            ].join(" ")}
-          >
-            Get a Free Quote
-            <ArrowRight className="w-4 h-4 shrink-0" />
-          </QuoteButton>
+          <Button variant="primary" size="lg" icon="arrow" href="/free-audit">
+            Get a Free Technology &amp; Website Audit
+          </Button>
 
-          <Button variant="ghost" size="lg" icon="arrow" href="/services">
-            Explore Services
+          <Button variant="ghost" size="lg" icon="arrow" href="/industries">
+            View Industry Solutions
           </Button>
         </motion.div>
 
-        {/* Floating stat bar */}
-        <motion.div
-          className="mt-16 flex justify-center"
-          {...fadeUp(1.0)}
-        >
-          <LiquidGlassBar rounded="pill" className="gap-0 px-2 py-2">
-            <div className="text-center px-6 py-1">
-              <p className="font-display text-subheading text-white leading-none">200+</p>
-              <p className="text-body-sm text-white/50 mt-1">Clients Served</p>
-            </div>
-            <div className="w-px h-10 bg-white/10 shrink-0" />
-            <div className="text-center px-6 py-1">
-              <p className="font-display text-subheading text-white leading-none">99.9%</p>
-              <p className="text-body-sm text-white/50 mt-1">Uptime SLA</p>
-            </div>
-            <div className="w-px h-10 bg-white/10 shrink-0" />
-            <div className="text-center px-6 py-1">
-              <p className="font-display text-subheading text-white leading-none">15+</p>
-              <p className="text-body-sm text-white/50 mt-1">Years Experience</p>
-            </div>
-          </LiquidGlassBar>
+        {/* Trust bar */}
+        <motion.div className="mt-14" {...fadeUp(1.0)}>
+          <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-6 py-4 liquid-glass rounded-2xl text-sm text-white/60">
+            {[
+              "8+ Years Supporting Growing Businesses",
+              "Managed IT + Web Development in One Team",
+              "AI-Accelerated Development for Faster Launches",
+              "Trusted by Companies Across New Jersey",
+            ].map((item) => (
+              <span key={item} className="flex items-center gap-2">
+                <span className="text-seed-400">✓</span>
+                {item}
+              </span>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 import { CTABanner } from "@/components/kit";
 import { HeroSection } from "@/components/home/HeroSection";
-import { WhySeedTechSection } from "@/components/home/WhySeedTechSection";
+import { WhyChooseSection } from "@/components/home/WhyChooseSection";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { ResultsSection } from "@/components/home/ResultsSection";
 
@@ -8,16 +8,16 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <WhySeedTechSection />
+      <WhyChooseSection />
       <ServicesSection />
       <ResultsSection />
       <CTABanner
         title="Ready to Grow Your Business?"
         description="Get a free consultation and custom quote — no commitment, no jargon."
-        primaryLabel="Get a Free Quote"
-        primaryHref="/contact"
-        secondaryLabel="See Our Work"
-        secondaryHref="/our-work"
+        primaryLabel="Get a Free Technology Audit"
+        primaryHref="/free-audit"
+        secondaryLabel="View Industry Solutions"
+        secondaryHref="/industries"
       />
     </>
   );
