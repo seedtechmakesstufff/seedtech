@@ -10,6 +10,12 @@ import {
   ChevronDown,
   Star,
   CalendarCheck,
+  BarChart3,
+  Lock,
+  Monitor,
+  Zap,
+  TrendingUp,
+  HeartHandshake,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,6 +30,7 @@ import {
   GlassCard,
   IconBox,
   ProcessStep,
+  LiquidGlassCard,
 } from "@/components/kit";
 
 export const metadata = {
@@ -39,6 +46,52 @@ const stats = [
   { value: "53%", label: "higher revenue for firms using digital intake tools" },
   { value: "48%", label: "more leads reported with online intake" },
   { value: "75%", label: "of attorneys already use cloud computing for work" },
+];
+
+const intakeStats = [
+  { value: "53%", label: "Higher Revenue", note: "Firms using digital intake tools" },
+  { value: "48%", label: "More Leads", note: "With online intake forms & scheduling" },
+  { value: "+10%", label: "Conversion Lift", note: "From e-signature integration" },
+  { value: "+7%", label: "Conversion Lift", note: "From text messaging follow-up" },
+  { value: "+5%", label: "Conversion Lift", note: "From online intake forms" },
+];
+
+const benefits = [
+  {
+    icon: TrendingUp,
+    title: "Turn More Visitors Into Consultations",
+    body: "Structured intake, clear practice-area pages, and consultation scheduling convert passive browsers into qualified leads.",
+  },
+  {
+    icon: Zap,
+    title: "Reduce Friction to First Contact",
+    body: "Online forms, scheduling, and SMS follow-up eliminate phone tag and make it easy for prospects to take the next step.",
+  },
+  {
+    icon: Shield,
+    title: "Build Trust Before the First Call",
+    body: "Attorney profiles, credentials, client reviews, and case results create a trust impression that wins consultations before you say a word.",
+  },
+  {
+    icon: HeartHandshake,
+    title: "One Partner. Less Vendor Chaos.",
+    body: "Website, intake systems, IT support, email security, and backup — all managed by one team. No finger-pointing between vendors.",
+  },
+  {
+    icon: Lock,
+    title: "Keep Your Firm Secure and Compliant",
+    body: "Email encryption, MFA, endpoint protection, and cloud backup aligned with bar association cybersecurity guidance.",
+  },
+  {
+    icon: Monitor,
+    title: "Launch Faster With AI-Accelerated Development",
+    body: "Our AI-assisted workflows compress build timelines to 4–8 weeks without cutting corners on quality or compliance.",
+  },
+  {
+    icon: BarChart3,
+    title: "Support Growth Without Feeling Cobbled Together",
+    body: "Add practice areas, attorneys, locations, and integrations as you grow — on a platform built to scale with your firm.",
+  },
 ];
 
 const features = [
@@ -74,6 +127,24 @@ const features = [
   },
 ];
 
+const operationsTools = [
+  { tool: "Online Intake Forms", purpose: "Structured case-type capture, urgency routing, and qualification before the first call", category: "Website" },
+  { tool: "Consultation Scheduler", purpose: "Self-service booking that eliminates phone tag and speeds up first contact", category: "Website" },
+  { tool: "SMS & Email Follow-Up", purpose: "Automated confirmations, reminders, and follow-up that ensure no lead goes cold", category: "Website" },
+  { tool: "Review Capture System", purpose: "Post-engagement review requests that build visible social proof over time", category: "Website" },
+  { tool: "Attorney & Practice-Area CMS", purpose: "Scalable content management for attorney bios, practice areas, and case results", category: "Website" },
+  { tool: "Microsoft 365 & Email Security", purpose: "Secure email with phishing protection, encryption, and archiving for privileged communications", category: "IT" },
+  { tool: "Cloud Backup & Device Support", purpose: "Off-site backup of client files and case data — recoverable in minutes, not days", category: "IT" },
+  { tool: "Analytics & Call Tracking", purpose: "See which pages, intake paths, and referral sources generate actual consultations", category: "Website" },
+];
+
+const securityStats = [
+  { value: "60%", label: "of firms have formal cybersecurity policies" },
+  { value: "#1", label: "target: phishing & ransomware remain top threats to law firms" },
+  { value: "75%", label: "of attorneys use cloud computing — many without proper security" },
+  { value: "24/7", label: "monitoring, patching, and threat response from SeedTech" },
+];
+
 const comparisonRows = [
   { old: "Static brochure website", modern: "Conversion-focused intake system" },
   { old: "Generic contact form", modern: "Structured consultation request flow" },
@@ -82,15 +153,6 @@ const comparisonRows = [
   { old: "No follow-up after form submission", modern: "Automated confirmation, SMS, and routing" },
   { old: "Multiple disconnected vendors", modern: "One integrated website + IT partner" },
   { old: "Reactive IT when something breaks", modern: "Proactive monitoring, backup, and security" },
-];
-
-const itTools = [
-  { tool: "Microsoft 365 & Email Security", purpose: "Secure email with phishing protection, encryption, and archiving for privileged communications" },
-  { tool: "Cloud Backup & Recovery", purpose: "Off-site backup of client files, case documents, and firm data — recoverable in minutes" },
-  { tool: "Endpoint Protection", purpose: "Antivirus, threat monitoring, and patch management across all firm devices" },
-  { tool: "MFA & Access Controls", purpose: "Multi-factor authentication and role-based access to protect client data at every layer" },
-  { tool: "Help Desk Support", purpose: "Real support when systems break — no waiting in ticket queues while attorneys sit idle" },
-  { tool: "Call Tracking & Analytics", purpose: "See which pages and intake paths are generating actual consultations" },
 ];
 
 const faqs = [
@@ -114,6 +176,14 @@ const faqs = [
     q: "Can you support multiple practice areas and attorney pages?",
     a: "Absolutely. We architect sites with scalable practice-area page structures and individual attorney profiles. As your firm grows and adds attorneys or practice areas, the site scales with you.",
   },
+  {
+    q: "What practice areas do you work with?",
+    a: "We work with firms across personal injury, family law, criminal defense, immigration, employment, estate planning, real estate, and business law. Any practice area where trust, intake, and responsiveness drive client acquisition is a fit.",
+  },
+  {
+    q: "Do you offer ongoing support after launch?",
+    a: "Yes. We offer managed IT support, content updates, security monitoring, and system maintenance as an ongoing partnership. Most firms stay with us long-term because we're always available when something needs attention.",
+  },
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────────── */
@@ -130,7 +200,6 @@ export default function LawFirmsPage() {
         {/* Top row: headline left, CTA right */}
         <div className="relative z-10 mx-auto max-w-6xl px-6 pb-12">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-            {/* Headline block */}
             <div className="max-w-3xl">
               <LiquidGlassPill variant="seed" className="mb-6">
                 <Scale className="w-3.5 h-3.5 inline mr-1.5" />
@@ -143,7 +212,6 @@ export default function LawFirmsPage() {
                 Most law firms don&apos;t have a traffic problem — they have an intake-friction problem. SeedTech builds digital infrastructure that helps law firms convert more visitors into qualified consultations, respond faster, and operate more securely.
               </p>
             </div>
-            {/* CTA block — pinned bottom-right on desktop */}
             <div className="flex flex-col sm:flex-row lg:flex-col items-start gap-4 lg:items-end lg:shrink-0">
               <Link
                 href="/free-audit"
@@ -162,80 +230,31 @@ export default function LawFirmsPage() {
           </div>
         </div>
 
-        {/* Image mosaic — 4 images, rounded top corners only */}
+        {/* Image mosaic */}
         <div className="relative z-10 mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {/*
-              IMAGE 1 — Professional attorney office or conference room
-              File: /public/industries/law-firms-hero-1.jpg
-              Recommended size: 273×400px (portrait)
-            */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
-              <Image
-                src="/industries/law-firms-hero-1.jpg"
-                alt="Professional law firm office environment"
-                fill
-                className="object-cover"
-                priority
-              />
+              <Image src="/industries/law-firms-hero-1.jpg" alt="Professional law firm office environment" fill className="object-cover" priority />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Law office / conference room
-                </p>
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">273×400px<br />Law office / conference room</p>
               </div>
             </div>
-            {/*
-              IMAGE 2 — Attorney profile or team headshot setting
-              File: /public/industries/law-firms-hero-2.jpg
-              Recommended size: 273×400px (portrait)
-            */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
-              <Image
-                src="/industries/law-firms-hero-2.jpg"
-                alt="Attorney at work in a law firm"
-                fill
-                className="object-cover"
-              />
+              <Image src="/industries/law-firms-hero-2.jpg" alt="Attorney at work in a law firm" fill className="object-cover" />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Attorney profile / headshot setting
-                </p>
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">273×400px<br />Attorney profile / headshot setting</p>
               </div>
             </div>
-            {/*
-              IMAGE 3 — Legal research / consultation in progress
-              File: /public/industries/law-firms-hero-3.jpg
-              Recommended size: 273×400px (portrait)
-            */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
-              <Image
-                src="/industries/law-firms-hero-3.jpg"
-                alt="Legal consultation in progress"
-                fill
-                className="object-cover"
-              />
+              <Image src="/industries/law-firms-hero-3.jpg" alt="Legal consultation in progress" fill className="object-cover" />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Consultation / legal research
-                </p>
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">273×400px<br />Consultation / legal research</p>
               </div>
             </div>
-            {/*
-              IMAGE 4 — Law firm website mockup on device
-              File: /public/industries/law-firms-hero-4.jpg
-              Recommended size: 273×400px (portrait)
-            */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
-              <Image
-                src="/industries/law-firms-hero-4.jpg"
-                alt="Law firm website mockup on device"
-                fill
-                className="object-cover"
-              />
+              <Image src="/industries/law-firms-hero-4.jpg" alt="Law firm website mockup on device" fill className="object-cover" />
               <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Website / intake portal mockup
-                </p>
+                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">273×400px<br />Website / intake portal mockup</p>
               </div>
             </div>
           </div>
@@ -250,6 +269,7 @@ export default function LawFirmsPage() {
               "Website + IT in One Partner",
               "AI-Accelerated Build Timeline",
               "Intake & Consultation Systems",
+              "Bar-Aligned Security Standards",
               "NJ-Based, Nationwide Capable",
             ].map((item) => (
               <span key={item} className="flex items-center gap-2 text-body-sm text-light-base/50">
@@ -278,10 +298,7 @@ export default function LawFirmsPage() {
           </div>
           <div className="grid grid-cols-2 gap-5">
             {stats.map((s) => (
-              <div
-                key={s.label}
-                className="rounded-2xl border border-black/[0.07] bg-white shadow-cardLight p-6 flex flex-col gap-2"
-              >
+              <div key={s.label} className="rounded-2xl border border-black/[0.07] bg-white shadow-cardLight p-6 flex flex-col gap-2">
                 <span className="font-display text-3xl font-bold text-seed-600">{s.value}</span>
                 <span className="text-body-sm text-dark-base/55 leading-snug">{s.label}</span>
               </div>
@@ -290,39 +307,183 @@ export default function LawFirmsPage() {
         </div>
       </Section>
 
-      {/* ── Three Functions ── */}
+      {/* ── Intake Impact Chart ── */}
       <Section>
+        <SectionHeader
+          eyebrow="The Data"
+          title="How digital intake impacts"
+          titleHighlight="law firm performance."
+          description="Clio's 2025 data on solo and small firms shows that digital intake tools don't just improve UX — they directly impact revenue, lead volume, and conversion rates."
+          align="center"
+        />
+        <div className="max-w-4xl mx-auto">
+          {/* Chart visual placeholder */}
+          <div className="relative rounded-3xl border border-white/[0.08] bg-dark-elevated overflow-hidden mb-8">
+            {/*
+              VISUAL PLACEHOLDER — Intake Impact Bar Chart
+              Replace with: Horizontal or vertical bar chart graphic showing the 5 stats below
+              Recommended: Clean bar chart on dark background, seed-green bars
+              Size: Full-width, ~320px tall
+              Message: Intake optimization is a revenue issue, not just a UX issue
+            */}
+            <div className="relative aspect-[16/7] flex items-center justify-center bg-white/[0.02]">
+              <Image src="/industries/law-firms-intake-chart.jpg" alt="Bar chart showing digital intake impact on law firm performance" fill className="object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <p className="text-white/15 text-sm text-center px-8 font-mono leading-relaxed">
+                  VISUAL: Bar chart — &quot;How Digital Intake Impacts Law Firm Performance&quot;<br />
+                  Recommended: Horizontal bars, dark bg, seed-green accent<br />
+                  ~1140×500px
+                </p>
+              </div>
+            </div>
+          </div>
+          {/* Stat cards below chart */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {intakeStats.map((s) => (
+              <LiquidGlassCard key={s.label} className="p-5 text-center">
+                <p className="font-display text-2xl font-bold text-white mb-1">{s.value}</p>
+                <p className="text-body-sm font-medium text-seed-400 mb-1">{s.label}</p>
+                <p className="text-[11px] text-light-base/35 leading-snug">{s.note}</p>
+              </LiquidGlassCard>
+            ))}
+          </div>
+          <p className="text-center text-[11px] text-light-base/25 mt-4">Source: Clio 2025 Solo & Small Firm Data</p>
+        </div>
+      </Section>
+
+      {/* ── Three Functions ── */}
+      <Section theme="light">
         <SectionHeader
           eyebrow="What Your Website Should Actually Do"
           title="Trust. Intake."
           titleHighlight="Responsiveness."
           description="Your website needs to function as three systems at once. If any one of them fails, you're losing consultations to firms who got it right."
           align="center"
+          theme="light"
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <GlassCard className="flex flex-col gap-4 p-8">
-            <IconBox icon={Shield} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Trust System</h3>
-            <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Attorney profiles, credentials, practice-area clarity, client reviews, and case results. Prospective clients form a trust impression before the first call — your website is where it happens.
-            </p>
-          </GlassCard>
-          <GlassCard className="flex flex-col gap-4 p-8">
-            <IconBox icon={ClipboardList} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Intake System</h3>
-            <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Structured consultation request forms, case type routing, and online scheduling. The right intake flow captures qualified leads and reduces the work required before the first meeting.
-            </p>
-          </GlassCard>
-          <GlassCard className="flex flex-col gap-4 p-8">
-            <IconBox icon={Phone} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Responsiveness System</h3>
-            <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Email routing, SMS follow-up, and appointment confirmations ensure no inquiry goes unanswered. Clio data shows a 10% conversion lift from e-signatures and 7% from text messaging.
-            </p>
-          </GlassCard>
+          {/* Trust System + visual placeholder */}
+          <div className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight overflow-hidden flex flex-col">
+            {/*
+              VISUAL PLACEHOLDER — Trust System
+              Replace with: Mockup of attorney profile page or firm homepage with trust signals
+              Recommended: Desktop or mobile screenshot mockup
+              Size: Card-width, ~200px tall
+              Message: Your website builds trust before any conversation
+            */}
+            <div className="relative aspect-[4/3] bg-stone-50 flex items-center justify-center border-b border-black/[0.04]">
+              <Image src="/industries/law-firms-trust-mockup.jpg" alt="Law firm website trust signals mockup" fill className="object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <p className="text-dark-base/15 text-[10px] text-center px-4 font-mono leading-relaxed">
+                  VISUAL: Attorney profile page mockup<br />or homepage with trust signals<br />~400×300px
+                </p>
+              </div>
+            </div>
+            <div className="p-7 flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-xl bg-seed-50 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-seed-600" />
+              </div>
+              <h3 className="font-display text-card-title text-dark-base">Trust System</h3>
+              <p className="text-body-sm text-dark-base/55 leading-relaxed">
+                Attorney profiles, credentials, practice-area clarity, client reviews, and case results. Prospective clients form a trust impression before the first call — your website is where it happens.
+              </p>
+            </div>
+          </div>
+          {/* Intake System + visual placeholder */}
+          <div className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight overflow-hidden flex flex-col">
+            {/*
+              VISUAL PLACEHOLDER — Intake System
+              Replace with: Mockup of consultation intake form or scheduling page
+              Recommended: UI mockup showing form fields, case-type selector, submit CTA
+              Size: Card-width, ~200px tall
+              Message: Structured intake captures qualified leads
+            */}
+            <div className="relative aspect-[4/3] bg-stone-50 flex items-center justify-center border-b border-black/[0.04]">
+              <Image src="/industries/law-firms-intake-mockup.jpg" alt="Law firm intake form mockup" fill className="object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <p className="text-dark-base/15 text-[10px] text-center px-4 font-mono leading-relaxed">
+                  VISUAL: Intake form / consultation<br />request page mockup<br />~400×300px
+                </p>
+              </div>
+            </div>
+            <div className="p-7 flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-xl bg-seed-50 flex items-center justify-center">
+                <ClipboardList className="w-5 h-5 text-seed-600" />
+              </div>
+              <h3 className="font-display text-card-title text-dark-base">Intake System</h3>
+              <p className="text-body-sm text-dark-base/55 leading-relaxed">
+                Structured consultation request forms, case type routing, and online scheduling. The right intake flow captures qualified leads and reduces the work required before the first meeting.
+              </p>
+            </div>
+          </div>
+          {/* Responsiveness System + visual placeholder */}
+          <div className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight overflow-hidden flex flex-col">
+            {/*
+              VISUAL PLACEHOLDER — Responsiveness System
+              Replace with: Mockup showing SMS confirmation, email notification, or scheduling confirmation
+              Recommended: Mobile phone mockup with SMS/notification UI
+              Size: Card-width, ~200px tall
+              Message: No inquiry goes unanswered
+            */}
+            <div className="relative aspect-[4/3] bg-stone-50 flex items-center justify-center border-b border-black/[0.04]">
+              <Image src="/industries/law-firms-response-mockup.jpg" alt="SMS and email follow-up system mockup" fill className="object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <p className="text-dark-base/15 text-[10px] text-center px-4 font-mono leading-relaxed">
+                  VISUAL: SMS confirmation / email<br />notification / scheduling UI<br />~400×300px
+                </p>
+              </div>
+            </div>
+            <div className="p-7 flex flex-col gap-3">
+              <div className="w-10 h-10 rounded-xl bg-seed-50 flex items-center justify-center">
+                <Phone className="w-5 h-5 text-seed-600" />
+              </div>
+              <h3 className="font-display text-card-title text-dark-base">Responsiveness System</h3>
+              <p className="text-body-sm text-dark-base/55 leading-relaxed">
+                Email routing, SMS follow-up, and appointment confirmations ensure no inquiry goes unanswered. Clio data shows a 10% conversion lift from e-signatures and 7% from text messaging.
+              </p>
+            </div>
+          </div>
         </div>
       </Section>
+
+      {/* ── Benefits Section ── */}
+      <Section>
+        <SectionHeader
+          eyebrow="Why It Matters"
+          title="What stronger digital infrastructure"
+          titleHighlight="actually does for your firm."
+          description="This isn't about having a prettier website. It's about building systems that directly impact how your firm acquires clients, operates daily, and grows."
+          align="center"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          {benefits.map((b) => (
+            <GlassCard key={b.title} className="flex flex-col gap-3 p-7">
+              <IconBox icon={b.icon} variant="gradient" />
+              <h3 className="font-display text-card-title text-white">{b.title}</h3>
+              <p className="text-body-sm text-light-base/50 leading-relaxed">{b.body}</p>
+            </GlassCard>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── Mid-Page CTA ── */}
+      <div className="bg-gradient-to-r from-seed-600 to-seed-500 py-12">
+        <div className="mx-auto max-w-4xl px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <h3 className="font-display text-xl md:text-2xl text-white font-bold mb-2">
+              Ready to see what your firm&apos;s website is missing?
+            </h3>
+            <p className="text-sm text-white/70">Free audit — website, intake flow, IT, and security. No commitment.</p>
+          </div>
+          <Link
+            href="/free-audit"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-seed-700 font-medium hover:bg-white/90 transition-all duration-200 whitespace-nowrap shrink-0"
+          >
+            Get a Free Audit
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
 
       {/* ── What We Build ── */}
       <Section theme="light">
@@ -337,10 +498,7 @@ export default function LawFirmsPage() {
           {features.map((f) => {
             const Icon = f.icon;
             return (
-              <div
-                key={f.title}
-                className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight p-7 flex flex-col gap-4"
-              >
+              <div key={f.title} className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight p-7 flex flex-col gap-4">
                 <div className="w-11 h-11 rounded-xl bg-seed-50 flex items-center justify-center shrink-0">
                   <Icon className="w-5 h-5 text-seed-600" />
                 </div>
@@ -349,6 +507,30 @@ export default function LawFirmsPage() {
               </div>
             );
           })}
+        </div>
+
+        {/* Website mockup visual placeholder — full-width below feature cards */}
+        <div className="mt-12 max-w-5xl mx-auto">
+          {/*
+            VISUAL PLACEHOLDER — Full Website Mockup
+            Replace with: Desktop + mobile side-by-side mockup of a law firm website
+            Showing: Homepage, practice-area page, or attorney profile page
+            Recommended: Browser frame mockup on light background
+            Size: Full-width, ~400px tall
+            Message: SeedTech builds premium, modern, conversion-focused legal websites
+          */}
+          <div className="relative rounded-3xl border border-black/[0.06] bg-stone-50 shadow-cardLight overflow-hidden">
+            <div className="relative aspect-[16/7] flex items-center justify-center">
+              <Image src="/industries/law-firms-website-mockup.jpg" alt="Law firm website desktop and mobile mockup" fill className="object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <p className="text-dark-base/15 text-sm text-center px-8 font-mono leading-relaxed">
+                  VISUAL: Desktop + mobile mockup of a law firm website<br />
+                  Show: Homepage or practice-area page in browser frame<br />
+                  ~1140×500px
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -381,6 +563,88 @@ export default function LawFirmsPage() {
         </div>
       </Section>
 
+      {/* ── Tools That Optimize Modern Law Firms ── */}
+      <Section theme="light">
+        <SectionHeader
+          eyebrow="The Full Stack"
+          title="Tools that optimize modern"
+          titleHighlight="law firm operations."
+          description="From the website layer to the IT layer — every tool below is designed to help your firm acquire clients more efficiently and operate more reliably."
+          align="center"
+          theme="light"
+        />
+        <div className="max-w-3xl mx-auto rounded-3xl border border-black/[0.07] bg-white shadow-cardLight overflow-hidden">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-black/[0.06] bg-seed-50">
+                <th className="px-6 py-4 text-body-sm font-semibold text-dark-base">Tool</th>
+                <th className="px-6 py-4 text-body-sm font-semibold text-dark-base">What It Does for Your Firm</th>
+                <th className="px-6 py-4 text-body-sm font-semibold text-dark-base hidden md:table-cell">Layer</th>
+              </tr>
+            </thead>
+            <tbody>
+              {operationsTools.map((row, i) => (
+                <tr key={row.tool} className={i % 2 === 0 ? "bg-white" : "bg-stone-50"}>
+                  <td className="px-6 py-4 text-body-sm font-medium text-dark-base">{row.tool}</td>
+                  <td className="px-6 py-4 text-body-sm text-dark-base/55">{row.purpose}</td>
+                  <td className="px-6 py-4 hidden md:table-cell">
+                    <span className={`inline-block text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full ${row.category === "Website" ? "bg-seed-50 text-seed-600" : "bg-blue-50 text-blue-600"}`}>
+                      {row.category}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
+      {/* ── Managed IT & Security ── */}
+      <Section>
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="text-body-sm font-medium text-seed-400 mb-3 uppercase tracking-widest">Managed IT & Security</p>
+            <h2 className="font-display text-h2 text-white leading-tight mb-6">
+              Law firms are prime targets. Your IT should reflect that.
+            </h2>
+            <p className="text-body text-light-base/55 leading-relaxed mb-6">
+              You manage privileged communications, confidential case files, financial records, and strategic client data. A single breach can destroy client trust, trigger bar complaints, and cost your firm its reputation.
+            </p>
+            <p className="text-body text-light-base/55 leading-relaxed mb-8">
+              SeedTech provides managed IT and cybersecurity infrastructure aligned with ABA guidance — including email encryption, MFA, endpoint protection, cloud backup, and 24/7 monitoring.
+            </p>
+            {/* IT Dashboard visual placeholder */}
+            {/*
+              VISUAL PLACEHOLDER — IT Dashboard
+              Replace with: Screenshot of a managed IT dashboard showing device health, backup status, security alerts
+              Recommended: Dark-themed dashboard screenshot in a browser/app frame
+              Size: Full-width of left column, ~280px tall
+              Message: SeedTech provides visibility into your firm's IT health
+            */}
+            <div className="relative rounded-2xl border border-white/[0.08] bg-dark-elevated overflow-hidden">
+              <div className="relative aspect-[16/9] flex items-center justify-center">
+                <Image src="/industries/law-firms-it-dashboard.jpg" alt="Managed IT security dashboard for law firms" fill className="object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <p className="text-white/15 text-[10px] text-center px-6 font-mono leading-relaxed">
+                    VISUAL: IT dashboard screenshot<br />
+                    Show: Device health, backup status, security alerts<br />
+                    Dark-themed, ~560×315px
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-5">
+            {securityStats.map((s) => (
+              <LiquidGlassCard key={s.label} className="p-6 flex flex-col gap-2">
+                <span className="font-display text-2xl font-bold text-white">{s.value}</span>
+                <span className="text-body-sm text-light-base/50 leading-snug">{s.label}</span>
+              </LiquidGlassCard>
+            ))}
+          </div>
+        </div>
+      </Section>
+
       {/* ── Process: How We Work ── */}
       <Section theme="light">
         <SectionHeader
@@ -392,75 +656,28 @@ export default function LawFirmsPage() {
           theme="light"
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <ProcessStep
-            theme="light"
-            step="01"
-            title="Discovery & Strategy"
-            description="We audit your current site, understand your practice areas, intake workflow, and competitive landscape, and map the page architecture that supports your firm's growth goals."
-          />
-          <ProcessStep
-            theme="light"
-            step="02"
-            title="Build & Configure"
-            description="We design and build your site with AI-assisted workflows — practice-area pages, attorney profiles, intake forms, scheduling, review integration, and security infrastructure built in."
-          />
-          <ProcessStep
-            theme="light"
-            step="03"
-            title="Launch & Support"
-            description="We launch, configure analytics and call tracking, and remain available for managed IT support, content updates, security monitoring, and system maintenance going forward."
-          />
-        </div>
-      </Section>
-
-      {/* ── Managed IT Table ── */}
-      <Section>
-        <SectionHeader
-          eyebrow="Managed IT & Security"
-          title="Technology that keeps your firm secure and running"
-          description="Law firms are prime targets for cyberattacks because they manage privileged, confidential, financial, and strategic data. SeedTech manages the infrastructure that protects it."
-          align="center"
-        />
-        <div className="max-w-3xl mx-auto rounded-3xl border border-white/[0.08] bg-dark-elevated overflow-hidden">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="px-6 py-4 text-body-sm font-semibold text-white">Technology Tool</th>
-                <th className="px-6 py-4 text-body-sm font-semibold text-white">What It Does for Your Firm</th>
-              </tr>
-            </thead>
-            <tbody>
-              {itTools.map((row, i) => (
-                <tr key={row.tool} className={i % 2 === 0 ? "bg-dark-elevated" : "bg-white/[0.02]"}>
-                  <td className="px-6 py-4 text-body-sm font-medium text-light-base/80">{row.tool}</td>
-                  <td className="px-6 py-4 text-body-sm text-light-base/50">{row.purpose}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ProcessStep theme="light" step="01" title="Discovery & Strategy" description="We audit your current site, understand your practice areas, intake workflow, and competitive landscape, and map the page architecture that supports your firm's growth goals." />
+          <ProcessStep theme="light" step="02" title="Build & Configure" description="We design and build your site with AI-assisted workflows — practice-area pages, attorney profiles, intake forms, scheduling, review integration, and security infrastructure built in." />
+          <ProcessStep theme="light" step="03" title="Launch & Support" description="We launch, configure analytics and call tracking, and remain available for managed IT support, content updates, security monitoring, and system maintenance going forward." />
         </div>
       </Section>
 
       {/* ── FAQ ── */}
-      <Section theme="light">
+      <Section>
         <SectionHeader
           eyebrow="Common Questions"
           title="Questions we hear from law firms"
           align="center"
-          theme="light"
         />
         <div className="max-w-3xl mx-auto space-y-4">
           {faqs.map((faq) => (
-            <details
-              key={faq.q}
-              className="group rounded-2xl border border-black/[0.07] bg-white shadow-cardLight overflow-hidden"
-            >
+            <details key={faq.q} className="group rounded-2xl border border-white/[0.08] bg-dark-elevated overflow-hidden">
               <summary className="flex items-center justify-between gap-4 px-7 py-5 cursor-pointer list-none">
-                <span className="font-display text-card-title text-dark-base">{faq.q}</span>
-                <ChevronDown className="w-4 h-4 text-dark-base/30 shrink-0 transition-transform group-open:rotate-180" />
+                <span className="font-display text-card-title text-white">{faq.q}</span>
+                <ChevronDown className="w-4 h-4 text-white/40 shrink-0 transition-transform group-open:rotate-180" />
               </summary>
               <div className="px-7 pb-6">
-                <p className="text-body-sm text-dark-base/55 leading-relaxed">{faq.a}</p>
+                <p className="text-body-sm text-light-base/55 leading-relaxed">{faq.a}</p>
               </div>
             </details>
           ))}
