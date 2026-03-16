@@ -102,3 +102,84 @@ model FormSubmission {
   @@index([createdAt])
   @@map("form_submissions")
 }
+
+// ── SEO Snapshots (weekly keyword/traffic history) ──
+
+model SeoSnapshot {
+  id              String   @id @default(uuid())
+  date            DateTime @default(now())     // snapshot date
+  totalClicks     Int      @default(0)
+  totalImpressions Int     @default(0)
+  avgCtr          Float    @default(0)
+  avgPosition     Float    @default(0)
+  healthScore     Int      @default(0)         // 0-100 aggregate
+  performanceScore Int     @default(0)         // PageSpeed perf avg
+  seoScore        Int      @default(0)         // PageSpeed SEO avg
+  keywordPositions Json    @default("{}")      // { "keyword": position }
+  topPages        Json     @default("[]")      // [{ page, clicks, impressions }]
+  metadata        Json?                        // any extra data
+
+  createdAt       DateTime @default(now())
+
+  @@index([date])
+  @@map("seo_snapshots")
+}
+
+// ── SEO Page Audit Results ──
+
+enum AuditSeverity {
+  critical
+  warning
+  info
+  pass
+}
+
+model SeoPageAudit {
+  id          String        @id @default(uuid())
+  runId       String                             // groups issues from the same crawl
+  url         String
+  checkType   String                             // "missing-title", "thin-content", etc.
+  severity    AuditSeverity
+  message     String
+  details     Json?                              // extra context
+  createdAt   DateTime      @default(now())
+
+  @@index([runId])
+  @@index([createdAt])
+  @@map("seo_page_audits")
+}
+
+// ── SEO Insights (freshness, cannibalization, linking) ──
+
+enum InsightType {
+  content_freshness
+  cannibalization
+  internal_linking
+  keyword_opportunity
+  general
+}
+
+enum InsightStatus {
+  active
+  dismissed
+  resolved
+}
+
+model SeoInsight {
+  id          String        @id @default(uuid())
+  type        InsightType
+  status      InsightStatus @default(active)
+  title       String
+  description String
+  actionUrl   String?                            // page to fix
+  priority    Int           @default(50)         // 0-100, higher = more urgent
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  resolvedAt  DateTime?
+
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("seo_insights")
+}
+
