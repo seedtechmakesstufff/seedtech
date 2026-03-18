@@ -31,6 +31,7 @@ import {
   IconBox,
   ProcessStep,
 } from "@/components/kit";
+import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata = {
   title: "Websites & Managed IT for Construction & Rigging Companies — SeedTech",
@@ -113,6 +114,18 @@ const faqs = [
 export default function ConstructionPage() {
   return (
     <div>
+      <ServiceJsonLd
+        name="IT Services for Construction & Rigging"
+        description="Project management tools, job-site connectivity, fleet GPS tracking, cybersecurity, and custom websites for construction and rigging companies."
+        url="https://seedtechllc.com/industries/construction"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Industries", url: "/industries" },
+          { name: "Construction & Rigging", url: "/industries/construction" },
+        ]}
+      />
       {/* ── Hero ── */}
       <section className="relative bg-dark-base pt-36 pb-6">
         <GradientOrb color="seed" size="xl" className="top-0 left-1/4 -translate-y-1/3 opacity-20" />

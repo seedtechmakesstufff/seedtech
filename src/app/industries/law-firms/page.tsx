@@ -36,6 +36,7 @@ import {
   ProcessStep,
   LiquidGlassCard,
 } from "@/components/kit";
+import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata = {
   title: "Websites & Managed IT for Law Firms — SeedTech",
@@ -195,6 +196,18 @@ const faqs = [
 export default function LawFirmsPage() {
   return (
     <div>
+      <ServiceJsonLd
+        name="IT Services for Law Firms"
+        description="Case management integrations, document security, HIPAA-grade compliance, managed IT support, and custom websites for law firms."
+        url="https://seedtechllc.com/industries/law-firms"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Industries", url: "/industries" },
+          { name: "Law Firms", url: "/industries/law-firms" },
+        ]}
+      />
       {/* ── Hero ── */}
       <section className="relative bg-dark-base pt-36 pb-6">
         <GradientOrb color="seed" size="xl" className="top-0 left-1/4 -translate-y-1/3 opacity-20" />

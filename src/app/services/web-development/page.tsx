@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
+import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { projects } from "@/data/projects";
 
 export const metadata = {
@@ -138,6 +139,18 @@ const pricing = [
 export default function WebDevelopmentPage() {
   return (
     <div className="pt-20">
+      <ServiceJsonLd
+        name="Web Development"
+        description="Custom websites, ecommerce platforms, and web applications built with modern frameworks. From branding to full-stack development."
+        url="https://seedtechllc.com/services/web-development"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Services", url: "/services" },
+          { name: "Web Development", url: "/services/web-development" },
+        ]}
+      />
 
       {/* ══════════════════════════════════════════════════════════════════════
           HERO

@@ -3,10 +3,16 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { WhyChooseSection } from "@/components/home/WhyChooseSection";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { ResultsSection } from "@/components/home/ResultsSection";
+import { LocalBusinessJsonLd } from "@/components/JsonLd";
 
 export default function HomePage() {
   return (
     <>
+      <LocalBusinessJsonLd
+        phone="(201) 620-9002"
+        email="support@seedtechllc.com"
+        areaServed={["Northern New Jersey", "New Jersey", "United States"]}
+      />
       <HeroSection />
       <WhyChooseSection />
       <ServicesSection />

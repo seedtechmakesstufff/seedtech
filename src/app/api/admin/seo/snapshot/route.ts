@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { takeSnapshot, getSnapshotHistory, getKeywordTrends } from "@/lib/seo-snapshot";
 
 export async function GET(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(req.url);
   const action = searchParams.get("action");
 
@@ -28,6 +34,10 @@ export async function GET(req: Request) {
 }
 
 export async function POST() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const result = await takeSnapshot();
     return NextResponse.json(result);

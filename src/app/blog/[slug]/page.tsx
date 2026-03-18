@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { AnimatedH1 } from "@/components/kit";
+import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const dynamic = "force-dynamic";
 
@@ -78,6 +79,23 @@ export default async function BlogPostPage({
 
   return (
     <article className="min-h-screen bg-dark-base pt-32 pb-20 px-4">
+      <ArticleJsonLd
+        title={post.metaTitle || post.title}
+        description={post.metaDescription || post.excerpt || ""}
+        datePublished={
+          (post.publishedAt || post.createdAt).toString()
+        }
+        dateModified={post.updatedAt?.toString()}
+        author={post.author}
+        url={`https://seedtechllc.com/blog/${post.slug}`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Blog", url: "/blog" },
+          { name: post.title, url: `/blog/${post.slug}` },
+        ]}
+      />
       <div className="max-w-3xl mx-auto">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-white/30 mb-8">

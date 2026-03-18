@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getPostById, updatePost, deletePost } from "@/lib/blog";
+import { submitUrl, isIndexNowConfigured } from "@/lib/indexnow";
 
 /** GET /api/blog/[id] — get single post */
 export async function GET(
@@ -29,11 +30,29 @@ export async function PUT(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Fetch current post to detect status changes
+  const existing = await getPostById(params.id);
   const data = await req.json();
   const updated = await updatePost(params.id, data);
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  return NextResponse.json(updated);
+  // Auto-ping IndexNow when a post is published or content is updated while published
+  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE || "https://seedtechllc.com";
+  const shouldPing =
+    isIndexNowConfigured() &&
+    updated.status === "published" &&
+    (existing?.status !== "published" || data.body || data.title || data.slug);
+
+  let indexNowResult = null;
+  if (shouldPing) {
+    try {
+      indexNowResult = await submitUrl(`${siteUrl}/blog/${updated.slug}`);
+    } catch {
+      // Non-blocking — don't fail the update if IndexNow fails
+    }
+  }
+
+  return NextResponse.json({ ...updated, indexNow: indexNowResult });
 }
 
 /** DELETE /api/blog/[id] — delete post */

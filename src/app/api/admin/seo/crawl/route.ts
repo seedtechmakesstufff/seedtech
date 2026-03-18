@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { runCrawl, getLatestCrawlResults } from "@/lib/seo-crawler";
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const results = await getLatestCrawlResults();
     if (!results) {
@@ -17,6 +23,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const body = await req.json().catch(() => ({}));
     const baseUrl = (body as { baseUrl?: string }).baseUrl;

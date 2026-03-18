@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import {
   generateAllInsights,
   getActiveInsights,
@@ -6,6 +8,10 @@ import {
 } from "@/lib/seo-insights";
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const insights = await getActiveInsights();
     return NextResponse.json({ insights });
@@ -18,6 +24,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(req.url);
   const action = searchParams.get("action");
 

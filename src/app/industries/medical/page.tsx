@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill, CTABanner, LiquidGlassCard } from "@/components/kit";
+import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata = {
   title: "Technology & Websites for Medical Practices — SeedTech",
@@ -13,6 +14,18 @@ export const metadata = {
 export default function MedicalPage() {
   return (
     <div>
+      <ServiceJsonLd
+        name="IT Services for Medical Practices"
+        description="HIPAA-compliant managed IT, EHR integrations, telemedicine support, cybersecurity, and custom websites for medical practices and healthcare providers."
+        url="https://seedtechllc.com/industries/medical"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Industries", url: "/industries" },
+          { name: "Medical", url: "/industries/medical" },
+        ]}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-dark-base pt-40 pb-24">
         <GradientOrb color="seed" size="xl" className="top-0 left-1/4 -translate-y-1/3 opacity-20" />
