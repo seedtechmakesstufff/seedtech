@@ -11,6 +11,7 @@ import {
   Sprout,
   ChevronDown,
   Inbox,
+  SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,11 @@ const NAV_ITEMS: NavItem[] = [
         label: "Blog Manager",
         href: "/admin/blog",
         icon: FileEdit,
+      },
+      {
+        label: "SEO Settings",
+        href: "/admin/seo/settings",
+        icon: SlidersHorizontal,
       },
     ],
   },

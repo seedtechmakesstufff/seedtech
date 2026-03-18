@@ -5,11 +5,10 @@ import {
   Search, Target, TrendingUp, TrendingDown, CheckCircle2, Circle, Clock,
   ArrowRight, ArrowUpRight, ArrowDownRight, Sparkles, FileText, AlertTriangle,
   Brain, Gauge, RefreshCw, Globe, Loader2, Zap, BarChart3, Send, ShieldAlert,
-  Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair,
+  Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair, SlidersHorizontal,
 } from "lucide-react";
 import { TRACKED_KEYWORDS, SEO_TASKS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 import Link from "next/link";
-import { BusinessContextModal } from "@/components/admin/BusinessContextModal";
 
 type Tab = "overview" | "keywords" | "audit" | "insights" | "strategy";
 
@@ -78,7 +77,6 @@ function Sparkline({ values, color = "#10b981" }: { values: number[]; color?: st
 
 export default function SEODashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
-  const [contextOpen, setContextOpen] = useState(false);
   const [gscConnected, setGscConnected] = useState<boolean | null>(null);
   const [gscSummary, setGscSummary] = useState<GSCSummary | null>(null);
   const [gscLoading, setGscLoading] = useState(false);
@@ -223,9 +221,9 @@ export default function SEODashboardPage() {
           <p className="text-white/40 mt-1">Health monitoring, audits, insights & AI-powered strategy.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setContextOpen(true)} className="flex items-center gap-2 bg-dark-elevated hover:bg-white/[0.06] border border-white/[0.08] text-white/70 hover:text-white text-sm font-medium px-3 py-2.5 rounded-lg transition-colors">
-            <Brain className="w-4 h-4 text-seed-400" /><span className="hidden sm:inline">AI Context</span>
-          </button>
+          <Link href="/admin/seo/settings" className="flex items-center gap-2 bg-dark-elevated hover:bg-white/[0.06] border border-white/[0.08] text-white/70 hover:text-white text-sm font-medium px-3 py-2.5 rounded-lg transition-colors">
+            <SlidersHorizontal className="w-4 h-4 text-seed-400" /><span className="hidden sm:inline">Settings</span>
+          </Link>
           <button onClick={pingIndexNow} disabled={indexNowLoading} className="flex items-center gap-2 bg-dark-elevated hover:bg-white/[0.06] border border-white/[0.08] text-white/70 hover:text-white text-sm font-medium px-3 py-2.5 rounded-lg transition-colors disabled:opacity-50">
             {indexNowLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 text-blue-400" />}<span className="hidden sm:inline">IndexNow</span>
           </button>
@@ -268,7 +266,6 @@ export default function SEODashboardPage() {
         </div>
       )}
 
-      <BusinessContextModal open={contextOpen} onClose={() => setContextOpen(false)} />
 
       {/* Tabs */}
       <div className="border-b border-white/[0.06] flex gap-1 overflow-x-auto">
