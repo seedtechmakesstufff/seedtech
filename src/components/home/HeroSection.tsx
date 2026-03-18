@@ -6,6 +6,7 @@ import { BodyLg } from "@/components/kit";
 import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
 import { Button } from "@/components/kit";
+import GradualBlur from "@/components/ui/GradualBlur";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -105,6 +106,17 @@ export function HeroSection() {
           </div>
         </motion.div>
       </div>
+
+      {/* Gradual blur — fades the section bottom into the next section */}
+      <GradualBlur
+        position="bottom"
+        height="10rem"
+        strength={3}
+        divCount={8}
+        curve="bezier"
+        exponential
+        zIndex={20}
+      />
     </section>
   );
 }
