@@ -77,9 +77,11 @@ const SM_CSS = `
 .sm-icon-line{position:absolute;left:50%;top:50%;width:100%;height:2px;background:currentColor;border-radius:2px;transform:translate(-50%,-50%);will-change:transform}
 .sm-prelayers{position:absolute;top:0;right:0;bottom:0;width:100%;pointer-events:none;z-index:5}
 [data-position=left] .sm-prelayers{right:auto;left:0}
-.sm-prelayer{position:absolute;top:0;right:0;height:100%;width:100%;transform:translateX(0)}
-.staggered-menu-panel{position:absolute;top:0;right:0;width:100%;height:100%;background:#0a0a0f;display:flex;flex-direction:column;padding:5rem 2rem 2.5rem 2rem;overflow:hidden;z-index:10;pointer-events:auto}
+.sm-prelayer{position:absolute;top:0;right:0;height:100%;width:100%;transform:translateX(0);visibility:hidden}
+.staggered-menu-panel{position:absolute;top:0;right:0;width:100%;height:100%;background:#0a0a0f;display:flex;flex-direction:column;padding:5rem 2rem 2.5rem 2rem;overflow:hidden;z-index:10;pointer-events:none;visibility:hidden}
 [data-position=left] .staggered-menu-panel{right:auto;left:0}
+.staggered-menu-wrapper[data-open] .sm-prelayer,
+.staggered-menu-wrapper[data-open] .staggered-menu-panel{visibility:visible;pointer-events:auto}
 .sm-pages{position:relative;flex:1;display:flex;overflow:hidden}
 .sm-page{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;overflow-y:auto;will-change:transform}
 .sm-panel-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
@@ -132,6 +134,8 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
     const openRef = useRef(false);
     const [activeSub, setActiveSub] = useState<StaggeredMenuItem | null>(null);
     const [textLines, setTextLines] = useState<string[]>(["Menu", "Close"]);
+    // Tracks the pending sub-page navigation direction so useEffect can animate after render
+    const pendingNavRef = useRef<"toSub" | "toRoot" | null>(null);
 
     // ── GSAP refs ──────────────────────────────────────────────────────────
     const panelRef = useRef<HTMLDivElement | null>(null);
@@ -464,53 +468,67 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
 
     // ── Sub-page navigation ───────────────────────────────────────────────
     const navigateToSub = useCallback((item: StaggeredMenuItem) => {
-      const root = rootPageRef.current;
-      const sub = subPageRef.current;
-      if (!root || !sub) return;
-
-      // prep sub items for entrance animation
-      const subItems = Array.from(
-        sub.querySelectorAll(".sm-panel-itemLabel")
-      ) as HTMLElement[];
-      gsap.set(subItems, { yPercent: 140, rotate: 10 });
-
-      gsap.to(root, { xPercent: -100, duration: 0.45, ease: "power4.inOut" });
-      gsap.fromTo(sub, { xPercent: 100 }, { xPercent: 0, duration: 0.45, ease: "power4.inOut" });
-      gsap.to(subItems, {
-        yPercent: 0,
-        rotate: 0,
-        duration: 0.8,
-        ease: "power4.out",
-        stagger: { each: 0.08, from: "start" },
-        delay: 0.3,
-      });
-
-      setActiveSub(item);
+      pendingNavRef.current = "toSub";
+      setActiveSub(item); // triggers re-render → useEffect animates
     }, []);
 
     const navigateBack = useCallback(() => {
+      pendingNavRef.current = "toRoot";
+      setActiveSub(null); // triggers re-render → useEffect animates
+    }, []);
+
+    // Run GSAP slide animations AFTER React has rendered the sub-page content
+    useEffect(() => {
+      const direction = pendingNavRef.current;
+      if (!direction) return;
+      pendingNavRef.current = null;
+
       const root = rootPageRef.current;
       const sub = subPageRef.current;
       if (!root || !sub) return;
 
-      const rootItems = Array.from(
-        root.querySelectorAll(".sm-panel-itemLabel")
-      ) as HTMLElement[];
-      gsap.set(rootItems, { yPercent: 140, rotate: 10 });
+      if (direction === "toSub") {
+        // Prep sub items (now rendered) for entrance
+        const subItems = Array.from(
+          sub.querySelectorAll(".sm-panel-itemLabel")
+        ) as HTMLElement[];
+        if (subItems.length) gsap.set(subItems, { yPercent: 140, rotate: 10 });
 
-      gsap.to(sub, { xPercent: 100, duration: 0.4, ease: "power3.inOut" });
-      gsap.fromTo(root, { xPercent: -100 }, { xPercent: 0, duration: 0.4, ease: "power3.inOut" });
-      gsap.to(rootItems, {
-        yPercent: 0,
-        rotate: 0,
-        duration: 0.8,
-        ease: "power4.out",
-        stagger: { each: 0.08, from: "start" },
-        delay: 0.25,
-      });
+        gsap.to(root, { xPercent: -100, duration: 0.45, ease: "power4.inOut" });
+        gsap.fromTo(sub, { xPercent: 100 }, { xPercent: 0, duration: 0.45, ease: "power4.inOut" });
 
-      setActiveSub(null);
-    }, []);
+        if (subItems.length) {
+          gsap.to(subItems, {
+            yPercent: 0,
+            rotate: 0,
+            duration: 0.8,
+            ease: "power4.out",
+            stagger: { each: 0.08, from: "start" },
+            delay: 0.3,
+          });
+        }
+      } else {
+        // toRoot: animate root items back in
+        const rootItems = Array.from(
+          root.querySelectorAll(".sm-panel-itemLabel")
+        ) as HTMLElement[];
+        if (rootItems.length) gsap.set(rootItems, { yPercent: 140, rotate: 10 });
+
+        gsap.to(sub, { xPercent: 100, duration: 0.4, ease: "power3.inOut" });
+        gsap.fromTo(root, { xPercent: -100 }, { xPercent: 0, duration: 0.4, ease: "power3.inOut" });
+
+        if (rootItems.length) {
+          gsap.to(rootItems, {
+            yPercent: 0,
+            rotate: 0,
+            duration: 0.8,
+            ease: "power4.out",
+            stagger: { each: 0.08, from: "start" },
+            delay: 0.25,
+          });
+        }
+      }
+    }, [activeSub]);
 
     // ── Layers ────────────────────────────────────────────────────────────
     const raw = colors && colors.length ? colors.slice(0, 4) : ["#0c0c14", "#14141f"];
@@ -677,44 +695,41 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
               )}
             </div>
 
-            {/* Sub page */}
+            {/* Sub page — always mounted so GSAP can target it */}
             <div ref={subPageRef} className="sm-page">
-              {activeSub && (
-                <>
-                  <button
-                    className="sm-back-btn"
-                    onClick={navigateBack}
-                    type="button"
-                    aria-label="Back to main menu"
-                  >
-                    <span className="sm-back-arrow">&#8592;</span>
-                    Back
-                  </button>
-                  <p className="sm-sub-eyebrow">{activeSub.label}</p>
-                  <ul className="sm-panel-list" role="list">
-                    {activeSub.children?.map((child, idx) => (
-                      <li className="sm-panel-itemWrap" key={child.label + idx}>
-                        <a
-                          className="sm-panel-item"
-                          href={child.link}
-                          aria-label={child.ariaLabel}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (child.onClick) {
-                              child.onClick();
-                            } else {
-                              window.location.href = child.link;
-                            }
-                            closeMenu();
-                          }}
-                        >
-                          <span className="sm-panel-itemLabel">{child.label}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
+              <button
+                className="sm-back-btn"
+                onClick={navigateBack}
+                type="button"
+                aria-label="Back to main menu"
+                style={{ opacity: activeSub ? 1 : 0, pointerEvents: activeSub ? "auto" : "none" }}
+              >
+                <span className="sm-back-arrow">&#8592;</span>
+                Back
+              </button>
+              {activeSub && <p className="sm-sub-eyebrow">{activeSub.label}</p>}
+              <ul className="sm-panel-list" role="list">
+                {(activeSub?.children ?? []).map((child, idx) => (
+                  <li className="sm-panel-itemWrap" key={child.label + idx}>
+                    <a
+                      className="sm-panel-item"
+                      href={child.link}
+                      aria-label={child.ariaLabel}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (child.onClick) {
+                          child.onClick();
+                        } else {
+                          window.location.href = child.link;
+                        }
+                        closeMenu();
+                      }}
+                    >
+                      <span className="sm-panel-itemLabel">{child.label}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </aside>
