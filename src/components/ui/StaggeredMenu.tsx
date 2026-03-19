@@ -77,11 +77,12 @@ const SM_CSS = `
 .sm-icon-line{position:absolute;left:50%;top:50%;width:100%;height:2px;background:currentColor;border-radius:2px;transform:translate(-50%,-50%);will-change:transform}
 .sm-prelayers{position:absolute;top:0;right:0;bottom:0;width:100%;pointer-events:none;z-index:5}
 [data-position=left] .sm-prelayers{right:auto;left:0}
-.sm-prelayer{position:absolute;top:0;right:0;height:100%;width:100%;transform:translateX(0);visibility:hidden}
-.staggered-menu-panel{position:absolute;top:0;right:0;width:100%;height:100%;background:#0a0a0f;display:flex;flex-direction:column;padding:5rem 2rem 2.5rem 2rem;overflow:hidden;z-index:10;pointer-events:none;visibility:hidden}
+.sm-prelayer{position:absolute;top:0;right:0;height:100%;width:100%;visibility:hidden}
+.staggered-menu-panel{position:absolute;top:0;right:0;width:100%;height:100%;background:#0a0a0f;display:flex;flex-direction:column;padding:5rem 2rem 2.5rem 2rem;overflow:hidden;z-index:10;visibility:hidden;pointer-events:none}
 [data-position=left] .staggered-menu-panel{right:auto;left:0}
-.staggered-menu-wrapper[data-open] .sm-prelayer,
+.staggered-menu-wrapper[data-open] .sm-prelayer{visibility:visible}
 .staggered-menu-wrapper[data-open] .staggered-menu-panel{visibility:visible;pointer-events:auto}
+.staggered-menu-wrapper[data-open] .staggered-menu-panel *{pointer-events:auto}
 .sm-pages{position:relative;flex:1;display:flex;overflow:hidden}
 .sm-page{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;overflow-y:auto;will-change:transform}
 .sm-panel-close{position:absolute;top:1.2rem;right:1.5rem;display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background:transparent;border:none;cursor:pointer;color:rgba(248,248,250,0.55);transition:color 0.2s;z-index:20;padding:0}
@@ -217,7 +218,7 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
       }));
       const panelStart = Number(gsap.getProperty(panel, "xPercent"));
 
-      if (itemEls.length) gsap.set(itemEls, { yPercent: 140, rotate: 10 });
+      if (itemEls.length) gsap.set(itemEls, { yPercent: 140 });
       if (socialTitle) gsap.set(socialTitle, { opacity: 0 });
       if (socialLinks.length) gsap.set(socialLinks, { y: 25, opacity: 0 });
 
@@ -249,10 +250,10 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
           itemEls,
           {
             yPercent: 0,
-            rotate: 0,
             duration: 1,
             ease: "power4.out",
             stagger: { each: 0.1, from: "start" },
+            onComplete: () => { gsap.set(itemEls, { clearProps: "transform" }); },
           },
           itemsStart
         );
@@ -318,7 +319,7 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
             const itemEls = Array.from(
               rootPage.querySelectorAll(".sm-panel-itemLabel")
             ) as HTMLElement[];
-            if (itemEls.length) gsap.set(itemEls, { yPercent: 140, rotate: 10 });
+            if (itemEls.length) gsap.set(itemEls, { yPercent: 140 });
           }
           busyRef.current = false;
         },
@@ -494,7 +495,7 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
         const subItems = Array.from(
           sub.querySelectorAll(".sm-panel-itemLabel")
         ) as HTMLElement[];
-        if (subItems.length) gsap.set(subItems, { yPercent: 140, rotate: 10 });
+        if (subItems.length) gsap.set(subItems, { yPercent: 140 });
 
         gsap.to(root, { xPercent: -100, duration: 0.45, ease: "power4.inOut" });
         gsap.fromTo(sub, { xPercent: 100 }, { xPercent: 0, duration: 0.45, ease: "power4.inOut" });
@@ -502,11 +503,11 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
         if (subItems.length) {
           gsap.to(subItems, {
             yPercent: 0,
-            rotate: 0,
             duration: 0.8,
             ease: "power4.out",
             stagger: { each: 0.08, from: "start" },
             delay: 0.3,
+            onComplete: () => { gsap.set(subItems, { clearProps: "transform" }); },
           });
         }
       } else {
@@ -514,7 +515,7 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
         const rootItems = Array.from(
           root.querySelectorAll(".sm-panel-itemLabel")
         ) as HTMLElement[];
-        if (rootItems.length) gsap.set(rootItems, { yPercent: 140, rotate: 10 });
+        if (rootItems.length) gsap.set(rootItems, { yPercent: 140 });
 
         gsap.to(sub, { xPercent: 100, duration: 0.4, ease: "power3.inOut" });
         gsap.fromTo(root, { xPercent: -100 }, { xPercent: 0, duration: 0.4, ease: "power3.inOut" });
@@ -522,11 +523,11 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
         if (rootItems.length) {
           gsap.to(rootItems, {
             yPercent: 0,
-            rotate: 0,
             duration: 0.8,
             ease: "power4.out",
             stagger: { each: 0.08, from: "start" },
             delay: 0.25,
+            onComplete: () => { gsap.set(rootItems, { clearProps: "transform" }); },
           });
         }
       }
