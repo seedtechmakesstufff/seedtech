@@ -84,8 +84,10 @@ const SM_CSS = `
 .staggered-menu-wrapper[data-open] .staggered-menu-panel{visibility:visible;pointer-events:auto}
 .sm-pages{position:relative;flex:1;display:flex;overflow:hidden}
 .sm-page{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;overflow-y:auto;will-change:transform}
+.sm-panel-close{position:absolute;top:1.2rem;right:1.5rem;display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background:transparent;border:none;cursor:pointer;color:rgba(248,248,250,0.55);transition:color 0.2s;z-index:20;padding:0}
+.sm-panel-close:hover{color:#f8f8fa}
 .sm-panel-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
-.sm-panel-itemWrap{position:relative;overflow:hidden;line-height:1}
+.sm-panel-itemWrap{position:relative;overflow:visible;line-height:1}
 .sm-panel-item{position:relative;color:#f8f8fa;font-weight:700;font-size:clamp(2rem,8vw,3.2rem);cursor:pointer;line-height:1.05;letter-spacing:-0.5px;text-transform:uppercase;transition:color 0.2s;display:inline-flex;align-items:center;gap:0.35em;text-decoration:none;padding:0.08em 0;border:none;background:transparent;width:100%}
 .sm-panel-itemLabel{display:inline-block;will-change:transform;transform-origin:50% 100%}
 .sm-panel-item:hover{color:var(--sm-accent,#40A660)}
@@ -613,6 +615,18 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
           className="staggered-menu-panel"
           aria-hidden={!open}
         >
+          {/* Close button — always present inside the panel */}
+          <button
+            className="sm-panel-close"
+            onClick={closeMenu}
+            type="button"
+            aria-label="Close menu"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+
           <div className="sm-pages">
             {/* Root page */}
             <div ref={rootPageRef} className="sm-page">
