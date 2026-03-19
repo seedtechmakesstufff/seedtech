@@ -3,9 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuoteFlow } from "@/components/quote-flow";
+import StaggeredMenu, { StaggeredMenuHandle } from "@/components/ui/StaggeredMenu";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -99,8 +100,8 @@ function useOverLightSection() {
 }
 
 export function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
+  const [_mobileOpen, setMobileOpen] = useState(false);
+  const menuRef = useRef<StaggeredMenuHandle>(null);
   const overLight = useOverLightSection();
   const { openQuoteFlow } = useQuoteFlow();
 
@@ -174,71 +175,60 @@ export function Navbar() {
             Get a Quote
           </button>
 
-          {/* Mobile Toggle */}
+          {/* Mobile Toggle — triggers StaggeredMenu */}
           <button
             className="md:hidden p-2 text-white/70 hover:text-white"
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={() => menuRef.current?.toggle()}
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <Menu className="w-6 h-6" />
           </button>
         </nav>
       </div>
 
-      {/* Mobile Nav */}
-      {mobileOpen && (
-        <div className="md:hidden mt-2 mx-4 liquid-glass rounded-2xl animate-fade-in">
-          <div className="px-4 py-4 space-y-1">
-            {navLinks.map((link) =>
-              link.children ? (
-                <div key={link.label}>
-                  <button
-                    onClick={() => setServicesOpen(!servicesOpen)}
-                    className="flex items-center justify-between w-full px-3 py-3 text-sm text-white/70 hover:text-white rounded-lg"
-                  >
-                    {link.label}
-                    <ChevronDown className={cn("w-4 h-4 transition-transform", servicesOpen && "rotate-180")} />
-                  </button>
-                  {servicesOpen && (
-                    <div className="pl-4 space-y-1">
-                      {link.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          onClick={() => setMobileOpen(false)}
-                          className="block px-3 py-2 text-sm text-white/50 hover:text-white rounded-lg"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-3 text-sm text-white/70 hover:text-white rounded-lg"
-                >
-                  {link.label}
-                </Link>
-              )
-            )}
-            <button
-              onClick={() => {
-                setMobileOpen(false);
-                openQuoteFlow();
-              }}
-              className="block w-full mt-2 text-center px-5 py-3 text-sm font-medium text-white liquid-glass-tinted-seed liquid-glass-hover rounded-xl relative overflow-hidden"
-            >
-              Get a Quote
-            </button>
-          </div>
-        </div>
-      )}
-
-
+      {/* Staggered Mobile Menu — visible on tablet + mobile (below md) */}
+      <div className="md:hidden">
+        <StaggeredMenu
+          ref={menuRef}
+          isFixed
+          showInternalToggle={false}
+          position="right"
+          colors={["#0c0c14", "#0a0a0f"]}
+          accentColor="#40A660"
+          logoUrl="/seedtechlogo_white-scaled.webp"
+          logoAlt="SeedTech"
+          menuButtonColor="#ffffff"
+          openMenuButtonColor="#ffffff"
+          changeMenuColorOnOpen={false}
+          displaySocials={false}
+          displayItemNumbering={false}
+          closeOnClickAway
+          items={[
+            ...navLinks.map((link) => ({
+              label: link.label,
+              ariaLabel: `Go to ${link.label}`,
+              link: link.href,
+              ...(link.children
+                ? {
+                    children: link.children.map((child) => ({
+                      label: child.label,
+                      ariaLabel: `Go to ${child.label}`,
+                      link: child.href,
+                    })),
+                  }
+                : {}),
+            })),
+            {
+              label: "Get a Quote",
+              ariaLabel: "Get a free quote",
+              link: "#",
+              onClick: () => openQuoteFlow(),
+            },
+          ]}
+          onMenuOpen={() => setMobileOpen(true)}
+          onMenuClose={() => setMobileOpen(false)}
+        />
+      </div>
     </header>
   );
 }

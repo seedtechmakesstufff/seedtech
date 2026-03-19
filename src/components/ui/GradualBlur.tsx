@@ -170,7 +170,7 @@ function GradualBlur(props: GradualBlurProps) {
       transition: config.animated
         ? `opacity ${config.duration} ${config.easing}`
         : undefined,
-      zIndex: isPageTarget ? config.zIndex + 100 : config.zIndex,
+      zIndex: isPageTarget ? config.zIndex : config.zIndex,
       ...config.style,
     };
 

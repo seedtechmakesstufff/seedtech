@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { QuoteFlowProvider, QuoteFlowModal } from "@/components/quote-flow";
+import { PageBlurOverlay } from "@/components/layout/PageBlurOverlay";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -66,6 +67,7 @@ export default function RootLayout({
             <main>{children}</main>
             <Footer />
             <QuoteFlowModal />
+            <PageBlurOverlay />
           </QuoteFlowProvider>
         )}
       </body>
