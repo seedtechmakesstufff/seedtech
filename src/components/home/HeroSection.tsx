@@ -92,7 +92,7 @@ export function HeroSection() {
         <motion.div className="mt-14" {...fadeUp(1.0)}>
           <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-6 py-4 liquid-glass rounded-2xl text-sm text-white/60">
             {[
-              "8+ Years Supporting Growing Businesses",
+              "9+ Years Supporting Growing Businesses",
               "Managed IT + Web Development in One Team",
               "Trusted by Companies Across New Jersey",
             ].map((item) => (
