@@ -7,8 +7,8 @@ const reasons = [
   {
     icon: Zap,
     number: "01",
-    title: "AI-Accelerated Website Development",
-    body: "Our design and development pipeline uses advanced AI tools and reusable systems to launch high-performance websites in weeks instead of months.",
+    title: "Expert Website Development",
+    body: "Our development pipeline and reusable systems launch high-performance websites efficiently and on budget.",
   },
   {
     icon: Shield,
@@ -20,7 +20,7 @@ const reasons = [
     icon: Building2,
     number: "03",
     title: "Built for Real Businesses",
-    body: "We specialize in industries where reliability matters most: construction, trucking, law, and healthcare.",
+    body: "We specialize in industries where reliability matters most: construction, trucking, law, rigging, and private practices.",
   },
 ];
 
@@ -29,7 +29,7 @@ export function WhyChooseSection() {
     <Section theme="dark">
       <SectionHeader
         eyebrow="Why SeedTech"
-        title="Why Companies Choose"
+        title="Why Businesses Choose"
         titleHighlight="SeedTech"
         description="Three things that make us different from every other agency or IT vendor you've worked with."
         align="center"

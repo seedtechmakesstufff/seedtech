@@ -4,9 +4,9 @@ import { GlassCard, StatNumber, Eyebrow, CardTitle, Body, TextLink } from "@/com
 import { GradientOrb, DotPattern } from "@/components/kit";
 
 const stats = [
-  { number: "200+", label: "Businesses Supported" },
-  { number: "99.9%", label: "Average Uptime" },
-  { number: "48hr", label: "Avg. Resolution Time" },
+  { number: "50+", label: "Businesses Supported" },
+  { number: "98.9%", label: "Average Uptime" },
+  { number: "16-28hr", label: "Avg. Response Time" },
   { number: "3×", label: "Avg. Traffic Growth" },
 ];
 

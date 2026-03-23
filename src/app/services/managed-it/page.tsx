@@ -47,10 +47,10 @@ export const metadata: Metadata = {
 
 /* ─── Data ─────────────────────────────────────────────────────────────────── */
 const features = [
-  { icon: Headphones, title: "Unlimited Help Desk", body: "Remote support for every user on your team — no ticket caps, no hourly billing. Call, email, or chat." },
-  { icon: Clock, title: "15-Minute Triage", body: "Critical issues triaged in under 15 minutes. Most requests resolved same-day by someone who knows your environment." },
-  { icon: Lock, title: "Cybersecurity Built In", body: "SentinelOne AI-driven endpoint security, antivirus management, and patch management on every plan — always." },
-  { icon: Users, title: "Per-User Pricing", body: "One flat rate per person covers all their devices — laptop, phone, monitors. Simple, predictable, no surprises." },
+  { icon: Headphones, title: "Unlimited Help Desk", body: "Remote support for every user on your team — no hourly billing. Call, email, or text." },
+  { icon: Clock, title: "30-Minute Triage", body: "Critical issues triaged within 30 minutes. Most requests resolved same-day by someone who knows your environment." },
+  { icon: Lock, title: "Cybersecurity Built In", body: "SentinelOne AI-driven endpoint security, antivirus management, patch management, and ransomware protection on every plan — always." },
+  { icon: Users, title: "Per-User Pricing", body: "One flat rate per person covers one laptop and one desktop. Simple, predictable, no surprises." },
   { icon: BarChart3, title: "Transparent Reporting", body: "Monthly health reports covering tickets, response times, system status, and security posture. No black boxes." },
   { icon: Zap, title: "No Long-Term Contracts", body: "Month-to-month. We earn your business every billing cycle, not through lock-in or cancellation fees." },
 ];
@@ -190,12 +190,12 @@ export default function ManagedITPage() {
 
       {/* Why SeedTech */}
       <Section theme="light">
-        <SectionHeader eyebrow="Why SeedTech" title="Built for Accountability, Not Volume" description="Large MSPs route your issues through L1, L2, L3 escalation tiers. At SeedTech, the person who picks up your alert owns it through resolution." theme="light" />
+        <SectionHeader eyebrow="Why SeedTech" title="Built for Accountability, Not Volume" description="Most IT vendors wait for employees to report problems. At SeedTech, we monitor proactively — often resolving issues before your team ever notices." theme="light" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div className="rounded-2xl border border-red-200 bg-red-50/50 p-8">
             <h3 className="font-display text-card-title text-red-700 mb-5">Large Firms Operate in Tiers</h3>
             <ul className="space-y-3">
-              {["Level 1 support — scripts, basic triage", "Escalation to Level 2 — wait for availability", "Escalation to engineering — more delays", "Internal ticket transfers — ownership gets lost"].map((item) => (
+              {["No proactive monitoring — employees must report issues", "Submit a request and wait for a response", "Issue assigned to next available technician", "Fix applied after downtime already occurs"].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-body-sm text-red-600/80">
                   <ArrowRight className="w-4 h-4 mt-0.5 shrink-0 text-red-400" />
                   {item}
@@ -206,7 +206,7 @@ export default function ManagedITPage() {
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-8">
             <h3 className="font-display text-card-title text-emerald-700 mb-5">Our Structure is Simpler</h3>
             <ul className="space-y-3">
-              {["Monitoring alerts immediately", "The person responding has authority to act", "Fewer internal handoffs", "Clear ownership of resolution"].map((item) => (
+              {["Proactive monitoring — we often catch it before you do", "Fast response — no ticket queue, no waiting", "Handled by someone who knows your environment", "Downtime prevented, not just repaired"].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-body-sm text-emerald-700/80">
                   <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-emerald-500" />
                   {item}

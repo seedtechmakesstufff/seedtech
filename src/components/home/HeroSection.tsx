@@ -52,25 +52,25 @@ export function HeroSection() {
             Web Development
           </LiquidGlassPill>
           <LiquidGlassPill variant="blue" size="sm" dot>
-            AI-Accelerated Development
+            Proactive Support
           </LiquidGlassPill>
         </motion.div>
 
         {/* Hero headline — word-by-word reveal */}
         <SplitTextReveal
-          text="Technology Infrastructure & Websites Built for High-Performance Businesses"
+          text="Proactive IT Support & Websites Built for Small and Medium Businesses"
           as="h1"
           delay={0.25}
           stagger={0.06}
           duration={0.7}
-          highlightWords={["High-Performance"]}
+          highlightWords={["Small", "Medium"]}
           className="font-display text-display leading-[1.05] text-white"
         />
 
         {/* Subline */}
         <motion.div {...fadeUp(0.7)}>
           <BodyLg className="mt-6 max-w-2xl mx-auto">
-            SeedTech helps trucking companies, construction firms, law practices, and medical clinics launch faster websites, secure their technology, and streamline operations with AI-accelerated development and proactive IT support.
+            SeedTech helps trucking companies, construction firms, law practices, and private practices launch faster websites, secure their technology, and streamline operations with custom development and proactive IT support.
           </BodyLg>
         </motion.div>
 
@@ -83,8 +83,8 @@ export function HeroSection() {
             Get a Free Technology &amp; Website Audit
           </Button>
 
-          <Button variant="ghost" size="lg" icon="arrow" href="/industries">
-            View Industry Solutions
+          <Button variant="ghost" size="lg" icon="arrow" href="/services/managed-it">
+            Proactive IT Support
           </Button>
         </motion.div>
 
@@ -94,7 +94,6 @@ export function HeroSection() {
             {[
               "8+ Years Supporting Growing Businesses",
               "Managed IT + Web Development in One Team",
-              "AI-Accelerated Development for Faster Launches",
               "Trusted by Companies Across New Jersey",
             ].map((item) => (
               <span key={item} className="flex items-center gap-2">

@@ -80,12 +80,12 @@ const features = [
 ];
 
 const itTools = [
-  { tool: "Microsoft 365 & Email Security", purpose: "Secure business email, anti-phishing, spam filtering" },
-  { tool: "Cloud File Storage & Backups", purpose: "Protect drawings, contracts, and client data off-site" },
-  { tool: "Endpoint Protection", purpose: "Antivirus, threat monitoring, and patch management for office PCs and laptops" },
+  { tool: "Google Workspace Management", purpose: "Secure business email, anti-phishing, spam filtering" },
+  { tool: "File Backups & Cloud Storage", purpose: "Protect drawings, contracts, and client data off-site" },
+  { tool: "Device Protection", purpose: "Antivirus, threat monitoring, and patch management for office PCs and laptops" },
   { tool: "Remote Access & VPN", purpose: "Secure field-to-office connectivity for project managers and estimators" },
   { tool: "Help Desk Support", purpose: "Real support when systems break — no waiting in ticket queues" },
-  { tool: "Call Tracking & Analytics", purpose: "See which pages and campaigns are driving actual inquiries" },
+  { tool: "Call Tracking & Analytics (Website / VoIP)", purpose: "See which pages and campaigns are driving actual inquiries" },
 ];
 
 const faqs = [
@@ -145,7 +145,7 @@ export default function ConstructionPage() {
                 Construction Companies That Win More Trust — Before the First Meeting
               </AnimatedH1>
               <p className="mt-6 text-body-lg text-light-base/55 max-w-xl leading-relaxed">
-                Your website is the first thing serious buyers check before calling. SeedTech helps construction, rigging, and specialty trade companies build digital infrastructure that proves capability, attracts qualified labor, and keeps operations running — reliably.
+                Your website is the first thing serious buyers check before calling. SeedTech helps construction, rigging, and specialty trade companies build digital infrastructure that proves capability, attracts qualified labor, and keeps operations running — backed by proactive IT support and tech management.
               </p>
             </div>
             {/* CTA block — pinned bottom-right on desktop */}
@@ -423,7 +423,7 @@ export default function ConstructionPage() {
           eyebrow="Built-In SEO"
           title="Your website comes with an"
           titleHighlight="SEO command center."
-          description="Every SeedTech site includes our proprietary SEO Autopilot system — live keyword rankings, AI-powered content generation, and automated search engine optimization. No agency retainer. No third-party subscriptions."
+          description="Every SeedTech site includes a built-in SEO dashboard with live keyword rankings, performance audits, and instant indexing. Your team controls it directly — no agency retainer, no third-party subscriptions."
           align="center"
           theme="light"
         />
@@ -433,16 +433,6 @@ export default function ConstructionPage() {
               icon: Search,
               title: "Live Keyword Rankings",
               body: "See where your company ranks on Google for terms like \"commercial roofing NJ\" or \"steel erection contractor\" — updated in real time from Search Console.",
-            },
-            {
-              icon: Brain,
-              title: "AI SEO Advisor",
-              body: "Ask any question — \"How do I rank for industrial rigging?\" — and get specific, data-backed recommendations using your actual traffic and ranking data.",
-            },
-            {
-              icon: FileText,
-              title: "AI Blog Writer",
-              body: "Generate SEO-optimized content targeting construction keywords — project showcases, safety guides, market-specific pages. Publish in minutes, not weeks.",
             },
             {
               icon: BarChart3,
@@ -457,7 +447,7 @@ export default function ConstructionPage() {
             {
               icon: Sparkles,
               title: "Your Company, Your Voice",
-              body: "The AI knows your trade specialties, certifications, service areas, and project history. You control the business context that drives every recommendation.",
+              body: "The system knows your trade specialties, certifications, service areas, and project history. You control the business context that drives every recommendation.",
             },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight p-6 flex flex-col gap-3">

@@ -51,16 +51,16 @@ const largeFirmPains = [
 
 const seedtechAdvantages = [
   { icon: UserCheck, title: "Deep Familiarity", body: "We know your file structure, your QuickBooks environment, your permission structure. No re-explaining." },
-  { icon: ShieldCheck, title: "Direct Authority", body: "The person who picks up your alert has the authority to act. No escalation queues, no internal transfers." },
+  { icon: ShieldCheck, title: "Proactive Monitoring", body: "We detect and alert on issues automatically — your team doesn't have to report a problem for us to know about it." },
   { icon: Bot, title: "Custom Automation", body: "We build repeat-fix automation tailored to your specific systems — not generic scripts applied to every client." },
-  { icon: CheckCircle2, title: "Clear Ownership", body: "Every alert has one owner from detection to resolution. No hiding behind headcount." },
+  { icon: CheckCircle2, title: "Your Data, Your Licenses", body: "You own your licenses, passwords, and data — never gatekept by your IT provider." },
 ];
 
 const faqs = [
   { q: "How is SeedTech structured differently from larger MSPs?", a: "Most large MSPs rely on tiered support — your issue bounces between L1, L2, and engineering before anyone resolves it. At SeedTech, the person who picks up the alert has the authority and context to act. One owner, start to finish." },
-  { q: "What if we need after-hours support?", a: "Emergency support is available on every plan. Real-time monitoring means we often detect and begin resolving issues before you even know about them — including nights and weekends." },
-  { q: "How do you handle on-site issues?", a: "SeedCare Plus includes up to 4 hours per month of on-site support. SeedCare Pro includes unlimited on-site. For Essentials clients, on-site can be added as needed." },
-  { q: "What happens during the transition from our current provider?", a: "We follow a 4-week phased rollout: discovery, silent deployment, go-live, and optimization. We deploy in the background with zero disruption. Most teams are fully onboarded in 5-10 business days." },
+  { q: "Is after-hours support available?", a: "We handle urgent issues as they come. Our monitoring runs continuously and flags critical alerts — but after-hours availability depends on the situation. Reach out directly and we will work with you." },
+  { q: "How do you handle on-site issues?", a: "On-site support is included across all plans. If something needs hands-on attention, we come to you — no extra charges, no per-visit billing." },
+  { q: "What happens during the transition from our current provider?", a: "After a discovery assessment, we build a custom rollout plan around your environment, team, and timeline. Every transition is different — we don't apply a one-size-fits-all process." },
 ];
 
 const faqSchema = {
@@ -228,12 +228,11 @@ export default function WhySeedTechPage() {
       <Section>
         <div className="max-w-3xl mx-auto text-center">
           <blockquote className="text-heading md:text-heading-lg font-display text-white leading-tight mb-8">
-            &ldquo;You don&apos;t get &lsquo;whoever is free.&rsquo;{" "}
-            <GradientText as="span">You get people who know your environment.</GradientText>&rdquo;
+            We show up, we know your setup, and{" "}
+            <GradientText as="span">we handle it — no hand-offs, no re-explaining.</GradientText>
           </blockquote>
           <p className="text-light-base/40 text-body-sm">
-            Focused enough to know you. Skilled enough to protect you.
-            Accountable enough to own every outcome.
+            The same people who monitor your systems are the ones who fix them.
           </p>
         </div>
       </Section>

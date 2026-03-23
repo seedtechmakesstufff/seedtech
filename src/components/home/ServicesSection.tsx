@@ -11,12 +11,11 @@ const solutions = [
     pillVariant: "seed" as const,
     title: "Websites That Drive Business",
     description:
-      "Custom-built websites engineered for performance, SEO, and conversion — launched faster with our AI-accelerated development pipeline.",
+      "Custom-built websites engineered for performance, SEO, and conversion — built on a custom development pipeline.",
     features: [
       "Custom websites & web applications",
       "Conversion optimization",
       "SEO foundation built in",
-      "Fast launch timelines",
       "Industry-specific designs",
     ],
     cta: "Launch Your Website",
@@ -26,15 +25,13 @@ const solutions = [
     icon: Shield,
     pill: "Managed IT",
     pillVariant: "default" as const,
-    title: "Managed IT & Cybersecurity",
+    title: "Proactive Support + Protective Solutions",
     description:
-      "Proactive IT management that keeps your infrastructure secure, compliant, and running — so you never have to think about it.",
+      "Proactive IT management that keeps your infrastructure secure, compliant, and reducing downtime.",
     features: [
       "24/7 monitoring & help desk",
       "Data protection & backups",
-      "Cloud infrastructure management",
-      "Email security & filtering",
-      "Compliance support",
+      "Cloud docs, email & computer backup",
     ],
     cta: "Protect Your Business",
     href: "/services/managed-it",
@@ -47,8 +44,8 @@ export function ServicesSection() {
       <SectionHeader
         eyebrow="Services"
         title="Two Services."
-        titleHighlight="One Partner."
-        description="Most businesses juggle separate vendors for their website and IT. We handle both — so your technology actually works together."
+        titleHighlight="One Solution."
+        description="Most businesses juggle separate vendors for their website and IT. We handle both — so your technology works together seamlessly."
         align="center"
         theme="light"
       />

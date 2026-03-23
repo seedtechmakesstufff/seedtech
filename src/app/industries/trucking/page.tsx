@@ -79,11 +79,11 @@ const features = [
 
 const itTools = [
   { tool: "Driver Application Flow", purpose: "Low-friction mobile-friendly online applications integrated with onboarding" },
-  { tool: "Email Security & Anti-Phishing", purpose: "Protect dispatch communications and financial data from breaches" },
+  { tool: "Email Security & Anti-Phishing Training", purpose: "Protect dispatch communications and financial data from breaches" },
   { tool: "Cloud Backup & File Management", purpose: "Secure off-site storage for BOLs, contracts, and compliance records" },
-  { tool: "Endpoint Support", purpose: "Antivirus, patch management, and help desk for office and remote dispatch teams" },
+  { tool: "Computer Support", purpose: "Antivirus, patch management, and help desk for office and remote dispatch teams" },
   { tool: "Quote / Load Request Forms", purpose: "Structured intake tied to your ops workflow — not just a contact form" },
-  { tool: "Call Tracking & Analytics", purpose: "Know exactly which pages and campaigns are generating real inquiries" },
+  { tool: "Call Tracking & Analytics (Dialpad)", purpose: "Know exactly which pages and campaigns are generating real inquiries — available when using Dialpad" },
 ];
 
 const eastsideBulkModules = [
@@ -114,7 +114,7 @@ const faqs = [
   },
   {
     q: "What does IT support look like for a trucking operation?",
-    a: "We manage your office infrastructure — email security, endpoint protection, cloud backups, and help desk support. If your dispatch team, accounting team, or admin staff relies on computers and communication tools, we keep that running reliably.",
+    a: "We manage your office infrastructure — file and email security, device and computer support, cloud backups, and help desk support. If your dispatch team, accounting team, or admin staff relies on computers and communication tools, we keep that running reliably.",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function TruckingPage() {
                 Trucking & Logistics Companies That Build Trust Faster
               </AnimatedH1>
               <p className="mt-6 text-body-lg text-light-base/55 max-w-xl leading-relaxed">
-                Shippers, brokers, and drivers evaluate your company online before they ever call. SeedTech helps trucking, freight, and logistics companies build websites that communicate capability clearly, recruit more effectively, and support the operations running behind the scenes.
+                Shippers, brokers, and drivers evaluate your company online before they ever call. SeedTech helps trucking, freight, and logistics companies build websites that communicate capability clearly, recruit more effectively, and keep the technology running behind the scenes — from proactive IT support to secure communications and cloud backups.
               </p>
             </div>
             {/* CTA block — pinned bottom-right on desktop */}
@@ -460,7 +460,7 @@ export default function TruckingPage() {
           eyebrow="Built-In SEO"
           title="Your website comes with an"
           titleHighlight="SEO command center."
-          description="Every SeedTech site includes our proprietary SEO Autopilot system — live keyword rankings, AI-powered content generation, and automated search engine optimization. No agency retainer. No third-party subscriptions."
+          description="Every SeedTech site includes a built-in SEO dashboard with live keyword rankings, performance audits, and instant indexing. Your team controls it directly — no agency retainer, no third-party subscriptions."
           align="center"
           theme="light"
         />
@@ -470,16 +470,6 @@ export default function TruckingPage() {
               icon: Search,
               title: "Live Keyword Rankings",
               body: "See where your company ranks on Google for terms like \"flatbed trucking NJ\" or \"LTL freight Northeast\" — updated in real time from Search Console.",
-            },
-            {
-              icon: Brain,
-              title: "AI SEO Advisor",
-              body: "Ask any question — \"How do I rank for refrigerated transport?\" — and get data-backed recommendations using your actual traffic and ranking data.",
-            },
-            {
-              icon: FileText,
-              title: "AI Blog Writer",
-              body: "Generate SEO-optimized content targeting logistics keywords — lane pages, equipment guides, compliance explainers. Publish in minutes, not weeks.",
             },
             {
               icon: BarChart3,
@@ -494,7 +484,7 @@ export default function TruckingPage() {
             {
               icon: Sparkles,
               title: "Your Company, Your Voice",
-              body: "The AI knows your fleet, your lanes, your services, and your compliance certifications. You control the business context that drives every recommendation.",
+              body: "The system knows your fleet, your lanes, your services, and your compliance certifications. You control the business context that drives every recommendation.",
             },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight p-6 flex flex-col gap-3">
@@ -508,7 +498,7 @@ export default function TruckingPage() {
         </div>
         <div className="mt-10 max-w-3xl mx-auto text-center">
           <p className="text-body-sm text-dark-base/45 leading-relaxed">
-            Most trucking websites are static brochures that never change. Yours comes with a full SEO engine — keyword tracking that replaces $300/mo tools, an AI strategist that replaces agency retainers, and a content system that turns one keyword into a published page in minutes.
+            Most trucking websites are static brochures that never change. Yours comes with a full SEO dashboard — keyword tracking, performance insights, and instant indexing all built in.
           </p>
         </div>
       </Section>
@@ -543,7 +533,7 @@ export default function TruckingPage() {
       <Section>
         <CTABanner
           title="Ready to build a trucking website that works as hard as your fleet?"
-          description="Get a free audit covering your website, driver recruiting flow, and IT infrastructure — tailored to trucking and logistics operations."
+          description="Get a free audit covering your website, driver recruiting, IT infrastructure, and tech support — tailored to trucking and logistics operations."
           primaryLabel="Get a Free Audit"
           primaryHref="/free-audit"
           secondaryLabel="View Our Work"
