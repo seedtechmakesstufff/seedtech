@@ -73,7 +73,7 @@ export default function MedicalPage() {
             { title: "Patient-Friendly Websites", body: "Clean, accessible websites that make it easy for patients to learn about your practice, find locations, and book appointments." },
             { title: "Appointment Integrations", body: "Connect your website with scheduling platforms like Zocdoc, SimplePractice, or custom booking systems." },
             { title: "HIPAA-Aware Infrastructure", body: "IT systems configured with patient data protection in mind — access controls, encrypted storage, and audit logging." },
-            { title: "Secure Email Systems", body: "Business email with encryption and access controls that keep patient communications protected." },
+            { title: "Secure Email Systems", body: "Secure business email — through Microsoft 365 or Google Workspace — with encryption and access controls that keep patient communications protected." },
             { title: "IT Support for Clinics", body: "Proactive monitoring and responsive help desk support for medical offices — so your team stays focused on patients, not technology." },
             { title: "Cybersecurity & Compliance", body: "Security policies and technical controls that support your practice in meeting data protection and compliance requirements." },
           ].map((item) => (

@@ -80,17 +80,12 @@ const benefits = [
   {
     icon: HeartHandshake,
     title: "One Partner. Less Vendor Chaos.",
-    body: "Website, intake systems, IT support, email security, and backup — all managed by one team. No finger-pointing between vendors.",
+    body: "Website, intake systems, IT support, email security, and backup — all managed by one team.",
   },
   {
     icon: Lock,
     title: "Keep Your Firm Secure and Compliant",
-    body: "Email encryption, MFA, endpoint protection, and cloud backup aligned with bar association cybersecurity guidance.",
-  },
-  {
-    icon: Monitor,
-    title: "Launch Faster With AI-Accelerated Development",
-    body: "Our AI-assisted workflows compress build timelines to 4–8 weeks without cutting corners on quality or compliance.",
+    body: "Endpoint protection, multi-factor authentication, secure email, and cloud backup — built to meet the cybersecurity standards law firms are expected to uphold.",
   },
   {
     icon: BarChart3,
@@ -226,7 +221,7 @@ export default function LawFirmsPage() {
                 Your Website Is Your Firm&apos;s Intake System — Not a Brochure
               </AnimatedH1>
               <p className="mt-6 text-body-lg text-light-base/55 max-w-xl leading-relaxed">
-                Most law firms don&apos;t have a traffic problem — they have an intake-friction problem. SeedTech builds digital infrastructure that helps law firms convert more visitors into qualified consultations, respond faster, and operate more securely.
+                Most law firms don&apos;t have a traffic problem — they have an intake-friction problem. SeedTech builds the websites, intake systems, and technology infrastructure law firms need to convert more visitors into consultations, respond faster, and keep operations running securely.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row lg:flex-col items-start gap-4 lg:items-end lg:shrink-0">
@@ -498,7 +493,7 @@ export default function LawFirmsPage() {
       {/* ── Benefits Section ── */}
       <Section>
         <SectionHeader
-          eyebrow="Why It Matters"
+          eyebrow="Why This Matters"
           title="What stronger digital infrastructure"
           titleHighlight="actually does for your firm."
           description="This isn't about having a prettier website. It's about building systems that directly impact how your firm acquires clients, operates daily, and grows."
