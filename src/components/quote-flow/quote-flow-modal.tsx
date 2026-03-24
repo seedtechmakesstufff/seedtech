@@ -26,6 +26,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { validateEmail } from "@/lib/validation";
 import { useQuoteFlow } from "./quote-flow-provider";
 import { QuotePriceCalculator } from "@/components/quote-generator/quote-price-calculator";
 import type { ServicePath, WebDevTier, QuoteFlowStep } from "./types";
@@ -187,6 +188,8 @@ export function QuoteFlowModal() {
     currentSiteUrl: "",
     notes: "",
   });
+  const [webEmailError, setWebEmailError] = useState("");
+  const [webEmailSuggestion, setWebEmailSuggestion] = useState("");
 
   // ── Handle preselected service ──
   useEffect(() => {
@@ -218,6 +221,8 @@ export function QuoteFlowModal() {
         currentSiteUrl: "",
         notes: "",
       });
+      setWebEmailError("");
+      setWebEmailSuggestion("");
     }, 300);
   }, [closeQuoteFlow]);
 
@@ -293,7 +298,7 @@ export function QuoteFlowModal() {
   };
 
   const isWebFormValid =
-    webForm.fullName && webForm.email && webForm.phone && webForm.businessName;
+    webForm.fullName && webForm.email && webForm.phone && webForm.businessName && validateEmail(webForm.email).valid;
 
   // ── Progress helpers ──
   const getProgressInfo = (): { label: string; percent: number } => {
@@ -685,14 +690,40 @@ export function QuoteFlowModal() {
                           label="Email"
                           type="email"
                           value={webForm.email}
-                          onChange={(e) =>
-                            setWebForm((f) => ({
-                              ...f,
-                              email: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => {
+                            setWebForm((f) => ({ ...f, email: e.target.value }));
+                            setWebEmailError("");
+                            setWebEmailSuggestion("");
+                          }}
+                          onBlur={() => {
+                            if (!webForm.email) return;
+                            const r = validateEmail(webForm.email);
+                            if (!r.valid) {
+                              setWebEmailError(r.error || "Invalid email.");
+                              setWebEmailSuggestion(r.suggestion || "");
+                            }
+                          }}
                           placeholder="jane@company.com"
+                          className={webEmailError ? "border-red-500/50" : ""}
                         />
+                        {webEmailError && (
+                          <div className="md:col-span-2 -mt-3 px-1">
+                            <p className="text-red-400 text-xs">{webEmailError}</p>
+                            {webEmailSuggestion && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setWebForm((f) => ({ ...f, email: webEmailSuggestion }));
+                                  setWebEmailError("");
+                                  setWebEmailSuggestion("");
+                                }}
+                                className="text-seed-400 hover:text-seed-300 text-xs underline underline-offset-2 mt-0.5"
+                              >
+                                Did you mean {webEmailSuggestion}?
+                              </button>
+                            )}
+                          </div>
+                        )}
                         <FlowInput
                           id="web-phone"
                           label="Phone"

@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validateEmail } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +15,15 @@ export async function POST(req: NextRequest) {
     if (!fullName || !email || !message) {
       return NextResponse.json(
         { error: "Full name, email, and message are required." },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format + TLD
+    const emailCheck = validateEmail(email);
+    if (!emailCheck.valid) {
+      return NextResponse.json(
+        { error: emailCheck.error, suggestion: emailCheck.suggestion },
         { status: 400 }
       );
     }
