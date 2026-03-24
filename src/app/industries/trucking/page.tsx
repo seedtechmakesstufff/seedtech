@@ -10,8 +10,6 @@ import {
   ChevronDown,
   ClipboardList,
   Search,
-  Brain,
-  FileText,
   Zap,
   Sparkles,
 } from "lucide-react";
@@ -179,76 +177,48 @@ export default function TruckingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {/*
               IMAGE 1 — Semi truck / tractor-trailer on highway or yard
-              File: /public/industries/trucking-hero-1.jpg
-              Recommended size: 273×400px (portrait) — Class 8 truck, highway, motion or parked fleet
             */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
-                src="/industries/trucking-hero-1.jpg"
+                src="/img/seed%20graphics/hero_1_1_5x.webp"
                 alt="Semi truck fleet on highway"
                 fill
                 className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Semi / fleet on highway or yard
-                </p>
-              </div>
             </div>
             {/*
               IMAGE 2 — Bulk hauling, flatbed, or specialty freight load
-              File: /public/industries/trucking-hero-2.jpg
-              Recommended size: 273×400px (portrait) — flatbed with steel, bulk tanker, or specialized load
             */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
-                src="/industries/trucking-hero-2.jpg"
+                src="/img/seed%20graphics/hero_2_1_5x.webp"
                 alt="Flatbed or bulk freight specialty load"
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Flatbed / bulk / specialty freight
-                </p>
-              </div>
             </div>
             {/*
               IMAGE 3 — Dispatch office or driver operations environment
-              File: /public/industries/trucking-hero-3.jpg
-              Recommended size: 273×400px (portrait) — dispatcher at screens, logistics ops room
             */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
-                src="/industries/trucking-hero-3.jpg"
+                src="/img/seed%20graphics/hero_3_1_5x.webp"
                 alt="Trucking dispatch operations office"
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Dispatch office / logistics ops
-                </p>
-              </div>
             </div>
             {/*
               IMAGE 4 — SeedTech website / driver portal mockup on device
-              File: /public/industries/trucking-hero-4.jpg
-              Recommended size: 273×400px (portrait) — device mockup showing driver app or trucking site
             */}
             <div className="relative aspect-[273/400] rounded-t-2xl overflow-hidden bg-white/[0.05]">
               <Image
-                src="/industries/trucking-hero-4.jpg"
+                src="/img/seed%20graphics/hero_4_1_5x.webp"
                 alt="Trucking company website mockup on device"
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-white/[0.03]">
-                <p className="text-white/20 text-xs text-center px-4 font-mono leading-relaxed">
-                  273×400px<br />Website / driver portal mockup
-                </p>
-              </div>
             </div>
           </div>
         </div>

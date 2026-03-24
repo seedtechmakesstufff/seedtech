@@ -12,7 +12,6 @@ import {
   CalendarCheck,
   BarChart3,
   Lock,
-  Monitor,
   Zap,
   TrendingUp,
   HeartHandshake,
