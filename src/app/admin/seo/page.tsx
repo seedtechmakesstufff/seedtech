@@ -661,65 +661,141 @@ export default function SEODashboardPage() {
             )}
           </div>
 
-          {/* Page Drill-Down */}
+          {/* Page Drill-Down — Right-aligned slide-over modal */}
           {selectedPage && (
-            <div className="bg-dark-elevated border border-seed-500/20 rounded-xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-seed-400" />
-                  Score Trend: <span className="text-white/50 font-mono text-xs">{selectedPage.replace(/https?:\/\/[^/]+/, "")}</span>
-                </h3>
-                <button onClick={() => { setSelectedPage(null); setPageTrend([]); }} className="text-white/30 hover:text-white/60">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              {pageTrend.length > 0 ? (
-                <div className="p-5">
-                  <div className="flex items-end gap-1 h-24 mb-4">
-                    {pageTrend.map((s, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="w-full rounded-t" style={{ height: `${Math.max(4, s.overallScore)}%`, backgroundColor: s.overallScore >= 65 ? "#22c55e" : s.overallScore >= 50 ? "#eab308" : s.overallScore >= 35 ? "#f97316" : "#ef4444", opacity: 0.3 + (i / pageTrend.length) * 0.7 }} />
-                      </div>
-                    ))}
+            <div className="fixed inset-0 z-50 flex justify-end" onClick={() => { setSelectedPage(null); setPageTrend([]); }}>
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+              <div
+                className="relative w-full max-w-md h-full bg-dark-base border-l border-white/[0.08] shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
+                <div className="sticky top-0 z-10 bg-dark-base/95 backdrop-blur-sm px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-seed-400 shrink-0" />Score Trend
+                    </h3>
+                    <p className="text-xs text-white/40 font-mono truncate mt-0.5">{selectedPage.replace(/https?:\/\/[^/]+/, "")}</p>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-white/20">
-                    <span>{new Date(pageTrend[0].scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-                    <span>{new Date(pageTrend[pageTrend.length - 1].scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-                  </div>
+                  <button onClick={() => { setSelectedPage(null); setPageTrend([]); }} className="text-white/30 hover:text-white/60 ml-3 shrink-0">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
 
-                  {/* Failed Checks for Latest Score */}
-                  {(() => {
-                    const latest = pageTrend[pageTrend.length - 1];
-                    const checks = latest.failedChecks as { check: string; category: string; fix: string }[];
-                    if (checks.length === 0) return (
-                      <div className="mt-4 flex items-center gap-2 text-sm text-green-400">
-                        <CheckCircle2 className="w-4 h-4" />All checks passing!
-                      </div>
-                    );
-                    return (
-                      <div className="mt-4">
-                        <p className="text-xs text-white/40 mb-2 flex items-center gap-1"><XCircle className="w-3.5 h-3.5 text-red-400" />{checks.length} Failed Checks</p>
-                        <div className="space-y-1.5">
-                          {checks.slice(0, 8).map((c, i) => (
-                            <div key={i} className="flex items-start gap-2 bg-red-500/5 border border-red-500/10 rounded-lg px-3 py-2">
-                              <XCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" />
-                              <div>
-                                <p className="text-xs text-white/60">{c.check}</p>
-                                <p className="text-xs text-white/30 mt-0.5">{c.fix}</p>
+                {pageTrend.length > 0 ? (
+                  <div className="p-5 space-y-5">
+                    {/* Latest Score Summary */}
+                    {(() => {
+                      const latest = pageTrend[pageTrend.length - 1];
+                      const gradeColors: Record<string, string> = {
+                        A: "bg-green-500/20 text-green-400 border-green-500/30",
+                        B: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+                        C: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+                        D: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+                        F: "bg-red-500/20 text-red-400 border-red-500/30",
+                      };
+                      return (
+                        <div className="flex items-center gap-4">
+                          <div className="relative w-16 h-16 shrink-0">
+                            <svg className="w-16 h-16 -rotate-90" viewBox="0 0 100 100">
+                              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                              <circle cx="50" cy="50" r="40" fill="none" stroke={latest.overallScore >= 65 ? "#22c55e" : latest.overallScore >= 50 ? "#eab308" : latest.overallScore >= 35 ? "#f97316" : "#ef4444"} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${latest.overallScore * 2.51} 251`} />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-lg font-bold text-white">{latest.overallScore}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded border ${gradeColors[(latest as { grade?: string }).grade || "F"] || gradeColors.F}`}>
+                              Grade {(latest as { grade?: string }).grade || "—"}
+                            </span>
+                            <p className="text-xs text-white/30 mt-1">
+                              Scored {new Date(latest.scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Sub-scores */}
+                    {(() => {
+                      const latest = pageTrend[pageTrend.length - 1];
+                      const subs = [
+                        { label: "Citation Readiness", value: latest.citationReadiness, color: "bg-green-400" },
+                        { label: "Entity Authority", value: latest.entityAuthority, color: "bg-blue-400" },
+                        { label: "Structured Clarity", value: latest.structuredClarity, color: "bg-purple-400" },
+                        { label: "Conversational Fit", value: latest.conversationalFit, color: "bg-yellow-400" },
+                        { label: "Multi-Engine", value: latest.multiEngineCoverage, color: "bg-orange-400" },
+                      ];
+                      return (
+                        <div className="space-y-2">
+                          <p className="text-xs text-white/40 font-medium uppercase tracking-wider">Sub-Scores</p>
+                          {subs.map((s) => (
+                            <div key={s.label} className="flex items-center gap-3">
+                              <span className="text-xs text-white/50 w-32 shrink-0">{s.label}</span>
+                              <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                                <div className={`h-full rounded-full ${s.color}`} style={{ width: `${s.value}%` }} />
                               </div>
+                              <span className="text-xs font-mono text-white/40 w-7 text-right">{s.value}</span>
                             </div>
                           ))}
-                          {checks.length > 8 && <p className="text-xs text-white/20 pl-6">+{checks.length - 8} more</p>}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Trend Chart */}
+                    {pageTrend.length > 1 && (
+                      <div>
+                        <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-2">Score History</p>
+                        <div className="flex items-end gap-1 h-20">
+                          {pageTrend.map((s, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-1" title={`${s.overallScore} — ${new Date(s.scoredAt).toLocaleDateString()}`}>
+                              <div className="w-full rounded-t" style={{ height: `${Math.max(4, s.overallScore)}%`, backgroundColor: s.overallScore >= 65 ? "#22c55e" : s.overallScore >= 50 ? "#eab308" : s.overallScore >= 35 ? "#f97316" : "#ef4444", opacity: 0.3 + (i / pageTrend.length) * 0.7 }} />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-white/20 mt-1">
+                          <span>{new Date(pageTrend[0].scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                          <span>{new Date(pageTrend[pageTrend.length - 1].scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
                         </div>
                       </div>
-                    );
-                  })()}
-                </div>
-              ) : (
-                <div className="px-5 py-8 text-center text-white/30 text-sm flex items-center justify-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />Loading trend…
-                </div>
-              )}
+                    )}
+
+                    {/* Failed Checks */}
+                    {(() => {
+                      const latest = pageTrend[pageTrend.length - 1];
+                      const checks = latest.failedChecks as { check: string; category: string; fix: string }[];
+                      if (checks.length === 0) return (
+                        <div className="flex items-center gap-2 text-sm text-green-400 bg-green-500/5 border border-green-500/10 rounded-lg px-4 py-3">
+                          <CheckCircle2 className="w-4 h-4" />All checks passing!
+                        </div>
+                      );
+                      return (
+                        <div>
+                          <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <XCircle className="w-3.5 h-3.5 text-red-400" />{checks.length} Failed Checks
+                          </p>
+                          <div className="space-y-1.5">
+                            {checks.map((c, i) => (
+                              <div key={i} className="flex items-start gap-2 bg-red-500/5 border border-red-500/10 rounded-lg px-3 py-2">
+                                <XCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" />
+                                <div>
+                                  <p className="text-xs text-white/60">{c.check}</p>
+                                  <p className="text-xs text-white/30 mt-0.5">{c.fix}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  <div className="px-5 py-16 text-center text-white/30 text-sm flex flex-col items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />Loading trend…
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
