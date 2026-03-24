@@ -8,6 +8,8 @@ import {
   Save,
   Eye,
   Trash2,
+  Sparkles,
+  Undo2,
 } from "lucide-react";
 
 interface BlogPost {
@@ -50,6 +52,13 @@ export default function EditBlogPostPage() {
   const [category, setCategory] = useState("IT Support");
   const [status, setStatus] = useState<"draft" | "published" | "scheduled">("draft");
 
+  // AI Visibility rewrite state
+  const [rewriteApplied, setRewriteApplied] = useState(false);
+  const [rewriteMeta, setRewriteMeta] = useState<{
+    oldScore: number; oldGrade: string; newScore: number; newGrade: string; fixedCount: number;
+  } | null>(null);
+  const [originalBody, setOriginalBody] = useState<string>("");
+
   useEffect(() => {
     async function load() {
       try {
@@ -59,12 +68,40 @@ export default function EditBlogPostPage() {
         setPost(data);
         setTitle(data.title);
         setSlug(data.slug);
-        setBody(data.body);
         setExcerpt(data.excerpt);
         setMetaTitle(data.metaTitle);
         setMetaDescription(data.metaDescription);
         setCategory(data.category);
         setStatus(data.status);
+
+        // Check for pending AI Visibility rewrite
+        const raw = sessionStorage.getItem("ai-rewrite");
+        if (raw) {
+          try {
+            const rewrite = JSON.parse(raw);
+            if (rewrite.postId === postId && rewrite.content) {
+              setOriginalBody(data.body);
+              setBody(rewrite.content);
+              setRewriteApplied(true);
+              setRewriteMeta({
+                oldScore: rewrite.oldScore,
+                oldGrade: rewrite.oldGrade,
+                newScore: rewrite.newScore,
+                newGrade: rewrite.newGrade,
+                fixedCount: rewrite.fixedCount,
+              });
+              sessionStorage.removeItem("ai-rewrite");
+            } else {
+              setBody(data.body);
+              sessionStorage.removeItem("ai-rewrite");
+            }
+          } catch {
+            setBody(data.body);
+            sessionStorage.removeItem("ai-rewrite");
+          }
+        } else {
+          setBody(data.body);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load post");
       } finally {
@@ -167,6 +204,41 @@ export default function EditBlogPostPage() {
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-sm text-red-400">
           {error}
+        </div>
+      )}
+
+      {/* AI Visibility Rewrite Banner */}
+      {rewriteApplied && rewriteMeta && (
+        <div className="bg-seed-500/5 border border-seed-500/20 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-seed-500/10 rounded-lg">
+                <Sparkles className="w-5 h-5 text-seed-400" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white flex items-center gap-2">
+                  AI Visibility Rewrite Applied
+                  <span className="text-xs font-mono text-green-400">
+                    {rewriteMeta.oldScore} → {rewriteMeta.newScore} (+{rewriteMeta.newScore - rewriteMeta.oldScore} pts)
+                  </span>
+                </p>
+                <p className="text-xs text-white/40 mt-0.5">
+                  {rewriteMeta.fixedCount} failed check{rewriteMeta.fixedCount !== 1 ? "s" : ""} fixed.
+                  Review the content below, make any edits, then Save.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setBody(originalBody);
+                setRewriteApplied(false);
+                setRewriteMeta(null);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/50 hover:text-white/70 text-xs font-medium transition-colors"
+            >
+              <Undo2 className="w-3.5 h-3.5" />Undo Rewrite
+            </button>
+          </div>
         </div>
       )}
 

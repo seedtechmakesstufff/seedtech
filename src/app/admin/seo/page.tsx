@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search, Target, TrendingUp, TrendingDown, CheckCircle2, Circle, Clock,
   ArrowRight, ArrowUpRight, ArrowDownRight, Sparkles, FileText, AlertTriangle,
   Brain, Gauge, RefreshCw, Globe, Loader2, Zap, BarChart3, Send, ShieldAlert,
   Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair, SlidersHorizontal,
-  Bot, XCircle, Award, Activity,
+  Bot, XCircle, Award, Activity, Pencil,
 } from "lucide-react";
 import { TRACKED_KEYWORDS, SEO_TASKS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 import Link from "next/link";
@@ -94,6 +95,7 @@ function Sparkline({ values, color = "#10b981" }: { values: number[]; color?: st
 }
 
 export default function SEODashboardPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [gscConnected, setGscConnected] = useState<boolean | null>(null);
   const [gscSummary, setGscSummary] = useState<GSCSummary | null>(null);
@@ -133,8 +135,6 @@ export default function SEODashboardPage() {
     newScore: { overall: number; grade: string; failedChecks: { check: string; category: string; fix: string }[] };
     fixedCount: number;
   } | null>(null);
-  const [rewriteSaving, setRewriteSaving] = useState(false);
-  const [rewriteSaved, setRewriteSaved] = useState(false);
 
   const tier1 = TRACKED_KEYWORDS.filter((k) => k.tier === 1);
   const tier2 = TRACKED_KEYWORDS.filter((k) => k.tier === 2);
@@ -251,7 +251,6 @@ export default function SEODashboardPage() {
   const fetchPageTrend = useCallback(async (pageUrl: string) => {
     setSelectedPage(pageUrl);
     setRewriteResult(null);
-    setRewriteSaved(false);
     try {
       const r = await fetch(`/api/admin/seo/ai-visibility?pageUrl=${encodeURIComponent(pageUrl)}&days=90`);
       const d = await r.json();
@@ -262,7 +261,6 @@ export default function SEODashboardPage() {
   const requestRewrite = useCallback(async (pageUrl: string) => {
     setRewriteLoading(true);
     setRewriteResult(null);
-    setRewriteSaved(false);
     try {
       const r = await fetch("/api/admin/seo/ai-visibility/rewrite", {
         method: "POST",
@@ -273,7 +271,6 @@ export default function SEODashboardPage() {
       if (r.ok && d.rewritten) {
         setRewriteResult(d);
       } else if (d.message) {
-        // All checks passing
         setRewriteResult(null);
       } else {
         console.error("Rewrite error:", d.error);
@@ -284,34 +281,23 @@ export default function SEODashboardPage() {
     setRewriteLoading(false);
   }, []);
 
-  const acceptRewrite = useCallback(async () => {
+  /** Store rewritten content in sessionStorage and open blog editor */
+  const openEditorWithRewrite = useCallback(() => {
     if (!rewriteResult) return;
-    setRewriteSaving(true);
-    try {
-      const r = await fetch("/api/admin/seo/ai-visibility/rewrite", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: rewriteResult.postId, content: rewriteResult.rewritten }),
-      });
-      if (r.ok) {
-        setRewriteSaved(true);
-        // Refresh the page trend + scores list
-        if (selectedPage) {
-          const trendR = await fetch(`/api/admin/seo/ai-visibility?pageUrl=${encodeURIComponent(selectedPage)}&days=90`);
-          const trendD = await trendR.json();
-          if (trendD.scores) setPageTrend(trendD.scores);
-        }
-        // Refresh the main scores list
-        const scoresR = await fetch("/api/admin/seo/ai-visibility");
-        const scoresD = await scoresR.json();
-        if (scoresD.scores) setAiVisScores(scoresD.scores);
-        if (scoresD.summary) setAiVisSummary(scoresD.summary);
-      }
-    } catch (e) {
-      console.error("Save rewrite failed:", e);
-    }
-    setRewriteSaving(false);
-  }, [rewriteResult, selectedPage]);
+    sessionStorage.setItem("ai-rewrite", JSON.stringify({
+      postId: rewriteResult.postId,
+      content: rewriteResult.rewritten,
+      oldScore: rewriteResult.oldScore,
+      oldGrade: rewriteResult.oldGrade,
+      newScore: rewriteResult.newScore.overall,
+      newGrade: rewriteResult.newScore.grade,
+      fixedCount: rewriteResult.fixedCount,
+    }));
+    setSelectedPage(null);
+    setPageTrend([]);
+    setRewriteResult(null);
+    router.push(`/admin/blog/${rewriteResult.postId}`);
+  }, [rewriteResult, router]);
 
   useEffect(() => {
     fetch("/api/admin/seo/search-console?action=test").then((r) => r.json()).then((d) => { setGscConnected(d.connected ?? false); if (d.connected) fetchGscData(); }).catch(() => setGscConnected(false));
@@ -729,7 +715,7 @@ export default function SEODashboardPage() {
 
           {/* Page Drill-Down — Right-aligned slide-over modal */}
           {selectedPage && (
-            <div className="fixed inset-0 z-50 flex justify-end" onClick={() => { setSelectedPage(null); setPageTrend([]); setRewriteResult(null); setRewriteSaved(false); }}>
+            <div className="fixed inset-0 z-50 flex justify-end" onClick={() => { setSelectedPage(null); setPageTrend([]); setRewriteResult(null); }}>
               <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
               <div
                 className="relative w-full max-w-lg h-full bg-dark-base border-l border-white/[0.08] shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200"
@@ -743,7 +729,7 @@ export default function SEODashboardPage() {
                     </h3>
                     <p className="text-xs text-white/40 font-mono truncate mt-0.5">{selectedPage.replace(/https?:\/\/[^/]+/, "")}</p>
                   </div>
-                  <button onClick={() => { setSelectedPage(null); setPageTrend([]); setRewriteResult(null); setRewriteSaved(false); }} className="text-white/30 hover:text-white/60 ml-3 shrink-0">
+                  <button onClick={() => { setSelectedPage(null); setPageTrend([]); setRewriteResult(null); }} className="text-white/30 hover:text-white/60 ml-3 shrink-0">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -862,23 +848,7 @@ export default function SEODashboardPage() {
                       const checks = latest.failedChecks as { check: string; category: string; fix: string }[];
                       if (checks.length === 0 && !rewriteResult) return null;
 
-                      // Saved confirmation
-                      if (rewriteSaved && rewriteResult) {
-                        return (
-                          <div className="bg-green-500/5 border border-green-500/15 rounded-xl p-4 space-y-3">
-                            <div className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-green-400" />
-                              <span className="text-sm font-semibold text-green-400">Rewrite Saved</span>
-                            </div>
-                            <p className="text-xs text-white/40">
-                              Content updated and re-scored. Score improved from{" "}
-                              <span className="text-white/60 font-mono">{rewriteResult.oldScore}</span> → <span className="text-green-400 font-mono">{rewriteResult.newScore.overall}</span> (Grade {rewriteResult.newScore.grade}).
-                            </p>
-                          </div>
-                        );
-                      }
-
-                      // Rewrite preview
+                      // Rewrite ready — show score comparison + Edit Post
                       if (rewriteResult) {
                         const delta = rewriteResult.newScore.overall - rewriteResult.oldScore;
                         return (
@@ -886,7 +856,7 @@ export default function SEODashboardPage() {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <Sparkles className="w-4 h-4 text-seed-400" />
-                                <span className="text-sm font-semibold text-white">Rewrite Preview</span>
+                                <span className="text-sm font-semibold text-white">Rewrite Ready</span>
                               </div>
                               <span className={`text-xs font-mono ${delta > 0 ? "text-green-400" : "text-yellow-400"}`}>
                                 {delta > 0 ? "+" : ""}{delta} pts
@@ -896,18 +866,18 @@ export default function SEODashboardPage() {
                             {/* Score comparison */}
                             <div className="grid grid-cols-2 gap-3">
                               <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-3 text-center">
-                                <p className="text-xs text-white/30 mb-1">Before</p>
+                                <p className="text-xs text-white/30 mb-1">Current</p>
                                 <p className="text-2xl font-bold text-white/40">{rewriteResult.oldScore}</p>
                                 <p className="text-xs text-white/20">Grade {rewriteResult.oldGrade}</p>
                               </div>
                               <div className="bg-white/[0.02] border border-seed-500/20 rounded-lg p-3 text-center">
-                                <p className="text-xs text-seed-400 mb-1">After</p>
+                                <p className="text-xs text-seed-400 mb-1">Rewritten</p>
                                 <p className="text-2xl font-bold text-white">{rewriteResult.newScore.overall}</p>
                                 <p className="text-xs text-seed-400/70">Grade {rewriteResult.newScore.grade}</p>
                               </div>
                             </div>
 
-                            {/* Fixed checks count */}
+                            {/* Fixed checks summary */}
                             {rewriteResult.fixedCount > 0 && (
                               <div className="flex items-center gap-2 text-xs text-green-400">
                                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -916,37 +886,26 @@ export default function SEODashboardPage() {
                             )}
                             {rewriteResult.newScore.failedChecks.length > 0 && (
                               <p className="text-xs text-white/30">
-                                {rewriteResult.newScore.failedChecks.length} check{rewriteResult.newScore.failedChecks.length !== 1 ? "s" : ""} still failing — can run another pass after saving.
+                                {rewriteResult.newScore.failedChecks.length} check{rewriteResult.newScore.failedChecks.length !== 1 ? "s" : ""} still failing — you can tweak further in the editor.
                               </p>
                             )}
 
-                            {/* Content preview (collapsed by default) */}
-                            <details className="group">
-                              <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60 flex items-center gap-1">
-                                <Eye className="w-3.5 h-3.5" />Preview rewritten content
-                              </summary>
-                              <div className="mt-2 max-h-60 overflow-y-auto bg-white/[0.02] border border-white/[0.06] rounded-lg p-3">
-                                <pre className="text-xs text-white/50 whitespace-pre-wrap font-mono leading-relaxed">{rewriteResult.rewritten.slice(0, 3000)}{rewriteResult.rewritten.length > 3000 ? "\n\n... (truncated in preview)" : ""}</pre>
-                              </div>
-                            </details>
-
-                            {/* Accept / Discard buttons */}
+                            {/* Edit Post + Discard */}
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={acceptRewrite}
-                                disabled={rewriteSaving}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-seed-500 hover:bg-seed-600 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                                onClick={openEditorWithRewrite}
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-seed-500 hover:bg-seed-600 text-white text-sm font-semibold transition-colors"
                               >
-                                {rewriteSaving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving…</> : <><CheckCircle2 className="w-4 h-4" />Accept &amp; Save</>}
+                                <Pencil className="w-4 h-4" />Edit Post
                               </button>
                               <button
                                 onClick={() => setRewriteResult(null)}
-                                disabled={rewriteSaving}
-                                className="px-4 py-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/50 text-sm transition-colors disabled:opacity-50"
+                                className="px-4 py-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/50 text-sm transition-colors"
                               >
                                 Discard
                               </button>
                             </div>
+                            <p className="text-xs text-white/20 text-center">Opens the blog editor with rewritten content pre-loaded for review.</p>
                           </div>
                         );
                       }
