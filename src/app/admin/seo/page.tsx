@@ -125,6 +125,16 @@ export default function SEODashboardPage() {
   const [citationLoading, setCitationLoading] = useState(false);
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
   const [pageTrend, setPageTrend] = useState<AIVisibilityScoreData[]>([]);
+  // Rewrite flow state
+  const [rewriteLoading, setRewriteLoading] = useState(false);
+  const [rewriteResult, setRewriteResult] = useState<{
+    rewritten: string; postId: string; postTitle: string;
+    oldScore: number; oldGrade: string;
+    newScore: { overall: number; grade: string; failedChecks: { check: string; category: string; fix: string }[] };
+    fixedCount: number;
+  } | null>(null);
+  const [rewriteSaving, setRewriteSaving] = useState(false);
+  const [rewriteSaved, setRewriteSaved] = useState(false);
 
   const tier1 = TRACKED_KEYWORDS.filter((k) => k.tier === 1);
   const tier2 = TRACKED_KEYWORDS.filter((k) => k.tier === 2);
@@ -240,12 +250,68 @@ export default function SEODashboardPage() {
 
   const fetchPageTrend = useCallback(async (pageUrl: string) => {
     setSelectedPage(pageUrl);
+    setRewriteResult(null);
+    setRewriteSaved(false);
     try {
       const r = await fetch(`/api/admin/seo/ai-visibility?pageUrl=${encodeURIComponent(pageUrl)}&days=90`);
       const d = await r.json();
       if (d.scores) setPageTrend(d.scores);
     } catch {}
   }, []);
+
+  const requestRewrite = useCallback(async (pageUrl: string) => {
+    setRewriteLoading(true);
+    setRewriteResult(null);
+    setRewriteSaved(false);
+    try {
+      const r = await fetch("/api/admin/seo/ai-visibility/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageUrl }),
+      });
+      const d = await r.json();
+      if (r.ok && d.rewritten) {
+        setRewriteResult(d);
+      } else if (d.message) {
+        // All checks passing
+        setRewriteResult(null);
+      } else {
+        console.error("Rewrite error:", d.error);
+      }
+    } catch (e) {
+      console.error("Rewrite request failed:", e);
+    }
+    setRewriteLoading(false);
+  }, []);
+
+  const acceptRewrite = useCallback(async () => {
+    if (!rewriteResult) return;
+    setRewriteSaving(true);
+    try {
+      const r = await fetch("/api/admin/seo/ai-visibility/rewrite", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: rewriteResult.postId, content: rewriteResult.rewritten }),
+      });
+      if (r.ok) {
+        setRewriteSaved(true);
+        // Refresh the page trend + scores list
+        if (selectedPage) {
+          const trendR = await fetch(`/api/admin/seo/ai-visibility?pageUrl=${encodeURIComponent(selectedPage)}&days=90`);
+          const trendD = await trendR.json();
+          if (trendD.scores) setPageTrend(trendD.scores);
+        }
+        // Refresh the main scores list
+        const scoresR = await fetch("/api/admin/seo/ai-visibility");
+        const scoresD = await scoresR.json();
+        if (scoresD.scores) setAiVisScores(scoresD.scores);
+        if (scoresD.summary) setAiVisSummary(scoresD.summary);
+      }
+    } catch (e) {
+      console.error("Save rewrite failed:", e);
+    }
+    setRewriteSaving(false);
+  }, [rewriteResult, selectedPage]);
 
   useEffect(() => {
     fetch("/api/admin/seo/search-console?action=test").then((r) => r.json()).then((d) => { setGscConnected(d.connected ?? false); if (d.connected) fetchGscData(); }).catch(() => setGscConnected(false));
@@ -663,10 +729,10 @@ export default function SEODashboardPage() {
 
           {/* Page Drill-Down — Right-aligned slide-over modal */}
           {selectedPage && (
-            <div className="fixed inset-0 z-50 flex justify-end" onClick={() => { setSelectedPage(null); setPageTrend([]); }}>
+            <div className="fixed inset-0 z-50 flex justify-end" onClick={() => { setSelectedPage(null); setPageTrend([]); setRewriteResult(null); setRewriteSaved(false); }}>
               <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
               <div
-                className="relative w-full max-w-md h-full bg-dark-base border-l border-white/[0.08] shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200"
+                className="relative w-full max-w-lg h-full bg-dark-base border-l border-white/[0.08] shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
@@ -677,7 +743,7 @@ export default function SEODashboardPage() {
                     </h3>
                     <p className="text-xs text-white/40 font-mono truncate mt-0.5">{selectedPage.replace(/https?:\/\/[^/]+/, "")}</p>
                   </div>
-                  <button onClick={() => { setSelectedPage(null); setPageTrend([]); }} className="text-white/30 hover:text-white/60 ml-3 shrink-0">
+                  <button onClick={() => { setSelectedPage(null); setPageTrend([]); setRewriteResult(null); setRewriteSaved(false); }} className="text-white/30 hover:text-white/60 ml-3 shrink-0">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -787,6 +853,117 @@ export default function SEODashboardPage() {
                             ))}
                           </div>
                         </div>
+                      );
+                    })()}
+
+                    {/* ── Rewrite for AI Visibility ── */}
+                    {(() => {
+                      const latest = pageTrend[pageTrend.length - 1];
+                      const checks = latest.failedChecks as { check: string; category: string; fix: string }[];
+                      if (checks.length === 0 && !rewriteResult) return null;
+
+                      // Saved confirmation
+                      if (rewriteSaved && rewriteResult) {
+                        return (
+                          <div className="bg-green-500/5 border border-green-500/15 rounded-xl p-4 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-green-400" />
+                              <span className="text-sm font-semibold text-green-400">Rewrite Saved</span>
+                            </div>
+                            <p className="text-xs text-white/40">
+                              Content updated and re-scored. Score improved from{" "}
+                              <span className="text-white/60 font-mono">{rewriteResult.oldScore}</span> → <span className="text-green-400 font-mono">{rewriteResult.newScore.overall}</span> (Grade {rewriteResult.newScore.grade}).
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      // Rewrite preview
+                      if (rewriteResult) {
+                        const delta = rewriteResult.newScore.overall - rewriteResult.oldScore;
+                        return (
+                          <div className="bg-seed-500/5 border border-seed-500/15 rounded-xl p-4 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-seed-400" />
+                                <span className="text-sm font-semibold text-white">Rewrite Preview</span>
+                              </div>
+                              <span className={`text-xs font-mono ${delta > 0 ? "text-green-400" : "text-yellow-400"}`}>
+                                {delta > 0 ? "+" : ""}{delta} pts
+                              </span>
+                            </div>
+
+                            {/* Score comparison */}
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-3 text-center">
+                                <p className="text-xs text-white/30 mb-1">Before</p>
+                                <p className="text-2xl font-bold text-white/40">{rewriteResult.oldScore}</p>
+                                <p className="text-xs text-white/20">Grade {rewriteResult.oldGrade}</p>
+                              </div>
+                              <div className="bg-white/[0.02] border border-seed-500/20 rounded-lg p-3 text-center">
+                                <p className="text-xs text-seed-400 mb-1">After</p>
+                                <p className="text-2xl font-bold text-white">{rewriteResult.newScore.overall}</p>
+                                <p className="text-xs text-seed-400/70">Grade {rewriteResult.newScore.grade}</p>
+                              </div>
+                            </div>
+
+                            {/* Fixed checks count */}
+                            {rewriteResult.fixedCount > 0 && (
+                              <div className="flex items-center gap-2 text-xs text-green-400">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Fixed {rewriteResult.fixedCount} of {rewriteResult.fixedCount + rewriteResult.newScore.failedChecks.length} failed checks
+                              </div>
+                            )}
+                            {rewriteResult.newScore.failedChecks.length > 0 && (
+                              <p className="text-xs text-white/30">
+                                {rewriteResult.newScore.failedChecks.length} check{rewriteResult.newScore.failedChecks.length !== 1 ? "s" : ""} still failing — can run another pass after saving.
+                              </p>
+                            )}
+
+                            {/* Content preview (collapsed by default) */}
+                            <details className="group">
+                              <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60 flex items-center gap-1">
+                                <Eye className="w-3.5 h-3.5" />Preview rewritten content
+                              </summary>
+                              <div className="mt-2 max-h-60 overflow-y-auto bg-white/[0.02] border border-white/[0.06] rounded-lg p-3">
+                                <pre className="text-xs text-white/50 whitespace-pre-wrap font-mono leading-relaxed">{rewriteResult.rewritten.slice(0, 3000)}{rewriteResult.rewritten.length > 3000 ? "\n\n... (truncated in preview)" : ""}</pre>
+                              </div>
+                            </details>
+
+                            {/* Accept / Discard buttons */}
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={acceptRewrite}
+                                disabled={rewriteSaving}
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-seed-500 hover:bg-seed-600 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                              >
+                                {rewriteSaving ? <><Loader2 className="w-4 h-4 animate-spin" />Saving…</> : <><CheckCircle2 className="w-4 h-4" />Accept &amp; Save</>}
+                              </button>
+                              <button
+                                onClick={() => setRewriteResult(null)}
+                                disabled={rewriteSaving}
+                                className="px-4 py-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/50 text-sm transition-colors disabled:opacity-50"
+                              >
+                                Discard
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // Rewrite button (initial state)
+                      return (
+                        <button
+                          onClick={() => requestRewrite(selectedPage!)}
+                          disabled={rewriteLoading}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-seed-500/10 to-purple-500/10 border border-seed-500/20 hover:border-seed-500/40 text-sm font-semibold text-seed-400 transition-all disabled:opacity-50"
+                        >
+                          {rewriteLoading ? (
+                            <><Loader2 className="w-4 h-4 animate-spin" />Rewriting with AI…</>
+                          ) : (
+                            <><Sparkles className="w-4 h-4" />Rewrite for AI Visibility</>
+                          )}
+                        </button>
                       );
                     })()}
                   </div>
