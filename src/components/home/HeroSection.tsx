@@ -6,6 +6,7 @@ import { BodyLg } from "@/components/kit";
 import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
 import { Button } from "@/components/kit";
+import DotGrid from "@/components/ui/DotGrid";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -36,6 +37,23 @@ export function HeroSection() {
         delay={2}
       />
       <GridPattern />
+
+      {/* Interactive DotGrid background */}
+      <div className="absolute inset-0 z-[1]">
+        <DotGrid
+          dotSize={4}
+          gap={14}
+          baseColor="#292929"
+          activeColor="#03820b"
+          proximity={120}
+          speedTrigger={10}
+          shockRadius={310}
+          shockStrength={3}
+          maxSpeed={5000}
+          resistance={750}
+          returnDuration={1.5}
+        />
+      </div>
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-5xl px-6 pt-32 pb-24 text-center w-full">
