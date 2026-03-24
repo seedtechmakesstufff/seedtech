@@ -156,6 +156,11 @@ enum InsightType {
   cannibalization
   internal_linking
   keyword_opportunity
+  eeat_issue
+  aio_opportunity
+  ctr_optimization
+  competitor_gap
+  lead_gen
   general
 }
 
@@ -181,5 +186,124 @@ model SeoInsight {
   @@index([status])
   @@index([createdAt])
   @@map("seo_insights")
+}
+
+// ── Tracked Keywords (DB-driven, replaces static file) ──
+
+enum KeywordTier {
+  tier1
+  tier2
+  tier3
+}
+
+enum KeywordIntent {
+  transactional
+  commercial
+  informational
+  navigational
+}
+
+model TrackedKeyword {
+  id              String        @id @default(uuid())
+  keyword         String        @unique
+  tier            KeywordTier   @default(tier2)
+  volume          String        @default("unknown")
+  competition     String        @default("medium")
+  intent          KeywordIntent @default(informational)
+  targetPage      String        @default("/")
+  currentPosition Float?                               // latest GSC position
+  previousPosition Float?                              // previous week position
+  bestPosition    Float?                               // all-time best
+  clicks28d       Int           @default(0)            // last 28 days
+  impressions28d  Int           @default(0)
+  ctr28d          Float         @default(0)
+  clusterId       String?
+  cluster         KeywordCluster? @relation(fields: [clusterId], references: [id])
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([tier])
+  @@index([isActive])
+  @@index([clusterId])
+  @@map("tracked_keywords")
+}
+
+model KeywordCluster {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  pillarPage  String                                   // the main page for this topic cluster
+  description String?
+  keywords    TrackedKeyword[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("keyword_clusters")
+}
+
+// ── Content Scoring ──
+
+model ContentScore {
+  id             String   @id @default(uuid())
+  pageUrl        String                                // page path (e.g. /blog/my-post)
+  blogPostId     String?                               // optional link to BlogPost
+  eeatScore      Int      @default(0)                  // 0-100
+  aioScore       Int      @default(0)                  // 0-100
+  overallScore   Int      @default(0)                  // 0-100
+  wordCount      Int      @default(0)
+  readabilityGrade Float  @default(0)                  // Flesch-Kincaid grade level
+  internalLinks  Int      @default(0)
+  externalLinks  Int      @default(0)
+  hasSchema      Boolean  @default(false)
+  hasFaq         Boolean  @default(false)
+  hasSpeakable   Boolean  @default(false)
+  issues         Json     @default("[]")               // [{type, message, severity}]
+  scoredAt       DateTime @default(now())
+
+  @@unique([pageUrl])
+  @@index([overallScore])
+  @@index([scoredAt])
+  @@map("content_scores")
+}
+
+// ── Competitor Intelligence ──
+
+model CompetitorDomain {
+  id              String   @id @default(uuid())
+  domain          String   @unique                     // e.g. "competitor.com"
+  name            String                               // friendly name
+  overlapKeywords Int      @default(0)                 // # of shared keywords
+  avgPosition     Float?                               // their avg position on shared keywords
+  notes           String?
+  isActive        Boolean  @default(true)
+  lastAnalyzed    DateTime?
+  metadata        Json?                                // extra data from analysis
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("competitor_domains")
+}
+
+// ── Lead Tracking (SEO → Conversion) ──
+
+model SeoLeadEvent {
+  id           String   @id @default(uuid())
+  sessionId    String?                                 // anonymous session tracking
+  landingPage  String                                  // first page they hit
+  conversionPage String?                               // page where they converted (contact, quote)
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  referrer     String?
+  keyword      String?                                 // if we can detect the keyword
+  eventType    String                                  // "page_view", "cta_click", "form_submit"
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([eventType])
+  @@index([landingPage])
+  @@index([createdAt])
+  @@map("seo_lead_events")
 }
 

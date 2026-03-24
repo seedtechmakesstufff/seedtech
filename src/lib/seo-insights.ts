@@ -4,6 +4,9 @@
  *   - Keyword cannibalization detection
  *   - Internal linking suggestions
  *   - Keyword opportunities from AI
+ *   - E-E-A-T signal deficiencies (v2)
+ *   - AIO optimization opportunities (v2)
+ *   - CTR improvement suggestions (v2)
  *
  * Stores results in SeoInsight table for the Insights UI panel.
  */
@@ -237,6 +240,136 @@ export async function detectLinkingOpportunities(): Promise<InsightData[]> {
   return insights;
 }
 
+/* ── E-E-A-T Issue Detection ── */
+
+export async function detectEEATIssues(): Promise<InsightData[]> {
+  const insights: InsightData[] = [];
+
+  try {
+    // Check crawl results for E-E-A-T issues
+    const latestAudit = await prisma.seoPageAudit.findFirst({
+      orderBy: { createdAt: "desc" },
+      select: { runId: true },
+    });
+    if (!latestAudit) return insights;
+
+    const eeatIssues = await prisma.seoPageAudit.findMany({
+      where: {
+        runId: latestAudit.runId,
+        checkType: { startsWith: "eeat-" },
+        severity: { in: ["critical", "warning"] },
+      },
+    });
+
+    // Group by page
+    const pageIssues: Record<string, typeof eeatIssues> = {};
+    for (const issue of eeatIssues) {
+      if (!pageIssues[issue.url]) pageIssues[issue.url] = [];
+      pageIssues[issue.url].push(issue);
+    }
+
+    for (const [page, issues] of Object.entries(pageIssues)) {
+      const critCount = issues.filter((i) => i.severity === "critical").length;
+      insights.push({
+        id: `eeat-${page}`,
+        type: "eeat_issue",
+        status: "active",
+        title: `${page} has ${issues.length} E-E-A-T issue(s)${critCount > 0 ? ` (${critCount} critical)` : ""}`,
+        description: issues.map((i) => i.message).join(". "),
+        actionUrl: page,
+        priority: critCount > 0 ? 75 : 55,
+        createdAt: new Date(),
+      });
+    }
+
+    // Check E-E-A-T scores
+    const eeatScores = await prisma.seoPageAudit.findMany({
+      where: {
+        runId: latestAudit.runId,
+        checkType: "eeat-score",
+      },
+    });
+
+    const lowScorePages = eeatScores.filter((s) => {
+      const overall = (s.details as { overall?: number })?.overall ?? 0;
+      return overall < 40;
+    });
+
+    if (lowScorePages.length > 0) {
+      insights.push({
+        id: "eeat-low-scores",
+        type: "eeat_issue",
+        status: "active",
+        title: `${lowScorePages.length} page(s) have low E-E-A-T scores (<40/100)`,
+        description: `Pages with low E-E-A-T scores: ${lowScorePages.map((p) => p.url).join(", ")}. Add author attribution, citations, first-person experience language, and trust signals.`,
+        actionUrl: null,
+        priority: 70,
+        createdAt: new Date(),
+      });
+    }
+  } catch {
+    // DB/crawl not available
+  }
+
+  return insights;
+}
+
+/* ── CTR Optimization Insights ── */
+
+export async function detectCTROpportunities(): Promise<InsightData[]> {
+  const insights: InsightData[] = [];
+
+  if (!isSearchConsoleConfigured()) return insights;
+
+  try {
+    const keywords = await getKeywordPerformance(28, 100);
+
+    // High impressions + low CTR = opportunity to improve title/description
+    const lowCTR = keywords.filter(
+      (k) => k.impressions > 50 && k.ctr < 0.02 && k.position <= 20
+    );
+
+    for (const kw of lowCTR.slice(0, 5)) {
+      const ctrPct = (kw.ctr * 100).toFixed(1);
+      insights.push({
+        id: `ctr-${kw.keyword.replace(/\s+/g, "-")}`,
+        type: "ctr_optimization",
+        status: "active",
+        title: `"${kw.keyword}" has ${ctrPct}% CTR with ${kw.impressions} impressions`,
+        description: `This keyword ranks at position ${kw.position.toFixed(1)} but has a very low CTR. Improve the page title and meta description to be more compelling. Consider adding numbers, power words, or a clear value proposition.`,
+        actionUrl: null,
+        priority: kw.impressions > 200 ? 70 : 50,
+        createdAt: new Date(),
+      });
+    }
+
+    // Strike distance keywords (positions 8-20) — close to page 1
+    const strikeDistance = keywords.filter(
+      (k) => k.position >= 8 && k.position <= 20 && k.impressions > 20
+    );
+
+    if (strikeDistance.length > 0) {
+      const top5 = strikeDistance
+        .sort((a, b) => a.position - b.position)
+        .slice(0, 5);
+      insights.push({
+        id: "strike-distance",
+        type: "keyword_opportunity",
+        status: "active",
+        title: `${strikeDistance.length} keywords in strike distance (positions 8-20)`,
+        description: `These keywords are close to page 1: ${top5.map((k) => `"${k.keyword}" (pos ${k.position.toFixed(1)})`).join(", ")}. Boost them with content updates, internal links, and backlinks.`,
+        actionUrl: null,
+        priority: 65,
+        createdAt: new Date(),
+      });
+    }
+  } catch {
+    // GSC not available
+  }
+
+  return insights;
+}
+
 /* ── AI Keyword Discovery ── */
 
 export async function discoverKeywords(): Promise<{
@@ -302,16 +435,20 @@ export async function discoverKeywords(): Promise<{
 /* ── Run All Insights ── */
 
 export async function generateAllInsights(): Promise<InsightData[]> {
-  const [freshness, cannibalization, linking] = await Promise.allSettled([
+  const [freshness, cannibalization, linking, eeat, ctr] = await Promise.allSettled([
     detectStalContent(),
     detectCannibalization(),
     detectLinkingOpportunities(),
+    detectEEATIssues(),
+    detectCTROpportunities(),
   ]);
 
   const all: InsightData[] = [
     ...(freshness.status === "fulfilled" ? freshness.value : []),
     ...(cannibalization.status === "fulfilled" ? cannibalization.value : []),
     ...(linking.status === "fulfilled" ? linking.value : []),
+    ...(eeat.status === "fulfilled" ? eeat.value : []),
+    ...(ctr.status === "fulfilled" ? ctr.value : []),
   ];
 
   // Sort by priority (highest first)
@@ -326,7 +463,7 @@ export async function generateAllInsights(): Promise<InsightData[]> {
     if (all.length > 0) {
       await prisma.seoInsight.createMany({
         data: all.map((insight) => ({
-          type: insight.type as "content_freshness" | "cannibalization" | "internal_linking" | "keyword_opportunity" | "general",
+          type: insight.type as "content_freshness" | "cannibalization" | "internal_linking" | "keyword_opportunity" | "eeat_issue" | "aio_opportunity" | "ctr_optimization" | "competitor_gap" | "lead_gen" | "general",
           status: "active" as const,
           title: insight.title,
           description: insight.description,

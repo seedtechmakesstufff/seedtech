@@ -8,6 +8,7 @@ import {
   getSearchConsoleSummary,
   getTrackedKeywordPositions,
 } from "@/lib/google-search-console";
+import { getAIOAdvisorContext } from "@/lib/seo-aio";
 
 /**
  * POST /api/admin/seo/ai-advisor
@@ -88,11 +89,15 @@ export async function POST(req: NextRequest) {
   }
 
   // Build the prompt
+  const aioContext = getAIOAdvisorContext();
   const systemPrompt = `You are an expert SEO strategist and consultant for ${businessContext}
+
+${aioContext}
 
 Your job is to analyze the data provided and give actionable, prioritized SEO recommendations. 
 Be specific — reference actual keywords, pages, and metrics. 
 Always explain the "why" behind each recommendation.
+Factor in AI Overview optimization, E-E-A-T signals, and zero-click search strategies.
 Format your response in Markdown with clear headings and bullet points.
 Focus on high-impact, practical actions the team can take this week.`;
 
@@ -154,9 +159,12 @@ ${JSON.stringify(pageSpeedData, null, 2)}
 1. **Executive Summary** — Overall SEO health in 2-3 sentences
 2. **Top 3 Priorities This Week** — Most impactful actions to take RIGHT NOW
 3. **Keyword Opportunities** — Keywords where we're close to page 1, or missing entirely
-4. **Content Gaps** — Blog posts we should write next based on the data
-5. **Technical Issues** — Any technical SEO problems to fix
-6. **Competitive Insights** — What the data tells us about our market position
+4. **AI Overview Optimization** — Which content pages are best positioned for AIO citations, and what to improve
+5. **E-E-A-T Assessment** — Evaluate our Experience, Expertise, Authority, and Trust signals
+6. **Content Gaps** — Blog posts we should write next based on the data
+7. **Technical Issues** — Any technical SEO problems to fix
+8. **Lead Generation Opportunities** — How to convert our SEO traffic into leads more effectively
+9. **Competitive Insights** — What the data tells us about our market position
 
 Be specific and actionable. Reference real numbers from the data.`;
 
