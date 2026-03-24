@@ -1,10 +1,12 @@
 import { paddlersCoveData } from "./paddlers-cove";
+import { biooxData } from "./bioox";
 import type { LucideIcon } from "lucide-react";
 
 export interface CaseStudyData {
   challenge: { headline: string; body: string };
   solution: { headline: string; body: string };
   mainScreenshot?: string;
+  sidebarImage?: string;
   timeline: string;
   teamSize: string;
   stats: { value: string; label: string }[];
@@ -15,6 +17,7 @@ export interface CaseStudyData {
 
 const caseStudies: Record<string, CaseStudyData> = {
   "paddlers-cove": paddlersCoveData,
+  "bioox": biooxData,
 };
 
 export function getCaseStudy(slug: string): CaseStudyData | undefined {

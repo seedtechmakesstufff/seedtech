@@ -189,6 +189,28 @@ export const projects: Project[] = [
     ],
     featured: true,
   },
+  {
+    slug: "bioox",
+    department: "web-development",
+    client: "BioOx",
+    title: "Custom WooCommerce Store for Biological Science Products",
+    tagline: "A fully custom WooCommerce build with bespoke features for a biological science company selling oxygen-enriched water, air scrubbing systems, and plant growth solutions.",
+    description:
+      "BioOx is a biological science company pioneering ROX-based (Reserve Oxygen) technology across water, air, and soil applications. They needed an ecommerce platform that could sell highly specialized products — BioOxygen Water, the Reactor 85 MK II air scrubber, and BioOx Grow — while clearly communicating complex science to both consumer and commercial audiences. We built a fully custom WooCommerce store with tailored product pages, use-case-driven navigation for verticals like clinics, equestrian, aquatics, and agriculture, an affiliate registration system, and investor relations integration. The result is a conversion-focused platform that bridges hard science with accessible buying experiences.",
+    url: "https://www.bioox.us",
+    image: "/img/use_case_card_bioox.webp",
+    techStack: ["WordPress", "WooCommerce", "Elementor", "Custom Features", "PHP", "JavaScript"],
+    tags: ["Ecommerce", "Science & Biotech", "WooCommerce", "Custom Features"],
+    highlights: [
+      "Custom WooCommerce store for complex biological science products",
+      "Use-case-driven navigation spanning clinics, equestrian, agriculture, and aquatics",
+      "Tailored product pages communicating ROX science to consumer and commercial buyers",
+      "Built-in affiliate registration and management system",
+      "Investor relations section integrated directly into the platform",
+      "Mobile-optimized storefront for a science-first buying experience",
+    ],
+    featured: true,
+  },
 ];
 
 export function getProjectBySlug(slug: string): Project | undefined {

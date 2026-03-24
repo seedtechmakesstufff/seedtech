@@ -244,15 +244,29 @@ export default function ProjectPage({ params }: Props) {
               )}
             </GlassCard>
 
-            {/* Second screenshot placeholder */}
-            <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
-              <div className="aspect-square w-full flex items-center justify-center bg-gradient-to-b from-dark-elevated to-dark-overlay">
-                <div className="text-center space-y-1">
-                  <p className="text-white/30 text-sm font-medium">700 × 700 px</p>
-                  <p className="text-white/15 text-xs">1:1 · sidebar image</p>
+            {/* Second screenshot / sidebar image */}
+            {cs?.sidebarImage ? (
+              <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
+                <div className="relative aspect-square w-full">
+                  <Image
+                    src={cs.sidebarImage}
+                    alt={`${project.client} screenshot`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                  />
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
+                <div className="aspect-square w-full flex items-center justify-center bg-gradient-to-b from-dark-elevated to-dark-overlay">
+                  <div className="text-center space-y-1">
+                    <p className="text-white/30 text-sm font-medium">700 × 700 px</p>
+                    <p className="text-white/15 text-xs">1:1 · sidebar image</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </aside>
         </div>
       </Section>
