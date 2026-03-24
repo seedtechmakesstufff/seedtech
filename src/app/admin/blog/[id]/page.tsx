@@ -11,6 +11,7 @@ import {
   Sparkles,
   Undo2,
 } from "lucide-react";
+import StructuredEditor from "@/components/structured-editor";
 
 interface BlogPost {
   id: string;
@@ -167,8 +168,6 @@ export default function EditBlogPostPage() {
     );
   }
 
-  const wordCount = body.split(/\s+/).filter(Boolean).length;
-
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
@@ -256,17 +255,7 @@ export default function EditBlogPostPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-white/40 mb-1">
-                Body (Markdown) — {wordCount} words
-              </label>
-              <textarea
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                rows={30}
-                className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-4 py-3 text-white text-sm font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-seed-500/50 transition-colors resize-y"
-              />
-            </div>
+            <StructuredEditor markdown={body} onChange={setBody} />
           </div>
         </div>
 
