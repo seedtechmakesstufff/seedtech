@@ -7,7 +7,8 @@
  *   2. Run the deep on-page crawler (v2: E-E-A-T, AIO, structured data, etc.)
  *   3. Generate AI insights (freshness, cannibalization, E-E-A-T, CTR)
  *   4. Score all published content (E-E-A-T + AIO readiness)
- *   5. Build & send the weekly email report
+ *   5. Score all published content for AI Visibility (NEW — primary metric)
+ *   6. Build & send the weekly email report
  *
  * Auth: Requires CRON_SECRET header (set as env var).
  *       Vercel Cron automatically sends this header.
@@ -25,6 +26,7 @@ import { sendReport } from "@/lib/seo-reports";
 import { prisma } from "@/lib/prisma";
 import { scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIOReadiness } from "@/lib/seo-aio";
+import { scoreAIVisibility } from "@/lib/ai-visibility";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -117,7 +119,40 @@ export async function GET(req: NextRequest) {
     errors.push(`contentScoring: ${e instanceof Error ? e.message : String(e)}`);
   }
 
-  /* 5. Email report */
+  /* 5. AI Visibility Scoring (primary metric) */
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: { status: "published" },
+      select: { id: true, slug: true, body: true, targetKeyword: true },
+    });
+
+    let scored = 0;
+    for (const post of posts) {
+      const aiVis = scoreAIVisibility(post.body, post.targetKeyword || undefined);
+
+      await prisma.aIVisibilityScore.create({
+        data: {
+          pageUrl: `/blog/${post.slug}`,
+          overallScore: aiVis.overall,
+          citationReadiness: aiVis.citationReadiness,
+          entityAuthority: aiVis.entityAuthority,
+          structuredClarity: aiVis.structuredClarity,
+          conversationalFit: aiVis.conversationalFit,
+          multiEngineCoverage: aiVis.multiEngineCoverage,
+          grade: aiVis.grade,
+          failedChecks: aiVis.checks
+            .filter((c) => !c.passed)
+            .map((c) => ({ check: c.check, category: c.category, fix: c.fix })),
+        },
+      });
+      scored++;
+    }
+    results.aiVisibility = { scored, total: posts.length };
+  } catch (e) {
+    errors.push(`aiVisibility: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  /* 6. Email report */
   try {
     results.report = await sendReport();
   } catch (e) {

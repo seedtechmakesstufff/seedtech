@@ -5,6 +5,7 @@ import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
 import { buildStrategyPrompt } from "@/lib/business-context";
 import { getAIOWritingInstructions, scoreAIOReadiness, getPAAResearchPrompt } from "@/lib/seo-aio";
 import { getAuthorEntity, scoreContentEEAT } from "@/lib/seo-eeat";
+import { scoreAIVisibility, getAIFirstWritingInstructions } from "@/lib/ai-visibility";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -40,7 +41,8 @@ export async function POST(req: NextRequest) {
   // Build context from editable business profile + SEO keywords
   const businessContext = buildStrategyPrompt();
   const author = getAuthorEntity();
-  const aioInstructions = getAIOWritingInstructions();
+  const _aioInstructions = getAIOWritingInstructions();
+  const aiFirstInstructions = getAIFirstWritingInstructions();
 
   // Gather existing blog slugs for internal linking
   let existingPosts: { slug: string; title: string; targetKeyword: string }[] = [];
@@ -73,29 +75,32 @@ ${internalLinkContext}
 
   switch (step) {
     case "outline":
-      systemPrompt = `You are an expert SEO content strategist for an MSP (managed service provider). Generate detailed blog post outlines that will rank well, get featured in AI Overviews, and provide real value. ${strategyContext}`;
+      systemPrompt = `You are an expert AI visibility strategist for an MSP (managed service provider). Your goal is NOT to make content that "ranks" — it's to create content that AI SYSTEMS (Google AIO, ChatGPT, Perplexity, Gemini) will CITE as an authoritative source. Generate outlines that maximize AI citation potential. ${strategyContext}`;
       userPrompt = `Create a detailed outline for a blog post about: "${topic}"
 Target keyword: "${keyword}"
 Target word count: ${wordCount}
 Tone: ${tone}
 
-IMPORTANT — Structure for AI Overview optimization:
-- Include a direct-answer section near the top (2-3 sentences answering the core query)
-- Include H2/H3 question-based headings (What, How, Why, When)
-- Plan at least one numbered/step list section
-- Plan a comparison table if relevant
-- End with an FAQ section (3-5 common questions)
+CRITICAL — Structure for AI CITATION (not just ranking):
+- Start with a "Direct Answer" section (2-3 sentence citeable block answering the core query)
+- Use H2/H3 question-based headings matching how people ASK AI (What, How, Why, When, Which is best)
+- Plan at least one comparison table (tables are the #1 most-cited format)
+- Plan at least one numbered step/process section
+- Include a "Why [Brand] for [Topic]" section establishing entity authority
+- Plan sections that cover: how, what, why, when, comparison, and recommendation query patterns
+- End with a robust FAQ section (4-6 questions with 2-3 sentence answers each)
+- Each section should have at least one citeable block (a self-contained 20-60 word paragraph with a specific fact)
 
 Return a structured outline in this exact JSON format:
 {
-  "title": "SEO-optimized title (include keyword naturally)",
+  "title": "AI-citation-optimized title (include keyword naturally, use question format if relevant)",
   "slug": "url-friendly-slug",
   "excerpt": "Compelling 1-2 sentence excerpt for the blog index",
   "sections": [
-    { "heading": "H2 heading text", "points": ["key point 1", "key point 2", "key point 3"], "estimatedWords": 300 }
+    { "heading": "H2 heading text (use question format where possible)", "points": ["key point 1", "key point 2", "key point 3"], "estimatedWords": 300 }
   ],
   "faqSection": [
-    { "question": "Common question about the topic?", "answer": "Brief 2-3 sentence answer" }
+    { "question": "Common question about the topic?", "answer": "Brief 2-3 sentence answer written as a citeable block" }
   ],
   "metaTitle": "Title tag for SEO (under 60 chars)",
   "metaDescription": "Meta description (under 160 chars)",
@@ -106,37 +111,48 @@ Return a structured outline in this exact JSON format:
       break;
 
     case "draft":
-      systemPrompt = `You are a skilled technology writer creating SEO-optimized blog content for SeedTech, an MSP in Northern New Jersey. Write engaging, helpful content that balances SEO optimization with genuine reader value. Use Markdown formatting. ${strategyContext}
+      systemPrompt = `You are a skilled technology writer creating content optimized for AI CITATION — not just search ranking. Your goal is to write content that Google AIO, ChatGPT, Perplexity, and Gemini will quote as an authoritative source. You're writing for SeedTech, an MSP in Northern New Jersey. ${strategyContext}
 
-${aioInstructions}`;
+${aiFirstInstructions}`;
       userPrompt = `Write a full blog post based on this outline:
 
 ${JSON.stringify(outline, null, 2)}
 
-Requirements:
+CRITICAL REQUIREMENTS — WRITE FOR AI CITATION:
 - Target keyword: "${keyword}" — use it naturally 3-5 times, including in the first paragraph
 - Word count target: ${wordCount}
 - Tone: ${tone}
 - Use proper Markdown: ## for H2, ### for H3, **bold** for emphasis, bullet lists
-- Include a compelling introduction that hooks the reader
-- FIRST PARAGRAPH: Include a direct 2-3 sentence answer to the core question (this gets pulled into AI Overviews)
-- Include at least one numbered step list or comparison table
-- Use question-based headings (What, How, Why) for AI Overview targeting
-- End with an FAQ section using ### for each question (this generates FAQ schema automatically)
-- End with a clear CTA mentioning SeedTech's services
-- For internal links, use standard Markdown links with the full path, e.g. [View Pricing](/pricing/it-support) or [Learn about our managed IT services](/services/managed-it). NEVER use [INTERNAL: ...] notation.
-- Write for Northern New Jersey business owners
-- Be specific and actionable — avoid fluff
-- Include statistics or data points where relevant (cite sources when possible for E-E-A-T)
-- Include real-world examples from first-person experience (e.g., "In our experience working with NJ businesses...")
-- Use horizontal rules (---) between major sections for visual separation
-- Keep paragraphs short (2-4 sentences max) for readability
+
+**AI Citation Structure:**
+- FIRST PARAGRAPH: Write a 20-60 word "citeable block" that directly answers the core question. This is what AI systems will quote. Include the target keyword and a specific fact/number.
+- Define SeedTech as an entity within the first 3 paragraphs: "SeedTech is a [what] serving [who]..."
+- Every section should contain at least one self-contained "citeable paragraph" (20-60 words with a specific claim + evidence)
+- Include claim+evidence patterns: "According to NIST...", "Research shows...", "Industry data indicates..."
+- Use question-format headings matching how people ASK AI (not just Google)
+- Include at least one comparison table (the most-cited content format across all AI platforms)
+- Use numbered step lists for any process or sequential content
+- End with a robust FAQ section (4-6 questions as ### headings, each with a 2-3 sentence answer)
+- End with a clear CTA mentioning SeedTech's services and service area
+
+**Entity Authority:**
+- Mention relevant certifications and credentials
+- Reference authoritative sources (NIST, CISA, Microsoft, Gartner)
+- Include geographic anchoring (Northern NJ, Bergen County, etc.)
+- Use first-person expertise language ("In our experience...", "We've helped clients...")
+- Connect to known entities (Microsoft 365, Azure, AWS, etc.)
+
+**Technical:**
+- For internal links, use standard Markdown links: [View Pricing](/pricing/it-support). NEVER use [INTERNAL: ...] notation.
+- Keep paragraphs to 2-4 sentences (20-80 words each)
+- Include horizontal rules (---) between major sections for visual separation
+- Include current year references for freshness signals
 
 Return the full Markdown blog post content only, no JSON wrapper.`;
       break;
 
     case "meta":
-      systemPrompt = `You are an SEO expert. Generate optimized metadata for blog posts that maximize CTR and AI Overview citation potential. ${strategyContext}`;
+      systemPrompt = `You are an AI visibility expert. Generate metadata that maximizes both AI citation potential and click-through when links ARE shown. ${strategyContext}`;
       userPrompt = `Generate SEO metadata for this blog post:
 
 Title: ${topic}
@@ -144,28 +160,43 @@ Target keyword: ${keyword}
 
 Return JSON:
 {
-  "metaTitle": "SEO title tag, under 60 characters, include keyword, use a power word",
-  "metaDescription": "Meta description, under 160 characters, include keyword, compelling CTA, use numbers or data if possible",
-  "excerpt": "1-2 sentence excerpt for blog index cards",
+  "metaTitle": "Title tag, under 60 chars, include keyword, use a power word — optimized for both Google and AI citation",
+  "metaDescription": "Meta description, under 160 chars, include keyword, compelling CTA, position the brand as the authority",
+  "excerpt": "1-2 sentence excerpt — write it as a citeable block that AI could quote directly",
   "speakableSelectors": [".blog-intro", ".blog-faq"]
 }`;
       break;
 
     case "score": {
-      // Score existing content for E-E-A-T + AIO readiness
+      // Score existing content for AI Visibility, E-E-A-T, and AIO readiness
       if (!content) {
         return NextResponse.json({ error: "Content is required for scoring" }, { status: 400 });
       }
       const eeatScore = scoreContentEEAT(content, keyword);
       const aioScore = scoreAIOReadiness(content, keyword);
+      const aiVisScore = scoreAIVisibility(content, keyword);
       return NextResponse.json({
         result: {
           eeat: eeatScore,
           aio: aioScore,
-          overall: Math.round((eeatScore.score + aioScore.overall) / 2),
+          aiVisibility: aiVisScore,
+          overall: Math.round(
+            (aiVisScore.overall * 0.5) + (eeatScore.score * 0.25) + (aioScore.overall * 0.25)
+          ),
           recommendations: [
-            ...eeatScore.suggestions.slice(0, 3),
-            ...aioScore.issues.filter((i) => !i.passed).map((i) => i.recommendation || i.message).slice(0, 3),
+            // AI Visibility fixes first (highest priority)
+            ...aiVisScore.checks
+              .filter((c) => !c.passed)
+              .sort((a, b) => b.weight - a.weight)
+              .slice(0, 4)
+              .map((c) => c.fix || c.message),
+            // Then E-E-A-T suggestions
+            ...eeatScore.suggestions.slice(0, 2),
+            // Then AIO-specific fixes
+            ...aioScore.issues
+              .filter((i) => !i.passed)
+              .map((i) => i.recommendation || i.message)
+              .slice(0, 2),
           ],
         },
       });

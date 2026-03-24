@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIOReadiness } from "@/lib/seo-aio";
+import { scoreAIVisibility } from "@/lib/ai-visibility";
 
 /**
  * POST /api/admin/seo/content-score — Score a page's content
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
   // Score the content
   const eeatResult = scoreContentEEAT(content, keyword);
   const aioResult = scoreAIOReadiness(content, keyword);
+  const aiVisResult = scoreAIVisibility(content, keyword);
 
   // Count links
   const internalLinkCount =
@@ -68,7 +70,9 @@ export async function POST(req: NextRequest) {
   const hasSchema = content.includes("application/ld+json") || content.includes("@type");
   const hasFaq = /^#{2,3}\s.+\?$/m.test(content) || content.toLowerCase().includes("faq");
 
-  const overallScore = Math.round((eeatResult.score + aioResult.overall) / 2);
+  const overallScore = Math.round(
+    (aiVisResult.overall * 0.5) + (eeatResult.score * 0.25) + (aioResult.overall * 0.25)
+  );
 
   const score = await prisma.contentScore.upsert({
     where: { pageUrl },
@@ -123,6 +127,7 @@ export async function POST(req: NextRequest) {
     details: {
       eeat: eeatResult,
       aio: aioResult,
+      aiVisibility: aiVisResult,
     },
   });
 }

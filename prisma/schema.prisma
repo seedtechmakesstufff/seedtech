@@ -307,3 +307,44 @@ model SeoLeadEvent {
   @@map("seo_lead_events")
 }
 
+// ── AI Citation Tracking ──
+// Tracks brand mentions in AI-generated responses.
+// Used to measure AI Visibility over time.
+model AICitation {
+  id           String   @id @default(uuid())
+  platform     String                                  // "chatgpt", "perplexity", "gemini", "google_aio", "copilot"
+  query        String                                  // the query that triggered the AI response
+  brandMentioned Boolean @default(false)               // was our brand mentioned?
+  urlCited     String?                                 // was a specific URL cited?
+  context      String?  @db.Text                       // snippet of the AI response mentioning us
+  citationType String?                                 // "direct_quote", "brand_mention", "url_citation", "recommendation"
+  sentiment    String?                                 // "positive", "neutral", "negative"
+  metadata     Json?
+  checkedAt    DateTime @default(now())
+
+  @@index([platform])
+  @@index([brandMentioned])
+  @@index([checkedAt])
+  @@map("ai_citations")
+}
+
+// ── AI Visibility Scores (historical tracking) ──
+// Stores periodic AI Visibility scores per page for trend tracking.
+model AIVisibilityScore {
+  id              String   @id @default(uuid())
+  pageUrl         String
+  overallScore    Int
+  citationReadiness Int
+  entityAuthority Int
+  structuredClarity Int
+  conversationalFit Int
+  multiEngineCoverage Int
+  grade           String                               // "A", "B", "C", "D", "F"
+  failedChecks    Json?                                // array of failed check names
+  scoredAt        DateTime @default(now())
+
+  @@index([pageUrl])
+  @@index([scoredAt])
+  @@map("ai_visibility_scores")
+}
+

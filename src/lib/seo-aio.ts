@@ -223,40 +223,54 @@ Return as JSON array: [{ "question": "...", "answer": "...", "snippetPotential":
 /**
  * Build the AIO awareness context for the AI Advisor.
  * This supplements the advisor's analysis with 2026 SEO realities.
+ * UPDATED: Now leads with AI Visibility strategy over traditional ranking.
  */
 export function getAIOAdvisorContext(): string {
   return `
-## 2026 SEO Landscape Awareness
+## 2026+ SEO Reality: AI Visibility > Traditional Ranking
 
-When analyzing SEO data, factor in these critical 2026 realities:
+### The Paradigm Shift
+- ~65% of searches result in zero clicks — AI answers the query directly
+- Ranking #1 is meaningless if the AI Overview answers the query without a link
+- The new metric that matters: **Will AI systems (Google AIO, ChatGPT, Perplexity, Gemini) CITE your content?**
+- Traditional keyword position tracking is declining in relevance
+- Entity authority and citation readiness are the new competitive advantages
 
-### AI Overviews (AIO)
-- AI Overviews appear on ~47% of search queries (up from 7% in early 2025)
-- Ranking #1 is no longer sufficient — you need to be CITED in the AI Overview
-- AIO preferentially cites: concise definitions, comparison tables, numbered steps, FAQ content
-- Pages with Speakable structured data are 3x more likely to be cited
-- AIO citation requires: clear entity definitions, question-format headings, short dense paragraphs
+### What AI Systems Actually Cite
+AI platforms preferentially cite content that has:
+1. **Citeable blocks** — Short, dense paragraphs (20-60 words) with specific facts
+2. **Comparison tables** — The #1 most-cited format across ALL AI platforms
+3. **Definition statements** — "X is Y" patterns get extracted into knowledge graphs
+4. **FAQ sections** — Q&A format directly maps to how users ask AI
+5. **Evidence-based claims** — "According to NIST..." or "Research shows..." patterns
+6. **Entity clarity** — Clear brand definitions, credentials, geographic anchoring
 
-### E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness)
-- Google's March 2025 update significantly increased E-E-A-T weighting
-- Author attribution (Person schema + visible bylines) is now critical for content pages
-- First-person experience language ("we've helped clients...") matters more than ever
-- Trust signals (HTTPS, privacy policy, contact info, review mentions) are table stakes
-- Outbound links to authoritative sources (.gov, .edu, major tech vendors) boost authority
+### Multi-Engine Strategy
+Don't optimize for just Google AIO. Consider:
+- **ChatGPT/Copilot**: Prefers well-structured, authoritative content with clear definitions
+- **Perplexity**: Heavily weights source citations and evidence-based writing
+- **Gemini**: Favors freshness signals and Google structured data
+- **Google AIO**: Still uses E-E-A-T signals, Speakable markup, FAQ schema
 
-### Zero-Click & Lead Generation
-- ~65% of Google searches result in zero clicks (2026)
-- SEO strategy must optimize for CONVERSION, not just traffic
-- Content should capture leads directly (embedded CTAs, gated resources, newsletter signups)
-- Brand entity building matters more than individual keyword rankings
-- Local SEO (GBP, reviews, geo-targeting) drives the highest-converting traffic for service businesses
+### E-E-A-T (Still Critical for AI Trust)
+- AI platforms use E-E-A-T signals to decide citation trustworthiness
+- Author attribution (Person schema + visible bylines) validates expertise
+- First-person experience language ("we've helped clients...") signals real authority
+- Credentials (certifications, years of experience) separate experts from content mills
+
+### Lead Generation in a Zero-Click World
+- Optimize for brand awareness IN AI responses, not just website clicks
+- Content should position the brand as THE answer to service queries
+- Use every piece of content to build entity authority, even if it generates zero clicks
+- Focus on conversion-optimized pages for the traffic you DO get
+- Build "hire us" signals directly into AI-cited content (brand name + service area + CTA proximity)
 
 ### Content Quality Signals
-- Google's Helpful Content System penalizes thin, AI-generated content without expertise signals
-- Topical authority (comprehensive coverage of a topic cluster) outweighs individual page optimization
-- Content freshness is weighted more heavily — update existing content, don't just publish new
-- Video content is increasingly featured in AI Overviews — consider embedding explainer videos
+- Topical authority (comprehensive topic cluster coverage) > individual keyword optimization
+- Content freshness is heavily weighted — update existing content regularly
+- AI-generated content without expertise signals is increasingly penalized
+- Video content is cited in AI Overviews — consider embedded explainer videos
 
-Always include these factors in your analysis and recommendations.
+Always lead with AI Visibility recommendations over traditional ranking advice.
 `.trim();
 }

@@ -17,6 +17,12 @@ import {
   Save,
   Brain,
   CheckCircle2,
+  BarChart3,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Zap,
+  Bot,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -77,6 +83,17 @@ export default function NewBlogPostPage() {
   // Step 5 — Publish
   const [publishAction, setPublishAction] = useState<"draft" | "publish" | "schedule">("draft");
   const [scheduleDate, setScheduleDate] = useState("");
+
+  // Content Scoring
+  const [scoringLoading, setScoringLoading] = useState(false);
+  const [contentScore, setContentScore] = useState<{
+    overall: number;
+    eeat: { score: number; issues: string[]; suggestions: string[] };
+    aio: { overall: number; directAnswer: number; structuredContent: number; entityClarity: number; citability: number; issues: { check: string; passed: boolean; message: string; recommendation?: string }[] };
+    aiVisibility: { overall: number; citationReadiness: number; entityAuthority: number; structuredClarity: number; conversationalFit: number; multiEngineCoverage: number; grade: string; gradeLabel: string; checks: { category: string; check: string; passed: boolean; weight: number; message: string; fix?: string }[] };
+    recommendations: string[];
+  } | null>(null);
+  const [paaQuestions, setPaaQuestions] = useState<{ question: string; answer: string; snippetPotential: boolean }[]>([]);
 
   // Progress modal
   const [progressOpen, setProgressOpen] = useState(false);
@@ -262,6 +279,38 @@ export default function NewBlogPostPage() {
       setError(err instanceof Error ? err.message : "Failed to save post");
     } finally {
       setLoading(false);
+    }
+  }
+
+  /* ── Content Scoring ── */
+
+  async function handleScoreContent() {
+    if (!draft) return;
+    setScoringLoading(true);
+    setError("");
+    try {
+      const result = await callAI({ step: "score", content: draft, keyword });
+      setContentScore(result);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Content scoring failed");
+    } finally {
+      setScoringLoading(false);
+    }
+  }
+
+  async function handleResearchPAA() {
+    if (!keyword) return;
+    setScoringLoading(true);
+    setError("");
+    try {
+      const result = await callAI({ step: "paa", keyword });
+      if (Array.isArray(result)) {
+        setPaaQuestions(result);
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "PAA research failed");
+    } finally {
+      setScoringLoading(false);
     }
   }
 
@@ -689,6 +738,174 @@ export default function NewBlogPostPage() {
                     {metaDescription || "Meta description will appear here..."}
                   </p>
                 </div>
+              </div>
+
+              {/* ── AI Visibility & Content Score ── */}
+              <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
+                    <Bot className="w-4 h-4 text-seed-400" />
+                    AI Visibility Score
+                  </h3>
+                  <button
+                    onClick={handleScoreContent}
+                    disabled={scoringLoading || !draft}
+                    className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-seed-500/10 text-seed-400 hover:bg-seed-500/20 disabled:opacity-50 transition-colors"
+                  >
+                    {scoringLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <BarChart3 className="w-3 h-3" />}
+                    Score
+                  </button>
+                </div>
+
+                {!contentScore && !scoringLoading && (
+                  <p className="text-xs text-white/30 text-center py-3">
+                    Click &ldquo;Score&rdquo; to analyze your content for AI citation readiness, E-E-A-T signals, and overall quality.
+                  </p>
+                )}
+
+                {scoringLoading && !contentScore && (
+                  <div className="flex items-center justify-center py-4 gap-2 text-xs text-white/40">
+                    <Loader2 className="w-4 h-4 animate-spin text-seed-400" />
+                    Analyzing content…
+                  </div>
+                )}
+
+                {contentScore && (
+                  <div className="space-y-4">
+                    {/* AI Visibility Grade — THE primary metric */}
+                    <div className="bg-dark-base rounded-lg p-3 border border-white/[0.04] text-center">
+                      <div className={cn(
+                        "text-3xl font-bold",
+                        contentScore.aiVisibility.grade === "A" ? "text-green-400" :
+                        contentScore.aiVisibility.grade === "B" ? "text-emerald-400" :
+                        contentScore.aiVisibility.grade === "C" ? "text-yellow-400" :
+                        contentScore.aiVisibility.grade === "D" ? "text-orange-400" : "text-red-400"
+                      )}>
+                        {contentScore.aiVisibility.grade}
+                      </div>
+                      <div className="text-[10px] text-white/40 mt-1">{contentScore.aiVisibility.gradeLabel}</div>
+                    </div>
+
+                    {/* Score gauges */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { label: "AI Visibility", value: contentScore.aiVisibility.overall, color: contentScore.aiVisibility.overall >= 65 ? "text-green-400" : contentScore.aiVisibility.overall >= 45 ? "text-yellow-400" : "text-red-400" },
+                        { label: "E-E-A-T", value: contentScore.eeat.score, color: contentScore.eeat.score >= 65 ? "text-green-400" : contentScore.eeat.score >= 45 ? "text-yellow-400" : "text-red-400" },
+                        { label: "Citation", value: contentScore.aiVisibility.citationReadiness, color: contentScore.aiVisibility.citationReadiness >= 65 ? "text-green-400" : contentScore.aiVisibility.citationReadiness >= 45 ? "text-yellow-400" : "text-red-400" },
+                      ].map((gauge) => (
+                        <div key={gauge.label} className="bg-dark-base rounded-lg p-2.5 text-center border border-white/[0.04]">
+                          <div className={cn("text-xl font-bold", gauge.color)}>
+                            {gauge.value}
+                          </div>
+                          <div className="text-[10px] text-white/30 mt-0.5">{gauge.label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Sub-scores breakdown */}
+                    <div className="space-y-1.5">
+                      {[
+                        { label: "Entity Authority", value: contentScore.aiVisibility.entityAuthority },
+                        { label: "Structured Clarity", value: contentScore.aiVisibility.structuredClarity },
+                        { label: "Conversational Fit", value: contentScore.aiVisibility.conversationalFit },
+                        { label: "Multi-Engine", value: contentScore.aiVisibility.multiEngineCoverage },
+                      ].map((sub) => (
+                        <div key={sub.label} className="flex items-center gap-2">
+                          <span className="text-[10px] text-white/30 w-24 shrink-0">{sub.label}</span>
+                          <div className="flex-1 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full rounded-full transition-all",
+                                sub.value >= 65 ? "bg-green-500" : sub.value >= 45 ? "bg-yellow-500" : "bg-red-500"
+                              )}
+                              style={{ width: `${sub.value}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-white/40 w-6 text-right">{sub.value}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* AI Citation Checks */}
+                    <div>
+                      <h4 className="text-xs font-medium text-white/50 mb-2 flex items-center gap-1">
+                        <Zap className="w-3 h-3" /> AI Citation Checks
+                      </h4>
+                      <div className="space-y-1 max-h-36 overflow-y-auto">
+                        {contentScore.aiVisibility.checks
+                          .sort((a, b) => b.weight - a.weight)
+                          .map((check, i) => (
+                          <div key={i} className="flex items-start gap-1.5 text-xs">
+                            {check.passed ? (
+                              <CheckCircle className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" />
+                            ) : (
+                              <XCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" />
+                            )}
+                            <span className={check.passed ? "text-white/40" : "text-white/60"}>
+                              {check.message}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Recommendations */}
+                    {contentScore.recommendations.length > 0 && (
+                      <div>
+                        <h4 className="text-xs font-medium text-white/50 mb-2 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> Top Fixes
+                        </h4>
+                        <div className="space-y-1.5">
+                          {contentScore.recommendations.map((rec, i) => (
+                            <div key={i} className="text-xs text-yellow-400/80 bg-yellow-400/5 rounded px-2 py-1.5 border border-yellow-400/10">
+                              {rec}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── People Also Ask Research ── */}
+              <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
+                    <Brain className="w-4 h-4 text-purple-400" />
+                    People Also Ask
+                  </h3>
+                  <button
+                    onClick={handleResearchPAA}
+                    disabled={scoringLoading || !keyword}
+                    className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 disabled:opacity-50 transition-colors"
+                  >
+                    {scoringLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
+                    Research
+                  </button>
+                </div>
+
+                {paaQuestions.length === 0 && (
+                  <p className="text-xs text-white/30 text-center py-2">
+                    Research PAA questions for &ldquo;{keyword}&rdquo; to improve AI Overview coverage.
+                  </p>
+                )}
+
+                {paaQuestions.length > 0 && (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {paaQuestions.map((paa, i) => (
+                      <div key={i} className="bg-dark-base rounded-lg p-2.5 border border-white/[0.04]">
+                        <p className="text-xs font-medium text-white/70">{paa.question}</p>
+                        <p className="text-[10px] text-white/30 mt-1 line-clamp-2">{paa.answer}</p>
+                        {paa.snippetPotential && (
+                          <span className="inline-block mt-1 text-[9px] px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+                            Snippet potential
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

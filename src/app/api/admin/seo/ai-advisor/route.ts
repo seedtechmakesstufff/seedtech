@@ -9,6 +9,7 @@ import {
   getTrackedKeywordPositions,
 } from "@/lib/google-search-console";
 import { getAIOAdvisorContext } from "@/lib/seo-aio";
+import { getAIVisibilityAdvisorContext } from "@/lib/ai-visibility";
 
 /**
  * POST /api/admin/seo/ai-advisor
@@ -90,14 +91,18 @@ export async function POST(req: NextRequest) {
 
   // Build the prompt
   const aioContext = getAIOAdvisorContext();
-  const systemPrompt = `You are an expert SEO strategist and consultant for ${businessContext}
+  const aiVisContext = getAIVisibilityAdvisorContext();
+  const systemPrompt = `You are an expert AI visibility strategist and consultant for ${businessContext}
+
+${aiVisContext}
 
 ${aioContext}
 
-Your job is to analyze the data provided and give actionable, prioritized SEO recommendations. 
+Your job is to analyze the data provided and give actionable, prioritized recommendations.
+LEAD WITH AI VISIBILITY — not traditional ranking.
 Be specific — reference actual keywords, pages, and metrics. 
 Always explain the "why" behind each recommendation.
-Factor in AI Overview optimization, E-E-A-T signals, and zero-click search strategies.
+The primary question for every piece of content should be: "Would AI systems cite this?"
 Format your response in Markdown with clear headings and bullet points.
 Focus on high-impact, practical actions the team can take this week.`;
 
@@ -154,19 +159,19 @@ ${JSON.stringify(pageSpeedData, null, 2)}
 
   const userPrompt = question
     ? `Based on all the data above, answer this specific question:\n\n${question}`
-    : `Based on all the data above, provide a comprehensive SEO analysis:
+    : `Based on all the data above, provide a comprehensive AI Visibility analysis:
 
-1. **Executive Summary** — Overall SEO health in 2-3 sentences
-2. **Top 3 Priorities This Week** — Most impactful actions to take RIGHT NOW
-3. **Keyword Opportunities** — Keywords where we're close to page 1, or missing entirely
-4. **AI Overview Optimization** — Which content pages are best positioned for AIO citations, and what to improve
-5. **E-E-A-T Assessment** — Evaluate our Experience, Expertise, Authority, and Trust signals
-6. **Content Gaps** — Blog posts we should write next based on the data
-7. **Technical Issues** — Any technical SEO problems to fix
-8. **Lead Generation Opportunities** — How to convert our SEO traffic into leads more effectively
-9. **Competitive Insights** — What the data tells us about our market position
+1. **AI Visibility Summary** — Would AI systems (ChatGPT, Perplexity, Google AIO, Gemini) cite our content? Overall assessment in 2-3 sentences.
+2. **Top 3 AI Visibility Actions This Week** — Most impactful actions to increase AI citation potential RIGHT NOW
+3. **Citation Readiness Audit** — Which pages are most likely to be cited by AI? Which need restructuring?
+4. **Entity Authority Assessment** — How strong is our brand entity in AI knowledge graphs? What to improve?
+5. **Content Gaps for AI** — What "answer source" content should we create next? Think: what questions do people ask AI about our services?
+6. **E-E-A-T Signals** — Evaluate Experience, Expertise, Authority, and Trust signals (still critical for AI citation trust)
+7. **Multi-Engine Optimization** — Are we optimized for ChatGPT, Perplexity, and Gemini, not just Google?
+8. **Traditional SEO Health** — Keyword positions, technical issues, and search console data (secondary to AI visibility)
+9. **Lead Generation in Zero-Click** — How to capture leads when ~65% of searches get AI answers without clicks
 
-Be specific and actionable. Reference real numbers from the data.`;
+Be specific and actionable. Reference real data. Lead every section with AI-first thinking.`;
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
