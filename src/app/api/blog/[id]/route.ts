@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getPostById, updatePost, deletePost } from "@/lib/blog";
 import { submitUrl, isIndexNowConfigured } from "@/lib/indexnow";
+import { scoreAIVisibility } from "@/lib/ai-visibility";
+import { prisma } from "@/lib/prisma";
 
 /** GET /api/blog/[id] — get single post */
 export async function GET(
@@ -52,7 +54,33 @@ export async function PUT(
     }
   }
 
-  return NextResponse.json({ ...updated, indexNow: indexNowResult });
+  // Auto-score AI Visibility when a post is published or updated
+  let aiVisibilityGrade = null;
+  if (updated.status === "published" && updated.body) {
+    try {
+      const aiVis = scoreAIVisibility(updated.body, updated.targetKeyword || undefined);
+      await prisma.aIVisibilityScore.create({
+        data: {
+          pageUrl: `/blog/${updated.slug}`,
+          overallScore: aiVis.overall,
+          citationReadiness: aiVis.citationReadiness,
+          entityAuthority: aiVis.entityAuthority,
+          structuredClarity: aiVis.structuredClarity,
+          conversationalFit: aiVis.conversationalFit,
+          multiEngineCoverage: aiVis.multiEngineCoverage,
+          grade: aiVis.grade,
+          failedChecks: aiVis.checks
+            .filter((c) => !c.passed)
+            .map((c) => ({ check: c.check, category: c.category, fix: c.fix })),
+        },
+      });
+      aiVisibilityGrade = aiVis.grade;
+    } catch {
+      // Non-blocking
+    }
+  }
+
+  return NextResponse.json({ ...updated, indexNow: indexNowResult, aiVisibilityGrade });
 }
 
 /** DELETE /api/blog/[id] — delete post */

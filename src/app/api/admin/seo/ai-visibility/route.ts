@@ -31,6 +31,45 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ scores, pageUrl });
   }
 
+  // ── Auto-score any published posts that haven't been scored yet ──
+  try {
+    const publishedPosts = await prisma.blogPost.findMany({
+      where: { status: "published" },
+      select: { slug: true, body: true, targetKeyword: true },
+    });
+
+    const existingScoreUrls = new Set(
+      (await prisma.aIVisibilityScore.findMany({
+        select: { pageUrl: true },
+        distinct: ["pageUrl"],
+      })).map((s) => s.pageUrl)
+    );
+
+    for (const post of publishedPosts) {
+      const url = `/blog/${post.slug}`;
+      if (!existingScoreUrls.has(url)) {
+        const result = scoreAIVisibility(post.body, post.targetKeyword || undefined);
+        await prisma.aIVisibilityScore.create({
+          data: {
+            pageUrl: url,
+            overallScore: result.overall,
+            citationReadiness: result.citationReadiness,
+            entityAuthority: result.entityAuthority,
+            structuredClarity: result.structuredClarity,
+            conversationalFit: result.conversationalFit,
+            multiEngineCoverage: result.multiEngineCoverage,
+            grade: result.grade,
+            failedChecks: result.checks
+              .filter((c) => !c.passed)
+              .map((c) => ({ check: c.check, category: c.category, fix: c.fix })),
+          },
+        });
+      }
+    }
+  } catch (e) {
+    console.error("[ai-visibility] Auto-score error:", e);
+  }
+
   // Get latest scores for all pages
   const latestScores = await prisma.aIVisibilityScore.findMany({
     orderBy: { scoredAt: "desc" },

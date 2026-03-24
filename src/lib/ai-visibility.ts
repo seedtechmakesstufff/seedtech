@@ -590,31 +590,45 @@ Your content needs to be CITED BY AI SYSTEMS, not just rank in Google's blue lin
 
 ### Core Principle: Write to be the SOURCE that AI quotes.
 
-**For ALL AI Platforms (Google AIO, ChatGPT, Perplexity, Gemini, Copilot):**
+### The AI-Readable Document Structure
 
-1. **Citeable Opening (MOST IMPORTANT)**: Start with a 20-60 word paragraph that directly answers the core question. This is what AI will quote. Include the target keyword. Write it as if YOU are the AI giving the answer.
+AI systems parse content in a predictable way. They look for:
 
-2. **Entity-First Writing**: Define your brand as an entity in the first 3 paragraphs: "${"{brand}"} is a {what you do} serving {who you serve}." Connect to known entities (Microsoft, AWS, NIST) naturally.
+1. **Direct answer in the opening** — The first paragraph is what gets quoted. 20-60 words, includes a specific fact, directly answers the query.
 
-3. **Claim + Evidence Structure**: For every claim, provide evidence. "According to NIST, 60% of SMBs close within 6 months of a breach." AI platforms (especially Perplexity) strongly prefer sourced claims.
+2. **Entity definition early** — Within the first 3 paragraphs, define the brand: "SeedTech is a managed IT services provider serving Northern New Jersey businesses." This builds entity recognition in AI knowledge graphs.
 
-4. **Question-Format Headings**: Use H2/H3 headings phrased as questions matching how people ask AI: "## How much does managed IT cost in NJ?" not "## Pricing". Cover how, what, why, when, and comparison queries.
+3. **Question-format headings** — AI systems match user queries to headings. "## How Much Does Managed IT Cost?" gets matched to "how much does managed IT cost" queries. EVERY H2 heading should be a natural question ending in "?".
 
-5. **Comparison Tables**: Include at least one Markdown comparison table. Tables are the #1 most-cited content format across ALL AI platforms.
+4. **Comparison tables** — This is the #1 most-cited content format across Google AIO, ChatGPT, Perplexity, and Gemini. Always include at least one.
 
-6. **Definition Blocks**: Include clear "X is Y" definitions. These get extracted into AI knowledge graphs and are cited as authoritative sources.
+5. **Definition blocks** — "X is Y" sentences get extracted into AI knowledge graphs. Include at least 2 clear definitions.
 
-7. **Numbered Step Lists**: Use ordered lists for processes. AI frequently cites step-by-step content verbatim.
+6. **Claim + evidence pairs** — "According to NIST, 60% of SMBs..." — AI platforms (especially Perplexity) cite content with source attribution.
 
-8. **FAQ Section**: End with "## Frequently Asked Questions" containing 4-6 Q&A pairs. Each answer should be 2-3 sentences — the exact length AI quotes.
+7. **Numbered step lists** — Processes and how-to steps get cited verbatim by AI assistants.
 
-9. **Short, Dense Paragraphs**: Keep paragraphs to 2-4 sentences (20-80 words). Each paragraph should be a self-contained citeable block.
+8. **FAQ section** — Must be present. Format: "## Frequently Asked Questions" with "### Question?" sub-headings. Each answer: 2-3 sentences, self-contained, includes a fact. This section gets cited more than any other.
 
-10. **Freshness Signals**: Include current year references and "updated" language. AI platforms prefer recent content.
+9. **Short paragraphs** — 20-80 words each. Each paragraph should express one complete, quotable idea.
 
-11. **Geographic Anchoring**: For service businesses, mention your area: "Northern New Jersey", "Bergen County". This wins local AI queries.
+10. **Known entity references** — Reference Microsoft, NIST, CISA, CompTIA, AWS, etc. This connects your content to entities AI already knows.
 
-12. **Credential Signals**: Mention certifications, years of experience, team qualifications. AI needs to verify source authority.
+11. **Geographic anchoring** — "Northern New Jersey", "Bergen County" — wins local AI queries.
+
+12. **Freshness signals** — Include current year (2026) and "updated" language. AI strongly prefers recent content.
+
+### What Makes Content AI-Citable vs Just SEO-Optimized
+
+| AI-Citable Content | Traditional SEO Content |
+|---|---|
+| Direct answer in first paragraph | Keyword in first paragraph |
+| Question-format headings | Keyword-stuffed headings |
+| Comparison tables with data | Walls of text |
+| "According to NIST, 60% of..." | "Many businesses struggle with..." |
+| FAQ with specific answers | Generic FAQ for schema |
+| Entity definition ("SeedTech is a...") | Brand mention |
+| 20-60 word citeable blocks | Long paragraphs |
 `.trim();
 }
 
