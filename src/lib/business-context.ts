@@ -1,5 +1,16 @@
+/**
+ * Business Context — site-specific business profile for prompts and strategy.
+ *
+ * Primary source: DB BusinessProfile (keyed by siteId).
+ * Fallback: filesystem content/business-context.json (legacy, for backwards compat).
+ *
+ * buildStrategyPrompt() is now pure — it accepts a BusinessContext object,
+ * so it can be used server-side without side-effects.
+ */
+
 import fs from "fs";
 import path from "path";
+import { prisma } from "@/lib/prisma";
 
 const CONTEXT_FILE = path.join(process.cwd(), "content", "business-context.json");
 
@@ -17,7 +28,7 @@ export interface BusinessContext {
   updatedAt: string;
 }
 
-const DEFAULT_CONTEXT: BusinessContext = {
+export const DEFAULT_CONTEXT: BusinessContext = {
   companyName: "SeedTech",
   tagline: "Managed IT services and web development for growing businesses",
   location: "Hopatcong, NJ (Northern New Jersey)",
@@ -42,7 +53,75 @@ const DEFAULT_CONTEXT: BusinessContext = {
   updatedAt: new Date().toISOString(),
 };
 
-/** Ensure the content directory exists */
+// ── DB-backed reads/writes ──────────────────────────
+
+/** Get business context from DB for a specific site, with filesystem fallback */
+export async function getBusinessContextForSite(siteId: string): Promise<BusinessContext> {
+  try {
+    const profile = await prisma.businessProfile.findUnique({
+      where: { siteId },
+    });
+
+    if (profile) {
+      return {
+        companyName: profile.companyName,
+        tagline: profile.tagline,
+        location: profile.location,
+        domain: profile.domain,
+        primaryService: profile.primaryService,
+        secondaryServices: profile.secondaryServices,
+        targetAudience: profile.targetAudience,
+        uniqueSellingPoints: profile.uniqueSellingPoints,
+        toneOfVoice: profile.toneOfVoice,
+        customInstructions: profile.customInstructions,
+        updatedAt: profile.updatedAt.toISOString(),
+      };
+    }
+  } catch {
+    // DB unavailable — fall through to filesystem
+  }
+
+  // Fallback to filesystem
+  return getBusinessContextFromFile();
+}
+
+/** Save business context to DB for a specific site */
+export async function saveBusinessContextForSite(
+  siteId: string,
+  ctx: BusinessContext
+): Promise<void> {
+  await prisma.businessProfile.upsert({
+    where: { siteId },
+    create: {
+      siteId,
+      companyName: ctx.companyName,
+      tagline: ctx.tagline,
+      location: ctx.location,
+      domain: ctx.domain,
+      primaryService: ctx.primaryService,
+      secondaryServices: ctx.secondaryServices,
+      targetAudience: ctx.targetAudience,
+      uniqueSellingPoints: ctx.uniqueSellingPoints,
+      toneOfVoice: ctx.toneOfVoice,
+      customInstructions: ctx.customInstructions,
+    },
+    update: {
+      companyName: ctx.companyName,
+      tagline: ctx.tagline,
+      location: ctx.location,
+      domain: ctx.domain,
+      primaryService: ctx.primaryService,
+      secondaryServices: ctx.secondaryServices,
+      targetAudience: ctx.targetAudience,
+      uniqueSellingPoints: ctx.uniqueSellingPoints,
+      toneOfVoice: ctx.toneOfVoice,
+      customInstructions: ctx.customInstructions,
+    },
+  });
+}
+
+// ── Legacy filesystem functions (backwards compat) ──
+
 function ensureDir() {
   const dir = path.dirname(CONTEXT_FILE);
   if (!fs.existsSync(dir)) {
@@ -50,8 +129,7 @@ function ensureDir() {
   }
 }
 
-/** Read business context from file, or return defaults */
-export function getBusinessContext(): BusinessContext {
+function getBusinessContextFromFile(): BusinessContext {
   ensureDir();
   try {
     if (fs.existsSync(CONTEXT_FILE)) {
@@ -61,21 +139,27 @@ export function getBusinessContext(): BusinessContext {
   } catch {
     // fall through to defaults
   }
-  // Write defaults to disk on first read
   saveBusinessContext(DEFAULT_CONTEXT);
   return DEFAULT_CONTEXT;
 }
 
-/** Save business context to file */
+/** @deprecated Use getBusinessContextForSite(siteId) instead */
+export function getBusinessContext(): BusinessContext {
+  return getBusinessContextFromFile();
+}
+
+/** @deprecated Use saveBusinessContextForSite(siteId, ctx) instead */
 export function saveBusinessContext(ctx: BusinessContext): void {
   ensureDir();
   ctx.updatedAt = new Date().toISOString();
   fs.writeFileSync(CONTEXT_FILE, JSON.stringify(ctx, null, 2), "utf-8");
 }
 
-/** Build the system-prompt-friendly string from the context */
+// ── Pure prompt builder ─────────────────────────────
+
+/** Build the system-prompt-friendly string from a BusinessContext object */
 export function buildStrategyPrompt(ctx?: BusinessContext): string {
-  const c = ctx ?? getBusinessContext();
+  const c = ctx ?? getBusinessContextFromFile();
   return `
 ${c.companyName} — ${c.tagline}
 Location: ${c.location}

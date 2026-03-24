@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 
 /**
  * GET  /api/admin/seo/ai-citations — Get AI citation history + stats
@@ -12,17 +12,16 @@ import { prisma } from "@/lib/prisma";
  */
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const { searchParams } = new URL(req.url);
   const platform = searchParams.get("platform");
   const days = parseInt(searchParams.get("days") || "30");
   const since = new Date(Date.now() - days * 86400000);
 
-  const where: Record<string, unknown> = { checkedAt: { gte: since } };
+  const where: Record<string, unknown> = { siteId, checkedAt: { gte: since } };
   if (platform) where.platform = platform;
 
   const [citations, totalByPlatform] = await Promise.all([
@@ -33,7 +32,7 @@ export async function GET(req: NextRequest) {
     }),
     prisma.aICitation.groupBy({
       by: ["platform"],
-      where: { checkedAt: { gte: since } },
+      where: { siteId, checkedAt: { gte: since } },
       _count: { id: true },
     }),
   ]);
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest) {
   // Get brand mention counts separately
   const mentionCounts = await prisma.aICitation.groupBy({
     by: ["platform"],
-    where: { checkedAt: { gte: since }, brandMentioned: true },
+    where: { siteId, checkedAt: { gte: since }, brandMentioned: true },
     _count: { id: true },
   });
 
@@ -67,10 +66,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const body = await req.json();
   const { platform, query, brandMentioned, urlCited, context, citationType, sentiment, metadata } = body;
@@ -84,6 +82,7 @@ export async function POST(req: NextRequest) {
 
   const citation = await prisma.aICitation.create({
     data: {
+      siteId,
       platform,
       query,
       brandMentioned: brandMentioned ?? false,

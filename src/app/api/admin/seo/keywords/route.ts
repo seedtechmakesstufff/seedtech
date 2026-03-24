@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 
 /**
  * GET  /api/admin/seo/keywords — List all tracked keywords
@@ -9,18 +9,18 @@ import { prisma } from "@/lib/prisma";
  */
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const keywords = await prisma.trackedKeyword.findMany({
-    where: { isActive: true },
+    where: { siteId, isActive: true },
     include: { cluster: { select: { id: true, name: true } } },
     orderBy: [{ tier: "asc" }, { keyword: "asc" }],
   });
 
   const clusters = await prisma.keywordCluster.findMany({
+    where: { siteId },
     include: { _count: { select: { keywords: true } } },
     orderBy: { name: "asc" },
   });
@@ -29,10 +29,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const body = await req.json();
 
@@ -48,7 +47,7 @@ export async function POST(req: NextRequest) {
         targetPage?: string;
       }) =>
         prisma.trackedKeyword.upsert({
-          where: { keyword: kw.keyword },
+          where: { siteId_keyword: { siteId, keyword: kw.keyword } },
           update: {
             tier: (kw.tier as "tier1" | "tier2" | "tier3") || "tier2",
             volume: kw.volume || "unknown",
@@ -57,6 +56,7 @@ export async function POST(req: NextRequest) {
             targetPage: kw.targetPage || "/",
           },
           create: {
+            siteId,
             keyword: kw.keyword,
             tier: (kw.tier as "tier1" | "tier2" | "tier3") || "tier2",
             volume: kw.volume || "unknown",
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
   }
 
   const created = await prisma.trackedKeyword.upsert({
-    where: { keyword },
+    where: { siteId_keyword: { siteId, keyword } },
     update: {
       tier: tier || "tier2",
       volume: volume || "unknown",
@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
       isActive: true,
     },
     create: {
+      siteId,
       keyword,
       tier: tier || "tier2",
       volume: volume || "unknown",

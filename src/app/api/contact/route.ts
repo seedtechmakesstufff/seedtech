@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { validateEmail } from "@/lib/validation";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,26 +19,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate email format + TLD
-    const emailCheck = validateEmail(email);
-    if (!emailCheck.valid) {
-      return NextResponse.json(
-        { error: emailCheck.error, suggestion: emailCheck.suggestion },
-        { status: 400 }
-      );
-    }
+    const siteId = DEFAULT_SITE_ID;
 
     // Upsert contact (find by email or create)
-    let contact = await prisma.contact.findFirst({ where: { email } });
+    let contact = await prisma.contact.findFirst({ where: { siteId, email } });
     if (!contact) {
       contact = await prisma.contact.create({
-        data: { fullName, email, company },
+        data: { siteId, fullName, email, company },
       });
     }
 
     // Create submission
     const submission = await prisma.formSubmission.create({
       data: {
+        siteId,
         source: "contact_page",
         fullName,
         email,

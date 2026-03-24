@@ -21,6 +21,7 @@ import { prisma } from "@/lib/prisma";
 import { JSDOM } from "jsdom";
 import { randomUUID } from "crypto";
 import { auditEEAT } from "@/lib/seo-eeat";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 export interface CrawlIssue {
   url: string;
@@ -828,6 +829,7 @@ export async function runCrawl(
   if (nonPassIssues.length > 0) {
     await prisma.seoPageAudit.createMany({
       data: nonPassIssues.map((issue) => ({
+        siteId: DEFAULT_SITE_ID,
         runId,
         url: issue.url,
         checkType: issue.checkType,
@@ -862,15 +864,16 @@ export async function runCrawl(
 
 /* ── Get latest crawl results ── */
 
-export async function getLatestCrawlResults() {
+export async function getLatestCrawlResults(siteId: string = DEFAULT_SITE_ID) {
   const latest = await prisma.seoPageAudit.findFirst({
+    where: { siteId },
     orderBy: { createdAt: "desc" },
     select: { runId: true },
   });
   if (!latest) return null;
 
   const issues = await prisma.seoPageAudit.findMany({
-    where: { runId: latest.runId },
+    where: { siteId, runId: latest.runId },
     orderBy: [{ severity: "asc" }, { url: "asc" }],
   });
 

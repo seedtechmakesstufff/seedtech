@@ -1,9 +1,10 @@
 /* ── Blog Storage Layer ──
  * CRUD operations for blog posts using Prisma + Neon PostgreSQL.
- * Exports maintain the same signatures as the original file-based version.
+ * All operations are site-scoped via siteId parameter.
  */
 
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 import type { BlogPost, BlogPostCreate, BlogPostUpdate } from "@/types/blog";
 
 /** Count words in a markdown string */
@@ -39,25 +40,28 @@ function toAppPost(p: any): BlogPost {
 }
 
 /** Get all blog posts (newest first) */
-export async function getAllPosts(): Promise<BlogPost[]> {
+export async function getAllPosts(siteId = DEFAULT_SITE_ID): Promise<BlogPost[]> {
   const posts = await prisma.blogPost.findMany({
+    where: { siteId },
     orderBy: { createdAt: "desc" },
   });
   return posts.map(toAppPost);
 }
 
 /** Get published posts only */
-export async function getPublishedPosts(): Promise<BlogPost[]> {
+export async function getPublishedPosts(siteId = DEFAULT_SITE_ID): Promise<BlogPost[]> {
   const posts = await prisma.blogPost.findMany({
-    where: { status: "published" },
+    where: { siteId, status: "published" },
     orderBy: { createdAt: "desc" },
   });
   return posts.map(toAppPost);
 }
 
 /** Get a single post by slug */
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const post = await prisma.blogPost.findUnique({ where: { slug } });
+export async function getPostBySlug(slug: string, siteId = DEFAULT_SITE_ID): Promise<BlogPost | null> {
+  const post = await prisma.blogPost.findUnique({
+    where: { siteId_slug: { siteId, slug } },
+  });
   return post ? toAppPost(post) : null;
 }
 
@@ -68,9 +72,10 @@ export async function getPostById(id: string): Promise<BlogPost | null> {
 }
 
 /** Create a new blog post */
-export async function createPost(data: BlogPostCreate): Promise<BlogPost> {
+export async function createPost(data: BlogPostCreate, siteId = DEFAULT_SITE_ID): Promise<BlogPost> {
   const post = await prisma.blogPost.create({
     data: {
+      siteId,
       title: data.title,
       slug: data.slug,
       excerpt: data.excerpt,

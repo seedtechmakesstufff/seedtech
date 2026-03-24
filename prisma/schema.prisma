@@ -1,5 +1,6 @@
 // ── SeedTech Database Schema ──
 // PostgreSQL on Neon, managed via Prisma
+// Multi-tenant: every SEO/content model is scoped to a Site
 
 generator client {
   provider = "prisma-client-js"
@@ -7,6 +8,142 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ── Multi-Tenant Core ───────────────────────────────
+
+model Tenant {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  memberships Membership[]
+  sites       Site[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("tenants")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  name         String?
+  memberships  Membership[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("users")
+}
+
+enum MemberRole {
+  owner
+  admin
+  editor
+  viewer
+}
+
+model Membership {
+  userId   String
+  tenantId String
+  role     MemberRole @default(editor)
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@id([userId, tenantId])
+  @@map("memberships")
+}
+
+model Site {
+  id               String                  @id @default(cuid())
+  tenantId         String
+  name             String
+  slug             String
+  domain           String
+  siteUrl          String
+  tenant           Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  businessProfile  BusinessProfile?
+  pages            SitePage[]
+  integrations     IntegrationCredential[]
+  blogPosts        BlogPost[]
+  seoSnapshots     SeoSnapshot[]
+  seoPageAudits    SeoPageAudit[]
+  seoInsights      SeoInsight[]
+  trackedKeywords  TrackedKeyword[]
+  keywordClusters  KeywordCluster[]
+  contentScores    ContentScore[]
+  competitors      CompetitorDomain[]
+  leadEvents       SeoLeadEvent[]
+  aiCitations      AICitation[]
+  aiVisScores      AIVisibilityScore[]
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  @@unique([tenantId, slug])
+  @@map("sites")
+}
+
+model SitePage {
+  id        String   @id @default(cuid())
+  siteId    String
+  path      String
+  kind      String   // home, service, location, blog, landing
+  title     String?
+  source    String   @default("manual") // cms, blog, manual, discovered
+  status    String   @default("active")
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([siteId, path])
+  @@index([siteId, kind])
+  @@map("site_pages")
+}
+
+model BusinessProfile {
+  id                  String   @id @default(cuid())
+  siteId              String   @unique
+  companyName         String
+  tagline             String   @default("")
+  location            String   @default("")
+  domain              String   @default("")
+  primaryService      String   @default("")
+  secondaryServices   String[] @default([])
+  targetAudience      String   @default("")
+  uniqueSellingPoints String[] @default([])
+  toneOfVoice         String   @default("")
+  customInstructions  String   @default("") @db.Text
+  serviceCategories   Json?    // [{name, slug, moneyPage}]
+  brandEntities       String[] @default([])
+  ctaDefaults         Json?    // {primaryCta, secondaryCta}
+  internalLinkTargets Json?    // [{path, label, keywords}]
+  site                Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("business_profiles")
+}
+
+enum IntegrationType {
+  google_search_console
+  google_analytics
+  google_pagespeed
+}
+
+model IntegrationCredential {
+  id                  String          @id @default(cuid())
+  siteId              String
+  type                IntegrationType
+  property            String          @default("")  // e.g. GSC property URL
+  authType            String          @default("service-account") // service-account | oauth
+  encryptedCredentials String?        @db.Text
+  isActive            Boolean         @default(true)
+  site                Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@unique([siteId, type])
+  @@map("integration_credentials")
 }
 
 // ── Blog Posts ──────────────────────────────────────
@@ -19,8 +156,9 @@ enum PostStatus {
 
 model BlogPost {
   id              String     @id @default(uuid())
+  siteId          String
   title           String
-  slug            String     @unique
+  slug            String
   excerpt         String
   body            String     // Markdown content
   author          String     @default("SeedTech")
@@ -35,8 +173,10 @@ model BlogPost {
   scheduledAt     DateTime?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+  site            Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
-  @@index([status])
+  @@unique([siteId, slug])
+  @@index([siteId, status])
   @@index([createdAt])
   @@map("blog_posts")
 }
@@ -45,6 +185,7 @@ model BlogPost {
 
 model Contact {
   id          String    @id @default(uuid())
+  siteId      String
   fullName    String
   email       String
   phone       String?
@@ -54,7 +195,7 @@ model Contact {
 
   submissions FormSubmission[]
 
-  @@index([email])
+  @@index([siteId, email])
   @@map("contacts")
 }
 
@@ -75,6 +216,7 @@ enum SubmissionStatus {
 
 model FormSubmission {
   id           String           @id @default(uuid())
+  siteId       String
   source       FormSource
   status       SubmissionStatus @default(new)
 
@@ -97,7 +239,7 @@ model FormSubmission {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  @@index([status])
+  @@index([siteId, status])
   @@index([source])
   @@index([createdAt])
   @@map("form_submissions")
@@ -107,6 +249,7 @@ model FormSubmission {
 
 model SeoSnapshot {
   id              String   @id @default(uuid())
+  siteId          String
   date            DateTime @default(now())     // snapshot date
   totalClicks     Int      @default(0)
   totalImpressions Int     @default(0)
@@ -118,10 +261,11 @@ model SeoSnapshot {
   keywordPositions Json    @default("{}")      // { "keyword": position }
   topPages        Json     @default("[]")      // [{ page, clicks, impressions }]
   metadata        Json?                        // any extra data
+  site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   createdAt       DateTime @default(now())
 
-  @@index([date])
+  @@index([siteId, date])
   @@map("seo_snapshots")
 }
 
@@ -136,15 +280,17 @@ enum AuditSeverity {
 
 model SeoPageAudit {
   id          String        @id @default(uuid())
+  siteId      String
   runId       String                             // groups issues from the same crawl
   url         String
   checkType   String                             // "missing-title", "thin-content", etc.
   severity    AuditSeverity
   message     String
   details     Json?                              // extra context
+  site        Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
 
-  @@index([runId])
+  @@index([siteId, runId])
   @@index([createdAt])
   @@map("seo_page_audits")
 }
@@ -172,6 +318,7 @@ enum InsightStatus {
 
 model SeoInsight {
   id          String        @id @default(uuid())
+  siteId      String
   type        InsightType
   status      InsightStatus @default(active)
   title       String
@@ -179,11 +326,12 @@ model SeoInsight {
   actionUrl   String?                            // page to fix
   priority    Int           @default(50)         // 0-100, higher = more urgent
   metadata    Json?
+  site        Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
   resolvedAt  DateTime?
 
-  @@index([type])
-  @@index([status])
+  @@index([siteId, type])
+  @@index([siteId, status])
   @@index([createdAt])
   @@map("seo_insights")
 }
@@ -205,7 +353,8 @@ enum KeywordIntent {
 
 model TrackedKeyword {
   id              String        @id @default(uuid())
-  keyword         String        @unique
+  siteId          String
+  keyword         String
   tier            KeywordTier   @default(tier2)
   volume          String        @default("unknown")
   competition     String        @default("medium")
@@ -220,24 +369,29 @@ model TrackedKeyword {
   clusterId       String?
   cluster         KeywordCluster? @relation(fields: [clusterId], references: [id])
   isActive        Boolean       @default(true)
+  site            Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  @@index([tier])
-  @@index([isActive])
+  @@unique([siteId, keyword])
+  @@index([siteId, tier])
+  @@index([siteId, isActive])
   @@index([clusterId])
   @@map("tracked_keywords")
 }
 
 model KeywordCluster {
   id          String           @id @default(uuid())
-  name        String           @unique
+  siteId      String
+  name        String
   pillarPage  String                                   // the main page for this topic cluster
   description String?
   keywords    TrackedKeyword[]
+  site        Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
+  @@unique([siteId, name])
   @@map("keyword_clusters")
 }
 
@@ -245,6 +399,7 @@ model KeywordCluster {
 
 model ContentScore {
   id             String   @id @default(uuid())
+  siteId         String
   pageUrl        String                                // page path (e.g. /blog/my-post)
   blogPostId     String?                               // optional link to BlogPost
   eeatScore      Int      @default(0)                  // 0-100
@@ -258,10 +413,11 @@ model ContentScore {
   hasFaq         Boolean  @default(false)
   hasSpeakable   Boolean  @default(false)
   issues         Json     @default("[]")               // [{type, message, severity}]
+  site           Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
   scoredAt       DateTime @default(now())
 
-  @@unique([pageUrl])
-  @@index([overallScore])
+  @@unique([siteId, pageUrl])
+  @@index([siteId, overallScore])
   @@index([scoredAt])
   @@map("content_scores")
 }
@@ -270,7 +426,8 @@ model ContentScore {
 
 model CompetitorDomain {
   id              String   @id @default(uuid())
-  domain          String   @unique                     // e.g. "competitor.com"
+  siteId          String
+  domain          String                               // e.g. "competitor.com"
   name            String                               // friendly name
   overlapKeywords Int      @default(0)                 // # of shared keywords
   avgPosition     Float?                               // their avg position on shared keywords
@@ -278,10 +435,12 @@ model CompetitorDomain {
   isActive        Boolean  @default(true)
   lastAnalyzed    DateTime?
   metadata        Json?                                // extra data from analysis
+  site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  @@index([isActive])
+  @@unique([siteId, domain])
+  @@index([siteId, isActive])
   @@map("competitor_domains")
 }
 
@@ -289,6 +448,7 @@ model CompetitorDomain {
 
 model SeoLeadEvent {
   id           String   @id @default(uuid())
+  siteId       String
   sessionId    String?                                 // anonymous session tracking
   landingPage  String                                  // first page they hit
   conversionPage String?                               // page where they converted (contact, quote)
@@ -299,10 +459,11 @@ model SeoLeadEvent {
   keyword      String?                                 // if we can detect the keyword
   eventType    String                                  // "page_view", "cta_click", "form_submit"
   metadata     Json?
+  site         Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
 
-  @@index([eventType])
-  @@index([landingPage])
+  @@index([siteId, eventType])
+  @@index([siteId, landingPage])
   @@index([createdAt])
   @@map("seo_lead_events")
 }
@@ -312,6 +473,7 @@ model SeoLeadEvent {
 // Used to measure AI Visibility over time.
 model AICitation {
   id           String   @id @default(uuid())
+  siteId       String
   platform     String                                  // "chatgpt", "perplexity", "gemini", "google_aio", "copilot"
   query        String                                  // the query that triggered the AI response
   brandMentioned Boolean @default(false)               // was our brand mentioned?
@@ -320,10 +482,11 @@ model AICitation {
   citationType String?                                 // "direct_quote", "brand_mention", "url_citation", "recommendation"
   sentiment    String?                                 // "positive", "neutral", "negative"
   metadata     Json?
+  site         Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
   checkedAt    DateTime @default(now())
 
-  @@index([platform])
-  @@index([brandMentioned])
+  @@index([siteId, platform])
+  @@index([siteId, brandMentioned])
   @@index([checkedAt])
   @@map("ai_citations")
 }
@@ -332,6 +495,7 @@ model AICitation {
 // Stores periodic AI Visibility scores per page for trend tracking.
 model AIVisibilityScore {
   id              String   @id @default(uuid())
+  siteId          String
   pageUrl         String
   overallScore    Int
   citationReadiness Int
@@ -341,9 +505,10 @@ model AIVisibilityScore {
   multiEngineCoverage Int
   grade           String                               // "A", "B", "C", "D", "F"
   failedChecks    Json?                                // array of failed check names
+  site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
   scoredAt        DateTime @default(now())
 
-  @@index([pageUrl])
+  @@index([siteId, pageUrl])
   @@index([scoredAt])
   @@map("ai_visibility_scores")
 }

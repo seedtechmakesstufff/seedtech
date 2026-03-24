@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /**
  * POST /api/seo/lead-event — Track an SEO lead event (public, no auth)
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
 
   await prisma.seoLeadEvent.create({
     data: {
+      siteId: DEFAULT_SITE_ID,
       sessionId,
       landingPage,
       conversionPage,

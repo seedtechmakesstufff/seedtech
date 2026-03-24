@@ -11,6 +11,7 @@ import {
 } from "@/lib/google-search-console";
 import { auditSite } from "@/lib/pagespeed";
 import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 export interface SnapshotResult {
   id: string;
@@ -117,6 +118,7 @@ export async function takeSnapshot(): Promise<SnapshotResult> {
 
   const snapshot = await prisma.seoSnapshot.create({
     data: {
+      siteId: DEFAULT_SITE_ID,
       totalClicks,
       totalImpressions,
       avgCtr,
@@ -148,6 +150,7 @@ export async function takeSnapshot(): Promise<SnapshotResult> {
  */
 export async function getSnapshotHistory(limit = 12) {
   const snapshots = await prisma.seoSnapshot.findMany({
+    where: { siteId: DEFAULT_SITE_ID },
     orderBy: { date: "desc" },
     take: limit,
   });
@@ -173,6 +176,7 @@ export async function getSnapshotHistory(limit = 12) {
  */
 export async function getKeywordTrends(limit = 12) {
   const snapshots = await prisma.seoSnapshot.findMany({
+    where: { siteId: DEFAULT_SITE_ID },
     orderBy: { date: "desc" },
     take: limit,
     select: { date: true, keywordPositions: true },

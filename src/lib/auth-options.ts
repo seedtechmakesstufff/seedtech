@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-const ALLOWED_EMAILS = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase());
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,16 +17,38 @@ export const authOptions: NextAuthOptions = {
         const email = credentials.email.trim().toLowerCase();
         const password = credentials.password;
 
-        // Only allow specific emails
-        if (!ALLOWED_EMAILS.includes(email)) return null;
+        // Look up user in DB
+        const user = await prisma.user.findUnique({
+          where: { email },
+          include: {
+            memberships: {
+              include: { tenant: { include: { sites: true } } },
+            },
+          },
+        });
 
-        // Check password
-        if (password !== process.env.ADMIN_PASSWORD) return null;
+        if (!user) return null;
+
+        // Verify password
+        const valid = await bcrypt.compare(password, user.passwordHash);
+        if (!valid) return null;
+
+        // Get the first membership (for now, single-tenant)
+        const membership = user.memberships[0];
+        if (!membership) return null;
+
+        // Get the first site in that tenant (for now, single-site)
+        const site = membership.tenant.sites[0];
+        if (!site) return null;
 
         return {
-          id: email,
-          email,
-          name: email.split("@")[0],
+          id: user.id,
+          email: user.email,
+          name: user.name ?? email.split("@")[0],
+          userId: user.id,
+          tenantId: membership.tenantId,
+          siteId: site.id,
+          role: membership.role,
         };
       },
     }),
@@ -42,12 +64,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.email = user.email;
+        token.userId = user.userId;
+        token.tenantId = user.tenantId;
+        token.siteId = user.siteId;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.email) {
+      if (session.user) {
         session.user.email = token.email as string;
+        session.user.userId = token.userId;
+        session.user.tenantId = token.tenantId;
+        session.user.siteId = token.siteId;
+        session.user.role = token.role;
       }
       return session;
     },

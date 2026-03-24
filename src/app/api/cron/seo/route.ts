@@ -27,6 +27,7 @@ import { prisma } from "@/lib/prisma";
 import { scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIOReadiness } from "@/lib/seo-aio";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -64,7 +65,7 @@ export async function GET(req: NextRequest) {
   /* 4. Score all published blog content */
   try {
     const posts = await prisma.blogPost.findMany({
-      where: { status: "published" },
+      where: { siteId: DEFAULT_SITE_ID, status: "published" },
       select: { id: true, slug: true, body: true, targetKeyword: true },
     });
 
@@ -80,7 +81,7 @@ export async function GET(req: NextRequest) {
       const hasFaq = /^#{2,3}\s.+\?$/m.test(post.body);
 
       await prisma.contentScore.upsert({
-        where: { pageUrl: `/blog/${post.slug}` },
+        where: { siteId_pageUrl: { siteId: DEFAULT_SITE_ID, pageUrl: `/blog/${post.slug}` } },
         update: {
           eeatScore: eeat.score,
           aioScore: aio.overall,
@@ -97,6 +98,7 @@ export async function GET(req: NextRequest) {
           scoredAt: new Date(),
         },
         create: {
+          siteId: DEFAULT_SITE_ID,
           pageUrl: `/blog/${post.slug}`,
           eeatScore: eeat.score,
           aioScore: aio.overall,
@@ -122,7 +124,7 @@ export async function GET(req: NextRequest) {
   /* 5. AI Visibility Scoring (primary metric) */
   try {
     const posts = await prisma.blogPost.findMany({
-      where: { status: "published" },
+      where: { siteId: DEFAULT_SITE_ID, status: "published" },
       select: { id: true, slug: true, body: true, targetKeyword: true },
     });
 
@@ -132,6 +134,7 @@ export async function GET(req: NextRequest) {
 
       await prisma.aIVisibilityScore.create({
         data: {
+          siteId: DEFAULT_SITE_ID,
           pageUrl: `/blog/${post.slug}`,
           overallScore: aiVis.overall,
           citationReadiness: aiVis.citationReadiness,

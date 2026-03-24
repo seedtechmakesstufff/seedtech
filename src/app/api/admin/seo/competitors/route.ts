@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 
 /**
  * GET  /api/admin/seo/competitors — List competitor domains
@@ -9,13 +9,12 @@ import { prisma } from "@/lib/prisma";
  */
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const competitors = await prisma.competitorDomain.findMany({
-    where: { isActive: true },
+    where: { siteId, isActive: true },
     orderBy: { overlapKeywords: "desc" },
   });
 
@@ -23,10 +22,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const body = await req.json();
   const { domain, name, notes } = body;
@@ -39,9 +37,9 @@ export async function POST(req: NextRequest) {
   }
 
   const competitor = await prisma.competitorDomain.upsert({
-    where: { domain },
+    where: { siteId_domain: { siteId, domain } },
     update: { name, notes, isActive: true },
-    create: { domain, name, notes },
+    create: { siteId, domain, name, notes },
   });
 
   return NextResponse.json({ competitor });

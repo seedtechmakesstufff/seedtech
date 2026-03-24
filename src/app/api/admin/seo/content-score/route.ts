@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIOReadiness } from "@/lib/seo-aio";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 
 /**
  * POST /api/admin/seo/content-score — Score a page's content
@@ -12,12 +12,12 @@ import { scoreAIVisibility } from "@/lib/ai-visibility";
  */
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const scores = await prisma.contentScore.findMany({
+    where: { siteId },
     orderBy: { overallScore: "asc" },
   });
 
@@ -25,10 +25,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const body = await req.json();
   const { pageUrl, content, keyword, blogPostId } = body;
@@ -75,7 +74,7 @@ export async function POST(req: NextRequest) {
   );
 
   const score = await prisma.contentScore.upsert({
-    where: { pageUrl },
+    where: { siteId_pageUrl: { siteId, pageUrl } },
     update: {
       eeatScore: eeatResult.score,
       aioScore: aioResult.overall,
@@ -99,6 +98,7 @@ export async function POST(req: NextRequest) {
       scoredAt: new Date(),
     },
     create: {
+      siteId,
       pageUrl,
       eeatScore: eeatResult.score,
       aioScore: aioResult.overall,

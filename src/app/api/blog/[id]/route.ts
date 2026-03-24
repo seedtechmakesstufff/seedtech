@@ -5,6 +5,7 @@ import { getPostById, updatePost, deletePost } from "@/lib/blog";
 import { submitUrl, isIndexNowConfigured } from "@/lib/indexnow";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /** GET /api/blog/[id] — get single post */
 export async function GET(
@@ -59,8 +60,10 @@ export async function PUT(
   if (updated.status === "published" && updated.body) {
     try {
       const aiVis = scoreAIVisibility(updated.body, updated.targetKeyword || undefined);
+      const siteId = session?.user?.siteId || DEFAULT_SITE_ID;
       await prisma.aIVisibilityScore.create({
         data: {
+          siteId,
           pageUrl: `/blog/${updated.slug}`,
           overallScore: aiVis.overall,
           citationReadiness: aiVis.citationReadiness,

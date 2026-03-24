@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 
 /**
  * GET  /api/admin/seo/ai-visibility — Get AI Visibility scores + trends
@@ -12,10 +12,9 @@ import { scoreAIVisibility } from "@/lib/ai-visibility";
  */
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const { searchParams } = new URL(req.url);
   const pageUrl = searchParams.get("pageUrl");
@@ -25,7 +24,7 @@ export async function GET(req: NextRequest) {
   if (pageUrl) {
     // Get trend for a specific page
     const scores = await prisma.aIVisibilityScore.findMany({
-      where: { pageUrl, scoredAt: { gte: since } },
+      where: { siteId, pageUrl, scoredAt: { gte: since } },
       orderBy: { scoredAt: "asc" },
     });
     return NextResponse.json({ scores, pageUrl });
@@ -34,12 +33,13 @@ export async function GET(req: NextRequest) {
   // ── Auto-score any published posts that haven't been scored yet ──
   try {
     const publishedPosts = await prisma.blogPost.findMany({
-      where: { status: "published" },
+      where: { siteId, status: "published" },
       select: { slug: true, body: true, targetKeyword: true },
     });
 
     const existingScoreUrls = new Set(
       (await prisma.aIVisibilityScore.findMany({
+        where: { siteId },
         select: { pageUrl: true },
         distinct: ["pageUrl"],
       })).map((s) => s.pageUrl)
@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
         const result = scoreAIVisibility(post.body, post.targetKeyword || undefined);
         await prisma.aIVisibilityScore.create({
           data: {
+            siteId,
             pageUrl: url,
             overallScore: result.overall,
             citationReadiness: result.citationReadiness,
@@ -72,6 +73,7 @@ export async function GET(req: NextRequest) {
 
   // Get latest scores for all pages
   const latestScores = await prisma.aIVisibilityScore.findMany({
+    where: { siteId },
     orderBy: { scoredAt: "desc" },
     distinct: ["pageUrl"],
     take: 50,
@@ -101,10 +103,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const body = await req.json();
   const { pageUrl, content, keyword } = body;
@@ -122,6 +123,7 @@ export async function POST(req: NextRequest) {
   // Store the score
   const score = await prisma.aIVisibilityScore.create({
     data: {
+      siteId,
       pageUrl,
       overallScore: result.overall,
       citationReadiness: result.citationReadiness,

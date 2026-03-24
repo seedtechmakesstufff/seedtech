@@ -19,6 +19,7 @@ import {
 } from "@/lib/google-search-console";
 import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
 import { buildStrategyPrompt } from "@/lib/business-context";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /* ── Types ── */
 
@@ -47,6 +48,7 @@ export async function detectStalContent(): Promise<InsightData[]> {
     // Find published blog posts older than 3 months
     const stalePosts = await prisma.blogPost.findMany({
       where: {
+        siteId: DEFAULT_SITE_ID,
         status: "published",
         updatedAt: { lt: threeMonthsAgo },
       },
@@ -174,7 +176,7 @@ export async function detectLinkingOpportunities(): Promise<InsightData[]> {
   try {
     // Check blog posts for internal link count
     const posts = await prisma.blogPost.findMany({
-      where: { status: "published" },
+      where: { siteId: DEFAULT_SITE_ID, status: "published" },
       select: { id: true, title: true, slug: true, body: true, targetKeyword: true },
     });
 
@@ -248,6 +250,7 @@ export async function detectEEATIssues(): Promise<InsightData[]> {
   try {
     // Check crawl results for E-E-A-T issues
     const latestAudit = await prisma.seoPageAudit.findFirst({
+      where: { siteId: DEFAULT_SITE_ID },
       orderBy: { createdAt: "desc" },
       select: { runId: true },
     });
@@ -255,6 +258,7 @@ export async function detectEEATIssues(): Promise<InsightData[]> {
 
     const eeatIssues = await prisma.seoPageAudit.findMany({
       where: {
+        siteId: DEFAULT_SITE_ID,
         runId: latestAudit.runId,
         checkType: { startsWith: "eeat-" },
         severity: { in: ["critical", "warning"] },
@@ -285,6 +289,7 @@ export async function detectEEATIssues(): Promise<InsightData[]> {
     // Check E-E-A-T scores
     const eeatScores = await prisma.seoPageAudit.findMany({
       where: {
+        siteId: DEFAULT_SITE_ID,
         runId: latestAudit.runId,
         checkType: "eeat-score",
       },
@@ -457,12 +462,13 @@ export async function generateAllInsights(): Promise<InsightData[]> {
   // Store in DB (upsert — replace existing active insights)
   try {
     // Clear old active insights
-    await prisma.seoInsight.deleteMany({ where: { status: "active" } });
+    await prisma.seoInsight.deleteMany({ where: { siteId: DEFAULT_SITE_ID, status: "active" } });
 
     // Insert new ones
     if (all.length > 0) {
       await prisma.seoInsight.createMany({
         data: all.map((insight) => ({
+          siteId: DEFAULT_SITE_ID,
           type: insight.type as "content_freshness" | "cannibalization" | "internal_linking" | "keyword_opportunity" | "eeat_issue" | "aio_opportunity" | "ctr_optimization" | "competitor_gap" | "lead_gen" | "general",
           status: "active" as const,
           title: insight.title,
@@ -484,7 +490,7 @@ export async function generateAllInsights(): Promise<InsightData[]> {
 export async function getActiveInsights(): Promise<InsightData[]> {
   try {
     const insights = await prisma.seoInsight.findMany({
-      where: { status: "active" },
+      where: { siteId: DEFAULT_SITE_ID, status: "active" },
       orderBy: { priority: "desc" },
     });
     return insights.map((i) => ({
