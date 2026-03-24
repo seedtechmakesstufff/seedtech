@@ -6,11 +6,29 @@ import {
   ArrowRight, ArrowUpRight, ArrowDownRight, Sparkles, FileText, AlertTriangle,
   Brain, Gauge, RefreshCw, Globe, Loader2, Zap, BarChart3, Send, ShieldAlert,
   Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair, SlidersHorizontal,
+  Bot, XCircle, Award, Activity,
 } from "lucide-react";
 import { TRACKED_KEYWORDS, SEO_TASKS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 import Link from "next/link";
 
-type Tab = "overview" | "keywords" | "audit" | "insights" | "strategy";
+type Tab = "overview" | "ai-visibility" | "keywords" | "audit" | "insights" | "strategy";
+
+interface AIVisibilityScoreData {
+  id: string; pageUrl: string; overallScore: number; grade: string;
+  citationReadiness: number; entityAuthority: number; structuredClarity: number;
+  conversationalFit: number; multiEngineCoverage: number;
+  failedChecks: { check: string; category: string; fix: string }[];
+  scoredAt: string;
+}
+
+interface AIVisibilitySummary {
+  totalPages: number; averageScore: number;
+  gradeDistribution: Record<string, number>;
+}
+
+interface AICitationStat {
+  platform: string; totalChecks: number; brandMentions: number; mentionRate: number;
+}
 
 interface GSCSummary {
   totalClicks: number; totalImpressions: number; avgCtr: number; avgPosition: number;
@@ -100,6 +118,13 @@ export default function SEODashboardPage() {
   const [reportSending, setReportSending] = useState(false);
   const [reportResult, setReportResult] = useState<string | null>(null);
   const [reportPreviewUrl, setReportPreviewUrl] = useState<string | null>(null);
+  const [aiVisScores, setAiVisScores] = useState<AIVisibilityScoreData[]>([]);
+  const [aiVisSummary, setAiVisSummary] = useState<AIVisibilitySummary | null>(null);
+  const [aiVisLoading, setAiVisLoading] = useState(false);
+  const [citationStats, setCitationStats] = useState<AICitationStat[]>([]);
+  const [citationLoading, setCitationLoading] = useState(false);
+  const [selectedPage, setSelectedPage] = useState<string | null>(null);
+  const [pageTrend, setPageTrend] = useState<AIVisibilityScoreData[]>([]);
 
   const tier1 = TRACKED_KEYWORDS.filter((k) => k.tier === 1);
   const tier2 = TRACKED_KEYWORDS.filter((k) => k.tier === 2);
@@ -192,10 +217,40 @@ export default function SEODashboardPage() {
     setReportSending(false);
   }, []);
 
+  const fetchAiVisibility = useCallback(async () => {
+    setAiVisLoading(true);
+    try {
+      const r = await fetch("/api/admin/seo/ai-visibility");
+      const d = await r.json();
+      if (d.scores) setAiVisScores(d.scores);
+      if (d.summary) setAiVisSummary(d.summary);
+    } catch {}
+    setAiVisLoading(false);
+  }, []);
+
+  const fetchCitations = useCallback(async () => {
+    setCitationLoading(true);
+    try {
+      const r = await fetch("/api/admin/seo/ai-citations?days=30");
+      const d = await r.json();
+      if (d.stats) setCitationStats(d.stats);
+    } catch {}
+    setCitationLoading(false);
+  }, []);
+
+  const fetchPageTrend = useCallback(async (pageUrl: string) => {
+    setSelectedPage(pageUrl);
+    try {
+      const r = await fetch(`/api/admin/seo/ai-visibility?pageUrl=${encodeURIComponent(pageUrl)}&days=90`);
+      const d = await r.json();
+      if (d.scores) setPageTrend(d.scores);
+    } catch {}
+  }, []);
+
   useEffect(() => {
     fetch("/api/admin/seo/search-console?action=test").then((r) => r.json()).then((d) => { setGscConnected(d.connected ?? false); if (d.connected) fetchGscData(); }).catch(() => setGscConnected(false));
-    fetchSnapshotHistory(); fetchInsights(); fetchCrawlResults();
-  }, [fetchGscData, fetchSnapshotHistory, fetchInsights, fetchCrawlResults]);
+    fetchSnapshotHistory(); fetchInsights(); fetchCrawlResults(); fetchAiVisibility(); fetchCitations();
+  }, [fetchGscData, fetchSnapshotHistory, fetchInsights, fetchCrawlResults, fetchAiVisibility, fetchCitations]);
 
   const latestSnapshot = snapshotHistory[snapshotHistory.length - 1];
   const prevSnapshot = snapshotHistory.length > 1 ? snapshotHistory[snapshotHistory.length - 2] : null;
@@ -206,6 +261,7 @@ export default function SEODashboardPage() {
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { id: "overview", label: "Overview", icon: <Gauge className="w-4 h-4" /> },
+    { id: "ai-visibility", label: "AI Visibility", icon: <Bot className="w-4 h-4" /> },
     { id: "keywords", label: "Keywords", icon: <Target className="w-4 h-4" /> },
     { id: "audit", label: "Site Audit", icon: <Bug className="w-4 h-4" />, badge: criticalCount + warningCount },
     { id: "insights", label: "Insights", icon: <Lightbulb className="w-4 h-4" />, badge: insights.length },
@@ -404,6 +460,290 @@ export default function SEODashboardPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI VISIBILITY TAB */}
+      {activeTab === "ai-visibility" && (
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Bot className="w-5 h-5 text-seed-400" />AI Visibility Engine
+              </h2>
+              <p className="text-white/40 text-sm mt-1">
+                Your primary metric — how well your content gets cited by AI systems (Google AIO, ChatGPT, Perplexity, Gemini).
+              </p>
+            </div>
+            <button onClick={fetchAiVisibility} disabled={aiVisLoading} className="flex items-center gap-2 bg-seed-500/20 hover:bg-seed-500/30 text-seed-400 text-sm font-medium px-4 py-2.5 rounded-lg disabled:opacity-50">
+              {aiVisLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              {aiVisLoading ? "Loading…" : "Refresh Scores"}
+            </button>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Average Score Ring */}
+            <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5 flex flex-col items-center justify-center">
+              <div className="relative w-20 h-20">
+                <svg className="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke={aiVisSummary && aiVisSummary.averageScore >= 65 ? "#22c55e" : aiVisSummary && aiVisSummary.averageScore >= 50 ? "#eab308" : aiVisSummary && aiVisSummary.averageScore >= 35 ? "#f97316" : "#ef4444"} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${(aiVisSummary?.averageScore ?? 0) * 2.51} 251`} />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-white">{aiVisSummary?.averageScore ?? "—"}</span>
+                </div>
+              </div>
+              <p className="text-sm text-white/40 mt-2">Avg. AI Visibility</p>
+              <p className="text-xs text-white/20 mt-1">{aiVisSummary?.totalPages ?? 0} pages scored</p>
+            </div>
+
+            {/* Grade Distribution */}
+            <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5">
+              <Award className="w-5 h-5 text-seed-400 mb-3" />
+              <p className="text-sm font-medium text-white/60 mb-3">Grade Distribution</p>
+              {aiVisSummary ? (
+                <div className="space-y-2">
+                  {(["A", "B", "C", "D", "F"] as const).map((grade) => {
+                    const count = aiVisSummary.gradeDistribution[grade] || 0;
+                    const total = aiVisSummary.totalPages || 1;
+                    const pct = Math.round((count / total) * 100);
+                    const gradeColors: Record<string, string> = { A: "bg-green-400", B: "bg-blue-400", C: "bg-yellow-400", D: "bg-orange-400", F: "bg-red-400" };
+                    return (
+                      <div key={grade} className="flex items-center gap-2">
+                        <span className="text-xs font-mono text-white/50 w-3">{grade}</span>
+                        <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${gradeColors[grade]}`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-xs font-mono text-white/30 w-6 text-right">{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-white/20">No scores yet</p>
+              )}
+            </div>
+
+            {/* Citation Tracker */}
+            <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5">
+              <Activity className="w-5 h-5 text-purple-400 mb-3" />
+              <p className="text-sm font-medium text-white/60 mb-3">Citation Tracking (30d)</p>
+              {citationStats.length > 0 ? (
+                <div className="space-y-2">
+                  {citationStats.map((stat) => (
+                    <div key={stat.platform} className="flex items-center justify-between">
+                      <span className="text-xs text-white/50 capitalize">{stat.platform}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-mono font-semibold ${stat.mentionRate >= 50 ? "text-green-400" : stat.mentionRate >= 25 ? "text-yellow-400" : "text-red-400"}`}>
+                          {stat.mentionRate}%
+                        </span>
+                        <span className="text-xs text-white/20">{stat.brandMentions}/{stat.totalChecks}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : citationLoading ? (
+                <div className="flex items-center gap-2 text-xs text-white/30"><Loader2 className="w-3 h-3 animate-spin" />Loading…</div>
+              ) : (
+                <p className="text-xs text-white/20">No citations tracked yet. Use the API or cron to start monitoring.</p>
+              )}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5">
+              <Zap className="w-5 h-5 text-yellow-400 mb-3" />
+              <p className="text-sm font-medium text-white/60 mb-3">Quick Actions</p>
+              <div className="space-y-2">
+                <Link href="/admin/blog/new" className="flex items-center gap-2 text-xs bg-seed-500/10 hover:bg-seed-500/20 border border-seed-500/20 text-seed-400 px-3 py-2 rounded-lg transition-colors w-full">
+                  <Sparkles className="w-3.5 h-3.5" />Write AI-Optimized Content
+                </Link>
+                <button onClick={() => { setActiveTab("overview"); setTimeout(() => runAiAnalysis(), 100); }} className="flex items-center gap-2 text-xs bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 px-3 py-2 rounded-lg transition-colors w-full text-left">
+                  <Brain className="w-3.5 h-3.5" />Run AI SEO Advisor
+                </button>
+                <button onClick={() => { fetchAiVisibility(); fetchCitations(); }} className="flex items-center gap-2 text-xs bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-400 px-3 py-2 rounded-lg transition-colors w-full text-left">
+                  <RefreshCw className="w-3.5 h-3.5" />Refresh All Data
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Per-Page Scores Table */}
+          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-seed-400" />Page Scores
+              </h3>
+              <span className="text-xs text-white/20">{aiVisScores.length} pages</span>
+            </div>
+            {aiVisScores.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-white/30 text-xs uppercase tracking-wider border-b border-white/[0.04]">
+                      <th className="px-5 py-3 font-medium">Page</th>
+                      <th className="px-5 py-3 font-medium text-center">Grade</th>
+                      <th className="px-5 py-3 font-medium text-center">Score</th>
+                      <th className="px-5 py-3 font-medium text-center">Citation</th>
+                      <th className="px-5 py-3 font-medium text-center">Entity</th>
+                      <th className="px-5 py-3 font-medium text-center">Structure</th>
+                      <th className="px-5 py-3 font-medium text-center">Conversational</th>
+                      <th className="px-5 py-3 font-medium text-center">Multi-Engine</th>
+                      <th className="px-5 py-3 font-medium text-center">Issues</th>
+                      <th className="px-5 py-3 font-medium text-right">Scored</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/[0.04]">
+                    {aiVisScores.map((score) => {
+                      const gradeColors: Record<string, string> = {
+                        A: "bg-green-500/20 text-green-400 border-green-500/30",
+                        B: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+                        C: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+                        D: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+                        F: "bg-red-500/20 text-red-400 border-red-500/30",
+                      };
+                      const subScore = (val: number) => (
+                        <div className="flex items-center justify-center gap-1.5">
+                          <div className="w-12 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full ${val >= 70 ? "bg-green-400" : val >= 45 ? "bg-yellow-400" : "bg-red-400"}`} style={{ width: `${val}%` }} />
+                          </div>
+                          <span className="text-xs font-mono text-white/40">{val}</span>
+                        </div>
+                      );
+                      return (
+                        <tr key={score.id} className="hover:bg-white/[0.02] cursor-pointer" onClick={() => fetchPageTrend(score.pageUrl)}>
+                          <td className="px-5 py-3 text-white/50 font-mono text-xs truncate max-w-[220px]" title={score.pageUrl}>
+                            {score.pageUrl.replace(/https?:\/\/[^/]+/, "")}
+                          </td>
+                          <td className="px-5 py-3 text-center">
+                            <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded border ${gradeColors[score.grade] || gradeColors.F}`}>{score.grade}</span>
+                          </td>
+                          <td className="px-5 py-3 text-center">
+                            <span className={`font-mono font-semibold text-sm ${score.overallScore >= 65 ? "text-green-400" : score.overallScore >= 50 ? "text-yellow-400" : score.overallScore >= 35 ? "text-orange-400" : "text-red-400"}`}>{score.overallScore}</span>
+                          </td>
+                          <td className="px-5 py-3">{subScore(score.citationReadiness)}</td>
+                          <td className="px-5 py-3">{subScore(score.entityAuthority)}</td>
+                          <td className="px-5 py-3">{subScore(score.structuredClarity)}</td>
+                          <td className="px-5 py-3">{subScore(score.conversationalFit)}</td>
+                          <td className="px-5 py-3">{subScore(score.multiEngineCoverage)}</td>
+                          <td className="px-5 py-3 text-center">
+                            {(score.failedChecks as { check: string; category: string; fix: string }[]).length > 0 ? (
+                              <span className="text-xs text-red-400 font-mono">{(score.failedChecks as { check: string; category: string; fix: string }[]).length}</span>
+                            ) : (
+                              <CheckCircle2 className="w-4 h-4 text-green-400 mx-auto" />
+                            )}
+                          </td>
+                          <td className="px-5 py-3 text-right text-xs text-white/30">
+                            {new Date(score.scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : aiVisLoading ? (
+              <div className="px-5 py-10 text-center text-white/40 text-sm flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />Loading AI Visibility scores…
+              </div>
+            ) : (
+              <div className="px-5 py-10 text-center text-sm">
+                <Bot className="w-10 h-10 text-seed-400/20 mx-auto mb-3" />
+                <p className="text-white/40">No AI Visibility scores yet.</p>
+                <p className="text-white/20 text-xs mt-1">Scores are generated when you publish blog posts via the AI Blog Writer, or when the SEO cron runs.</p>
+                <Link href="/admin/blog/new" className="inline-flex items-center gap-2 mt-4 text-xs bg-seed-500/20 hover:bg-seed-500/30 text-seed-400 px-4 py-2 rounded-lg transition-colors">
+                  <Sparkles className="w-3.5 h-3.5" />Write Your First AI-Optimized Post
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Page Drill-Down */}
+          {selectedPage && (
+            <div className="bg-dark-elevated border border-seed-500/20 rounded-xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-seed-400" />
+                  Score Trend: <span className="text-white/50 font-mono text-xs">{selectedPage.replace(/https?:\/\/[^/]+/, "")}</span>
+                </h3>
+                <button onClick={() => { setSelectedPage(null); setPageTrend([]); }} className="text-white/30 hover:text-white/60">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {pageTrend.length > 0 ? (
+                <div className="p-5">
+                  <div className="flex items-end gap-1 h-24 mb-4">
+                    {pageTrend.map((s, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <div className="w-full rounded-t" style={{ height: `${Math.max(4, s.overallScore)}%`, backgroundColor: s.overallScore >= 65 ? "#22c55e" : s.overallScore >= 50 ? "#eab308" : s.overallScore >= 35 ? "#f97316" : "#ef4444", opacity: 0.3 + (i / pageTrend.length) * 0.7 }} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-white/20">
+                    <span>{new Date(pageTrend[0].scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                    <span>{new Date(pageTrend[pageTrend.length - 1].scoredAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                  </div>
+
+                  {/* Failed Checks for Latest Score */}
+                  {(() => {
+                    const latest = pageTrend[pageTrend.length - 1];
+                    const checks = latest.failedChecks as { check: string; category: string; fix: string }[];
+                    if (checks.length === 0) return (
+                      <div className="mt-4 flex items-center gap-2 text-sm text-green-400">
+                        <CheckCircle2 className="w-4 h-4" />All checks passing!
+                      </div>
+                    );
+                    return (
+                      <div className="mt-4">
+                        <p className="text-xs text-white/40 mb-2 flex items-center gap-1"><XCircle className="w-3.5 h-3.5 text-red-400" />{checks.length} Failed Checks</p>
+                        <div className="space-y-1.5">
+                          {checks.slice(0, 8).map((c, i) => (
+                            <div key={i} className="flex items-start gap-2 bg-red-500/5 border border-red-500/10 rounded-lg px-3 py-2">
+                              <XCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-xs text-white/60">{c.check}</p>
+                                <p className="text-xs text-white/30 mt-0.5">{c.fix}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {checks.length > 8 && <p className="text-xs text-white/20 pl-6">+{checks.length - 8} more</p>}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <div className="px-5 py-8 text-center text-white/30 text-sm flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />Loading trend…
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* What is AI Visibility? Explainer */}
+          <div className="bg-gradient-to-br from-seed-500/5 to-purple-500/5 border border-seed-500/10 rounded-xl p-6">
+            <h3 className="text-sm font-semibold text-white flex items-center gap-2 mb-3">
+              <Lightbulb className="w-4 h-4 text-yellow-400" />How AI Visibility Scoring Works
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 text-xs">
+              {[
+                { label: "Citation Readiness", weight: "30%", desc: "Does your content have the factual density and structure AI systems need to cite it?", color: "text-green-400" },
+                { label: "Entity Authority", weight: "20%", desc: "Are you establishing clear expertise signals with named entities and credentials?", color: "text-blue-400" },
+                { label: "Structured Clarity", weight: "20%", desc: "Do you have comparison tables, definition lists, and clear data AI can extract?", color: "text-purple-400" },
+                { label: "Conversational Fit", weight: "15%", desc: "Does your content answer questions in the way people ask AI assistants?", color: "text-yellow-400" },
+                { label: "Multi-Engine", weight: "15%", desc: "Is your content optimized for Google AIO, ChatGPT, Perplexity, and Gemini?", color: "text-orange-400" },
+              ].map((cat) => (
+                <div key={cat.label} className="bg-white/[0.02] border border-white/[0.04] rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`font-semibold ${cat.color}`}>{cat.label}</span>
+                    <span className="text-white/20">{cat.weight}</span>
+                  </div>
+                  <p className="text-white/30 leading-relaxed">{cat.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
