@@ -8,7 +8,7 @@ import type { SiteContext } from "@/lib/site-context";
  * POST /api/admin/seo/strategy — Create / update tasks or content ideas
  */
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const ctx = await requireSiteContext();
   if (ctx instanceof NextResponse) return ctx;
   const { siteId } = ctx as SiteContext;

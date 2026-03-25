@@ -80,7 +80,7 @@ export async function detectStalContent(siteId: string = DEFAULT_SITE_ID): Promi
 
 /* ── Keyword Cannibalization Detection ── */
 
-export async function detectCannibalization(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
+export async function detectCannibalization(_siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
   if (!isSearchConsoleConfigured()) return insights;
@@ -337,7 +337,7 @@ export async function detectEEATIssues(siteId: string = DEFAULT_SITE_ID): Promis
 
 /* ── CTR Optimization Insights ── */
 
-export async function detectCTROpportunities(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
+export async function detectCTROpportunities(_siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
   if (!isSearchConsoleConfigured()) return insights;
@@ -393,7 +393,7 @@ export async function detectCTROpportunities(siteId: string = DEFAULT_SITE_ID): 
 
 /* ── AI Keyword Discovery ── */
 
-export async function discoverKeywords(siteId: string = DEFAULT_SITE_ID): Promise<{
+export async function discoverKeywords(_siteId: string = DEFAULT_SITE_ID): Promise<{
   suggestions: string;
   keywords: { keyword: string; rationale: string; estimatedVolume: string; difficulty: string }[];
 }> {

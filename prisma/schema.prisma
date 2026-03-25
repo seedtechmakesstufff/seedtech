@@ -63,6 +63,7 @@ model Site {
   siteUrl          String
   tenant           Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   businessProfile  BusinessProfile?
+  industryConfig   IndustryConfig?
   pages            SitePage[]
   integrations     IntegrationCredential[]
   blogPosts        BlogPost[]
@@ -74,11 +75,15 @@ model Site {
   keywordClusters  KeywordCluster[]
   contentScores    ContentScore[]
   competitors      CompetitorDomain[]
+  compAnalyses     CompetitorAnalysis[]
   leadEvents       SeoLeadEvent[]
   aiCitations      AICitation[]
   aiVisScores      AIVisibilityScore[]
   seoTasks         SeoTask[]
   contentIdeas     ContentIdea[]
+  authors          Author[]
+  evidence         ExperienceEvidence[]
+  cronRuns         CronJobRun[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -462,6 +467,7 @@ model CompetitorDomain {
   lastAnalyzed    DateTime?
   metadata        Json?                                // extra data from analysis
   site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  compAnalyses    CompetitorAnalysis[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -573,5 +579,132 @@ model ContentIdea {
 
   @@index([siteId, status])
   @@map("content_ideas")
+}
+
+// ── Authors (per-site expert entities for E-E-A-T) ──
+
+model Author {
+  id           String   @id @default(cuid())
+  siteId       String
+  name         String
+  slug         String
+  jobTitle     String   @default("")
+  bio          String   @default("") @db.Text
+  imageUrl     String?
+  canonicalUrl String   @default("")  // /about#sam or /team/sam
+  sameAs       String[] @default([])  // LinkedIn, GitHub, etc.
+  expertise    String[] @default([])  // topics qualified to write about
+  credentials  String[] @default([])  // CompTIA A+, CISSP, etc.
+  experience   String   @default("")  // "15+ years in cybersecurity"
+  isDefault    Boolean  @default(false)
+  site         Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([siteId, slug])
+  @@index([siteId, isDefault])
+  @@map("authors")
+}
+
+// ── Experience Evidence (real data to inject into AI content) ──
+// Case studies, metrics, testimonials, certifications — the REAL E-E-A-T signals.
+
+model ExperienceEvidence {
+  id        String   @id @default(cuid())
+  siteId    String
+  type      String   // "case_study", "metric", "testimonial", "certification", "process"
+  title     String
+  content   String   @db.Text  // The quotable evidence
+  source    String?  // Client name, cert body, etc.
+  tags      String[] @default([])  // Topics this applies to
+  isPublic  Boolean  @default(true)
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([siteId, type])
+  @@map("experience_evidence")
+}
+
+// ── Industry Config (per-site scoring customization) ──
+// Replaces hardcoded credential/geography/entity lists.
+
+model IndustryConfig {
+  id                  String   @id @default(cuid())
+  siteId              String   @unique
+  industry            String   @default("general") // msp, legal, hvac, saas, etc.
+  credentialKeywords  String[] @default([])  // ["CompTIA", "CISSP", "Bar Association"]
+  geographicTerms     String[] @default([])  // ["Northern NJ", "Bergen County"]
+  knownEntities       String[] @default([])  // ["Microsoft", "NIST", "OSHA"]
+  authorityDomains    String[] @default([])  // ["nist.gov", "cisa.gov"]
+  site                Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("industry_configs")
+}
+
+// ── Competitor Analysis (results of analyzing competitor pages) ──
+
+model CompetitorAnalysis {
+  id               String   @id @default(cuid())
+  siteId           String
+  competitorId     String
+  competitor       CompetitorDomain @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  pageUrl          String            // competitor page URL crawled
+  pageTitle        String?
+  wordCount        Int      @default(0)
+  aiVisScore       Int      @default(0)
+  eeatScore        Int      @default(0)
+  topicsDetected   String[] @default([]) // topics covered on this page
+  hasSchema        Boolean  @default(false)
+  hasFaq           Boolean  @default(false)
+  metadata         Json?
+  site             Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  analyzedAt       DateTime @default(now())
+
+  @@index([siteId, competitorId])
+  @@index([analyzedAt])
+  @@map("competitor_analyses")
+}
+
+// ── Cron Job Run Tracking ──
+// Tracks execution of scheduled jobs (snapshots, crawls, reports).
+
+model CronJobRun {
+  id           String    @id @default(cuid())
+  siteId       String
+  jobType      String    // "snapshot", "crawl", "gsc_pull", "report", "insights"
+  status       String    @default("running") // "running", "completed", "failed"
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+  durationMs   Int?
+  resultSummary String?
+  errorMessage String?
+  site         Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+
+  @@index([siteId, jobType])
+  @@index([startedAt])
+  @@map("cron_job_runs")
+}
+
+// ── User Invites ──
+// Pending team member invitations.
+
+model UserInvite {
+  id        String   @id @default(cuid())
+  tenantId  String
+  email     String
+  role      MemberRole @default(editor)
+  invitedBy String   // userId of inviter
+  token     String   @unique @default(cuid()) // unique invite link token
+  expiresAt DateTime
+  acceptedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, email])
+  @@index([token])
+  @@map("user_invites")
 }
 

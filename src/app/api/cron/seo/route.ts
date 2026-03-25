@@ -2,12 +2,12 @@
  *
  * Endpoint: GET /api/cron/seo
  *
- * Runs a full SEO cycle:
+ * Runs a full SEO cycle for one site (?siteId=xxx) or ALL active sites:
  *   1. Take a health-score snapshot (GSC + PageSpeed)
  *   2. Run the deep on-page crawler (v2: E-E-A-T, AIO, structured data, etc.)
  *   3. Generate AI insights (freshness, cannibalization, E-E-A-T, CTR)
  *   4. Score all published content (E-E-A-T + AIO readiness)
- *   5. Score all published content for AI Visibility (NEW — primary metric)
+ *   5. Score all published content for AI Visibility (primary metric)
  *   6. Build & send the weekly email report
  *
  * Auth: Requires CRON_SECRET header (set as env var).
@@ -27,59 +27,76 @@ import { prisma } from "@/lib/prisma";
 import { scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIOReadiness } from "@/lib/seo-aio";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
-import { DEFAULT_SITE_ID } from "@/lib/site-context";
 import { getBusinessContextForSite } from "@/lib/business-context";
-
-const CRON_SECRET = process.env.CRON_SECRET;
+import { authenticateCron, getCronSiteId, getAllActiveSiteIds, runTrackedJob } from "@/lib/cron-runner";
+import { loadSiteScoringConfig, type SiteScoringConfig } from "@/lib/site-scoring-config";
 
 export async function GET(req: NextRequest) {
   /* ── Auth ── */
-  const authHeader = req.headers.get("authorization");
-  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = authenticateCron(req);
+  if (authErr) return authErr;
+
+  // Determine target sites
+  const requestedSiteId = getCronSiteId(req);
+  const siteIds = requestedSiteId
+    ? [requestedSiteId]
+    : await getAllActiveSiteIds();
+
+  const allResults: Record<string, unknown> = {};
+
+  for (const siteId of siteIds) {
+    allResults[siteId] = await runSiteSeoCron(siteId);
   }
 
+  return NextResponse.json({
+    ok: true,
+    timestamp: new Date().toISOString(),
+    sites: allResults,
+  });
+}
+
+async function runSiteSeoCron(siteId: string) {
   const results: Record<string, unknown> = {};
   const errors: string[] = [];
 
-  // Load brand name for AI Visibility scoring
-  let brandName = "SeedTech";
+  // Load site-specific config for scoring
+  let siteConfig: SiteScoringConfig | undefined;
+  let brandName = "Company";
   try {
-    const ctx = await getBusinessContextForSite(DEFAULT_SITE_ID);
-    brandName = ctx.companyName;
-  } catch { /* use default */ }
+    siteConfig = await loadSiteScoringConfig(siteId);
+    brandName = siteConfig.brandName;
+  } catch {
+    try {
+      const ctx = await getBusinessContextForSite(siteId);
+      brandName = ctx.companyName;
+    } catch { /* use default */ }
+  }
 
   /* 1. Snapshot */
-  try {
-    results.snapshot = await takeSnapshot();
-  } catch (e) {
-    errors.push(`snapshot: ${e instanceof Error ? e.message : String(e)}`);
-  }
+  const snapResult = await runTrackedJob(siteId, "snapshot", () => takeSnapshot(siteId));
+  results.snapshot = snapResult.success ? snapResult.result : { error: snapResult.error };
+  if (!snapResult.success) errors.push(`snapshot: ${snapResult.error}`);
 
   /* 2. Crawl */
-  try {
-    results.crawl = await runCrawl(DEFAULT_SITE_ID);
-  } catch (e) {
-    errors.push(`crawl: ${e instanceof Error ? e.message : String(e)}`);
-  }
+  const crawlResult = await runTrackedJob(siteId, "crawl", () => runCrawl(siteId));
+  results.crawl = crawlResult.success ? crawlResult.result : { error: crawlResult.error };
+  if (!crawlResult.success) errors.push(`crawl: ${crawlResult.error}`);
 
   /* 3. Insights */
-  try {
-    results.insights = await generateAllInsights(DEFAULT_SITE_ID);
-  } catch (e) {
-    errors.push(`insights: ${e instanceof Error ? e.message : String(e)}`);
-  }
+  const insightsResult = await runTrackedJob(siteId, "insights", () => generateAllInsights(siteId));
+  results.insights = insightsResult.success ? insightsResult.result : { error: insightsResult.error };
+  if (!insightsResult.success) errors.push(`insights: ${insightsResult.error}`);
 
   /* 4. Score all published blog content */
-  try {
+  const scoreResult = await runTrackedJob(siteId, "content_scoring", async () => {
     const posts = await prisma.blogPost.findMany({
-      where: { siteId: DEFAULT_SITE_ID, status: "published" },
+      where: { siteId, status: "published" },
       select: { id: true, slug: true, body: true, targetKeyword: true },
     });
 
     let scored = 0;
     for (const post of posts) {
-      const eeat = scoreContentEEAT(post.body, post.targetKeyword || undefined);
+      const eeat = scoreContentEEAT(post.body, post.targetKeyword || undefined, siteConfig);
       const aio = scoreAIOReadiness(post.body, post.targetKeyword || undefined);
       const overallScore = Math.round((eeat.score + aio.overall) / 2);
 
@@ -89,7 +106,7 @@ export async function GET(req: NextRequest) {
       const hasFaq = /^#{2,3}\s.+\?$/m.test(post.body);
 
       await prisma.contentScore.upsert({
-        where: { siteId_pageUrl: { siteId: DEFAULT_SITE_ID, pageUrl: `/blog/${post.slug}` } },
+        where: { siteId_pageUrl: { siteId, pageUrl: `/blog/${post.slug}` } },
         update: {
           eeatScore: eeat.score,
           aioScore: aio.overall,
@@ -106,7 +123,7 @@ export async function GET(req: NextRequest) {
           scoredAt: new Date(),
         },
         create: {
-          siteId: DEFAULT_SITE_ID,
+          siteId,
           pageUrl: `/blog/${post.slug}`,
           eeatScore: eeat.score,
           aioScore: aio.overall,
@@ -124,25 +141,25 @@ export async function GET(req: NextRequest) {
       });
       scored++;
     }
-    results.contentScoring = { scored, total: posts.length };
-  } catch (e) {
-    errors.push(`contentScoring: ${e instanceof Error ? e.message : String(e)}`);
-  }
+    return { scored, total: posts.length };
+  });
+  results.contentScoring = scoreResult.success ? scoreResult.result : { error: scoreResult.error };
+  if (!scoreResult.success) errors.push(`contentScoring: ${scoreResult.error}`);
 
   /* 5. AI Visibility Scoring (primary metric) */
-  try {
+  const aiVisResult = await runTrackedJob(siteId, "ai_visibility", async () => {
     const posts = await prisma.blogPost.findMany({
-      where: { siteId: DEFAULT_SITE_ID, status: "published" },
+      where: { siteId, status: "published" },
       select: { id: true, slug: true, body: true, targetKeyword: true },
     });
 
     let scored = 0;
     for (const post of posts) {
-      const aiVis = scoreAIVisibility(post.body, post.targetKeyword || undefined, brandName);
+      const aiVis = scoreAIVisibility(post.body, post.targetKeyword || undefined, brandName, siteConfig);
 
       await prisma.aIVisibilityScore.create({
         data: {
-          siteId: DEFAULT_SITE_ID,
+          siteId,
           pageUrl: `/blog/${post.slug}`,
           overallScore: aiVis.overall,
           citationReadiness: aiVis.citationReadiness,
@@ -158,22 +175,15 @@ export async function GET(req: NextRequest) {
       });
       scored++;
     }
-    results.aiVisibility = { scored, total: posts.length };
-  } catch (e) {
-    errors.push(`aiVisibility: ${e instanceof Error ? e.message : String(e)}`);
-  }
+    return { scored, total: posts.length };
+  });
+  results.aiVisibility = aiVisResult.success ? aiVisResult.result : { error: aiVisResult.error };
+  if (!aiVisResult.success) errors.push(`aiVisibility: ${aiVisResult.error}`);
 
   /* 6. Email report */
-  try {
-    results.report = await sendReport(DEFAULT_SITE_ID);
-  } catch (e) {
-    errors.push(`report: ${e instanceof Error ? e.message : String(e)}`);
-  }
+  const reportResult = await runTrackedJob(siteId, "report", () => sendReport(siteId));
+  results.report = reportResult.success ? reportResult.result : { error: reportResult.error };
+  if (!reportResult.success) errors.push(`report: ${reportResult.error}`);
 
-  return NextResponse.json({
-    ok: errors.length === 0,
-    timestamp: new Date().toISOString(),
-    results,
-    errors: errors.length > 0 ? errors : undefined,
-  });
+  return { ok: errors.length === 0, results, errors: errors.length > 0 ? errors : undefined };
 }

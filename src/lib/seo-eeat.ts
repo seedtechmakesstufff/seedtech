@@ -8,6 +8,7 @@
  */
 
 import { JSDOM } from "jsdom";
+import type { SiteScoringConfig, SiteAuthor } from "@/lib/site-scoring-config";
 
 /* ── Types ── */
 
@@ -41,37 +42,63 @@ export interface AuthorEntity {
   experience: string; // years / background description
 }
 
-/* ── Default Authors (for SeedTech's own site) ── */
+/* ── Default Authors (fallback when no DB authors exist) ── */
 
 export const DEFAULT_AUTHORS: Record<string, AuthorEntity> = {
-  seedtech: {
-    name: "SeedTech",
-    slug: "seedtech",
-    jobTitle: "IT Services & Web Development",
-    bio: "SeedTech provides managed IT services, cybersecurity solutions, and custom web development for small and mid-size businesses in Northern New Jersey.",
-    url: "https://seedtechllc.com/about",
+  default: {
+    name: "Company",
+    slug: "company",
+    jobTitle: "",
+    bio: "",
+    url: "/about",
     sameAs: [],
-    expertise: [
-      "Managed IT Services",
-      "Cybersecurity",
-      "Web Development",
-      "Cloud Computing",
-      "IT Support",
-    ],
-    experience: "Professional IT services company serving Northern NJ businesses.",
+    expertise: [],
+    experience: "",
   },
 };
 
 /**
- * Get an author entity by name. Falls back to the default "seedtech" entity.
+ * Get an author entity by name. Falls back to the default entity.
+ * When siteConfig is provided, looks up authors from the database first.
  */
-export function getAuthorEntity(authorName?: string): AuthorEntity {
-  if (!authorName) return DEFAULT_AUTHORS.seedtech;
+export function getAuthorEntity(authorName?: string, siteConfig?: SiteScoringConfig): AuthorEntity {
+  // Try DB authors first
+  if (siteConfig?.authors?.length) {
+    if (!authorName) {
+      // Return the default DB author
+      const defAuthor = siteConfig.defaultAuthor;
+      if (defAuthor) return siteAuthorToEntity(defAuthor, siteConfig.siteUrl);
+    } else {
+      const slug = authorName.toLowerCase().replace(/\s+/g, "-");
+      const found = siteConfig.authors.find(
+        (a) => a.slug === slug || a.name.toLowerCase() === authorName.toLowerCase()
+      );
+      if (found) return siteAuthorToEntity(found, siteConfig.siteUrl);
+    }
+  }
+
+  // Fallback to static defaults
+  if (!authorName) return DEFAULT_AUTHORS.default;
   const slug = authorName.toLowerCase().replace(/\s+/g, "-");
   return DEFAULT_AUTHORS[slug] || {
-    ...DEFAULT_AUTHORS.seedtech,
+    ...DEFAULT_AUTHORS.default,
     name: authorName,
     slug,
+  };
+}
+
+/** Convert a SiteAuthor to AuthorEntity */
+function siteAuthorToEntity(a: SiteAuthor, siteUrl: string): AuthorEntity {
+  return {
+    name: a.name,
+    slug: a.slug,
+    jobTitle: a.jobTitle,
+    bio: a.bio,
+    image: a.imageUrl || undefined,
+    url: a.canonicalUrl || `${siteUrl}/about`,
+    sameAs: a.sameAs,
+    expertise: a.expertise,
+    experience: a.experience,
   };
 }
 
@@ -81,7 +108,7 @@ export function getAuthorEntity(authorName?: string): AuthorEntity {
  * Audit a page's HTML for E-E-A-T signals.
  * This checks for author info, trust signals, expertise markers, etc.
  */
-export function auditEEAT(url: string, dom: JSDOM): EEATScore {
+export function auditEEAT(url: string, dom: JSDOM, siteConfig?: SiteScoringConfig): EEATScore {
   const doc = dom.window.document;
   const signals: EEATSignal[] = [];
   const path = new URL(url).pathname;
@@ -152,11 +179,17 @@ export function auditEEAT(url: string, dom: JSDOM): EEATScore {
   });
 
   // 5. Credentials / qualifications mentioned
-  const credentialPatterns = [
-    /\b(certified|certification|licensed|accredited|degree|credential)\b/i,
-    /\b(CompTIA|CISSP|CISM|PMP|AWS|Microsoft|Cisco|ITIL)\b/i,
-    /\b(years? of experience|decade|veteran)\b/i,
-  ];
+  const credentialPatterns = siteConfig?.credentialRegex
+    ? [
+        /\b(certified|certification|licensed|accredited|degree|credential)\b/i,
+        siteConfig.credentialRegex,
+        /\b(years? of experience|decade|veteran)\b/i,
+      ]
+    : [
+        /\b(certified|certification|licensed|accredited|degree|credential)\b/i,
+        /\b(CompTIA|CISSP|CISM|PMP|AWS|Microsoft|Cisco|ITIL)\b/i,
+        /\b(years? of experience|decade|veteran)\b/i,
+      ];
   const hasCredentials = credentialPatterns.some((r) => r.test(bodyText));
   signals.push({
     category: "expertise",
@@ -176,7 +209,9 @@ export function auditEEAT(url: string, dom: JSDOM): EEATScore {
     const href = a.getAttribute("href") || "";
     return href.startsWith("http") && !href.includes(new URL(url).hostname);
   });
-  const authorityDomains = ["gov", "edu", "microsoft.com", "google.com", "nist.gov", "cisa.gov"];
+  const authorityDomains = siteConfig?.authorityDomains?.length
+    ? siteConfig.authorityDomains
+    : ["gov", "edu", "microsoft.com", "google.com", "nist.gov", "cisa.gov"];
   const hasAuthoritySources = outboundLinks.some((a) => {
     const href = a.getAttribute("href") || "";
     return authorityDomains.some((d) => href.includes(d));
@@ -189,7 +224,7 @@ export function auditEEAT(url: string, dom: JSDOM): EEATScore {
     message: hasAuthoritySources
       ? "Links to authoritative sources found (.gov, .edu, major tech companies)"
       : "No outbound links to authoritative sources — citing .gov, .edu, or industry authorities boosts trust",
-    recommendation: hasAuthoritySources ? undefined : "Link to NIST, CISA, Microsoft, or Google official documentation where relevant.",
+    recommendation: hasAuthoritySources ? undefined : `Link to authoritative sources (${authorityDomains.slice(0, 4).join(", ")}) where relevant.`,
   });
 
   // 7. Organization schema present
@@ -294,7 +329,7 @@ export interface ContentEEATResult {
  * Score a piece of Markdown content for E-E-A-T signals
  * before it's published. Used by the content scoring engine.
  */
-export function scoreContentEEAT(markdown: string, targetKeyword?: string): ContentEEATResult {
+export function scoreContentEEAT(markdown: string, targetKeyword?: string, siteConfig?: SiteScoringConfig): ContentEEATResult {
   const issues: string[] = [];
   const suggestions: string[] = [];
   let score = 50; // Start at baseline
@@ -326,7 +361,13 @@ export function scoreContentEEAT(markdown: string, targetKeyword?: string): Cont
   }
 
   // Expertise: External citations
-  const externalLinks = (markdown.match(/\[.*?\]\(https?:\/\/(?!seedtechllc\.com).*?\)/g) || []).length;
+  const ownDomain = siteConfig?.siteUrl
+    ? new URL(siteConfig.siteUrl).hostname.replace(/^www\./, "")
+    : "";
+  const externalLinkRegex = ownDomain
+    ? new RegExp(`\\[.*?\\]\\(https?:\\/\\/(?!${ownDomain.replace(/\./g, "\\.")}).*?\\)`, "g")
+    : /\[.*?\]\(https?:\/\/.*?\)/g;
+  const externalLinks = (markdown.match(externalLinkRegex) || []).length;
   if (externalLinks >= 2) {
     score += 8;
   } else {

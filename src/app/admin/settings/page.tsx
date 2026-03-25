@@ -42,6 +42,22 @@ export default function SettingsPage() {
       {/* Quick links */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link
+          href="/admin/settings/team"
+          className="group bg-dark-elevated border border-white/[0.06] rounded-xl px-5 py-4 flex items-center gap-4 hover:border-seed-500/20 hover:bg-seed-500/[0.03] transition-all"
+        >
+          <div className="w-10 h-10 rounded-lg bg-seed-500/10 flex items-center justify-center group-hover:bg-seed-500/15 transition-colors">
+            <Users className="w-5 h-5 text-seed-400" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white group-hover:text-seed-400 transition-colors">
+              Team Management
+            </p>
+            <p className="text-xs text-white/35 mt-0.5">
+              Invite members, manage roles &amp; permissions
+            </p>
+          </div>
+        </Link>
+        <Link
           href="/admin/seo/settings"
           className="group bg-dark-elevated border border-white/[0.06] rounded-xl px-5 py-4 flex items-center gap-4 hover:border-seed-500/20 hover:bg-seed-500/[0.03] transition-all"
         >

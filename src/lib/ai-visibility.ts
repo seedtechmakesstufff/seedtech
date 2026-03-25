@@ -19,6 +19,9 @@
  * Used by: Blog Writer, Content Scorer, AI Advisor, Cron Pipeline
  */
 
+import type { SiteScoringConfig } from "@/lib/site-scoring-config";
+import { buildFreshnessRegex } from "@/lib/site-scoring-config";
+
 /* ── Types ── */
 
 export interface AIVisibilityScore {
@@ -65,9 +68,13 @@ export interface ConversationalQuery {
 export function scoreAIVisibility(
   markdown: string,
   targetKeyword?: string,
-  brandName: string = "SeedTech"
+  brandName: string = "SeedTech",
+  siteConfig?: SiteScoringConfig
 ): AIVisibilityScore {
   const checks: AIVisibilityCheck[] = [];
+
+  // Use siteConfig brandName if available, otherwise fall back to parameter
+  const effectiveBrand = siteConfig?.brandName || brandName;
 
   // ═══════════════════════════════════════
   // 1. CITATION READINESS — Will AI quote you?
@@ -92,7 +99,7 @@ export function scoreAIVisibility(
       : `Opening paragraph is ${firstWords} words${!openingHasKeyword ? ", missing keyword" : ""} — AI needs a 15-60 word quotable answer upfront`,
     fix: hasCiteableOpening && openingHasKeyword
       ? undefined
-      : "Start with a direct, quotable answer: 'Managed IT services typically cost $125-$250 per user per month in Northern NJ.' Keep it 20-60 words.",
+      : `Start with a direct, quotable answer that includes your target keyword. Keep it 20-60 words.`,
   });
 
   // 1b. Citeable blocks (short, dense, fact-rich paragraphs)
@@ -150,9 +157,9 @@ export function scoreAIVisibility(
   // ═══════════════════════════════════════
 
   // 2a. Brand/entity self-definition
-  const brandMentions = (markdown.match(new RegExp(brandName, "gi")) || []).length;
+  const brandMentions = (markdown.match(new RegExp(effectiveBrand, "gi")) || []).length;
   const hasBrandDefinition = new RegExp(
-    `${brandName}\\s+(is|provides|offers|specializes|delivers|helps)`, "i"
+    `${effectiveBrand}\\s+(is|provides|offers|specializes|delivers|helps)`, "i"
   ).test(markdown);
   checks.push({
     category: "entity",
@@ -160,16 +167,17 @@ export function scoreAIVisibility(
     passed: hasBrandDefinition && brandMentions >= 2,
     weight: 9,
     message: hasBrandDefinition
-      ? `Brand "${brandName}" is clearly defined as an entity (${brandMentions} mentions)`
-      : `No clear entity definition for "${brandName}" — AI needs to understand WHO is making these claims`,
+      ? `Brand "${effectiveBrand}" is clearly defined as an entity (${brandMentions} mentions)`
+      : `No clear entity definition for "${effectiveBrand}" — AI needs to understand WHO is making these claims`,
     fix: hasBrandDefinition
       ? undefined
-      : `Add a sentence like '${brandName} is a managed IT services provider serving Northern New Jersey businesses.' This helps AI build your entity graph.`,
+      : `Add a sentence like '${effectiveBrand} is a ${siteConfig?.description || "company"} serving ${siteConfig?.geographicTerms?.[0] || "your area"}.' This helps AI build your entity graph.`,
   });
 
   // 2b. Author/expertise attribution
   const hasAuthorSignals = /\b(our team|our experts?|we've|in our experience|we recommend|our (CEO|CTO|engineers?))\b/i.test(markdown);
-  const hasCredentials = /\b(certified|certification|CompTIA|CISSP|CISM|Microsoft|AWS|years of experience)\b/i.test(markdown);
+  const credentialRegex = siteConfig?.credentialRegex || /\b(certified|certification|CompTIA|CISSP|CISM|Microsoft|AWS|years of experience)\b/i;
+  const hasCredentials = credentialRegex.test(markdown);
   checks.push({
     category: "entity",
     check: "expertise-signals",
@@ -182,13 +190,15 @@ export function scoreAIVisibility(
         : "No expertise attribution — AI needs to verify the source is qualified to make these claims",
     fix: hasAuthorSignals && hasCredentials
       ? undefined
-      : "Add credibility signals: 'Our CompTIA-certified engineers...' or 'With 15+ years serving NJ businesses...'",
+      : siteConfig?.defaultAuthor?.credentials?.length
+        ? `Add credibility signals: '${siteConfig.defaultAuthor.credentials[0]}-certified team' or '${siteConfig.defaultAuthor.experience || "experienced professionals"}'.`
+        : "Add credibility signals: mention certifications, years of experience, or qualifications.",
   });
 
   // 2c. Entity relationships (connecting to known entities)
-  const knownEntityMentions = (markdown.match(
-    /\b(Microsoft|Google|Amazon|AWS|Azure|Cisco|NIST|CISA|CompTIA|Apple|Dell|HP|Fortinet|SonicWall|Datto|ConnectWise)\b/gi
-  ) || []).length;
+  const entityRegex = siteConfig?.knownEntityRegex ||
+    /\b(Microsoft|Google|Amazon|AWS|Azure|Cisco|NIST|CISA|CompTIA|Apple|Dell|HP|Fortinet|SonicWall|Datto|ConnectWise)\b/gi;
+  const knownEntityMentions = (markdown.match(entityRegex) || []).length;
   checks.push({
     category: "entity",
     check: "entity-relationships",
@@ -203,7 +213,10 @@ export function scoreAIVisibility(
   });
 
   // 2d. Geographic entity (local authority for service businesses)
-  const hasGeoEntity = /\b(New Jersey|NJ|Northern New Jersey|Bergen County|Passaic County|Essex County|Morris County)\b/i.test(markdown);
+  const geoRegex = siteConfig?.geographicRegex ||
+    /\b(New Jersey|NJ|Northern New Jersey|Bergen County|Passaic County|Essex County|Morris County)\b/i;
+  const hasGeoEntity = geoRegex.test(markdown);
+  const geoExample = siteConfig?.geographicTerms?.[0] || "your service area";
   checks.push({
     category: "entity",
     check: "geographic-authority",
@@ -214,7 +227,7 @@ export function scoreAIVisibility(
       : "No geographic anchoring — for a service business, AI needs to know WHERE you operate",
     fix: hasGeoEntity
       ? undefined
-      : "Mention your service area naturally: 'businesses in Northern New Jersey' or 'Bergen County companies'.",
+      : `Mention your service area naturally: 'businesses in ${geoExample}' or reference your local area.`,
   });
 
   // ═══════════════════════════════════════
@@ -396,8 +409,10 @@ export function scoreAIVisibility(
   });
 
   // 5c. Content freshness signals
-  const hasFreshnessSignals = /\b20(24|25|26|27)\b/.test(markdown) ||
+  const freshnessRegex = buildFreshnessRegex();
+  const hasFreshnessSignals = freshnessRegex.test(markdown) ||
     /\b(latest|updated|current|recent|new)\b/i.test(markdown);
+  const currentYear = new Date().getFullYear();
   checks.push({
     category: "multi-engine",
     check: "freshness-signals",
@@ -408,7 +423,7 @@ export function scoreAIVisibility(
       : "No freshness signals — include current year references and 'updated' language",
     fix: hasFreshnessSignals
       ? undefined
-      : "Add current year references: 'In 2026, managed IT costs...' or 'Updated for 2026'. AI platforms strongly prefer fresh content.",
+      : `Add current year references: 'In ${currentYear}, ...' or 'Updated for ${currentYear}'. AI platforms strongly prefer fresh content.`,
   });
 
   // 5d. Perplexity-style answer structure (source + claim + evidence)
@@ -496,11 +511,12 @@ export function scoreAIVisibility(
  * Extract entity signals from content — useful for understanding
  * how well content builds brand entity authority.
  */
-export function extractEntitySignals(markdown: string, brandName: string = "SeedTech"): EntitySignal[] {
+export function extractEntitySignals(markdown: string, brandName: string = "SeedTech", siteConfig?: SiteScoringConfig): EntitySignal[] {
   const signals: EntitySignal[] = [];
+  const effectiveBrand = siteConfig?.brandName || brandName;
 
   // Brand definitions
-  const brandDefMatch = markdown.match(new RegExp(`${brandName}\\s+(is|provides|offers|specializes in|delivers)\\s+[^.]+\\.`, "gi"));
+  const brandDefMatch = markdown.match(new RegExp(`${effectiveBrand}\\s+(is|provides|offers|specializes in|delivers)\\s+[^.]+\\.`, "gi"));
   if (brandDefMatch) {
     for (const match of brandDefMatch) {
       signals.push({ type: "definition", text: match.trim(), strength: "strong" });
@@ -519,7 +535,8 @@ export function extractEntitySignals(markdown: string, brandName: string = "Seed
   }
 
   // Credential mentions
-  const credentialMatches = markdown.match(/\b(CompTIA|CISSP|CISM|certified|certification|licensed|accredited)[^.]*\./gi) || [];
+  const credRegex = siteConfig?.credentialRegex || /\b(CompTIA|CISSP|CISM|certified|certification|licensed|accredited)/i;
+  const credentialMatches = markdown.match(new RegExp(credRegex.source + "[^.]*\\.", "gi")) || [];
   for (const cred of credentialMatches.slice(0, 3)) {
     signals.push({ type: "credential", text: cred.trim(), strength: "strong" });
   }
@@ -531,9 +548,10 @@ export function extractEntitySignals(markdown: string, brandName: string = "Seed
   }
 
   // Relationships to known entities
-  const relationshipMatches = markdown.match(
-    /\b(Microsoft|Google|AWS|Azure|Cisco|NIST|CompTIA)\s+(partner|certified|solution|platform|framework|guidelines)[^.]*\./gi
-  ) || [];
+  const relEntityRegex = siteConfig?.knownEntityRegex
+    ? new RegExp(siteConfig.knownEntityRegex.source + "\\s+(partner|certified|solution|platform|framework|guidelines)[^.]*\\.", "gi")
+    : /\b(Microsoft|Google|AWS|Azure|Cisco|NIST|CompTIA)\s+(partner|certified|solution|platform|framework|guidelines)[^.]*\./gi;
+  const relationshipMatches = markdown.match(relEntityRegex) || [];
   for (const rel of relationshipMatches.slice(0, 3)) {
     signals.push({ type: "relationship", text: rel.trim(), strength: "strong" });
   }
@@ -580,10 +598,15 @@ export function analyzeConversationalCoverage(
 /**
  * Generate writing instructions optimized for AI citation.
  * This replaces the old "SEO writing" instructions with AI-first thinking.
+ * When siteConfig is provided, examples are customized to the site's industry.
  */
-export function getAIFirstWritingInstructions(): string {
+export function getAIFirstWritingInstructions(siteConfig?: SiteScoringConfig): string {
+  const brand = siteConfig?.brandName || "Your Brand";
+  const geoExample = siteConfig?.geographicTerms?.[0] || "your service area";
+  const currentYear = new Date().getFullYear();
+
   return `
-## AI Visibility Optimization Instructions (CRITICAL — 2026+ Strategy)
+## AI Visibility Optimization Instructions (CRITICAL — ${currentYear}+ Strategy)
 
 Traditional SEO ranking is becoming less relevant. ~65% of searches now result in AI-generated answers.
 Your content needs to be CITED BY AI SYSTEMS, not just rank in Google's blue links.
@@ -596,27 +619,27 @@ AI systems parse content in a predictable way. They look for:
 
 1. **Direct answer in the opening** — The first paragraph is what gets quoted. 20-60 words, includes a specific fact, directly answers the query.
 
-2. **Entity definition early** — Within the first 3 paragraphs, define the brand: "SeedTech is a managed IT services provider serving Northern New Jersey businesses." This builds entity recognition in AI knowledge graphs.
+2. **Entity definition early** — Within the first 3 paragraphs, define the brand: "${brand} is a ${siteConfig?.description || "company"} serving ${geoExample}." This builds entity recognition in AI knowledge graphs.
 
-3. **Question-format headings** — AI systems match user queries to headings. "## How Much Does Managed IT Cost?" gets matched to "how much does managed IT cost" queries. EVERY H2 heading should be a natural question ending in "?".
+3. **Question-format headings** — AI systems match user queries to headings. Every H2 heading should be a natural question ending in "?".
 
 4. **Comparison tables** — This is the #1 most-cited content format across Google AIO, ChatGPT, Perplexity, and Gemini. Always include at least one.
 
 5. **Definition blocks** — "X is Y" sentences get extracted into AI knowledge graphs. Include at least 2 clear definitions.
 
-6. **Claim + evidence pairs** — "According to NIST, 60% of SMBs..." — AI platforms (especially Perplexity) cite content with source attribution.
+6. **Claim + evidence pairs** — AI platforms (especially Perplexity) cite content with source attribution.
 
 7. **Numbered step lists** — Processes and how-to steps get cited verbatim by AI assistants.
 
-8. **FAQ section** — Must be present. Format: "## Frequently Asked Questions" with "### Question?" sub-headings. Each answer: 2-3 sentences, self-contained, includes a fact. This section gets cited more than any other.
+8. **FAQ section** — Must be present. Format: "## Frequently Asked Questions" with "### Question?" sub-headings. Each answer: 2-3 sentences, self-contained, includes a fact.
 
 9. **Short paragraphs** — 20-80 words each. Each paragraph should express one complete, quotable idea.
 
-10. **Known entity references** — Reference Microsoft, NIST, CISA, CompTIA, AWS, etc. This connects your content to entities AI already knows.
+10. **Known entity references** — Reference ${siteConfig?.knownEntities?.slice(0, 4).join(", ") || "industry authorities"}, etc. This connects your content to entities AI already knows.
 
-11. **Geographic anchoring** — "Northern New Jersey", "Bergen County" — wins local AI queries.
+11. **Geographic anchoring** — "${geoExample}" — wins local AI queries.
 
-12. **Freshness signals** — Include current year (2026) and "updated" language. AI strongly prefers recent content.
+12. **Freshness signals** — Include current year (${currentYear}) and "updated" language. AI strongly prefers recent content.
 
 ### What Makes Content AI-Citable vs Just SEO-Optimized
 
@@ -625,9 +648,9 @@ AI systems parse content in a predictable way. They look for:
 | Direct answer in first paragraph | Keyword in first paragraph |
 | Question-format headings | Keyword-stuffed headings |
 | Comparison tables with data | Walls of text |
-| "According to NIST, 60% of..." | "Many businesses struggle with..." |
+| Evidence-based claims with sources | Vague unsupported claims |
 | FAQ with specific answers | Generic FAQ for schema |
-| Entity definition ("SeedTech is a...") | Brand mention |
+| Entity definition ("${brand} is a...") | Brand mention |
 | 20-60 word citeable blocks | Long paragraphs |
 `.trim();
 }
@@ -636,9 +659,10 @@ AI systems parse content in a predictable way. They look for:
  * Build AI Visibility context for the AI Advisor.
  * This replaces the ranking-focused advisor context.
  */
-export function getAIVisibilityAdvisorContext(): string {
+export function getAIVisibilityAdvisorContext(_siteConfig?: SiteScoringConfig): string {
+  const currentYear = new Date().getFullYear();
   return `
-## 2026+ AI Visibility Strategy
+## ${currentYear}+ AI Visibility Strategy
 
 Traditional SEO ranking is declining. The new game is AI VISIBILITY — being cited by AI systems.
 

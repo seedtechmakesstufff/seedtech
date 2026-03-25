@@ -1,7 +1,7 @@
 /* ── AI Overview (AIO) Optimization Engine ──
  * Helps content rank in Google's AI Overviews (formerly SGE).
  *
- * AI Overviews now appear on ~47% of search queries (2026).
+ * AI Overviews now appear on ~47% of search queries.
  * To be cited, content needs:
  *   1. Concise, direct answers in the first 40-60 words
  *   2. Structured Q&A blocks that match "People Also Ask"
@@ -180,8 +180,9 @@ export function scoreAIOReadiness(markdown: string, targetKeyword?: string): AIO
  * This instructs Claude to format content for AI Overview citation.
  */
 export function getAIOWritingInstructions(): string {
+  const currentYear = new Date().getFullYear();
   return `
-## AI Overview Optimization Instructions (CRITICAL for 2026 SEO)
+## AI Overview Optimization Instructions (CRITICAL for ${currentYear} SEO)
 
 Google's AI Overviews now appear on ~47% of all searches. To be cited:
 
@@ -226,8 +227,9 @@ Return as JSON array: [{ "question": "...", "answer": "...", "snippetPotential":
  * UPDATED: Now leads with AI Visibility strategy over traditional ranking.
  */
 export function getAIOAdvisorContext(): string {
+  const currentYear = new Date().getFullYear();
   return `
-## 2026+ SEO Reality: AI Visibility > Traditional Ranking
+## ${currentYear}+ SEO Reality: AI Visibility > Traditional Ranking
 
 ### The Paradigm Shift
 - ~65% of searches result in zero clicks — AI answers the query directly
