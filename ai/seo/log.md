@@ -102,6 +102,64 @@ Built the full multi-tenant foundation:
   - Authority breakdown visualization with weighted dimension bars
   - Action bar: Analyze Gaps, Score Authority, Check Links, Archive
 
+### Phase 7: AI Citation Intelligence
+**Commit:** fec6dee (14 files, +2,589 lines)
+
+> Validates the AI Visibility thesis with real citation data — are AI platforms actually citing our brand?
+
+#### 7A — Schema Evolution
+- Extended `AICitation` model: `checkRunId` (links to batch run), `competitorId` (competitor tracking), `responseLength`, `position` (brand mention position in response)
+- New `CitationCheckRun` model — batch execution tracking: status, totalQueries, totalPlatforms, brandMentions, urlCitations, mentionRate, durationMs
+- Migration: `prisma/migrations/manual/phase7-citation-intelligence.sql`
+
+#### 7B — Automated Citation Checker
+- `src/lib/citation-checker.ts` — Multi-platform citation intelligence engine:
+  - **Perplexity API** (real) — sonar model with structured citation extraction
+  - **OpenAI API** (real) — gpt-4o for ChatGPT brand mention detection
+  - **Claude-simulated** — Google AIO, Gemini, Copilot responses via claude-sonnet-4-20250514
+  - Smart query generation from tracked keywords + business context + location
+  - Brand mention detection (regex + contextual analysis)
+  - URL citation detection (response text + structured citations)
+  - Citation type classification: direct_quote, brand_mention, url_citation, recommendation
+  - Sentiment analysis: positive, neutral, negative
+  - Competitor mention tracking across all platforms
+  - Rate-limited batch execution with CitationCheckRun tracking
+  - `runCitationCheck()` — Full batch run, `checkSingleQuery()` — Spot check
+
+#### 7C — Citation Analytics
+- `src/lib/citation-analytics.ts` — Comprehensive analytics:
+  - `getCitationDashboard()` — Single-call aggregator for UI
+  - Mention rate trends (daily aggregation over configurable window)
+  - Platform breakdown with per-platform sentiment distribution
+  - Top citation queries ranked by mention rate
+  - Competitor citation comparison with gap calculation
+  - Score-to-citation correlation (validates AI Vis scoring engine)
+  - Citation type + sentiment distribution analysis
+
+#### 7D — API Routes (7 endpoints)
+- `GET/POST /api/admin/seo/citations` — Dashboard data + trigger check run
+- `GET /api/admin/seo/citations/runs` — Check run history
+- `GET /api/admin/seo/citations/[runId]` — Run detail with our vs competitor citations
+- `GET /api/admin/seo/citations/trends` — Trend data (configurable days param)
+- `GET /api/admin/seo/citations/competitors` — Competitor comparison
+- `POST /api/admin/seo/citations/check` — Single query spot check
+- `GET /api/admin/seo/citations/correlation` — Score-to-citation correlation
+
+#### 7E — Citations UI Tab
+- `src/app/admin/seo/citations-tab.tsx` — Full dashboard tab:
+  - Top stats: mention rate (with change), brand mentions, URL citations, best platform
+  - Platform breakdown: progress bars per platform with sentiment indicators
+  - Top citation queries: ranked by mention rate with platform dots
+  - Competitor comparison: side-by-side rates with gap indicators
+  - Citation type + sentiment distribution: horizontal bar charts
+  - Recent citations: expandable cards with context snippets
+  - Spot check tool: test any query on any platform in real-time
+  - Check run history: collapsible panel with run stats
+
+#### 7F — Cron Integration
+- `/api/cron/citations` — Automated weekly citation checks (Wednesday 6 AM UTC)
+- Uses `runTrackedJob()` for execution tracking via CronJobRun
+
 ---
 
 ## Architecture Overview
@@ -109,8 +167,10 @@ Built the full multi-tenant foundation:
 ### Key Files
 | File | Purpose |
 |------|---------|
-| `prisma/schema.prisma` | ~770 lines, 30+ models |
+| `prisma/schema.prisma` | ~800 lines, 30+ models |
 | `src/lib/ai-visibility.ts` | AI Visibility scoring engine (5 dimensions, 20+ checks) |
+| `src/lib/citation-checker.ts` | Multi-platform automated citation checking |
+| `src/lib/citation-analytics.ts` | Citation trend analysis + score correlation |
 | `src/lib/seo-eeat.ts` | E-E-A-T auditing and scoring |
 | `src/lib/seo-aio.ts` | AIO (AI Overview) readiness scoring |
 | `src/lib/topic-clusters.ts` | Topic authority engine (generation, gaps, scoring, links) |
@@ -120,7 +180,7 @@ Built the full multi-tenant foundation:
 | `src/lib/business-context.ts` | Per-site business profile for prompts |
 | `src/lib/seo-crawler.ts` | 25+ check type site crawler (v2) |
 | `src/lib/seo-insights.ts` | Freshness, cannibalization, linking, CTR insights |
-| `src/app/admin/seo/page.tsx` | Main SEO dashboard (8 tabs) |
+| `src/app/admin/seo/page.tsx` | Main SEO dashboard (9 tabs) |
 
 ### Dashboard Tabs
 1. **Overview** — Health score, snapshots, key metrics
@@ -129,23 +189,16 @@ Built the full multi-tenant foundation:
 4. **Site Audit** — Crawl results with critical/warning/info issues
 5. **Insights** — AI-generated freshness, cannibalization, linking, E-E-A-T insights
 6. **Topic Clusters** — Pillar/spoke cluster maps with gap analysis + authority scoring
-7. **Competitors** — Competitive intelligence with content gap detection
-8. **Strategy** — Implementation roadmap tasks + content ideas calendar
+7. **Citations** — AI platform citation tracking, trends, competitor comparison, spot checks
+8. **Competitors** — Competitive intelligence with content gap detection
+9. **Strategy** — Implementation roadmap tasks + content ideas calendar
 
 ### Prisma Models (key SEO ones)
-`Site` · `BusinessProfile` · `IndustryConfig` · `Author` · `ExperienceEvidence` · `BlogPost` · `SitePage` · `ContentScore` · `AIVisibilityScore` · `AICitation` · `TrackedKeyword` · `KeywordCluster` · `ClusterSubtopic` · `InternalLinkSuggestion` · `ContentIdea` · `SeoTask` · `SeoSnapshot` · `SeoCrawlRun` · `SeoPageAudit` · `SeoInsight` · `CompetitorDomain` · `CompetitorAnalysis` · `SeoLeadEvent` · `CronJobRun` · `UserInvite`
+`Site` · `BusinessProfile` · `IndustryConfig` · `Author` · `ExperienceEvidence` · `BlogPost` · `SitePage` · `ContentScore` · `AIVisibilityScore` · `AICitation` · `CitationCheckRun` · `TrackedKeyword` · `KeywordCluster` · `ClusterSubtopic` · `InternalLinkSuggestion` · `ContentIdea` · `SeoTask` · `SeoSnapshot` · `SeoCrawlRun` · `SeoPageAudit` · `SeoInsight` · `CompetitorDomain` · `CompetitorAnalysis` · `SeoLeadEvent` · `CronJobRun` · `UserInvite`
 
 ---
 
 ## What's Next
-
-### Phase 7: AI Citation Intelligence
-> Validate the AI Visibility thesis with real data, not just heuristic scores.
-
-1. **Automated citation checker** — Query Perplexity API + scrape Google AIO for brand mentions
-2. **Citation trend dashboard** — Track brand mention rates over time per platform
-3. **Citation-to-score correlation** — Validate which scoring dimensions predict real citations
-4. **Competitor citation comparison** — How often are competitors cited vs. us?
 
 ### Phase 8: Content Pipeline Maturity
 > Make the blog writer produce genuinely better content for clients.
