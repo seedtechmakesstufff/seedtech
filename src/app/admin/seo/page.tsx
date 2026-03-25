@@ -7,13 +7,14 @@ import {
   ArrowRight, ArrowUpRight, ArrowDownRight, Sparkles, FileText, AlertTriangle,
   Brain, Gauge, RefreshCw, Globe, Loader2, Zap, BarChart3, Send, ShieldAlert,
   Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair, SlidersHorizontal,
-  Bot, XCircle, Award, Activity, Pencil, Swords, Network,
+  Bot, XCircle, Award, Activity, Pencil, Swords, Network, MessageSquareQuote,
 } from "lucide-react";
 import Link from "next/link";
 import CompetitorsTab from "./competitors-tab";
 import TopicClustersTab from "./topic-clusters-tab";
+import CitationsTab from "./citations-tab";
 
-type Tab = "overview" | "ai-visibility" | "keywords" | "audit" | "insights" | "clusters" | "strategy" | "competitors";
+type Tab = "overview" | "ai-visibility" | "keywords" | "audit" | "insights" | "clusters" | "citations" | "strategy" | "competitors";
 
 interface AIVisibilityScoreData {
   id: string; pageUrl: string; overallScore: number; grade: string;
@@ -366,6 +367,7 @@ export default function SEODashboardPage() {
     { id: "audit", label: "Site Audit", icon: <Bug className="w-4 h-4" />, badge: criticalCount + warningCount },
     { id: "insights", label: "Insights", icon: <Lightbulb className="w-4 h-4" />, badge: insights.length },
     { id: "clusters", label: "Topic Clusters", icon: <Network className="w-4 h-4" /> },
+    { id: "citations", label: "Citations", icon: <MessageSquareQuote className="w-4 h-4" /> },
     { id: "competitors", label: "Competitors", icon: <Swords className="w-4 h-4" /> },
     { id: "strategy", label: "Strategy", icon: <Brain className="w-4 h-4" /> },
   ];
@@ -1212,6 +1214,11 @@ export default function SEODashboardPage() {
       {/* COMPETITORS TAB */}
       {activeTab === "competitors" && (
         <CompetitorsTab />
+      )}
+
+      {/* CITATIONS TAB */}
+      {activeTab === "citations" && (
+        <CitationsTab />
       )}
 
       {/* TOPIC CLUSTERS TAB */}

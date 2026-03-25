@@ -78,6 +78,7 @@ model Site {
   compAnalyses     CompetitorAnalysis[]
   leadEvents       SeoLeadEvent[]
   aiCitations      AICitation[]
+  citationRuns     CitationCheckRun[]
   aiVisScores      AIVisibilityScore[]
   seoTasks         SeoTask[]
   contentIdeas     ContentIdea[]
@@ -564,23 +565,52 @@ model SeoLeadEvent {
 // Tracks brand mentions in AI-generated responses.
 // Used to measure AI Visibility over time.
 model AICitation {
-  id           String   @id @default(uuid())
-  siteId       String
-  platform     String                                  // "chatgpt", "perplexity", "gemini", "google_aio", "copilot"
-  query        String                                  // the query that triggered the AI response
-  brandMentioned Boolean @default(false)               // was our brand mentioned?
-  urlCited     String?                                 // was a specific URL cited?
-  context      String?  @db.Text                       // snippet of the AI response mentioning us
-  citationType String?                                 // "direct_quote", "brand_mention", "url_citation", "recommendation"
-  sentiment    String?                                 // "positive", "neutral", "negative"
-  metadata     Json?
-  site         Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  checkedAt    DateTime @default(now())
+  id             String   @id @default(uuid())
+  siteId         String
+  checkRunId     String?                               // links to CitationCheckRun batch
+  platform       String                                // "chatgpt", "perplexity", "gemini", "google_aio", "copilot"
+  query          String                                // the query that triggered the AI response
+  brandMentioned Boolean  @default(false)              // was our brand mentioned?
+  urlCited       String?                               // was a specific URL cited?
+  context        String?  @db.Text                     // snippet of the AI response mentioning us
+  citationType   String?                               // "direct_quote", "brand_mention", "url_citation", "recommendation"
+  sentiment      String?                               // "positive", "neutral", "negative"
+  competitorId   String?                               // if tracking a competitor mention
+  responseLength Int?                                  // total response length in chars
+  position       Int?                                  // position of brand mention in response (1 = first mention)
+  metadata       Json?
+  checkRun       CitationCheckRun? @relation(fields: [checkRunId], references: [id], onDelete: SetNull)
+  site           Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  checkedAt      DateTime @default(now())
 
   @@index([siteId, platform])
   @@index([siteId, brandMentioned])
+  @@index([siteId, checkRunId])
   @@index([checkedAt])
   @@map("ai_citations")
+}
+
+// ── Citation Check Runs (batch execution tracking) ──
+// Each run queries multiple platforms with multiple queries and records all results.
+model CitationCheckRun {
+  id             String      @id @default(uuid())
+  siteId         String
+  status         String      @default("running")       // running, completed, failed
+  totalQueries   Int         @default(0)
+  totalPlatforms Int         @default(0)
+  brandMentions  Int         @default(0)               // total brand mentions found
+  urlCitations   Int         @default(0)               // total URL citations found
+  mentionRate    Float?                                // brandMentions / totalChecks
+  startedAt      DateTime    @default(now())
+  completedAt    DateTime?
+  durationMs     Int?
+  errorMessage   String?
+  citations      AICitation[]
+  site           Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+
+  @@index([siteId, createdAt])
+  @@map("citation_check_runs")
 }
 
 // ── AI Visibility Scores (historical tracking) ──
