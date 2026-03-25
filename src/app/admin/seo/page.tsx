@@ -9,7 +9,6 @@ import {
   Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair, SlidersHorizontal,
   Bot, XCircle, Award, Activity, Pencil,
 } from "lucide-react";
-import { TRACKED_KEYWORDS, SEO_TASKS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 import Link from "next/link";
 
 type Tab = "overview" | "ai-visibility" | "keywords" | "audit" | "insights" | "strategy";
@@ -57,6 +56,26 @@ interface InsightItem {
 }
 
 interface DiscoveredKeyword { keyword: string; rationale: string; estimatedVolume: string; difficulty: string }
+
+interface TrackedKeywordData {
+  id: string; keyword: string; tier: string; volume: string; competition: string;
+  intent: string; targetPage: string; currentPosition: number | null;
+  previousPosition: number | null; bestPosition: number | null;
+  clicks28d: number; impressions28d: number; ctr28d: number;
+}
+
+interface SeoTaskData {
+  id: string; phase: number; title: string; status: string; priority: string;
+}
+
+interface ContentIdeaData {
+  id: string; title: string; targetKeyword: string; wordCount: number;
+  funnelStage: string; status: string; slug: string | null;
+}
+
+interface SiteInfo { id: string; name: string; domain: string; siteUrl: string }
+
+const tierMap: Record<string, number> = { tier1: 1, tier2: 2, tier3: 3 };
 
 const tierColors: Record<number, string> = {
   1: "bg-seed-500/20 text-seed-400 border-seed-500/30",
@@ -136,12 +155,36 @@ export default function SEODashboardPage() {
     fixedCount: number;
   } | null>(null);
 
-  const tier1 = TRACKED_KEYWORDS.filter((k) => k.tier === 1);
-  const tier2 = TRACKED_KEYWORDS.filter((k) => k.tier === 2);
-  const tier3 = TRACKED_KEYWORDS.filter((k) => k.tier === 3);
-  const tasksComplete = SEO_TASKS.filter((t) => t.status === "done").length;
-  const tasksInProgress = SEO_TASKS.filter((t) => t.status === "in-progress").length;
-  const tasksTotal = SEO_TASKS.length;
+  // DB-loaded data (replaces static seo-strategy.ts imports)
+  const [trackedKeywords, setTrackedKeywords] = useState<TrackedKeywordData[]>([]);
+  const [seoTasks, setSeoTasks] = useState<SeoTaskData[]>([]);
+  const [contentIdeas, setContentIdeas] = useState<ContentIdeaData[]>([]);
+  const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
+
+  const tier1 = trackedKeywords.filter((k) => tierMap[k.tier] === 1);
+  const tier2 = trackedKeywords.filter((k) => tierMap[k.tier] === 2);
+  const tier3 = trackedKeywords.filter((k) => tierMap[k.tier] === 3);
+  const tasksComplete = seoTasks.filter((t) => t.status === "done").length;
+  const tasksInProgress = seoTasks.filter((t) => t.status === "in-progress").length;
+  const tasksTotal = seoTasks.length;
+
+  const fetchKeywords = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/seo/keywords");
+      const d = await r.json();
+      if (d.keywords) setTrackedKeywords(d.keywords);
+    } catch {}
+  }, []);
+
+  const fetchStrategy = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/seo/strategy");
+      const d = await r.json();
+      if (d.tasks) setSeoTasks(d.tasks);
+      if (d.contentIdeas) setContentIdeas(d.contentIdeas);
+      if (d.site) setSiteInfo(d.site);
+    } catch {}
+  }, []);
 
   const fetchGscData = useCallback(async () => {
     setGscLoading(true);
@@ -215,11 +258,13 @@ export default function SEODashboardPage() {
   const pingIndexNow = useCallback(async () => {
     setIndexNowLoading(true); setIndexNowResult(null);
     try {
-      const r = await fetch("/api/admin/seo/indexnow", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: ["https://seedtechllc.com", "https://seedtechllc.com/services/managed-it", "https://seedtechllc.com/pricing/it-support", "https://seedtechllc.com/blog"] }) });
+      // Build URLs dynamically from site info
+      const baseUrl = siteInfo?.siteUrl || "https://seedtechllc.com";
+      const r = await fetch("/api/admin/seo/indexnow", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: [baseUrl, `${baseUrl}/blog`] }) });
       const d = await r.json(); setIndexNowResult(d.success ? "Submitted " + (d.results?.length || 0) + " URLs" : d.error || "Failed");
     } catch { setIndexNowResult("Failed to connect"); }
     setIndexNowLoading(false);
-  }, []);
+  }, [siteInfo]);
 
   const sendReport = useCallback(async () => {
     setReportSending(true); setReportResult(null);
@@ -302,7 +347,8 @@ export default function SEODashboardPage() {
   useEffect(() => {
     fetch("/api/admin/seo/search-console?action=test").then((r) => r.json()).then((d) => { setGscConnected(d.connected ?? false); if (d.connected) fetchGscData(); }).catch(() => setGscConnected(false));
     fetchSnapshotHistory(); fetchInsights(); fetchCrawlResults(); fetchAiVisibility(); fetchCitations();
-  }, [fetchGscData, fetchSnapshotHistory, fetchInsights, fetchCrawlResults, fetchAiVisibility, fetchCitations]);
+    fetchKeywords(); fetchStrategy();
+  }, [fetchGscData, fetchSnapshotHistory, fetchInsights, fetchCrawlResults, fetchAiVisibility, fetchCitations, fetchKeywords, fetchStrategy]);
 
   const latestSnapshot = snapshotHistory[snapshotHistory.length - 1];
   const prevSnapshot = snapshotHistory.length > 1 ? snapshotHistory[snapshotHistory.length - 2] : null;
@@ -409,7 +455,7 @@ export default function SEODashboardPage() {
             </div>
             <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5">
               <Target className="w-5 h-5 text-seed-400 mb-3" />
-              <p className="text-2xl font-semibold text-white">{TRACKED_KEYWORDS.length}</p>
+              <p className="text-2xl font-semibold text-white">{trackedKeywords.length}</p>
               <p className="text-sm text-white/40 mt-1">Tracked Keywords</p>
               <p className="text-xs text-white/20 mt-2">{tier1.length} T1 &middot; {tier2.length} T2 &middot; {tier3.length} T3</p>
             </div>
@@ -973,19 +1019,20 @@ export default function SEODashboardPage() {
               <table className="w-full text-sm">
                 <thead><tr className="text-left text-white/30 text-xs uppercase tracking-wider border-b border-white/[0.04]"><th className="px-5 py-3 font-medium">Keyword</th><th className="px-5 py-3 font-medium">Tier</th><th className="px-5 py-3 font-medium">Volume</th><th className="px-5 py-3 font-medium">Intent</th><th className="px-5 py-3 font-medium">Target Page</th><th className="px-5 py-3 font-medium text-right">Position</th><th className="px-5 py-3 font-medium text-right">Trend</th></tr></thead>
                 <tbody className="divide-y divide-white/[0.04]">
-                  {TRACKED_KEYWORDS.map((kw) => {
+                  {trackedKeywords.map((kw) => {
+                    const tierNum = tierMap[kw.tier] ?? 2;
                     const livePos = gscSummary?.trackedPositions?.[kw.keyword];
                     const prev = kw.currentPosition ?? null;
                     const delta = livePos && prev ? prev - livePos : null;
                     return (
                       <tr key={kw.keyword} className="hover:bg-white/[0.02]">
                         <td className="px-5 py-3 text-white/80 font-medium">{kw.keyword}</td>
-                        <td className="px-5 py-3"><span className={`text-xs px-2 py-0.5 rounded-full border ${tierColors[kw.tier]}`}>T{kw.tier}</span></td>
+                        <td className="px-5 py-3"><span className={`text-xs px-2 py-0.5 rounded-full border ${tierColors[tierNum]}`}>T{tierNum}</span></td>
                         <td className="px-5 py-3 text-white/50 font-mono text-xs">{kw.volume}</td>
                         <td className="px-5 py-3 text-xs text-white/40">{kw.intent}</td>
                         <td className="px-5 py-3 text-white/40 font-mono text-xs">{kw.targetPage}</td>
-                        <td className="px-5 py-3 text-right">{livePos ? <span className="text-seed-400 font-mono font-semibold">{livePos.toFixed(1)}</span> : kw.currentPosition ? <span className="text-white/40 font-mono">{kw.currentPosition}</span> : <span className="text-white/20">\u2014</span>}</td>
-                        <td className="px-5 py-3 text-right">{delta !== null && Math.abs(delta) >= 0.3 ? <span className={`flex items-center justify-end gap-1 text-xs ${delta > 0 ? "text-green-400" : "text-red-400"}`}>{delta > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{Math.abs(delta).toFixed(1)}</span> : <span className="text-white/20 text-xs">\u2014</span>}</td>
+                        <td className="px-5 py-3 text-right">{livePos ? <span className="text-seed-400 font-mono font-semibold">{livePos.toFixed(1)}</span> : kw.currentPosition ? <span className="text-white/40 font-mono">{kw.currentPosition}</span> : <span className="text-white/20">{"\u2014"}</span>}</td>
+                        <td className="px-5 py-3 text-right">{delta !== null && Math.abs(delta) >= 0.3 ? <span className={`flex items-center justify-end gap-1 text-xs ${delta > 0 ? "text-green-400" : "text-red-400"}`}>{delta > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{Math.abs(delta).toFixed(1)}</span> : <span className="text-white/20 text-xs">{"\u2014"}</span>}</td>
                       </tr>
                     );
                   })}
@@ -1165,7 +1212,7 @@ export default function SEODashboardPage() {
             <div className="bg-dark-elevated border border-white/[0.06] rounded-xl">
               <div className="px-5 py-4 border-b border-white/[0.06]"><h2 className="text-sm font-semibold text-white">Implementation Roadmap</h2></div>
               <div className="divide-y divide-white/[0.04] max-h-96 overflow-y-auto">
-                {SEO_TASKS.map((task) => (
+                {seoTasks.map((task) => (
                   <div key={task.id} className="flex items-center gap-3 px-5 py-3">
                     {statusIcons[task.status]}
                     <div className="flex-1 min-w-0">
@@ -1175,6 +1222,7 @@ export default function SEODashboardPage() {
                     {task.priority === "critical" && <AlertTriangle className="w-3.5 h-3.5 text-red-400/60 shrink-0" />}
                   </div>
                 ))}
+                {seoTasks.length === 0 && <div className="px-5 py-6 text-center text-white/30 text-sm">No tasks yet. Add tasks in site onboarding.</div>}
               </div>
             </div>
             <div className="bg-dark-elevated border border-white/[0.06] rounded-xl">
@@ -1183,7 +1231,7 @@ export default function SEODashboardPage() {
                 <Link href="/admin/blog/new" className="text-xs text-seed-400 hover:text-seed-300 flex items-center gap-1">New post <ArrowRight className="w-3 h-3" /></Link>
               </div>
               <div className="divide-y divide-white/[0.04] max-h-96 overflow-y-auto">
-                {CONTENT_CALENDAR.map((item) => (
+                {contentIdeas.map((item) => (
                   <div key={item.id} className="px-5 py-3">
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-white/70 font-medium">{item.title}</p>
@@ -1196,6 +1244,7 @@ export default function SEODashboardPage() {
                     </div>
                   </div>
                 ))}
+                {contentIdeas.length === 0 && <div className="px-5 py-6 text-center text-white/30 text-sm">No content ideas yet.</div>}
               </div>
             </div>
           </div>

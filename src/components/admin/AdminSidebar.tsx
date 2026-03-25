@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SiteSwitcher } from "./SiteSwitcher";
 
 interface NavItem {
   label: string;
@@ -73,6 +74,11 @@ export function AdminSidebar() {
           <Sprout className="w-6 h-6 text-seed-500" />
           <span className="font-display text-xl tracking-wide text-white">SEEDTECH</span>
         </Link>
+      </div>
+
+      {/* Site Switcher */}
+      <div className="px-3 pt-3">
+        <SiteSwitcher />
       </div>
 
       {/* Navigation */}

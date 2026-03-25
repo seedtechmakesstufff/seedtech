@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Sparkles,
@@ -27,7 +27,6 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
-import { TRACKED_KEYWORDS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 
 /* ── Wizard Steps ── */
 const STEPS = [
@@ -61,6 +60,15 @@ export default function NewBlogPostPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // DB-loaded data (replaces static seo-strategy.ts imports)
+  const [trackedKeywords, setTrackedKeywords] = useState<{ keyword: string; tier: string; volume: string; intent: string; targetPage: string }[]>([]);
+  const [contentIdeas, setContentIdeas] = useState<{ id: string; title: string; targetKeyword: string; wordCount: number; funnelStage: string; status: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/seo/keywords").then((r) => r.json()).then((d) => { if (d.keywords) setTrackedKeywords(d.keywords); }).catch(() => {});
+    fetch("/api/admin/seo/strategy").then((r) => r.json()).then((d) => { if (d.contentIdeas) setContentIdeas(d.contentIdeas); }).catch(() => {});
+  }, []);
 
   // Step 1 — Topic & Keyword
   const [topic, setTopic] = useState("");
@@ -375,7 +383,7 @@ export default function NewBlogPostPage() {
             <div>
               <label className="block text-sm text-white/50 mb-3">Quick pick from content calendar:</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                {CONTENT_CALENDAR.filter((c) => c.status === "idea").map((idea) => (
+                {contentIdeas.filter((c) => c.status === "idea").map((idea) => (
                   <button
                     key={idea.id}
                     onClick={() => {
@@ -422,7 +430,7 @@ export default function NewBlogPostPage() {
               />
               {/* Keyword suggestions */}
               <div className="flex flex-wrap gap-1.5 mt-2">
-                {TRACKED_KEYWORDS.filter((k) => k.tier === 3)
+                {trackedKeywords.filter((k) => k.tier === "tier3")
                   .slice(0, 6)
                   .map((k) => (
                     <button

@@ -4,13 +4,18 @@
  * Every API route and server action in /admin should call `requireSiteContext()`
  * which reads the NextAuth session and returns { userId, tenantId, siteId, role }.
  *
- * For now this uses the single siteId stored in the JWT. Later, when we add
- * a site-switcher, it will also check a cookie or header override.
+ * The siteId can be overridden via the `x-site-id` cookie (set by the site
+ * switcher UI). The override is validated: the user must have a membership
+ * in a tenant that owns the requested site.
  */
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+export const SITE_COOKIE = "x-site-id";
 
 export interface SiteContext {
   userId: string;
@@ -22,16 +27,51 @@ export interface SiteContext {
 
 /**
  * Get the current site context from the session.
+ * Checks for a cookie-based site override (validated against tenant membership).
  * Returns null if not authenticated.
  */
 export async function getSiteContext(): Promise<SiteContext | null> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.siteId) return null;
 
+  let siteId = session.user.siteId;
+  let tenantId = session.user.tenantId;
+
+  // Check for cookie override
+  const cookieStore = await cookies();
+  const override = cookieStore.get(SITE_COOKIE)?.value;
+  if (override && override !== siteId) {
+    // Validate: user must have access to this site via their tenant memberships
+    try {
+      const site = await prisma.site.findUnique({
+        where: { id: override },
+        select: { id: true, tenantId: true },
+      });
+      if (site) {
+        // Check user has a membership in that tenant
+        const membership = await prisma.membership.findUnique({
+          where: {
+            userId_tenantId: {
+              userId: session.user.userId,
+              tenantId: site.tenantId,
+            },
+          },
+          select: { role: true },
+        });
+        if (membership) {
+          siteId = override;
+          tenantId = site.tenantId;
+        }
+      }
+    } catch {
+      // DB error — fall back to session siteId
+    }
+  }
+
   return {
     userId: session.user.userId,
-    tenantId: session.user.tenantId,
-    siteId: session.user.siteId,
+    tenantId,
+    siteId,
     role: session.user.role,
     email: session.user.email,
   };

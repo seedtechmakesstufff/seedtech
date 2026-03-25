@@ -512,14 +512,13 @@ function BusinessSection() {
    ═══════════════════════════════════════════════════════════════ */
 
 function KeywordsSection() {
-  // Import the static data
-  const [keywords, setKeywords] = useState<{ keyword: string; tier: number; volume: string; competition: string; intent: string; targetPage: string }[]>([]);
+  // Load from DB API
+  const [keywords, setKeywords] = useState<{ keyword: string; tier: string; volume: string; competition: string; intent: string; targetPage: string }[]>([]);
   const [calendar, setCalendar] = useState<{ title: string; targetKeyword: string; status: string; wordCount: number }[]>([]);
 
   useEffect(() => {
-    // Dynamic import to avoid SSR issues with static data
-    import("@/data/seo-strategy").then((mod) => {
-      setKeywords(mod.TRACKED_KEYWORDS.map(k => ({
+    fetch("/api/admin/seo/keywords").then((r) => r.json()).then((d) => {
+      if (d.keywords) setKeywords(d.keywords.map((k: { keyword: string; tier: string; volume: string; competition: string; intent: string; targetPage: string }) => ({
         keyword: k.keyword,
         tier: k.tier,
         volume: k.volume,
@@ -527,14 +526,18 @@ function KeywordsSection() {
         intent: k.intent,
         targetPage: k.targetPage,
       })));
-      setCalendar(mod.CONTENT_CALENDAR.map(c => ({
+    }).catch(() => {});
+    fetch("/api/admin/seo/strategy").then((r) => r.json()).then((d) => {
+      if (d.contentIdeas) setCalendar(d.contentIdeas.map((c: { title: string; targetKeyword: string; status: string; wordCount: number }) => ({
         title: c.title,
         targetKeyword: c.targetKeyword,
         status: c.status,
         wordCount: c.wordCount,
       })));
-    });
+    }).catch(() => {});
   }, []);
+
+  const tierMap: Record<string, number> = { tier1: 1, tier2: 2, tier3: 3 };
 
   const tierColors: Record<number, string> = {
     1: "bg-seed-500/20 text-seed-400 border-seed-500/30",
@@ -550,7 +553,7 @@ function KeywordsSection() {
           Tracked Keywords
         </h2>
         <p className="text-xs text-white/40 mt-0.5">
-          {keywords.length} keywords tracked across 3 tiers. Currently stored in <code className="bg-white/[0.06] px-1 py-0.5 rounded">src/data/seo-strategy.ts</code>.
+          {keywords.length} keywords tracked across 3 tiers. Loaded from database.
         </p>
       </div>
 
@@ -573,8 +576,8 @@ function KeywordsSection() {
                 <tr key={kw.keyword} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-4 py-2.5 text-white/70 font-medium">{kw.keyword}</td>
                   <td className="px-3 py-2.5 text-center">
-                    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", tierColors[kw.tier] || "")}>
-                      T{kw.tier}
+                    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", tierColors[tierMap[kw.tier] ?? 2] || "")}>
+                      T{tierMap[kw.tier] ?? 2}
                     </span>
                   </td>
                   <td className="px-3 py-2.5 text-center text-white/40">{kw.volume}</td>

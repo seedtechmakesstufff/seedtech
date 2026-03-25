@@ -77,6 +77,8 @@ model Site {
   leadEvents       SeoLeadEvent[]
   aiCitations      AICitation[]
   aiVisScores      AIVisibilityScore[]
+  seoTasks         SeoTask[]
+  contentIdeas     ContentIdea[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -535,5 +537,41 @@ model AIVisibilityScore {
   @@index([siteId, pageUrl])
   @@index([scoredAt])
   @@map("ai_visibility_scores")
+}
+
+// ── SEO Tasks (implementation roadmap) ──
+// Replaces the static SEO_TASKS array from seo-strategy.ts.
+model SeoTask {
+  id        String   @id @default(cuid())
+  siteId    String
+  phase     Int      @default(1)
+  title     String
+  status    String   @default("not-started") // "done", "in-progress", "not-started"
+  priority  String   @default("medium")      // "critical", "high", "medium", "low"
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([siteId, status])
+  @@map("seo_tasks")
+}
+
+// ── Content Ideas / Calendar ──
+// Replaces the static CONTENT_CALENDAR array from seo-strategy.ts.
+model ContentIdea {
+  id            String   @id @default(cuid())
+  siteId        String
+  title         String
+  targetKeyword String
+  wordCount     Int      @default(1500)
+  funnelStage   String   @default("Top")
+  status        String   @default("idea") // "published", "draft", "scheduled", "idea"
+  slug          String?
+  site          Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([siteId, status])
+  @@map("content_ideas")
 }
 
