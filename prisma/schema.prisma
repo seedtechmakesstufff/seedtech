@@ -67,6 +67,7 @@ model Site {
   integrations     IntegrationCredential[]
   blogPosts        BlogPost[]
   seoSnapshots     SeoSnapshot[]
+  seoCrawlRuns     SeoCrawlRun[]
   seoPageAudits    SeoPageAudit[]
   seoInsights      SeoInsight[]
   trackedKeywords  TrackedKeyword[]
@@ -293,6 +294,29 @@ model SeoPageAudit {
   @@index([siteId, runId])
   @@index([createdAt])
   @@map("seo_page_audits")
+}
+
+// ── SEO Crawl Runs (metadata per crawl execution) ──
+
+model SeoCrawlRun {
+  id              String    @id @default(uuid())
+  siteId          String
+  runId           String    @unique               // matches SeoPageAudit.runId
+  status          String    @default("running")   // running, completed, failed
+  pagesScanned    Int       @default(0)
+  criticalCount   Int       @default(0)
+  warningCount    Int       @default(0)
+  infoCount       Int       @default(0)
+  passCount       Int       @default(0)
+  eeatScore       Int?                            // aggregate E-E-A-T score
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  errorMessage    String?
+  site            Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+
+  @@index([siteId, createdAt])
+  @@map("seo_crawl_runs")
 }
 
 // ── SEO Insights (freshness, cannibalization, linking) ──

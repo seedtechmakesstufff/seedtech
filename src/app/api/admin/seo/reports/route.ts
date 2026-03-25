@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { previewReport, sendReport, buildReportData } from "@/lib/seo-reports";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -10,16 +11,17 @@ export async function GET(req: Request) {
   }
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format");
+  const siteId = searchParams.get("siteId") || DEFAULT_SITE_ID;
 
   try {
     if (format === "html") {
-      const html = await previewReport();
+      const html = await previewReport(siteId);
       return new Response(html, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
     }
 
-    const data = await buildReportData();
+    const data = await buildReportData(siteId);
     return NextResponse.json({ data });
   } catch (err) {
     return NextResponse.json(
@@ -36,8 +38,9 @@ export async function POST(req: Request) {
   }
   try {
     const body = await req.json().catch(() => ({}));
+    const siteId = (body as { siteId?: string }).siteId || DEFAULT_SITE_ID;
     const to = (body as { to?: string }).to;
-    const result = await sendReport(to);
+    const result = await sendReport(siteId, to);
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

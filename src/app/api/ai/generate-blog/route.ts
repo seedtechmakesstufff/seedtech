@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getTrackedKeywords } from "@/lib/site-data";
-import { buildStrategyPrompt } from "@/lib/business-context";
+import { buildStrategyPrompt, getBusinessContextForSite } from "@/lib/business-context";
 import { getAIOWritingInstructions, scoreAIOReadiness, getPAAResearchPrompt } from "@/lib/seo-aio";
 import { getAuthorEntity, scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIVisibility, getAIFirstWritingInstructions } from "@/lib/ai-visibility";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /**
  * POST /api/ai/generate-blog
@@ -246,9 +247,11 @@ Return JSON:
       if (!content) {
         return NextResponse.json({ error: "Content is required for scoring" }, { status: 400 });
       }
+      const siteId = session?.user?.siteId || DEFAULT_SITE_ID;
+      const businessCtx = await getBusinessContextForSite(siteId);
       const eeatScore = scoreContentEEAT(content, keyword);
       const aioScore = scoreAIOReadiness(content, keyword);
-      const aiVisScore = scoreAIVisibility(content, keyword);
+      const aiVisScore = scoreAIVisibility(content, keyword, businessCtx.companyName);
       return NextResponse.json({
         result: {
           eeat: eeatScore,

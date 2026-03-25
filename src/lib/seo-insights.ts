@@ -17,7 +17,7 @@ import {
   getKeywordPerformance,
   getPagePerformance,
 } from "@/lib/google-search-console";
-import { getTrackedKeywords, getTrackedKeywordStrings } from "@/lib/site-data";
+import { getTrackedKeywords, getTrackedKeywordStrings, getSitePages } from "@/lib/site-data";
 import { buildStrategyPrompt } from "@/lib/business-context";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
@@ -36,7 +36,7 @@ export interface InsightData {
 
 /* ── Content Freshness Alerts ── */
 
-export async function detectStalContent(): Promise<InsightData[]> {
+export async function detectStalContent(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
@@ -48,7 +48,7 @@ export async function detectStalContent(): Promise<InsightData[]> {
     // Find published blog posts older than 3 months
     const stalePosts = await prisma.blogPost.findMany({
       where: {
-        siteId: DEFAULT_SITE_ID,
+        siteId,
         status: "published",
         updatedAt: { lt: threeMonthsAgo },
       },
@@ -80,7 +80,7 @@ export async function detectStalContent(): Promise<InsightData[]> {
 
 /* ── Keyword Cannibalization Detection ── */
 
-export async function detectCannibalization(): Promise<InsightData[]> {
+export async function detectCannibalization(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
   if (!isSearchConsoleConfigured()) return insights;
@@ -173,13 +173,17 @@ export async function detectCannibalization(): Promise<InsightData[]> {
 
 /* ── Internal Linking Suggestions ── */
 
-export async function detectLinkingOpportunities(): Promise<InsightData[]> {
+export async function detectLinkingOpportunities(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
   try {
+    // Load site page inventory for smart link suggestions
+    const sitePages = await getSitePages(siteId);
+    const nonBlogPages = sitePages.filter((p) => p.kind !== "blog" && p.status === "active");
+
     // Check blog posts for internal link count
     const posts = await prisma.blogPost.findMany({
-      where: { siteId: DEFAULT_SITE_ID, status: "published" },
+      where: { siteId, status: "published" },
       select: { id: true, title: true, slug: true, body: true, targetKeyword: true },
     });
 
@@ -189,30 +193,39 @@ export async function detectLinkingOpportunities(): Promise<InsightData[]> {
         (post.body.match(/href="\//g) || []).length;
 
       if (internalLinkCount < 2) {
-        // Find relevant pages to link to based on the target keyword
+        // Find relevant pages to link to based on the target keyword + site pages
         const suggestedLinks: string[] = [];
         if (post.targetKeyword) {
           const kw = post.targetKeyword.toLowerCase();
-          if (kw.includes("it") || kw.includes("support") || kw.includes("managed")) {
-            suggestedLinks.push("/services/managed-it", "/pricing/it-support");
-          }
-          if (kw.includes("web") || kw.includes("site") || kw.includes("design")) {
-            suggestedLinks.push("/services/web-development", "/pricing/web-development");
-          }
-          if (kw.includes("security") || kw.includes("cyber")) {
-            suggestedLinks.push("/services/managed-it");
+          // Match site pages by title or path containing keyword fragments
+          const kwWords = kw.split(/\s+/).filter((w) => w.length > 2);
+          for (const page of nonBlogPages) {
+            const pathLower = page.path.toLowerCase();
+            const titleLower = (page.title || "").toLowerCase();
+            const matches = kwWords.some(
+              (w) => pathLower.includes(w) || titleLower.includes(w)
+            );
+            if (matches) {
+              suggestedLinks.push(page.path);
+            }
           }
         }
+        // Default: suggest service/landing pages if no keyword match
         if (suggestedLinks.length === 0) {
-          suggestedLinks.push("/services/managed-it", "/contact");
+          const servicePage = nonBlogPages.find((p) => p.kind === "service");
+          const contactPage = nonBlogPages.find((p) => p.path === "/contact" || p.kind === "landing");
+          if (servicePage) suggestedLinks.push(servicePage.path);
+          if (contactPage) suggestedLinks.push(contactPage.path);
         }
+        // Cap at 3 suggestions
+        const topLinks = suggestedLinks.slice(0, 3);
 
         insights.push({
           id: `linking-${post.id}`,
           type: "internal_linking",
           status: "active",
           title: `"${post.title}" has only ${internalLinkCount} internal link(s)`,
-          description: `This post should link to at least 2-3 internal pages for better SEO equity distribution. Suggested links: ${suggestedLinks.map((l) => `\`${l}\``).join(", ")}`,
+          description: `This post should link to at least 2-3 internal pages for better SEO equity distribution.${topLinks.length > 0 ? ` Suggested links: ${topLinks.map((l) => `\`${l}\``).join(", ")}` : ""}`,
           actionUrl: `/admin/blog/${post.id}`,
           priority: 40,
           createdAt: new Date(),
@@ -247,13 +260,13 @@ export async function detectLinkingOpportunities(): Promise<InsightData[]> {
 
 /* ── E-E-A-T Issue Detection ── */
 
-export async function detectEEATIssues(): Promise<InsightData[]> {
+export async function detectEEATIssues(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
   try {
     // Check crawl results for E-E-A-T issues
     const latestAudit = await prisma.seoPageAudit.findFirst({
-      where: { siteId: DEFAULT_SITE_ID },
+      where: { siteId },
       orderBy: { createdAt: "desc" },
       select: { runId: true },
     });
@@ -261,7 +274,7 @@ export async function detectEEATIssues(): Promise<InsightData[]> {
 
     const eeatIssues = await prisma.seoPageAudit.findMany({
       where: {
-        siteId: DEFAULT_SITE_ID,
+        siteId,
         runId: latestAudit.runId,
         checkType: { startsWith: "eeat-" },
         severity: { in: ["critical", "warning"] },
@@ -292,7 +305,7 @@ export async function detectEEATIssues(): Promise<InsightData[]> {
     // Check E-E-A-T scores
     const eeatScores = await prisma.seoPageAudit.findMany({
       where: {
-        siteId: DEFAULT_SITE_ID,
+        siteId,
         runId: latestAudit.runId,
         checkType: "eeat-score",
       },
@@ -324,7 +337,7 @@ export async function detectEEATIssues(): Promise<InsightData[]> {
 
 /* ── CTR Optimization Insights ── */
 
-export async function detectCTROpportunities(): Promise<InsightData[]> {
+export async function detectCTROpportunities(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
   if (!isSearchConsoleConfigured()) return insights;
@@ -380,7 +393,7 @@ export async function detectCTROpportunities(): Promise<InsightData[]> {
 
 /* ── AI Keyword Discovery ── */
 
-export async function discoverKeywords(): Promise<{
+export async function discoverKeywords(siteId: string = DEFAULT_SITE_ID): Promise<{
   suggestions: string;
   keywords: { keyword: string; rationale: string; estimatedVolume: string; difficulty: string }[];
 }> {
@@ -443,13 +456,13 @@ export async function discoverKeywords(): Promise<{
 
 /* ── Run All Insights ── */
 
-export async function generateAllInsights(): Promise<InsightData[]> {
+export async function generateAllInsights(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const [freshness, cannibalization, linking, eeat, ctr] = await Promise.allSettled([
-    detectStalContent(),
-    detectCannibalization(),
-    detectLinkingOpportunities(),
-    detectEEATIssues(),
-    detectCTROpportunities(),
+    detectStalContent(siteId),
+    detectCannibalization(siteId),
+    detectLinkingOpportunities(siteId),
+    detectEEATIssues(siteId),
+    detectCTROpportunities(siteId),
   ]);
 
   const all: InsightData[] = [
@@ -466,13 +479,13 @@ export async function generateAllInsights(): Promise<InsightData[]> {
   // Store in DB (upsert — replace existing active insights)
   try {
     // Clear old active insights
-    await prisma.seoInsight.deleteMany({ where: { siteId: DEFAULT_SITE_ID, status: "active" } });
+    await prisma.seoInsight.deleteMany({ where: { siteId, status: "active" } });
 
     // Insert new ones
     if (all.length > 0) {
       await prisma.seoInsight.createMany({
         data: all.map((insight) => ({
-          siteId: DEFAULT_SITE_ID,
+          siteId,
           type: insight.type as "content_freshness" | "cannibalization" | "internal_linking" | "keyword_opportunity" | "eeat_issue" | "aio_opportunity" | "ctr_optimization" | "competitor_gap" | "lead_gen" | "general",
           status: "active" as const,
           title: insight.title,
@@ -491,10 +504,10 @@ export async function generateAllInsights(): Promise<InsightData[]> {
 
 /* ── Get stored insights ── */
 
-export async function getActiveInsights(): Promise<InsightData[]> {
+export async function getActiveInsights(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   try {
     const insights = await prisma.seoInsight.findMany({
-      where: { siteId: DEFAULT_SITE_ID, status: "active" },
+      where: { siteId, status: "active" },
       orderBy: { priority: "desc" },
     });
     return insights.map((i) => ({

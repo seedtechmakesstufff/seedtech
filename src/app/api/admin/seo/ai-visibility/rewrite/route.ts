@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { scoreAIVisibility, getAIFirstWritingInstructions } from "@/lib/ai-visibility";
-import { buildStrategyPrompt } from "@/lib/business-context";
+import { buildStrategyPrompt, getBusinessContextForSite } from "@/lib/business-context";
 import { requireSiteContext } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
 
@@ -53,7 +53,9 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 2. Get current AI Visibility score + failed checks ──
-  const currentScore = scoreAIVisibility(post.body, post.targetKeyword || undefined);
+  const businessCtx = await getBusinessContextForSite(siteId);
+  const brandName = businessCtx.companyName;
+  const currentScore = scoreAIVisibility(post.body, post.targetKeyword || undefined, brandName);
   const failedChecks = currentScore.checks.filter((c) => !c.passed);
 
   if (failedChecks.length === 0) {
@@ -68,14 +70,14 @@ export async function POST(req: NextRequest) {
 
   // ── 3. Build the rewrite prompt ──
   const aiFirstInstructions = getAIFirstWritingInstructions();
-  const businessContext = buildStrategyPrompt();
+  const businessContext = buildStrategyPrompt(businessCtx);
 
   const failedChecksList = failedChecks
     .sort((a, b) => b.weight - a.weight)
     .map((c, i) => `${i + 1}. [${c.category}] ${c.check} — FIX: ${c.fix}`)
     .join("\n");
 
-  const systemPrompt = `You are an expert AI visibility content editor for SeedTech, an MSP in Northern New Jersey. Your job is to REWRITE existing blog content to fix specific AI Visibility failures while preserving the article's voice, facts, and overall structure.
+  const systemPrompt = `You are an expert AI visibility content editor for ${brandName}. Your job is to REWRITE existing blog content to fix specific AI Visibility failures while preserving the article's voice, facts, and overall structure.
 
 ${businessContext}
 
@@ -148,7 +150,7 @@ Return the complete rewritten Markdown content only.`;
     }
 
     // ── 5. Score the rewritten content ──
-    const newScore = scoreAIVisibility(rewritten, post.targetKeyword || undefined);
+    const newScore = scoreAIVisibility(rewritten, post.targetKeyword || undefined, brandName);
 
     return NextResponse.json({
       rewritten,
@@ -215,7 +217,8 @@ export async function PUT(req: NextRequest) {
   });
 
   // Re-score and store
-  const result = scoreAIVisibility(content, post.targetKeyword || undefined);
+  const businessCtx = await getBusinessContextForSite(siteId);
+  const result = scoreAIVisibility(content, post.targetKeyword || undefined, businessCtx.companyName);
   const pageUrl = `/blog/${post.slug}`;
 
   await prisma.aIVisibilityScore.create({

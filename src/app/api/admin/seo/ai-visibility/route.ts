@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
 import { requireSiteContext } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
+import { getBusinessContextForSite } from "@/lib/business-context";
 
 /**
  * GET  /api/admin/seo/ai-visibility — Get AI Visibility scores + trends
@@ -32,6 +33,9 @@ export async function GET(req: NextRequest) {
 
   // ── Auto-score any published posts that haven't been scored yet ──
   try {
+    const businessCtx = await getBusinessContextForSite(siteId);
+    const brandName = businessCtx.companyName;
+
     const publishedPosts = await prisma.blogPost.findMany({
       where: { siteId, status: "published" },
       select: { slug: true, body: true, targetKeyword: true },
@@ -48,7 +52,7 @@ export async function GET(req: NextRequest) {
     for (const post of publishedPosts) {
       const url = `/blog/${post.slug}`;
       if (!existingScoreUrls.has(url)) {
-        const result = scoreAIVisibility(post.body, post.targetKeyword || undefined);
+        const result = scoreAIVisibility(post.body, post.targetKeyword || undefined, brandName);
         await prisma.aIVisibilityScore.create({
           data: {
             siteId,
@@ -118,7 +122,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Score the content
-  const result = scoreAIVisibility(content, keyword);
+  const businessCtx = await getBusinessContextForSite(siteId);
+  const result = scoreAIVisibility(content, keyword, businessCtx.companyName);
 
   // Store the score
   const score = await prisma.aIVisibilityScore.create({

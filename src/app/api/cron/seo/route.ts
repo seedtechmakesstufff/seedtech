@@ -28,6 +28,7 @@ import { scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIOReadiness } from "@/lib/seo-aio";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
+import { getBusinessContextForSite } from "@/lib/business-context";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -41,6 +42,13 @@ export async function GET(req: NextRequest) {
   const results: Record<string, unknown> = {};
   const errors: string[] = [];
 
+  // Load brand name for AI Visibility scoring
+  let brandName = "SeedTech";
+  try {
+    const ctx = await getBusinessContextForSite(DEFAULT_SITE_ID);
+    brandName = ctx.companyName;
+  } catch { /* use default */ }
+
   /* 1. Snapshot */
   try {
     results.snapshot = await takeSnapshot();
@@ -50,14 +58,14 @@ export async function GET(req: NextRequest) {
 
   /* 2. Crawl */
   try {
-    results.crawl = await runCrawl();
+    results.crawl = await runCrawl(DEFAULT_SITE_ID);
   } catch (e) {
     errors.push(`crawl: ${e instanceof Error ? e.message : String(e)}`);
   }
 
   /* 3. Insights */
   try {
-    results.insights = await generateAllInsights();
+    results.insights = await generateAllInsights(DEFAULT_SITE_ID);
   } catch (e) {
     errors.push(`insights: ${e instanceof Error ? e.message : String(e)}`);
   }
@@ -130,7 +138,7 @@ export async function GET(req: NextRequest) {
 
     let scored = 0;
     for (const post of posts) {
-      const aiVis = scoreAIVisibility(post.body, post.targetKeyword || undefined);
+      const aiVis = scoreAIVisibility(post.body, post.targetKeyword || undefined, brandName);
 
       await prisma.aIVisibilityScore.create({
         data: {
@@ -157,7 +165,7 @@ export async function GET(req: NextRequest) {
 
   /* 6. Email report */
   try {
-    results.report = await sendReport();
+    results.report = await sendReport(DEFAULT_SITE_ID);
   } catch (e) {
     errors.push(`report: ${e instanceof Error ? e.message : String(e)}`);
   }

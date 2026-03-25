@@ -1,16 +1,17 @@
 /* ── SEO Email Reports ──
  * Build and send weekly/monthly SEO digest emails.
  * Uses a simple HTML template emailed via Resend or any SMTP endpoint.
+ * Site-aware: loads branding, URLs, and email config from DB.
  */
 
 import { getSnapshotHistory, getKeywordTrends } from "@/lib/seo-snapshot";
 import { getActiveInsights } from "@/lib/seo-insights";
 import { getLatestCrawlResults } from "@/lib/seo-crawler";
+import { getSiteUrl } from "@/lib/site-data";
+import { getBusinessContextForSite } from "@/lib/business-context";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://seedtechllc.com";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const REPORT_FROM = process.env.REPORT_FROM_EMAIL || "seo@seedtechllc.com";
-const REPORT_TO = process.env.REPORT_TO_EMAIL || "admin@seedtechllc.com";
 
 /* ── Types ── */
 
@@ -30,14 +31,40 @@ export interface ReportData {
   topInsights: { title: string; type: string; priority: number }[];
 }
 
+export interface ReportBranding {
+  companyName: string;
+  siteUrl: string;
+  fromEmail: string;
+  toEmail: string;
+}
+
+/* ── Resolve branding from DB / env ── */
+
+async function getReportBranding(siteId: string): Promise<ReportBranding> {
+  const siteUrl = await getSiteUrl(siteId);
+  let companyName = "SeedTech";
+  try {
+    const ctx = await getBusinessContextForSite(siteId);
+    companyName = ctx.companyName;
+  } catch { /* use default */ }
+
+  const domain = new URL(siteUrl).hostname;
+  return {
+    companyName,
+    siteUrl,
+    fromEmail: process.env.REPORT_FROM_EMAIL || `seo@${domain}`,
+    toEmail: process.env.REPORT_TO_EMAIL || `admin@${domain}`,
+  };
+}
+
 /* ── Build report data ── */
 
-export async function buildReportData(): Promise<ReportData> {
+export async function buildReportData(siteId: string = DEFAULT_SITE_ID): Promise<ReportData> {
   const [snapshots, keywords, insights, crawl] = await Promise.allSettled([
-    getSnapshotHistory(2),
-    getKeywordTrends(2),
-    getActiveInsights(),
-    getLatestCrawlResults(),
+    getSnapshotHistory(2, siteId),
+    getKeywordTrends(2, siteId),
+    getActiveInsights(siteId),
+    getLatestCrawlResults(siteId),
   ]);
 
   const snapshotList = snapshots.status === "fulfilled" ? snapshots.value : [];
@@ -91,7 +118,7 @@ export async function buildReportData(): Promise<ReportData> {
 
 /* ── Build HTML email ── */
 
-export function buildReportHtml(data: ReportData): string {
+export function buildReportHtml(data: ReportData, branding: ReportBranding): string {
   const healthColor = data.currentHealth >= 70 ? "#22c55e" : data.currentHealth >= 50 ? "#eab308" : "#ef4444";
   const deltaArrow = data.healthDelta >= 0 ? "↑" : "↓";
   const deltaColor = data.healthDelta >= 0 ? "#22c55e" : "#ef4444";
@@ -104,7 +131,7 @@ export function buildReportHtml(data: ReportData): string {
 <div style="max-width:600px;margin:0 auto;background:#111;border-radius:12px;padding:32px;border:1px solid #333">
 
   <div style="text-align:center;margin-bottom:32px">
-    <h1 style="color:#fff;font-size:24px;margin:0">🌱 SeedTech SEO Report</h1>
+    <h1 style="color:#fff;font-size:24px;margin:0">🌱 ${branding.companyName} SEO Report</h1>
     <p style="color:#9ca3af;font-size:14px;margin:8px 0 0">${data.period}</p>
   </div>
 
@@ -171,13 +198,13 @@ export function buildReportHtml(data: ReportData): string {
 
   <!-- CTA -->
   <div style="text-align:center;margin-top:32px">
-    <a href="${SITE_URL}/admin/seo" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:14px">
+    <a href="${branding.siteUrl}/admin/seo" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:14px">
       View Full Dashboard →
     </a>
   </div>
 
   <p style="color:#6b7280;font-size:12px;text-align:center;margin:24px 0 0">
-    SeedTech SEO Autopilot • Automated weekly report
+    ${branding.companyName} SEO Autopilot • Automated weekly report
   </p>
 
 </div>
@@ -187,9 +214,15 @@ export function buildReportHtml(data: ReportData): string {
 
 /* ── Send email via Resend ── */
 
-export async function sendReport(to?: string): Promise<{ success: boolean; message: string }> {
-  const reportData = await buildReportData();
-  const html = buildReportHtml(reportData);
+export async function sendReport(
+  siteId: string = DEFAULT_SITE_ID,
+  toOverride?: string
+): Promise<{ success: boolean; message: string }> {
+  const [reportData, branding] = await Promise.all([
+    buildReportData(siteId),
+    getReportBranding(siteId),
+  ]);
+  const html = buildReportHtml(reportData, branding);
 
   if (!RESEND_API_KEY) {
     // If Resend not configured, return the HTML for preview
@@ -207,8 +240,8 @@ export async function sendReport(to?: string): Promise<{ success: boolean; messa
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: REPORT_FROM,
-        to: to || REPORT_TO,
+        from: branding.fromEmail,
+        to: toOverride || branding.toEmail,
         subject: `SEO Report — Health ${reportData.currentHealth}/100 — ${reportData.period}`,
         html,
       }),
@@ -233,7 +266,10 @@ export async function sendReport(to?: string): Promise<{ success: boolean; messa
 
 /* ── Preview report (returns HTML string) ── */
 
-export async function previewReport(): Promise<string> {
-  const reportData = await buildReportData();
-  return buildReportHtml(reportData);
+export async function previewReport(siteId: string = DEFAULT_SITE_ID): Promise<string> {
+  const [reportData, branding] = await Promise.all([
+    buildReportData(siteId),
+    getReportBranding(siteId),
+  ]);
+  return buildReportHtml(reportData, branding);
 }

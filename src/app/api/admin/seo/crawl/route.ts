@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { runCrawl, getLatestCrawlResults } from "@/lib/seo-crawler";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -29,9 +30,10 @@ export async function POST(req: Request) {
   }
   try {
     const body = await req.json().catch(() => ({}));
+    const siteId = (body as { siteId?: string }).siteId || DEFAULT_SITE_ID;
     const baseUrl = (body as { baseUrl?: string }).baseUrl;
     const paths = (body as { paths?: string[] }).paths;
-    const result = await runCrawl(baseUrl, paths);
+    const result = await runCrawl(siteId, baseUrl, paths);
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

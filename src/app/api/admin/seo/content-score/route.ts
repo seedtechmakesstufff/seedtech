@@ -5,6 +5,7 @@ import { scoreAIOReadiness } from "@/lib/seo-aio";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
 import { requireSiteContext } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
+import { getBusinessContextForSite } from "@/lib/business-context";
 
 /**
  * POST /api/admin/seo/content-score — Score a page's content
@@ -40,9 +41,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Score the content
+  const businessCtx = await getBusinessContextForSite(siteId);
   const eeatResult = scoreContentEEAT(content, keyword);
   const aioResult = scoreAIOReadiness(content, keyword);
-  const aiVisResult = scoreAIVisibility(content, keyword);
+  const aiVisResult = scoreAIVisibility(content, keyword, businessCtx.companyName);
 
   // Count links
   const internalLinkCount =

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth-options";
 import { getPostById, updatePost, deletePost } from "@/lib/blog";
 import { submitUrl, isIndexNowConfigured } from "@/lib/indexnow";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
+import { getBusinessContextForSite } from "@/lib/business-context";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
@@ -59,8 +60,9 @@ export async function PUT(
   let aiVisibilityGrade = null;
   if (updated.status === "published" && updated.body) {
     try {
-      const aiVis = scoreAIVisibility(updated.body, updated.targetKeyword || undefined);
       const siteId = session?.user?.siteId || DEFAULT_SITE_ID;
+      const businessCtx = await getBusinessContextForSite(siteId);
+      const aiVis = scoreAIVisibility(updated.body, updated.targetKeyword || undefined, businessCtx.companyName);
       await prisma.aIVisibilityScore.create({
         data: {
           siteId,

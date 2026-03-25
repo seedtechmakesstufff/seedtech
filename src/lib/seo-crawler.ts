@@ -22,6 +22,7 @@ import { JSDOM } from "jsdom";
 import { randomUUID } from "crypto";
 import { auditEEAT } from "@/lib/seo-eeat";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
+import { getAllSitePagePaths, syncBlogPostsToSitePages, getSiteUrl } from "@/lib/site-data";
 
 export interface CrawlIssue {
   url: string;
@@ -44,25 +45,6 @@ export interface CrawlResult {
   /** E-E-A-T aggregate score across all crawled pages */
   eeatScore?: number;
 }
-
-const DEFAULT_PATHS = [
-  "/",
-  "/about",
-  "/services",
-  "/services/managed-it",
-  "/services/web-development",
-  "/pricing/it-support",
-  "/pricing/web-development",
-  "/industries",
-  "/industries/trucking",
-  "/industries/construction",
-  "/industries/law-firms",
-  "/industries/medical",
-  "/blog",
-  "/contact",
-  "/free-audit",
-  "/our-work",
-];
 
 /* ── Fetch helpers ── */
 
@@ -617,20 +599,36 @@ function auditPage(
 /* ── Main crawl runner ── */
 
 export async function runCrawl(
+  siteId: string = DEFAULT_SITE_ID,
   baseUrl?: string,
-  paths: string[] = DEFAULT_PATHS
+  pathsOverride?: string[]
 ): Promise<CrawlResult> {
-  const siteUrl =
-    baseUrl ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.GOOGLE_SEARCH_CONSOLE_SITE?.replace(
-      "sc-domain:",
-      "https://"
-    ) ||
-    process.env.NEXTAUTH_URL ||
-    "http://localhost:3000";
+  // Sync blog posts into SitePage inventory so they get crawled
+  await syncBlogPostsToSitePages(siteId);
+
+  // Load paths from DB (SitePage inventory) or use override
+  const paths =
+    pathsOverride && pathsOverride.length > 0
+      ? pathsOverride
+      : await getAllSitePagePaths(siteId);
+
+  // Fall back to ["/"] if DB returns nothing
+  if (paths.length === 0) paths.push("/");
+
+  // Resolve site URL from DB → env → fallback
+  const siteUrl = baseUrl || (await getSiteUrl(siteId));
 
   const runId = randomUUID();
+
+  // Create SeoCrawlRun record
+  await prisma.seoCrawlRun.create({
+    data: {
+      siteId,
+      runId,
+      status: "running",
+    },
+  });
+
   const allIssues: CrawlIssue[] = [];
   let pagesScanned = 0;
   const pageHashes: Record<string, string> = {};
@@ -829,7 +827,7 @@ export async function runCrawl(
   if (nonPassIssues.length > 0) {
     await prisma.seoPageAudit.createMany({
       data: nonPassIssues.map((issue) => ({
-        siteId: DEFAULT_SITE_ID,
+        siteId,
         runId,
         url: issue.url,
         checkType: issue.checkType,
@@ -852,6 +850,21 @@ export async function runCrawl(
         eeatScores.reduce((a, b) => a + b, 0) / eeatScores.length
       )
     : undefined;
+
+  // Update SeoCrawlRun with results
+  await prisma.seoCrawlRun.update({
+    where: { runId },
+    data: {
+      status: "completed",
+      pagesScanned,
+      criticalCount: summary.critical,
+      warningCount: summary.warning,
+      infoCount: summary.info,
+      passCount: summary.pass,
+      eeatScore: avgEeat ?? null,
+      completedAt: new Date(),
+    },
+  });
 
   return {
     runId,
@@ -889,4 +902,17 @@ export async function getLatestCrawlResults(siteId: string = DEFAULT_SITE_ID) {
       createdAt: i.createdAt,
     })),
   };
+}
+
+/* ── Get crawl run history ── */
+
+export async function getCrawlRunHistory(
+  siteId: string = DEFAULT_SITE_ID,
+  limit: number = 10
+) {
+  return prisma.seoCrawlRun.findMany({
+    where: { siteId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
 }
