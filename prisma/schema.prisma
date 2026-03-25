@@ -84,6 +84,7 @@ model Site {
   authors          Author[]
   evidence         ExperienceEvidence[]
   cronRuns         CronJobRun[]
+  linkSuggestions  InternalLinkSuggestion[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -412,18 +413,77 @@ model TrackedKeyword {
 }
 
 model KeywordCluster {
-  id          String           @id @default(uuid())
-  siteId      String
-  name        String
-  pillarPage  String                                   // the main page for this topic cluster
-  description String?
-  keywords    TrackedKeyword[]
-  site        Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id              String           @id @default(uuid())
+  siteId          String
+  name            String
+  pillarPage      String                               // the main page for this topic cluster
+  description     String?
+  seedKeyword     String           @default("")        // the keyword used to generate this cluster
+  status          String           @default("draft")   // draft, active, archived
+  // Authority scoring
+  authorityScore  Int?                                 // 0-100 composite authority
+  coveragePercent Float?                               // % of subtopics with published content
+  avgContentScore Float?                               // avg E-E-A-T + AIO across cluster content
+  avgAiVisScore   Float?                               // avg AI Visibility score
+  linkDensity     Float?                               // internal links per page within cluster
+  lastScoredAt    DateTime?
+  // Relations
+  keywords        TrackedKeyword[]
+  subtopics       ClusterSubtopic[]
+  linkSuggestions InternalLinkSuggestion[]
+  contentIdeas    ContentIdea[]
+  site            Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@unique([siteId, name])
   @@map("keyword_clusters")
+}
+
+// ── Cluster Subtopics (spoke pages in a topic cluster) ──
+// Each subtopic represents a spoke page that supports the pillar.
+model ClusterSubtopic {
+  id              String          @id @default(uuid())
+  clusterId       String
+  title           String                               // subtopic title / H1
+  slug            String                               // suggested URL slug
+  targetKeyword   String                               // primary keyword for this spoke
+  searchIntent    String          @default("informational") // transactional, commercial, informational, navigational
+  contentStatus   String          @default("missing")  // missing, idea, draft, published
+  matchedPageUrl  String?                              // existing page URL if content exists
+  matchedBlogId   String?                              // matched BlogPost.id if applicable
+  priority        Int             @default(50)         // 0-100, higher = create first
+  wordCountTarget Int             @default(1500)
+  briefNotes      String?         @db.Text             // AI-generated content brief
+  cluster         KeywordCluster  @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([clusterId, slug])
+  @@index([clusterId, contentStatus])
+  @@map("cluster_subtopics")
+}
+
+// ── Internal Link Suggestions ──
+// AI-generated suggestions to add internal links within and across clusters.
+model InternalLinkSuggestion {
+  id              String          @id @default(uuid())
+  siteId          String
+  clusterId       String?
+  sourcePageUrl   String                               // page that should add a link
+  targetPageUrl   String                               // page to link TO
+  anchorText      String                               // suggested anchor text
+  context         String?         @db.Text             // surrounding sentence or paragraph
+  reason          String                               // why this link should exist
+  status          String          @default("pending")  // pending, accepted, dismissed
+  cluster         KeywordCluster? @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  site            Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt       DateTime        @default(now())
+
+  @@unique([siteId, sourcePageUrl, targetPageUrl])
+  @@index([siteId, status])
+  @@index([clusterId])
+  @@map("internal_link_suggestions")
 }
 
 // ── Content Scoring ──
@@ -565,19 +625,22 @@ model SeoTask {
 // ── Content Ideas / Calendar ──
 // Replaces the static CONTENT_CALENDAR array from seo-strategy.ts.
 model ContentIdea {
-  id            String   @id @default(cuid())
+  id            String          @id @default(cuid())
   siteId        String
   title         String
   targetKeyword String
-  wordCount     Int      @default(1500)
-  funnelStage   String   @default("Top")
-  status        String   @default("idea") // "published", "draft", "scheduled", "idea"
+  wordCount     Int             @default(1500)
+  funnelStage   String          @default("Top")
+  status        String          @default("idea") // "published", "draft", "scheduled", "idea"
   slug          String?
-  site          Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  clusterId     String?
+  cluster       KeywordCluster? @relation(fields: [clusterId], references: [id], onDelete: SetNull)
+  site          Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   @@index([siteId, status])
+  @@index([clusterId])
   @@map("content_ideas")
 }
 
