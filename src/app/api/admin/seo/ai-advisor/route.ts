@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { buildStrategyPrompt } from "@/lib/business-context";
-import { TRACKED_KEYWORDS, SEO_TASKS, CONTENT_CALENDAR } from "@/data/seo-strategy";
 import {
   isSearchConsoleConfigured,
   getSearchConsoleSummary,
   getTrackedKeywordPositions,
 } from "@/lib/google-search-console";
+import { getTrackedKeywords, getTrackedKeywordStrings } from "@/lib/site-data";
 import { getAIOAdvisorContext } from "@/lib/seo-aio";
 import { getAIVisibilityAdvisorContext } from "@/lib/ai-visibility";
 
@@ -49,9 +49,10 @@ export async function POST(req: NextRequest) {
   // Build context
   const businessContext = buildStrategyPrompt();
 
-  // Strategy data
+  // Strategy data from DB
+  const dbKeywords = await getTrackedKeywords();
   const strategyData = {
-    trackedKeywords: TRACKED_KEYWORDS.map((k) => ({
+    trackedKeywords: dbKeywords.map((k) => ({
       keyword: k.keyword,
       tier: k.tier,
       volume: k.volume,
@@ -59,29 +60,18 @@ export async function POST(req: NextRequest) {
       intent: k.intent,
       targetPage: k.targetPage,
     })),
-    tasks: SEO_TASKS.map((t) => ({
-      title: t.title,
-      phase: t.phase,
-      status: t.status,
-      priority: t.priority,
-    })),
-    contentCalendar: CONTENT_CALENDAR.map((c) => ({
-      title: c.title,
-      keyword: c.targetKeyword,
-      status: c.status,
-    })),
+    tasks: [] as { title: string; phase: number; status: string; priority: string }[],
+    contentCalendar: [] as { title: string; keyword: string; status: string }[],
   };
 
   // Real Search Console data (if configured and requested)
   let searchConsoleData: any = null;
   if (includeSearchConsole && isSearchConsoleConfigured()) {
     try {
+      const kwStrings = await getTrackedKeywordStrings();
       const [summary, positions] = await Promise.all([
         getSearchConsoleSummary(28),
-        getTrackedKeywordPositions(
-          TRACKED_KEYWORDS.map((k) => k.keyword),
-          28
-        ),
+        getTrackedKeywordPositions(kwStrings, 28),
       ]);
       searchConsoleData = { summary, trackedPositions: positions };
     } catch {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { analyzeUrl, auditSite } from "@/lib/pagespeed";
+import { getSiteKeyPagePaths, getSiteUrl } from "@/lib/site-data";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /**
  * GET /api/admin/seo/pagespeed
@@ -29,13 +31,12 @@ export async function GET(req: NextRequest) {
     }
 
     if (audit) {
-      // Use the configured site URL or fall back to localhost
-      const siteUrl =
-        process.env.GOOGLE_SEARCH_CONSOLE_SITE?.replace("sc-domain:", "https://") ||
-        process.env.NEXTAUTH_URL ||
-        "http://localhost:3000";
-      const summary = await auditSite(siteUrl, undefined, strategy);
-      return NextResponse.json(summary);
+      const siteId = (session.user as any).siteId || DEFAULT_SITE_ID;
+      const siteUrl = await getSiteUrl(siteId);
+      const keyPages = await getSiteKeyPagePaths(siteId);
+      const paths = keyPages.length > 0 ? keyPages : ["/"];
+      const summary = await auditSite(siteUrl, paths, strategy);
+      return NextResponse.json({ results: summary });
     }
 
     return NextResponse.json(

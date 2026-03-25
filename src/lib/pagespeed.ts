@@ -127,10 +127,11 @@ export async function analyzeUrl(
 
 /**
  * Audit multiple pages at once. Returns summary + per-page results.
+ * Paths must be provided by the caller (from SitePage or site config).
  */
 export async function auditSite(
   baseUrl: string,
-  paths: string[] = ["/", "/services/managed-it", "/pricing/it-support", "/blog", "/contact"],
+  paths: string[] = ["/"],
   strategy: "mobile" | "desktop" = "mobile"
 ): Promise<PageSpeedSummary> {
   const results = await Promise.allSettled(

@@ -8,7 +8,12 @@ import {
   getTrackedKeywordPositions,
   listSites,
 } from "@/lib/google-search-console";
-import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
+import {
+  getTrackedKeywordStrings,
+  getSearchConsoleIntegration,
+  updateKeywordPositions,
+} from "@/lib/site-data";
+import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /**
  * GET /api/admin/seo/search-console
@@ -26,7 +31,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!isSearchConsoleConfigured()) {
+  const siteId = (session.user as any).siteId || DEFAULT_SITE_ID;
+  const integration = await getSearchConsoleIntegration(siteId);
+
+  if (!isSearchConsoleConfigured(integration)) {
     return NextResponse.json({
       configured: false,
       message: "Google Search Console is not configured. Add service account credentials to .env.local",
@@ -40,23 +48,24 @@ export async function GET(req: NextRequest) {
   try {
     switch (action) {
       case "test": {
-        const sites = await listSites();
-        const result = await testConnection();
+        const sites = await listSites(integration);
+        const result = await testConnection(integration);
         return NextResponse.json({ configured: true, ...result, availableSites: sites });
       }
 
       case "keywords": {
-        const keywords = TRACKED_KEYWORDS.map((k) => k.keyword);
-        const positions = await getTrackedKeywordPositions(keywords, days);
+        const keywords = await getTrackedKeywordStrings(siteId);
+        const positions = await getTrackedKeywordPositions(keywords, days, integration);
+        await updateKeywordPositions(siteId, positions);
         return NextResponse.json({ configured: true, positions, days });
       }
 
       case "summary":
       default: {
-        const summary = await getSearchConsoleSummary(days);
-        // Also get tracked keyword positions
-        const keywords = TRACKED_KEYWORDS.map((k) => k.keyword);
-        const positions = await getTrackedKeywordPositions(keywords, days);
+        const summary = await getSearchConsoleSummary(days, integration);
+        const keywords = await getTrackedKeywordStrings(siteId);
+        const positions = await getTrackedKeywordPositions(keywords, days, integration);
+        await updateKeywordPositions(siteId, positions);
         return NextResponse.json({
           configured: true,
           summary,

@@ -17,7 +17,7 @@ import {
   getKeywordPerformance,
   getPagePerformance,
 } from "@/lib/google-search-console";
-import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
+import { getTrackedKeywords, getTrackedKeywordStrings } from "@/lib/site-data";
 import { buildStrategyPrompt } from "@/lib/business-context";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
@@ -90,11 +90,14 @@ export async function detectCannibalization(): Promise<InsightData[]> {
     const pages = await getPagePerformance(28, 50);
     const keywords = await getKeywordPerformance(28, 200);
 
+    // Load tracked keywords from DB
+    const trackedKeywords = await getTrackedKeywords();
+
     // Group: which keywords bring traffic to which pages?
     // If two pages rank for the same tracked keyword, that's cannibalization
     const keywordPageMap: Record<string, { page: string; position: number; clicks: number }[]> = {};
 
-    for (const kw of TRACKED_KEYWORDS) {
+    for (const kw of trackedKeywords) {
       const matches = keywords.filter(
         (k) => k.keyword.toLowerCase().includes(kw.keyword.toLowerCase()) ||
                kw.keyword.toLowerCase().includes(k.keyword.toLowerCase())
@@ -107,7 +110,7 @@ export async function detectCannibalization(): Promise<InsightData[]> {
         const _topRanking = matches[0];
 
         // Find if any other tracked keyword shares the same target page with different intent
-        const sameTarget = TRACKED_KEYWORDS.filter(
+        const sameTarget = trackedKeywords.filter(
           (other) => other.targetPage === targetPage && other.keyword !== kw.keyword
         );
 
@@ -385,7 +388,8 @@ export async function discoverKeywords(): Promise<{
   if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
 
   const businessContext = buildStrategyPrompt();
-  const existingKeywords = TRACKED_KEYWORDS.map((k) => k.keyword).join(", ");
+  const kwStrings = await getTrackedKeywordStrings();
+  const existingKeywords = kwStrings.join(", ");
 
   // Get current GSC data for context
   let gscContext = "";

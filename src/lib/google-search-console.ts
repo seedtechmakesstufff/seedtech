@@ -1,19 +1,25 @@
 import { google } from "googleapis";
+import type { SearchConsoleIntegration } from "@/lib/site-data";
 
 /* ── Google Search Console Integration ──
  *
- * Uses a service account to pull real ranking data.
+ * Supports two modes:
+ *   1. DB-backed: pass a SearchConsoleIntegration from IntegrationCredential
+ *   2. Env-backed: falls back to global env vars (single-tenant compat)
  *
- * Required env vars:
- *   GOOGLE_SERVICE_ACCOUNT_EMAIL  — e.g. seedtech-seo@your-project.iam.gserviceaccount.com
- *   GOOGLE_SERVICE_ACCOUNT_KEY    — The full private key (PEM), with \n line breaks
- *   GOOGLE_SEARCH_CONSOLE_SITE    — Your verified property, e.g. https://seedtechllc.com or sc-domain:seedtechllc.com
+ * Env vars (fallback):
+ *   GOOGLE_SERVICE_ACCOUNT_EMAIL
+ *   GOOGLE_SERVICE_ACCOUNT_KEY   — full PEM or full JSON service account
+ *   GOOGLE_SEARCH_CONSOLE_SITE   — e.g. https://seedtechllc.com or sc-domain:seedtechllc.com
  */
 
 const SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"];
 
-/** Check if Search Console credentials are configured */
-export function isSearchConsoleConfigured(): boolean {
+/** Check if Search Console is available (env or integration) */
+export function isSearchConsoleConfigured(
+  integration?: SearchConsoleIntegration | null
+): boolean {
+  if (integration) return true;
   return !!(
     process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
     process.env.GOOGLE_SERVICE_ACCOUNT_KEY &&
@@ -22,28 +28,35 @@ export function isSearchConsoleConfigured(): boolean {
 }
 
 /** Create an authenticated Search Console client */
-function getClient() {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
-  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE!;
+function getClient(integration?: SearchConsoleIntegration | null) {
+  let email: string;
+  let key: string;
+  let siteUrl: string;
 
-  // GOOGLE_SERVICE_ACCOUNT_KEY can be either:
-  //   1. The full service account JSON object (paste the whole .json file)
-  //   2. Just the private_key PEM string with literal \n sequences
-  let key: string = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
-  try {
-    // Try parsing as full JSON service account file
-    const parsed = JSON.parse(key);
-    if (parsed.private_key) key = parsed.private_key;
-  } catch {
-    // Not JSON — treat as raw PEM string, replace literal \n with real newlines
-    key = key.replace(/\\n/g, "\n");
+  if (integration) {
+    siteUrl = integration.property;
+    try {
+      const parsed = JSON.parse(integration.credentials);
+      email = parsed.client_email;
+      key = parsed.private_key;
+    } catch {
+      email = "";
+      key = integration.credentials.replace(/\\n/g, "\n");
+    }
+  } else {
+    email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
+    siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE!;
+    key = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
+    try {
+      const parsed = JSON.parse(key);
+      if (parsed.private_key) key = parsed.private_key;
+      if (parsed.client_email) email = parsed.client_email;
+    } catch {
+      key = key.replace(/\\n/g, "\n");
+    }
   }
 
-  const auth = new google.auth.JWT({
-    email,
-    key,
-    scopes: SCOPES,
-  });
+  const auth = new google.auth.JWT({ email, key, scopes: SCOPES });
   const searchconsole = google.searchconsole({ version: "v1", auth });
 
   return { searchconsole, siteUrl };
@@ -84,9 +97,10 @@ export interface SearchConsoleSummary {
  */
 export async function getKeywordPerformance(
   days = 28,
-  rowLimit = 100
+  rowLimit = 100,
+  integration?: SearchConsoleIntegration | null
 ): Promise<SearchConsoleRow[]> {
-  const { searchconsole, siteUrl } = getClient();
+  const { searchconsole, siteUrl } = getClient(integration);
 
   const endDate = new Date();
   const startDate = new Date();
@@ -117,9 +131,10 @@ export async function getKeywordPerformance(
  */
 export async function getPagePerformance(
   days = 28,
-  rowLimit = 50
+  rowLimit = 50,
+  integration?: SearchConsoleIntegration | null
 ): Promise<PagePerformance[]> {
-  const { searchconsole, siteUrl } = getClient();
+  const { searchconsole, siteUrl } = getClient(integration);
 
   const endDate = new Date();
   const startDate = new Date();
@@ -151,9 +166,10 @@ export async function getPagePerformance(
  */
 export async function getTrackedKeywordPositions(
   keywords: string[],
-  days = 28
+  days = 28,
+  integration?: SearchConsoleIntegration | null
 ): Promise<Record<string, number | null>> {
-  const allKeywords = await getKeywordPerformance(days, 500);
+  const allKeywords = await getKeywordPerformance(days, 500, integration);
   const map: Record<string, number | null> = {};
 
   for (const kw of keywords) {
@@ -171,15 +187,16 @@ export async function getTrackedKeywordPositions(
  * Full summary — overview stats, top keywords, top pages.
  */
 export async function getSearchConsoleSummary(
-  days = 28
+  days = 28,
+  integration?: SearchConsoleIntegration | null
 ): Promise<SearchConsoleSummary> {
   const endDate = new Date();
   const startDate = new Date();
   startDate.setDate(endDate.getDate() - days);
 
   const [keywords, pages] = await Promise.all([
-    getKeywordPerformance(days, 25),
-    getPagePerformance(days, 15),
+    getKeywordPerformance(days, 25, integration),
+    getPagePerformance(days, 15, integration),
   ]);
 
   const totalClicks = keywords.reduce((s, r) => s + r.clicks, 0);
@@ -204,13 +221,15 @@ export async function getSearchConsoleSummary(
 /**
  * Quick test — verifies the service account can access the property.
  */
-export async function testConnection(): Promise<{
+export async function testConnection(
+  integration?: SearchConsoleIntegration | null
+): Promise<{
   connected: boolean;
   siteUrl: string;
   message: string;
 }> {
   try {
-    const { searchconsole, siteUrl } = getClient();
+    const { searchconsole, siteUrl } = getClient(integration);
     const res = await searchconsole.sites.get({ siteUrl });
     return {
       connected: true,
@@ -220,7 +239,7 @@ export async function testConnection(): Promise<{
   } catch (err: any) {
     return {
       connected: false,
-      siteUrl: process.env.GOOGLE_SEARCH_CONSOLE_SITE || "",
+      siteUrl: integration?.property || process.env.GOOGLE_SEARCH_CONSOLE_SITE || "",
       message: err.message || "Connection failed",
     };
   }
@@ -230,9 +249,11 @@ export async function testConnection(): Promise<{
  * List all sites the service account has access to.
  * Useful for debugging — shows the exact siteUrl format needed.
  */
-export async function listSites(): Promise<string[]> {
+export async function listSites(
+  integration?: SearchConsoleIntegration | null
+): Promise<string[]> {
   try {
-    const { searchconsole } = getClient();
+    const { searchconsole } = getClient(integration);
     const res = await searchconsole.sites.list();
     return (res.data.siteEntry || []).map((s: any) => s.siteUrl || "");
   } catch {

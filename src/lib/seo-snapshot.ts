@@ -10,8 +10,14 @@ import {
   getTrackedKeywordPositions,
 } from "@/lib/google-search-console";
 import { auditSite } from "@/lib/pagespeed";
-import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
+import {
+  getTrackedKeywordStrings,
+  getSiteKeyPagePaths,
+  getSiteUrl,
+  getSearchConsoleIntegration,
+  updateKeywordPositions,
+} from "@/lib/site-data";
 
 export interface SnapshotResult {
   id: string;
@@ -28,7 +34,7 @@ export interface SnapshotResult {
 
 /**
  * Calculate aggregate site health score (0-100).
- * Weighted: 40% PageSpeed perf, 20% PageSpeed SEO, 30% avg position, 10% CTR
+ * Weighted: 35% PageSpeed perf, 15% PageSpeed SEO, 35% avg position, 15% CTR
  */
 export function calculateHealthScore(params: {
   performanceScore?: number;  // 0-100
@@ -62,7 +68,9 @@ export function calculateHealthScore(params: {
  * Take a snapshot of current SEO state and store in DB.
  * Call this from a cron job (weekly) or manually from the dashboard.
  */
-export async function takeSnapshot(): Promise<SnapshotResult> {
+export async function takeSnapshot(
+  siteId: string = DEFAULT_SITE_ID
+): Promise<SnapshotResult> {
   let totalClicks = 0;
   let totalImpressions = 0;
   let avgCtr = 0;
@@ -72,12 +80,16 @@ export async function takeSnapshot(): Promise<SnapshotResult> {
   let performanceScore = 0;
   let seoScore = 0;
 
+  // Load integration + keywords from DB
+  const integration = await getSearchConsoleIntegration(siteId);
+
   // Fetch GSC data
-  if (isSearchConsoleConfigured()) {
+  if (isSearchConsoleConfigured(integration)) {
     try {
+      const keywords = await getTrackedKeywordStrings(siteId);
       const [summary, positions] = await Promise.all([
-        getSearchConsoleSummary(28),
-        getTrackedKeywordPositions(TRACKED_KEYWORDS.map((k) => k.keyword), 28),
+        getSearchConsoleSummary(28, integration),
+        getTrackedKeywordPositions(keywords, 28, integration),
       ]);
       totalClicks = summary.totalClicks;
       totalImpressions = summary.totalImpressions;
@@ -89,18 +101,20 @@ export async function takeSnapshot(): Promise<SnapshotResult> {
         clicks: p.clicks,
         impressions: p.impressions,
       }));
+
+      // Update keyword positions in DB
+      await updateKeywordPositions(siteId, positions);
     } catch {
       // GSC fetch failed — continue with zeros
     }
   }
 
-  // Fetch PageSpeed data (homepage only for speed)
+  // Fetch PageSpeed data using key pages from SitePage inventory
   try {
-    const siteUrl =
-      process.env.GOOGLE_SEARCH_CONSOLE_SITE?.replace("sc-domain:", "https://") ||
-      process.env.NEXTAUTH_URL ||
-      "https://seedtechllc.com";
-    const psResult = await auditSite(siteUrl, ["/"], "mobile");
+    const siteUrl = await getSiteUrl(siteId);
+    const keyPages = await getSiteKeyPagePaths(siteId);
+    const pagesToAudit = keyPages.length > 0 ? keyPages.slice(0, 5) : ["/"];
+    const psResult = await auditSite(siteUrl, pagesToAudit, "mobile");
     if (psResult.pages.length > 0) {
       performanceScore = psResult.avgPerformance;
       seoScore = psResult.avgSeo;
@@ -118,7 +132,7 @@ export async function takeSnapshot(): Promise<SnapshotResult> {
 
   const snapshot = await prisma.seoSnapshot.create({
     data: {
-      siteId: DEFAULT_SITE_ID,
+      siteId,
       totalClicks,
       totalImpressions,
       avgCtr,
@@ -148,9 +162,9 @@ export async function takeSnapshot(): Promise<SnapshotResult> {
 /**
  * Get snapshot history for trend charts.
  */
-export async function getSnapshotHistory(limit = 12) {
+export async function getSnapshotHistory(limit = 12, siteId: string = DEFAULT_SITE_ID) {
   const snapshots = await prisma.seoSnapshot.findMany({
-    where: { siteId: DEFAULT_SITE_ID },
+    where: { siteId },
     orderBy: { date: "desc" },
     take: limit,
   });
@@ -174,21 +188,22 @@ export async function getSnapshotHistory(limit = 12) {
  * Get keyword position trends — for each tracked keyword, return
  * an array of { date, position } entries for sparkline charts.
  */
-export async function getKeywordTrends(limit = 12) {
+export async function getKeywordTrends(limit = 12, siteId: string = DEFAULT_SITE_ID) {
   const snapshots = await prisma.seoSnapshot.findMany({
-    where: { siteId: DEFAULT_SITE_ID },
+    where: { siteId },
     orderBy: { date: "desc" },
     take: limit,
     select: { date: true, keywordPositions: true },
   });
 
   const reversed = snapshots.reverse();
+  const keywords = await getTrackedKeywordStrings(siteId);
   const trends: Record<string, { date: Date; position: number | null }[]> = {};
 
-  for (const kw of TRACKED_KEYWORDS) {
-    trends[kw.keyword] = reversed.map((s) => ({
+  for (const kw of keywords) {
+    trends[kw] = reversed.map((s) => ({
       date: s.date,
-      position: (s.keywordPositions as Record<string, number | null>)?.[kw.keyword] ?? null,
+      position: (s.keywordPositions as Record<string, number | null>)?.[kw] ?? null,
     }));
   }
 

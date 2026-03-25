@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { TRACKED_KEYWORDS } from "@/data/seo-strategy";
+import { getTrackedKeywords } from "@/lib/site-data";
 import { buildStrategyPrompt } from "@/lib/business-context";
 import { getAIOWritingInstructions, scoreAIOReadiness, getPAAResearchPrompt } from "@/lib/seo-aio";
 import { getAuthorEntity, scoreContentEEAT } from "@/lib/seo-eeat";
@@ -59,6 +59,10 @@ export async function POST(req: NextRequest) {
     ? `\nExisting published blog posts (link to relevant ones naturally):\n${existingPosts.map((p) => `- [${p.title}](/blog/${p.slug}) — keyword: "${p.targetKeyword}"`).join("\n")}`
     : "";
 
+  // Load tracked keywords from DB
+  const dbKeywords = await getTrackedKeywords();
+  const keywordContext = dbKeywords.slice(0, 10).map((k) => `- "${k.keyword}" (${k.tier}, ${k.intent})`).join("\n");
+
   const strategyContext = `
 ${businessContext}
 
@@ -66,7 +70,7 @@ Author: ${author.name}, ${author.jobTitle}
 ${author.bio}
 
 Current SEO keywords being targeted:
-${TRACKED_KEYWORDS.slice(0, 10).map((k) => `- "${k.keyword}" (Tier ${k.tier}, ${k.intent})`).join("\n")}
+${keywordContext}
 ${internalLinkContext}
 `;
 
