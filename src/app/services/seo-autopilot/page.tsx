@@ -15,9 +15,6 @@ import {
 import {
   GradientOrb,
   GridPattern,
-  DotPattern,
-  GlassCard,
-  ElevatedCard,
   AnimatedH1,
   AnimatedH2,
   CTABanner,
@@ -183,16 +180,21 @@ export default function SeoAutopilotPage() {
             65% of searches now end with an AI-generated answer — no click required.
             Your competitors are losing visibility and don&apos;t even know it.
           </p>
-          <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-12 leading-relaxed">
-            SEO Autopilot is built for the AI search era: track where AI mentions your brand,
-            score your content for citation readiness, and get weekly intelligence — all without an agency.
+          <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-8 leading-relaxed">
+            SEO Autopilot is built into every website we build — giving you a best-in-class
+            website and a full AI-search intelligence layer, all in one.
           </p>
+          {/* Requirement callout */}
+          <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-seed-500/30 bg-seed-500/5 text-seed-400 text-sm mb-10">
+            <span className="w-1.5 h-1.5 rounded-full bg-seed-400 shrink-0" />
+            Requires a SeedTech-built website — included in every web development engagement
+          </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/contact"
               className="inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-gradient-to-r from-seed-500 to-emerald-500 text-white text-base font-semibold hover:shadow-glowSeed transition-all duration-300"
             >
-              Get SEO Autopilot
+              Start with a New Website
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
@@ -356,7 +358,7 @@ export default function SeoAutopilotPage() {
 
           <div className="mt-10 flex items-center justify-center gap-2 text-white/30 text-sm">
             <Globe className="w-4 h-4" />
-            <span>Embedded into your existing website. No external platform to log into.</span>
+            <span>Built into your SeedTech website. No third-party platform, no separate login.</span>
           </div>
         </div>
       </section>
@@ -371,28 +373,32 @@ export default function SeoAutopilotPage() {
               How It Works
             </p>
             <AnimatedH2
-              highlightWords={["Up", "Running"]}
+              highlightWords={["Built", "In"]}
               className="font-display text-3xl md:text-4xl font-bold text-white leading-tight"
             >
-              Up and Running in a Week
+              Your Website Gets Built In
             </AnimatedH2>
+            <p className="mt-4 text-sm md:text-base text-white/45 max-w-xl mx-auto leading-relaxed">
+              SEO Autopilot isn&apos;t a plugin you bolt onto an old site. It&apos;s woven into the
+              architecture of every website we build — so the intelligence layer is live from day one.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             <ProcessStep
               step="01"
-              title="We configure your platform"
-              description="We set up your business profile, tracked keywords, industry scoring config, and competitor monitoring — customized for your vertical and location."
+              title="We build your website"
+              description="We design and develop your site on our framework — a modern Next.js stack built specifically to support SEO Autopilot's intelligence layer, AI citation scoring, and weekly automation."
             />
             <ProcessStep
               step="02"
-              title="Autopilot takes over"
-              description="Every Monday, the platform crawls your site, scores your AI citation readiness, tracks keyword positions, and checks brand mentions across 5 AI engines."
+              title="We configure Autopilot for your business"
+              description="We set up your business profile, tracked keywords, industry scoring config, competitors, and author credentials — customized for your vertical and location."
             />
             <ProcessStep
               step="03"
-              title="You get a weekly intelligence brief"
-              description="A digest lands in your inbox with your health score delta, new opportunities, and specific recommendations — in plain English, ready to act on."
+              title="Weekly intelligence, automatically"
+              description="Every Monday, Autopilot crawls your site, tracks keyword positions, checks brand mentions across 5 AI engines, and emails you a plain-English digest of what changed and what to do next."
             />
           </div>
         </div>
@@ -414,8 +420,8 @@ export default function SeoAutopilotPage() {
               <p className="text-sm md:text-[15px] text-white/45 leading-relaxed">
                 Whether you&apos;re a law firm trying to rank above national directories,
                 a contractor wanting to dominate local search, or a SaaS company competing
-                for AI citations against larger brands — SEO Autopilot gives you the
-                intelligence to compete and win.
+                for AI citations against larger brands — when we build your website,
+                SEO Autopilot comes with it. Your intelligence layer is live from launch day.
               </p>
             </div>
             <div className="flex flex-col gap-4">
@@ -439,18 +445,68 @@ export default function SeoAutopilotPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
+          REQUIREMENT CALLOUT
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="bg-dark-base py-20 md:py-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <div
+            style={{
+              borderRadius: 20,
+              border: "1px solid rgba(74, 222, 128, 0.15)",
+              background: "linear-gradient(135deg, rgba(64,166,96,0.07) 0%, rgba(255,255,255,0.02) 100%)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+            }}
+            className="p-10 md:p-14 flex flex-col md:flex-row gap-10 items-center"
+          >
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-4">
+                One Requirement
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-white uppercase leading-tight mb-5">
+                YOUR WEBSITE NEEDS TO BE BUILT BY US
+              </h2>
+              <p className="text-sm md:text-[15px] text-white/50 leading-relaxed max-w-lg">
+                SEO Autopilot is deeply integrated into the website architecture we build — it&apos;s
+                not a plugin, bolt-on, or third-party integration. The scoring engine, AI monitoring,
+                and weekly automation are woven into the codebase itself.
+              </p>
+              <p className="mt-4 text-sm md:text-[15px] text-white/50 leading-relaxed max-w-lg">
+                That means to use SEO Autopilot, your website needs to be built on our framework.
+                If you&apos;re already a SeedTech web client — you&apos;re ready to activate it.
+                If you&apos;re on an older site or a different platform, we&apos;ll rebuild it as part
+                of your engagement.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 shrink-0 w-full md:w-64">
+              {[
+                { label: "Already a SeedTech client", note: "Activate SEO Autopilot on your existing site." },
+                { label: "On a different platform", note: "We rebuild your site and include Autopilot at launch." },
+                { label: "Starting fresh", note: "Your new site ships with Autopilot built in from day one." },
+              ].map((item) => (
+                <div key={item.label} style={glassStyle} className="p-4 flex flex-col gap-1">
+                  <p className="text-sm font-semibold text-white">{item.label}</p>
+                  <p className="text-xs text-white/40 leading-relaxed">{item.note}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════
           CTA
           ══════════════════════════════════════════════════════════════════════ */}
       <section className="bg-dark-base py-16 px-6">
         <div className="mx-auto max-w-4xl">
           <CTABanner
             theme="light"
-            title="Stop guessing. Start getting cited."
-            description="Let's set up SEO Autopilot on your site and show you exactly where you stand in the AI search landscape."
-            primaryLabel="Get SEO Autopilot"
+            title="Ready to get cited by AI?"
+            description="Let's talk about your website and get SEO Autopilot working for your business."
+            primaryLabel="Start the Conversation"
             primaryHref="/contact"
-            secondaryLabel="See Pricing"
-            secondaryHref="/contact"
+            secondaryLabel="See Web Development"
+            secondaryHref="/services/web-development"
           />
         </div>
       </section>
