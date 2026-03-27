@@ -1,34 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
-import { buildStrategyPrompt } from "@/lib/business-context";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
+import { buildStrategyPrompt, getBusinessContextForSite } from "@/lib/business-context";
 import {
   isSearchConsoleConfigured,
   getSearchConsoleSummary,
   getTrackedKeywordPositions,
 } from "@/lib/google-search-console";
-import { getTrackedKeywords, getTrackedKeywordStrings } from "@/lib/site-data";
+import { getTrackedKeywords, getTrackedKeywordStrings, getSearchConsoleIntegration } from "@/lib/site-data";
 import { getAIOAdvisorContext } from "@/lib/seo-aio";
 import { getAIVisibilityAdvisorContext } from "@/lib/ai-visibility";
 
 /**
  * POST /api/admin/seo/ai-advisor
  *
- * Body: { 
+ * Body: {
  *   question?: string,       — Optional specific question
  *   includeSearchConsole?: boolean,
  *   includePageSpeed?: boolean,
  *   pageSpeedData?: object,  — Pre-fetched PageSpeed data from the client
  * }
  *
- * Analyzes real data (Search Console, PageSpeed, strategy) with GPT-4o
+ * Analyzes real data (Search Console, PageSpeed, strategy) with Claude
  * to produce actionable SEO recommendations.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const apiKey = process.env.CLAUDE_API_KEY;
   if (!apiKey) {
@@ -46,11 +45,12 @@ export async function POST(req: NextRequest) {
     pageSpeedData,
   } = body;
 
-  // Build context
-  const businessContext = buildStrategyPrompt();
+  // Build context from site-specific business profile
+  const businessCtx = await getBusinessContextForSite(siteId);
+  const businessContext = buildStrategyPrompt(businessCtx);
 
-  // Strategy data from DB
-  const dbKeywords = await getTrackedKeywords();
+  // Strategy data from DB (site-scoped)
+  const dbKeywords = await getTrackedKeywords(siteId);
   const strategyData = {
     trackedKeywords: dbKeywords.map((k) => ({
       keyword: k.keyword,
@@ -64,14 +64,15 @@ export async function POST(req: NextRequest) {
     contentCalendar: [] as { title: string; keyword: string; status: string }[],
   };
 
-  // Real Search Console data (if configured and requested)
-  let searchConsoleData: any = null;
-  if (includeSearchConsole && isSearchConsoleConfigured()) {
+  // Real Search Console data (site-scoped integration)
+  let searchConsoleData: Record<string, unknown> | null = null;
+  const gscIntegration = await getSearchConsoleIntegration(siteId);
+  if (includeSearchConsole && isSearchConsoleConfigured(gscIntegration)) {
     try {
-      const kwStrings = await getTrackedKeywordStrings();
+      const kwStrings = await getTrackedKeywordStrings(siteId);
       const [summary, positions] = await Promise.all([
-        getSearchConsoleSummary(28),
-        getTrackedKeywordPositions(kwStrings, 28),
+        getSearchConsoleSummary(28, gscIntegration),
+        getTrackedKeywordPositions(kwStrings, 28, gscIntegration),
       ]);
       searchConsoleData = { summary, trackedPositions: positions };
     } catch {
@@ -90,7 +91,7 @@ ${aioContext}
 
 Your job is to analyze the data provided and give actionable, prioritized recommendations.
 LEAD WITH AI VISIBILITY — not traditional ranking.
-Be specific — reference actual keywords, pages, and metrics. 
+Be specific — reference actual keywords, pages, and metrics.
 Always explain the "why" behind each recommendation.
 The primary question for every piece of content should be: "Would AI systems cite this?"
 Format your response in Markdown with clear headings and bullet points.
@@ -102,16 +103,17 @@ ${JSON.stringify(strategyData, null, 2)}
 \`\`\``;
 
   if (searchConsoleData && !searchConsoleData.error) {
+    const sc = searchConsoleData as Record<string, any>;
     dataBlock += `
 
 ## Live Search Console Data (last 28 days)
-Total Clicks: ${searchConsoleData.summary.totalClicks}
-Total Impressions: ${searchConsoleData.summary.totalImpressions}
-Average CTR: ${(searchConsoleData.summary.avgCtr * 100).toFixed(1)}%
-Average Position: ${searchConsoleData.summary.avgPosition}
+Total Clicks: ${sc.summary.totalClicks}
+Total Impressions: ${sc.summary.totalImpressions}
+Average CTR: ${(sc.summary.avgCtr * 100).toFixed(1)}%
+Average Position: ${sc.summary.avgPosition}
 
 ### Top 15 Keywords by Clicks:
-${searchConsoleData.summary.topKeywords
+${sc.summary.topKeywords
   .slice(0, 15)
   .map(
     (k: any) =>
@@ -120,19 +122,19 @@ ${searchConsoleData.summary.topKeywords
   .join("\n")}
 
 ### Tracked Keyword Positions:
-${Object.entries(searchConsoleData.trackedPositions)
+${Object.entries(sc.trackedPositions)
   .map(([kw, pos]) => `- "${kw}" → ${pos ?? "Not ranking"}`)
   .join("\n")}
 
 ### Top Pages by Clicks:
-${searchConsoleData.summary.topPages
+${sc.summary.topPages
   .slice(0, 10)
   .map(
     (p: any) =>
       `- ${p.page} — Clicks: ${p.clicks}, Impressions: ${p.impressions}, Position: ${p.position}`
   )
   .join("\n")}`;
-  } else if (isSearchConsoleConfigured()) {
+  } else if (gscIntegration) {
     dataBlock += "\n\n## Search Console: Data fetch failed — analyze based on strategy data only.";
   } else {
     dataBlock += "\n\n## Search Console: Not connected yet — recommend they set it up as a top priority.";

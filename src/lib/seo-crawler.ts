@@ -63,7 +63,7 @@ async function fetchPage(url: string): Promise<FetchResult> {
 
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "SeedTech-SEO-Crawler/2.0" },
+      headers: { "User-Agent": "SEO-Crawler/2.0" },
       signal: AbortSignal.timeout(12000),
       redirect: "follow",
     });
@@ -318,8 +318,7 @@ function auditPage(
   });
   if (
     internalLinks.length < 3 &&
-    path !== "/contact" &&
-    path !== "/free-audit"
+    !path.match(/^\/(contact|about|privacy|terms)$/)
   ) {
     issues.push({
       url: path,

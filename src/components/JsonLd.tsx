@@ -6,9 +6,9 @@
 
 import { type ReactElement } from "react";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://seedtechllc.com";
-const BUSINESS_NAME = "SeedTech LLC";
-const LOGO_URL = `${SITE_URL}/images/seedtech.png`;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
+const BUSINESS_NAME = process.env.NEXT_PUBLIC_BUSINESS_NAME || "";
+const LOGO_URL = `${SITE_URL}/images/logo.png`;
 
 /* ── Schema Types ── */
 
@@ -123,15 +123,13 @@ function buildLocalBusiness(props: LocalBusinessSchema) {
     "@type": ["LocalBusiness", "Organization"],
     "@id": `${SITE_URL}/#organization`,
     name: props.name || BUSINESS_NAME,
-    description:
-      props.description ||
-      "SeedTech provides managed IT services, cybersecurity solutions, and web development for small and mid-size businesses.",
+    description: props.description || "",
     url: SITE_URL,
     logo: { "@type": "ImageObject", url: LOGO_URL },
     image: LOGO_URL,
     telephone: props.phone || "",
-    email: props.email || "support@seedtechllc.com",
-    areaServed: (props.areaServed || ["Northern New Jersey", "New York Metro Area"]).map((area) => ({
+    email: props.email || "",
+    areaServed: (props.areaServed || []).map((area) => ({
       "@type": "AdministrativeArea",
       name: area,
     })),

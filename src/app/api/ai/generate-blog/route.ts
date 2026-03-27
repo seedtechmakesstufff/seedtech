@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { getTrackedKeywords } from "@/lib/site-data";
 import { buildStrategyPrompt, getBusinessContextForSite } from "@/lib/business-context";
 import { getAIOWritingInstructions, scoreAIOReadiness, getPAAResearchPrompt } from "@/lib/seo-aio";
 import { getAuthorEntity, scoreContentEEAT } from "@/lib/seo-eeat";
 import { scoreAIVisibility, getAIFirstWritingInstructions } from "@/lib/ai-visibility";
+import { loadSiteScoringConfig } from "@/lib/site-scoring-config";
 import { prisma } from "@/lib/prisma";
-import { DEFAULT_SITE_ID } from "@/lib/site-context";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 
 /**
  * POST /api/ai/generate-blog
- * 
+ *
  * Accepts: { step, topic, keyword, outline, tone, wordCount }
  * Returns AI-generated content for each step of the blog wizard.
  *
@@ -23,10 +23,9 @@ import { DEFAULT_SITE_ID } from "@/lib/site-context";
  *   "paa"      — researches People Also Ask questions for keyword
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   const apiKey = process.env.CLAUDE_API_KEY;
   if (!apiKey) {
@@ -39,17 +38,29 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { step, topic, keyword, outline, tone = "professional", wordCount = 1500, content } = body;
 
-  // Build context from editable business profile + SEO keywords
-  const businessContext = buildStrategyPrompt();
-  const author = getAuthorEntity();
-  const _aioInstructions = getAIOWritingInstructions();
-  const aiFirstInstructions = getAIFirstWritingInstructions();
+  // Load site-specific business context and scoring config
+  const businessCtx = await getBusinessContextForSite(siteId);
+  const businessContext = buildStrategyPrompt(businessCtx);
 
-  // Gather existing blog slugs for internal linking
+  let siteConfig;
+  try {
+    siteConfig = await loadSiteScoringConfig(siteId);
+  } catch { /* use defaults */ }
+
+  const author = getAuthorEntity(undefined, siteConfig);
+  const _aioInstructions = getAIOWritingInstructions();
+  const aiFirstInstructions = getAIFirstWritingInstructions(siteConfig);
+
+  // Derive dynamic values from business context
+  const companyName = businessCtx.companyName || "our company";
+  const location = businessCtx.location || "our service area";
+  const primaryService = businessCtx.primaryService || "our services";
+
+  // Gather existing blog slugs for internal linking (site-scoped)
   let existingPosts: { slug: string; title: string; targetKeyword: string }[] = [];
   try {
     existingPosts = await prisma.blogPost.findMany({
-      where: { status: "published" },
+      where: { siteId, status: "published" },
       select: { slug: true, title: true, targetKeyword: true },
       orderBy: { publishedAt: "desc" },
       take: 20,
@@ -60,8 +71,8 @@ export async function POST(req: NextRequest) {
     ? `\nExisting published blog posts (link to relevant ones naturally):\n${existingPosts.map((p) => `- [${p.title}](/blog/${p.slug}) — keyword: "${p.targetKeyword}"`).join("\n")}`
     : "";
 
-  // Load tracked keywords from DB
-  const dbKeywords = await getTrackedKeywords();
+  // Load tracked keywords from DB (site-scoped)
+  const dbKeywords = await getTrackedKeywords(siteId);
   const keywordContext = dbKeywords.slice(0, 10).map((k) => `- "${k.keyword}" (${k.tier}, ${k.intent})`).join("\n");
 
   const strategyContext = `
@@ -80,7 +91,7 @@ ${internalLinkContext}
 
   switch (step) {
     case "outline":
-      systemPrompt = `You are an expert AI visibility strategist for an MSP (managed service provider). Your goal is NOT to make content that "ranks" — it's to create content that AI SYSTEMS (Google AIO, ChatGPT, Perplexity, Gemini) will CITE as an authoritative source. Generate outlines that maximize AI citation potential. ${strategyContext}`;
+      systemPrompt = `You are an expert AI visibility strategist. Your goal is NOT to make content that "ranks" — it's to create content that AI SYSTEMS (Google AIO, ChatGPT, Perplexity, Gemini) will CITE as an authoritative source. Generate outlines that maximize AI citation potential. ${strategyContext}`;
       userPrompt = `Create a detailed outline for a blog post about: "${topic}"
 Target keyword: "${keyword}"
 Target word count: ${wordCount}
@@ -93,15 +104,15 @@ CRITICAL — Structure for AI CITATION (not just ranking):
 The outline MUST include ALL of these mandatory components:
 
 1. **Citeable Opening** — Plan a 20-60 word direct-answer paragraph as the very first section
-2. **Entity Definition** — A section establishing "SeedTech is a [what] serving [who] in [where]"
+2. **Entity Definition** — A section establishing "${companyName} is a [what] serving [who] in [where]"
 3. **Question-Format H2 Headings** — EVERY section heading must be a question (How, What, Why, When, Which)
-   ✅ "How Much Does Managed IT Cost Per Month?"
+   ✅ "How Much Does ${primaryService} Cost Per Month?"
    ❌ "Pricing" or "Cost Overview"
 4. **Comparison Table** — Plan at least one section with a comparison table (this is the #1 format AI cites)
 5. **Numbered Steps** — Plan at least one section with a step-by-step process
 6. **Definition Blocks** — Plan at least 2 clear "X is Y" definitions
 7. **FAQ Section** — Plan 4-6 questions with 2-3 sentence answers each (MANDATORY)
-8. **CTA Closing** — Call-to-action referencing SeedTech and NJ service area
+8. **CTA Closing** — Call-to-action referencing ${companyName} and ${location} service area
 
 Return a structured outline in this exact JSON format:
 {
@@ -116,8 +127,8 @@ Return a structured outline in this exact JSON format:
   ],
   "metaTitle": "Title tag for SEO (under 60 chars)",
   "metaDescription": "Meta description (under 160 chars)",
-  "internalLinks": ["/services/managed-it", "/pricing/it-support"],
-  "category": "IT Support | Web Development | Cybersecurity | Business",
+  "internalLinks": ["/services", "/pricing"],
+  "category": "Suggested category",
   "tags": ["tag1", "tag2"]
 }
 
@@ -125,7 +136,7 @@ SELF-CHECK: Ensure faqSection has 4-6 items, all section headings end with ?, an
       break;
 
     case "draft":
-      systemPrompt = `You are a skilled technology writer creating content optimized for AI CITATION — not just search ranking. Your goal is to write content that Google AIO, ChatGPT, Perplexity, and Gemini will quote as an authoritative source. You're writing for SeedTech, an MSP in Northern New Jersey. ${strategyContext}
+      systemPrompt = `You are a skilled content writer creating content optimized for AI CITATION — not just search ranking. Your goal is to write content that Google AIO, ChatGPT, Perplexity, and Gemini will quote as an authoritative source. You're writing for ${companyName} in ${location}. ${strategyContext}
 
 ${aiFirstInstructions}`;
       userPrompt = `Write a full blog post based on this outline:
@@ -148,42 +159,34 @@ This template is engineered for maximum AI citation probability.
 Write exactly 20-60 words that DIRECTLY answer the core question.
 Include the target keyword and one specific number/fact.
 Write it as if YOU are the AI giving the answer — this is the paragraph AI will quote verbatim.
-Example: "Managed IT services for small businesses in Northern NJ typically cost between $125 and $250 per user per month in 2026, depending on the level of support, response time guarantees, and included cybersecurity protections."
 
 ### 2. ENTITY DEFINITION (WITHIN FIRST 3 PARAGRAPHS)
-Define the brand clearly: "SeedTech is a [specific type of company] serving [specific audience] in [specific geography]."
+Define the brand clearly: "${companyName} is a [specific type of company] serving [specific audience] in [specific geography]."
 This connects your brand to AI knowledge graphs as a recognized entity.
 
 ### 3. BODY SECTIONS (USE QUESTION-FORMAT H2 HEADINGS)
 EVERY H2 heading MUST be phrased as a question matching how people ask AI:
-✅ "## How Much Does Managed IT Cost Per Month?"
-✅ "## What's Included in a Managed IT Plan?"
-✅ "## Why Do Small Businesses Need Managed IT?"
+✅ "## How Much Does ${primaryService} Cost?"
+✅ "## What's Included in Our Service Plans?"
 ❌ "## Pricing" ← NEVER use vague noun headings
 ❌ "## Services Included" ← NEVER use non-question format
 
 Each section must contain:
 - At least one "citeable paragraph" (20-60 words, self-contained, includes a fact)
 - Claim+evidence patterns: "According to [source], [fact]." or "Industry data shows [stat]."
-- Reference known entities: Microsoft, NIST, CISA, CompTIA, AWS, Azure, etc.
-- Geographic anchoring: mention NJ, Bergen County, Northern New Jersey, etc.
+- Reference known entities and authoritative sources relevant to the industry
+- Geographic anchoring: mention ${location} and surrounding areas
 
 ### 4. COMPARISON TABLE (MANDATORY — include at LEAST one)
 Tables are the #1 most-cited content format across ALL AI platforms.
-Use Markdown table syntax. Examples:
-- Break-Fix vs Managed IT
-- Pricing tier comparison
-- Feature comparison
-- Pros vs Cons
+Use Markdown table syntax.
 
 ### 5. NUMBERED STEPS / PROCESS (MANDATORY — include at LEAST one)
 Use ordered lists (1. 2. 3.) for any process, getting-started, or how-to content.
 AI frequently cites numbered step content verbatim.
 
 ### 6. DEFINITION BLOCKS (MANDATORY — include at LEAST 2)
-Include clear "X is Y" definition sentences that AI extracts into knowledge graphs:
-"A managed service provider (MSP) is a company that remotely manages a customer's IT infrastructure."
-"Break-fix IT support is a reactive model where businesses pay only when something breaks."
+Include clear "X is Y" definition sentences that AI extracts into knowledge graphs.
 
 ### 7. FAQ SECTION (MANDATORY — this section MUST exist)
 End with exactly this format:
@@ -193,13 +196,10 @@ End with exactly this format:
 ### [Question phrased naturally]?
 [2-3 sentence answer. Each answer must be a self-contained citeable block of 20-60 words. Include a specific fact or number.]
 
-### [Question phrased naturally]?
-[2-3 sentence answer.]
-
 (Include 4-6 FAQ questions. These must be ### headings ending with ?)
 
 ### 8. CTA / CLOSING
-End with a call-to-action mentioning SeedTech's services and Northern NJ service area.
+End with a call-to-action mentioning ${companyName}'s services and ${location} service area.
 
 ═══════════════════════════════════════════════════════════
 FORMATTING RULES:
@@ -207,21 +207,21 @@ FORMATTING RULES:
 - Use proper Markdown: ## for H2, ### for H3, **bold** for emphasis
 - Keep paragraphs to 2-4 sentences (20-80 words each) — short, dense, citeable
 - Use horizontal rules (---) between major sections
-- For internal links: [View Pricing](/pricing/it-support) — NEVER use [INTERNAL: ...] notation
-- Include current year (2026) references for freshness signals
+- For internal links: [View Services](/services) — NEVER use [INTERNAL: ...] notation
+- Include current year (${new Date().getFullYear()}) references for freshness signals
 - Use first-person expertise: "In our experience...", "We've helped clients..."
-- Mention certifications: CompTIA, Microsoft Partner, etc.
+- Mention relevant certifications and credentials
 
 SELF-CHECK before returning:
 □ First paragraph is 20-60 words and directly answers the core question
-□ SeedTech is defined as an entity in first 3 paragraphs
+□ ${companyName} is defined as an entity in first 3 paragraphs
 □ ALL H2 headings are phrased as questions ending with ?
 □ At least 1 comparison table exists
 □ At least 1 numbered step list exists
 □ At least 2 "X is Y" definition sentences exist
 □ FAQ section exists with 4-6 ### question headings
-□ Geographic references to NJ included
-□ Known entities (Microsoft, NIST, etc.) are referenced
+□ Geographic references included
+□ Known entities and authoritative sources are referenced
 
 Return the full Markdown blog post content only, no JSON wrapper.`;
       break;
@@ -247,11 +247,9 @@ Return JSON:
       if (!content) {
         return NextResponse.json({ error: "Content is required for scoring" }, { status: 400 });
       }
-      const siteId = session?.user?.siteId || DEFAULT_SITE_ID;
-      const businessCtx = await getBusinessContextForSite(siteId);
       const eeatScore = scoreContentEEAT(content, keyword);
       const aioScore = scoreAIOReadiness(content, keyword);
-      const aiVisScore = scoreAIVisibility(content, keyword, businessCtx.companyName);
+      const aiVisScore = scoreAIVisibility(content, keyword, businessCtx.companyName, siteConfig);
       return NextResponse.json({
         result: {
           eeat: eeatScore,
@@ -341,21 +339,21 @@ Return JSON:
     }
 
     const data = await response.json();
-    const content = data.content?.[0]?.text ?? "";
+    const contentResult = data.content?.[0]?.text ?? "";
 
     // Try to parse as JSON if it's an outline or meta step
     if (step === "outline" || step === "meta") {
       try {
         // Extract JSON from potential markdown code fences
-        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, content];
+        const jsonMatch = contentResult.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, contentResult];
         const parsed = JSON.parse(jsonMatch[1]!.trim());
         return NextResponse.json({ result: parsed });
       } catch {
-        return NextResponse.json({ result: content });
+        return NextResponse.json({ result: contentResult });
       }
     }
 
-    return NextResponse.json({ result: content });
+    return NextResponse.json({ result: contentResult });
   } catch (err: any) {
     return NextResponse.json(
       { error: `Failed to generate content: ${err.message}` },

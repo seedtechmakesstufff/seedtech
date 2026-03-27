@@ -1,22 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { getPostById, updatePost, deletePost } from "@/lib/blog";
 import { submitUrl, isIndexNowConfigured } from "@/lib/indexnow";
 import { scoreAIVisibility } from "@/lib/ai-visibility";
 import { getBusinessContextForSite } from "@/lib/business-context";
 import { prisma } from "@/lib/prisma";
-import { DEFAULT_SITE_ID } from "@/lib/site-context";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 
 /** GET /api/blog/[id] — get single post */
 export async function GET(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
 
   const post = await getPostById(params.id);
   if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -29,10 +26,9 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
   // Fetch current post to detect status changes
   const existing = await getPostById(params.id);
@@ -41,7 +37,7 @@ export async function PUT(
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // Auto-ping IndexNow when a post is published or content is updated while published
-  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE || "https://seedtechllc.com";
+  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE || process.env.NEXT_PUBLIC_SITE_URL || "";
   const shouldPing =
     isIndexNowConfigured() &&
     updated.status === "published" &&
@@ -60,7 +56,6 @@ export async function PUT(
   let aiVisibilityGrade = null;
   if (updated.status === "published" && updated.body) {
     try {
-      const siteId = session?.user?.siteId || DEFAULT_SITE_ID;
       const businessCtx = await getBusinessContextForSite(siteId);
       const aiVis = scoreAIVisibility(updated.body, updated.targetKeyword || undefined, businessCtx.companyName);
       await prisma.aIVisibilityScore.create({
@@ -93,10 +88,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
 
   const deleted = await deletePost(params.id);
   if (!deleted) return NextResponse.json({ error: "Not found" }, { status: 404 });

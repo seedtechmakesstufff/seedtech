@@ -28,30 +28,29 @@ export interface BusinessContext {
   updatedAt: string;
 }
 
+/**
+ * Generic placeholder context — used ONLY when no BusinessProfile exists in DB
+ * and no filesystem config is found. All fields are clearly marked as unconfigured
+ * so AI prompts won't silently use another client's branding.
+ */
 export const DEFAULT_CONTEXT: BusinessContext = {
-  companyName: "SeedTech",
-  tagline: "Managed IT services and web development for growing businesses",
-  location: "Hopatcong, NJ (Northern New Jersey)",
-  domain: "seedtechllc.com",
-  primaryService: "Managed IT support — per-user pricing, no contracts, unlimited remote help desk",
-  secondaryServices: [
-    "Web development (Next.js, React, custom builds)",
-    "Digital marketing & SEO",
-    "Cybersecurity & compliance",
-    "Cloud migration & management",
-  ],
-  targetAudience: "Small and mid-size businesses in Northern NJ / NYC metro area (10–200 employees)",
-  uniqueSellingPoints: [
-    "Per-user pricing with no long-term contracts",
-    "Same-day onboarding",
-    "24/7 monitoring with human support",
-    "Local NJ company — not an offshore help desk",
-    "Full-stack web development in-house",
-  ],
+  companyName: "[Company Name — configure in Settings > Business Profile]",
+  tagline: "",
+  location: "",
+  domain: "",
+  primaryService: "",
+  secondaryServices: [],
+  targetAudience: "",
+  uniqueSellingPoints: [],
   toneOfVoice: "Professional but approachable. Confident without being salesy. Technical when needed, but always explain in plain language.",
-  customInstructions: "Always link back to /services/managed-it and /pricing/it-support where relevant. Write for Northern New Jersey business owners. Never mention Austin. Include real-world examples and actionable advice. Use Markdown formatting.",
+  customInstructions: "",
   updatedAt: new Date().toISOString(),
 };
+
+/** Check whether a BusinessContext has been properly configured (not just defaults) */
+export function isBusinessContextConfigured(ctx: BusinessContext): boolean {
+  return !!(ctx.companyName && !ctx.companyName.startsWith("[") && ctx.domain);
+}
 
 // ── DB-backed reads/writes ──────────────────────────
 

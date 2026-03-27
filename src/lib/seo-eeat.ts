@@ -187,7 +187,6 @@ export function auditEEAT(url: string, dom: JSDOM, siteConfig?: SiteScoringConfi
       ]
     : [
         /\b(certified|certification|licensed|accredited|degree|credential)\b/i,
-        /\b(CompTIA|CISSP|CISM|PMP|AWS|Microsoft|Cisco|ITIL)\b/i,
         /\b(years? of experience|decade|veteran)\b/i,
       ];
   const hasCredentials = credentialPatterns.some((r) => r.test(bodyText));
@@ -211,7 +210,7 @@ export function auditEEAT(url: string, dom: JSDOM, siteConfig?: SiteScoringConfi
   });
   const authorityDomains = siteConfig?.authorityDomains?.length
     ? siteConfig.authorityDomains
-    : ["gov", "edu", "microsoft.com", "google.com", "nist.gov", "cisa.gov"];
+    : ["gov", "edu", "org"];
   const hasAuthoritySources = outboundLinks.some((a) => {
     const href = a.getAttribute("href") || "";
     return authorityDomains.some((d) => href.includes(d));
@@ -222,7 +221,7 @@ export function auditEEAT(url: string, dom: JSDOM, siteConfig?: SiteScoringConfi
     present: hasAuthoritySources,
     severity: path.startsWith("/blog") ? (hasAuthoritySources ? "pass" : "warning") : "info",
     message: hasAuthoritySources
-      ? "Links to authoritative sources found (.gov, .edu, major tech companies)"
+      ? "Links to authoritative sources found (.gov, .edu, industry authorities)"
       : "No outbound links to authoritative sources — citing .gov, .edu, or industry authorities boosts trust",
     recommendation: hasAuthoritySources ? undefined : `Link to authoritative sources (${authorityDomains.slice(0, 4).join(", ")}) where relevant.`,
   });

@@ -34,6 +34,35 @@ const navLinks = [
 ];
 
 /**
+ * Returns true when the user is scrolling downward past a threshold,
+ * false when scrolling up. Stays visible at the very top of the page.
+ */
+function useHideOnScroll(threshold = 10) {
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      // Always show at the top of the page
+      if (currentY < threshold) {
+        setHidden(false);
+      } else if (currentY > lastScrollY.current + threshold) {
+        setHidden(true);
+      } else if (currentY < lastScrollY.current - threshold) {
+        setHidden(false);
+      }
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
+
+  return hidden;
+}
+
+/**
  * Watches all `[data-section-theme="light"]` elements and returns `true`
  * whenever any of them overlap the navbar zone (top 80px of the viewport).
  */
@@ -103,10 +132,16 @@ export function Navbar() {
   const [_mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef<StaggeredMenuHandle>(null);
   const overLight = useOverLightSection();
+  const hidden = useHideOnScroll();
   const { openQuoteFlow } = useQuoteFlow();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 pt-3">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 pt-3 transition-transform duration-300 ease-out",
+        hidden && "-translate-y-full"
+      )}
+    >
       <div className="mx-auto max-w-6xl px-4">
         <nav className={cn(
           "rounded-2xl flex items-center justify-between h-14 px-4 transition-all duration-300",

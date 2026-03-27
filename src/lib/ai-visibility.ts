@@ -68,7 +68,7 @@ export interface ConversationalQuery {
 export function scoreAIVisibility(
   markdown: string,
   targetKeyword?: string,
-  brandName: string = "SeedTech",
+  brandName: string = "",
   siteConfig?: SiteScoringConfig
 ): AIVisibilityScore {
   const checks: AIVisibilityCheck[] = [];
@@ -149,7 +149,7 @@ export function scoreAIVisibility(
       : "No comparison tables — AI platforms cite tables more than any other content format",
     fix: hasTables
       ? undefined
-      : "Add a comparison table. Examples: 'Break-Fix vs Managed IT', 'Pricing Tiers', 'Feature Comparison'. Use Markdown table syntax.",
+      : "Add a comparison table. Examples: 'Pricing Tiers', 'Feature Comparison', 'Pros vs Cons'. Use Markdown table syntax.",
   });
 
   // ═══════════════════════════════════════
@@ -176,7 +176,7 @@ export function scoreAIVisibility(
 
   // 2b. Author/expertise attribution
   const hasAuthorSignals = /\b(our team|our experts?|we've|in our experience|we recommend|our (CEO|CTO|engineers?))\b/i.test(markdown);
-  const credentialRegex = siteConfig?.credentialRegex || /\b(certified|certification|CompTIA|CISSP|CISM|Microsoft|AWS|years of experience)\b/i;
+  const credentialRegex = siteConfig?.credentialRegex || /\b(certified|certification|licensed|accredited|degree|credential|years of experience)\b/i;
   const hasCredentials = credentialRegex.test(markdown);
   checks.push({
     category: "entity",
@@ -197,7 +197,7 @@ export function scoreAIVisibility(
 
   // 2c. Entity relationships (connecting to known entities)
   const entityRegex = siteConfig?.knownEntityRegex ||
-    /\b(Microsoft|Google|Amazon|AWS|Azure|Cisco|NIST|CISA|CompTIA|Apple|Dell|HP|Fortinet|SonicWall|Datto|ConnectWise)\b/gi;
+    /\b(Microsoft|Google|Amazon|Apple|IBM|Meta|Gartner|Forbes|Harvard|Stanford)\b/gi;
   const knownEntityMentions = (markdown.match(entityRegex) || []).length;
   checks.push({
     category: "entity",
@@ -209,26 +209,29 @@ export function scoreAIVisibility(
       : `Only ${knownEntityMentions} known entity reference(s) — connect your content to entities AI already knows`,
     fix: knownEntityMentions >= 3
       ? undefined
-      : "Reference well-known entities naturally: technologies (Microsoft 365, Azure), standards (NIST, CIS), vendors you partner with.",
+      : "Reference well-known entities naturally: major brands, industry standards, authoritative organizations relevant to your field.",
   });
 
   // 2d. Geographic entity (local authority for service businesses)
-  const geoRegex = siteConfig?.geographicRegex ||
-    /\b(New Jersey|NJ|Northern New Jersey|Bergen County|Passaic County|Essex County|Morris County)\b/i;
-  const hasGeoEntity = geoRegex.test(markdown);
+  // Geographic anchoring — only check if site has configured geographic terms
+  const geoRegex = siteConfig?.geographicRegex || null;
+  const hasGeoEntity = geoRegex ? geoRegex.test(markdown) : false;
   const geoExample = siteConfig?.geographicTerms?.[0] || "your service area";
-  checks.push({
-    category: "entity",
-    check: "geographic-authority",
-    passed: hasGeoEntity,
-    weight: 5,
-    message: hasGeoEntity
-      ? "Geographic entity anchoring present — establishes local authority"
-      : "No geographic anchoring — for a service business, AI needs to know WHERE you operate",
-    fix: hasGeoEntity
-      ? undefined
-      : `Mention your service area naturally: 'businesses in ${geoExample}' or reference your local area.`,
-  });
+  // Only score geographic anchoring if the site has geographic terms configured
+  if (geoRegex) {
+    checks.push({
+      category: "entity",
+      check: "geographic-authority",
+      passed: hasGeoEntity,
+      weight: 5,
+      message: hasGeoEntity
+        ? "Geographic entity anchoring present — establishes local authority"
+        : "No geographic anchoring — for a service business, AI needs to know WHERE you operate",
+      fix: hasGeoEntity
+        ? undefined
+        : `Mention your service area naturally: 'businesses in ${geoExample}' or reference your local area.`,
+    });
+  }
 
   // ═══════════════════════════════════════
   // 3. STRUCTURED CLARITY — Can machines parse this?
@@ -269,7 +272,7 @@ export function scoreAIVisibility(
       : "Not enough definition-style content — AI builds knowledge from 'X is Y' style statements",
     fix: definitionCount >= 2
       ? undefined
-      : "Add clear definitions: 'Managed IT services are ongoing IT support...', 'A managed service provider (MSP) is...'",
+      : "Add clear definitions using 'X is Y' patterns, e.g. 'A [term] is [definition].' These get extracted into AI knowledge graphs.",
   });
 
   // 3c. Lists (ordered and unordered — AI loves extracting lists)
@@ -322,7 +325,7 @@ export function scoreAIVisibility(
       : `Only ${questionHeadings} question heading(s) — people ask AI in question form, your headings should match`,
     fix: questionHeadings >= 3
       ? undefined
-      : "Rephrase headings as questions: '## How much does managed IT cost?' instead of '## Pricing'. Match how people ask ChatGPT/Perplexity.",
+      : "Rephrase headings as questions: '## How much does [service] cost?' instead of '## Pricing'. Match how people ask ChatGPT/Perplexity.",
   });
 
   // 4b. Conversational triggers (covering how/what/why/when query patterns)
@@ -511,7 +514,7 @@ export function scoreAIVisibility(
  * Extract entity signals from content — useful for understanding
  * how well content builds brand entity authority.
  */
-export function extractEntitySignals(markdown: string, brandName: string = "SeedTech", siteConfig?: SiteScoringConfig): EntitySignal[] {
+export function extractEntitySignals(markdown: string, brandName: string = "", siteConfig?: SiteScoringConfig): EntitySignal[] {
   const signals: EntitySignal[] = [];
   const effectiveBrand = siteConfig?.brandName || brandName;
 

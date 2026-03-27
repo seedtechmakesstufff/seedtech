@@ -1,11 +1,13 @@
 /* ── Quote Submission API ──
  * POST /api/quote-submission — saves IT / Web quote flow submissions to DB.
  * Creates or finds an existing Contact, then creates a FormSubmission.
+ * Sends internal notification + auto-reply via Resend.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
+import { sendQuoteNotification } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -65,6 +67,11 @@ export async function POST(req: NextRequest) {
         contactId: contact.id,
       },
     });
+
+    // Fire-and-forget emails — don't let email failure block the 201 response
+    sendQuoteNotification({ source, fullName, email, phone, company, tier, metadata }).catch(
+      (err) => console.error("[POST /api/quote-submission] Email error:", err)
+    );
 
     return NextResponse.json({ success: true, id: submission.id }, { status: 201 });
   } catch (error) {

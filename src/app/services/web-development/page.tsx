@@ -16,65 +16,63 @@ export const metadata = {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const _clients = [
-  "PaddlersCove",
-  "Drew & Rogers",
-  "Bright Imaginations",
   "StarCom Fiber",
+  "Drew & Rogers",
+  "BioOx",
+  "PaddlersCove",
   "Megasafe",
-  "Imperia",
-  "Trevor Noah",
+  "Mesa",
+  "Vick Tipnes Enterprises",
+  "Blackstone Medical Services",
   "Ron White",
+  "Trevor Noah",
+  "Kevin James",
+  "Hiler Trucking",
+  "Eastside Bulk",
+  "Carla Marie & Anthony Show",
+  "Fine Indian Dining Group",
 ];
 
 // Two rows for the animated marquee — duplicate for seamless loop
 const logoRowTop = [
-  "PaddlersCove",
-  "Drew & Rogers",
-  "Bright Imaginations",
   "StarCom Fiber",
-  "Megasafe",
-  "Imperia",
-  "Trevor Noah",
-  "Ron White",
-  "PaddlersCove",
   "Drew & Rogers",
-  "Bright Imaginations",
-  "StarCom Fiber",
+  "BioOx",
+  "PaddlersCove",
   "Megasafe",
-  "Imperia",
-  "Trevor Noah",
-  "Ron White",
+  "Mesa",
+  "Vick Tipnes Enterprises",
+  "Blackstone Medical Services",
+  "StarCom Fiber",
+  "Drew & Rogers",
+  "BioOx",
+  "PaddlersCove",
+  "Megasafe",
+  "Mesa",
+  "Vick Tipnes Enterprises",
+  "Blackstone Medical Services",
 ];
 
 const logoRowBottom = [
   "Ron White",
   "Trevor Noah",
-  "Imperia",
-  "Megasafe",
-  "StarCom Fiber",
-  "Bright Imaginations",
-  "Drew & Rogers",
-  "PaddlersCove",
+  "Kevin James",
+  "Hiler Trucking",
+  "Eastside Bulk",
+  "Carla Marie & Anthony Show",
+  "Fine Indian Dining Group",
   "Ron White",
   "Trevor Noah",
-  "Imperia",
-  "Megasafe",
-  "StarCom Fiber",
-  "Bright Imaginations",
-  "Drew & Rogers",
-  "PaddlersCove",
+  "Kevin James",
+  "Hiler Trucking",
+  "Eastside Bulk",
+  "Carla Marie & Anthony Show",
+  "Fine Indian Dining Group",
 ];
 
 const featuredWork = projects
   .filter((p) => p.department === "web-development")
   .slice(0, 8);
-
-const stats = [
-  { value: "5+", label: "Years shipping production web projects" },
-  { value: "98", label: "Average Lighthouse performance score" },
-  { value: "<2s", label: "Target page load time, every project" },
-  { value: "100%", label: "Custom-built — no templates, ever" },
-];
 
 const pricing = [
   {
@@ -188,12 +186,10 @@ export default function WebDevelopmentPage() {
           {/* Validated pill */}
           <LiquidGlassPill variant="default" className="mb-6">Validated</LiquidGlassPill>
           <AnimatedH2 className="font-display text-heading md:text-title text-white leading-[1.1] mb-6">
-            Websites Built for Businesses That Mean It
+            Infrastructure Trusted by Brands
           </AnimatedH2>
           <p className="text-body-lg text-light-base/40 max-w-2xl mx-auto leading-relaxed">
-            We&apos;ve built custom websites, ecommerce platforms, and web
-            applications for businesses across industries — from specialty
-            retail to fiber internet to education.
+            SeedTech has powered IT &amp; Website infrastructures for numerous businesses — small to large.
           </p>
         </div>
 
@@ -321,26 +317,6 @@ export default function WebDevelopmentPage() {
               View all projects
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
-        </div>
-      </Section>
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          STATS
-          ══════════════════════════════════════════════════════════════════════ */}
-      <Section>
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="font-display text-stat-number text-white mb-2">
-                  {stat.value}
-                </p>
-                <p className="text-body-sm text-light-base/35 leading-snug">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
           </div>
         </div>
       </Section>

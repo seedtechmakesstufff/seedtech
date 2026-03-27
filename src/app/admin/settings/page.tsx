@@ -12,6 +12,8 @@ import {
   Server,
   Lock,
   Users,
+  Mail,
+  ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -73,6 +75,38 @@ export default function SettingsPage() {
             </p>
           </div>
         </Link>
+        <Link
+          href="/admin/email"
+          className="group bg-dark-elevated border border-white/[0.06] rounded-xl px-5 py-4 flex items-center gap-4 hover:border-seed-500/20 hover:bg-seed-500/[0.03] transition-all"
+        >
+          <div className="w-10 h-10 rounded-lg bg-seed-500/10 flex items-center justify-center group-hover:bg-seed-500/15 transition-colors">
+            <Mail className="w-5 h-5 text-seed-400" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white group-hover:text-seed-400 transition-colors">
+              Email Automations
+            </p>
+            <p className="text-xs text-white/35 mt-0.5">
+              Resend status, template editor, and form submissions
+            </p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/settings/branding"
+          className="group bg-dark-elevated border border-white/[0.06] rounded-xl px-5 py-4 flex items-center gap-4 hover:border-seed-500/20 hover:bg-seed-500/[0.03] transition-all"
+        >
+          <div className="w-10 h-10 rounded-lg bg-seed-500/10 flex items-center justify-center group-hover:bg-seed-500/15 transition-colors">
+            <ImageIcon className="w-5 h-5 text-seed-400" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white group-hover:text-seed-400 transition-colors">
+              Branding
+            </p>
+            <p className="text-xs text-white/35 mt-0.5">
+              Upload company logo for emails and platform assets
+            </p>
+          </div>
+        </Link>
       </div>
 
       {/* Admin & Platform */}
@@ -128,6 +162,7 @@ export default function SettingsPage() {
             <EnvRow name="ADMIN_EMAILS" present={envVars.ADMIN_EMAILS ?? true} />
             <EnvRow name="ADMIN_PASSWORD" present={envVars.ADMIN_PASSWORD ?? true} />
             <EnvRow name="DATABASE_URL" present={envVars.DATABASE_URL ?? false} />
+            <EnvRow name="RESEND_API_KEY" present={envVars.RESEND_API_KEY ?? false} optional />
           </div>
 
           <p className="text-xs text-white/25 mt-4">

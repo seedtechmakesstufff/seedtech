@@ -1,9 +1,12 @@
 import { CTABanner } from "@/components/kit";
+import { FAQJsonLd, LocalBusinessJsonLd } from "@/components/JsonLd";
 import { HeroSection } from "@/components/home/HeroSection";
-import { WhyChooseSection } from "@/components/home/WhyChooseSection";
-import { ServicesSection } from "@/components/home/ServicesSection";
-import { ResultsSection } from "@/components/home/ResultsSection";
-import { LocalBusinessJsonLd } from "@/components/JsonLd";
+import { TrustedBySection } from "@/components/home/TrustedBySection";
+import { SelectedWorkSection } from "@/components/home/SelectedWorkSection";
+import { AutopilotSection } from "@/components/home/AutopilotSection";
+import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
+import { FAQSection } from "@/components/home/FAQSection";
+import { homepageFAQs } from "@/data/faqs";
 
 export default function HomePage() {
   return (
@@ -13,10 +16,13 @@ export default function HomePage() {
         email="support@seedtechllc.com"
         areaServed={["Northern New Jersey", "New Jersey", "United States"]}
       />
+      <FAQJsonLd questions={homepageFAQs} />
       <HeroSection />
-      <WhyChooseSection />
-      <ServicesSection />
-      <ResultsSection />
+      <TrustedBySection />
+      <SelectedWorkSection />
+      <AutopilotSection />
+      <BlogPreviewSection />
+      <FAQSection />
       <CTABanner
         title="Ready to Grow Your Business?"
         description="Get a free consultation and custom quote — no commitment, no jargon."

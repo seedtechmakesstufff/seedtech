@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
+import { sendTeamInvite } from "@/lib/email";
 
 /**
  * GET  /api/admin/team — List team members for the current tenant
@@ -90,7 +91,20 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // TODO: Send invite email via Resend when email service is configured
+  // Look up inviter name + tenant name for the email
+  const [inviter, tenant] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+    prisma.tenant.findUnique({ where: { id: tenantId }, select: { name: true } }),
+  ]);
+
+  const inviteUrl = `${process.env.NEXTAUTH_URL ?? "https://seedtechllc.com"}/invite?token=${invite.id}`;
+
+  sendTeamInvite(email, {
+    inviterName: inviter?.name ?? "Your admin",
+    teamName: tenant?.name ?? "SeedTech",
+    inviteUrl,
+    expiresInDays: 7,
+  }).catch((err) => console.error("[POST /api/admin/team] Email error:", err));
 
   return NextResponse.json({ invite }, { status: 201 });
 }

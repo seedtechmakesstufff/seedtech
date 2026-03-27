@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 import {
   generateAllInsights,
   getActiveInsights,
@@ -8,12 +8,12 @@ import {
 } from "@/lib/seo-insights";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
+
   try {
-    const insights = await getActiveInsights();
+    const insights = await getActiveInsights(siteId);
     return NextResponse.json({ insights });
   } catch (err) {
     return NextResponse.json(
@@ -24,16 +24,16 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
+
   const { searchParams } = new URL(req.url);
   const action = searchParams.get("action");
 
   try {
     if (action === "generate") {
-      const insights = await generateAllInsights();
+      const insights = await generateAllInsights(siteId);
       return NextResponse.json({ insights, count: insights.length });
     }
 

@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Inbox,
   SlidersHorizontal,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiteSwitcher } from "./SiteSwitcher";
@@ -55,6 +56,11 @@ const NAV_ITEMS: NavItem[] = [
     label: "Submissions",
     href: "/admin/submissions",
     icon: Inbox,
+  },
+  {
+    label: "Email",
+    href: "/admin/email",
+    icon: Mail,
   },
   {
     label: "Settings",

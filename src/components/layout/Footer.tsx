@@ -30,7 +30,6 @@ const footerLinks = {
   services: [
     { label: "Managed IT Support", href: "/services/managed-it" },
     { label: "Web Development", href: "/services/web-development" },
-    { label: "Marketing", href: "/services/marketing" },
   ],
   company: [
     { label: "About Us", href: "/about" },
@@ -54,7 +53,7 @@ export function Footer() {
               <span className="font-display text-xl font-bold text-white">SeedTech</span>
             </Link>
             <p className="text-body-sm text-white/50 leading-relaxed max-w-[250px]">
-              Premium IT support, web development, and marketing solutions that help businesses grow.
+              Premium IT support and web development solutions that help businesses grow.
             </p>
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (

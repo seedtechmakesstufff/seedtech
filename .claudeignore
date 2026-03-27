@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+
+# Generated
+src/generated/
+package-lock.json
+
+# Large binary files
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.ico
+*.svg
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Prisma migrations (can be read on demand)
+prisma/migrations/

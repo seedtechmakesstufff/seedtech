@@ -123,6 +123,7 @@ model BusinessProfile {
   uniqueSellingPoints String[] @default([])
   toneOfVoice         String   @default("")
   customInstructions  String   @default("") @db.Text
+  logoUrl             String?  // Uploaded company logo, served from /uploads/logos/
   serviceCategories   Json?    // [{name, slug, moneyPage}]
   brandEntities       String[] @default([])
   ctaDefaults         Json?    // {primaryCta, secondaryCta}
@@ -138,6 +139,46 @@ enum IntegrationType {
   google_search_console
   google_analytics
   google_pagespeed
+}
+
+// ── Email Template Overrides ────────────────────────────────
+
+enum EmailTemplateKey {
+  contact_notification    // Internal alert when contact form is submitted
+  contact_auto_reply      // Auto-reply to the person who submitted the contact form
+  quote_notification      // Internal alert when a quote flow is completed
+  quote_auto_reply        // Auto-reply to the person who submitted a quote
+  team_invite             // Invite email sent to new team members
+}
+
+model EmailTemplateOverride {
+  id        String           @id @default(cuid())
+  siteId    String
+  key       EmailTemplateKey
+  subject   String           // Editable subject line
+  heading   String           // Editable main heading (h1)
+  body      String           @db.Text // Editable body copy (plain text, rendered into the HTML layout)
+  enabled   Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([siteId, key])
+  @@map("email_template_overrides")
+}
+
+// ── Email Config (DB-stored sender + recipient settings) ────
+
+model EmailConfig {
+  id               String   @id @default(cuid())
+  siteId           String   @unique
+  fromAddress      String   @default("")
+  notifyRecipients String   @default("") // comma-separated admin emails
+  reportFromEmail  String   @default("")
+  reportToEmail    String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("email_configs")
 }
 
 model IntegrationCredential {
@@ -171,7 +212,7 @@ model BlogPost {
   slug            String
   excerpt         String
   body            String     // Markdown content
-  author          String     @default("SeedTech")
+  author          String     @default("")
   category        String
   tags            String[]   @default([])
   targetKeyword   String     @default("")

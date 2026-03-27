@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 import {
   isSearchConsoleConfigured,
   testConnection,
@@ -13,7 +13,6 @@ import {
   getSearchConsoleIntegration,
   updateKeywordPositions,
 } from "@/lib/site-data";
-import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /**
  * GET /api/admin/seo/search-console
@@ -26,12 +25,10 @@ import { DEFAULT_SITE_ID } from "@/lib/site-context";
  *   ?days=28         — date range (default 28)
  */
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
 
-  const siteId = (session.user as any).siteId || DEFAULT_SITE_ID;
   const integration = await getSearchConsoleIntegration(siteId);
 
   if (!isSearchConsoleConfigured(integration)) {

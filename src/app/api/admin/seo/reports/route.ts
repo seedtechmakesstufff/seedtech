@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+import { requireSiteContext } from "@/lib/site-context";
+import type { SiteContext } from "@/lib/site-context";
 import { previewReport, sendReport, buildReportData } from "@/lib/seo-reports";
-import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
+
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format");
-  const siteId = searchParams.get("siteId") || DEFAULT_SITE_ID;
 
   try {
     if (format === "html") {
@@ -32,13 +30,12 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const ctx = await requireSiteContext();
+  if (ctx instanceof NextResponse) return ctx;
+  const { siteId } = ctx as SiteContext;
+
   try {
     const body = await req.json().catch(() => ({}));
-    const siteId = (body as { siteId?: string }).siteId || DEFAULT_SITE_ID;
     const to = (body as { to?: string }).to;
     const result = await sendReport(siteId, to);
     return NextResponse.json(result);

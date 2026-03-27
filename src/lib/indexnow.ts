@@ -5,7 +5,7 @@
  *
  * Required env var:
  *   INDEXNOW_API_KEY — A random string (you generate it). 
- *   Also serve this key at https://seedtechllc.com/{key}.txt
+ *   Also serve this key at https://yourdomain.com/{key}.txt
  *
  * Docs: https://www.indexnow.org/documentation
  */
@@ -33,7 +33,10 @@ export function isIndexNowConfigured(): boolean {
  */
 export async function submitUrl(urlToIndex: string): Promise<IndexNowResult> {
   const apiKey = process.env.INDEXNOW_API_KEY;
-  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE || "https://seedtechllc.com";
+  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE;
+  if (!siteUrl) {
+    return { url: urlToIndex, success: false, responses: [{ endpoint: "none", status: 0 }] };
+  }
   const host = new URL(siteUrl).hostname;
 
   if (!apiKey) {

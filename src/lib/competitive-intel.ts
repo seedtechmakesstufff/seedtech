@@ -54,7 +54,7 @@ export interface CompetitorOverview {
 
 /* ── Page Fetching & Analysis ── */
 
-const USER_AGENT = "Mozilla/5.0 (compatible; SeedTech-Bot/1.0)";
+const USER_AGENT = "Mozilla/5.0 (compatible; SEO-Bot/1.0)";
 const FETCH_TIMEOUT_MS = 15000;
 
 /**

@@ -19,6 +19,9 @@ dist/
 # Vercel
 .vercel
 
+# Claude Code local settings
+.claude/settings.local.json
+
 # Misc
 .DS_Store
 *.pem

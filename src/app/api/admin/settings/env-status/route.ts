@@ -19,5 +19,11 @@ export async function GET() {
     INDEXNOW_API_KEY: !!process.env.INDEXNOW_API_KEY,
     NEXT_PUBLIC_GA_MEASUREMENT_ID: !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
     DATABASE_URL: !!process.env.DATABASE_URL,
+    // Email / Resend
+    RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+    EMAIL_FROM: !!process.env.EMAIL_FROM,
+    EMAIL_NOTIFY: !!process.env.EMAIL_NOTIFY,
+    REPORT_FROM_EMAIL: !!process.env.REPORT_FROM_EMAIL,
+    REPORT_TO_EMAIL: !!process.env.REPORT_TO_EMAIL,
   });
 }

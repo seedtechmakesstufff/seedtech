@@ -85,9 +85,9 @@ export async function buildCitationQueries(
   const queries: string[] = [];
 
   // 1. Get business context for brand-relevant queries
-  let brandName = "SeedTech";
-  let location = "Northern New Jersey";
-  let primaryService = "managed IT";
+  let brandName = "";
+  let location = "";
+  let primaryService = "";
   let secondaryServices: string[] = [];
 
   try {
@@ -98,6 +98,11 @@ export async function buildCitationQueries(
     secondaryServices = ctx.secondaryServices;
   } catch {
     /* use defaults */
+  }
+
+  if (!brandName || brandName.startsWith("[")) {
+    console.warn("[citation-checker] No business context configured for site:", siteId);
+    return [];
   }
 
   // 2. Direct brand queries — does AI know about us?
@@ -543,8 +548,8 @@ export async function runCitationCheck(
 
   try {
     // Get business context
-    let brandName = "SeedTech";
-    let domain = "seedtechllc.com";
+    let brandName = "";
+    let domain = "";
     try {
       const ctx = await getBusinessContextForSite(siteId);
       brandName = ctx.companyName;
@@ -744,8 +749,8 @@ export async function checkSingleQuery(
   query: string,
   platform: Platform
 ): Promise<PlatformResult | null> {
-  let brandName = "SeedTech";
-  let domain = "seedtechllc.com";
+  let brandName = "";
+  let domain = "";
 
   try {
     const ctx = await getBusinessContextForSite(siteId);

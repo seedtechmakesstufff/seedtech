@@ -10,8 +10,7 @@ import { getLatestCrawlResults } from "@/lib/seo-crawler";
 import { getSiteUrl } from "@/lib/site-data";
 import { getBusinessContextForSite } from "@/lib/business-context";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
-
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
+import { sendSeoDigest } from "@/lib/email";
 
 /* ── Types ── */
 
@@ -42,7 +41,7 @@ export interface ReportBranding {
 
 async function getReportBranding(siteId: string): Promise<ReportBranding> {
   const siteUrl = await getSiteUrl(siteId);
-  let companyName = "SeedTech";
+  let companyName = "Your Company";
   try {
     const ctx = await getBusinessContextForSite(siteId);
     companyName = ctx.companyName;
@@ -131,7 +130,7 @@ export function buildReportHtml(data: ReportData, branding: ReportBranding): str
 <div style="max-width:600px;margin:0 auto;background:#111;border-radius:12px;padding:32px;border:1px solid #333">
 
   <div style="text-align:center;margin-bottom:32px">
-    <h1 style="color:#fff;font-size:24px;margin:0">🌱 ${branding.companyName} SEO Report</h1>
+    <h1 style="color:#fff;font-size:24px;margin:0">${branding.companyName} — SEO Report</h1>
     <p style="color:#9ca3af;font-size:14px;margin:8px 0 0">${data.period}</p>
   </div>
 
@@ -204,7 +203,7 @@ export function buildReportHtml(data: ReportData, branding: ReportBranding): str
   </div>
 
   <p style="color:#6b7280;font-size:12px;text-align:center;margin:24px 0 0">
-    ${branding.companyName} SEO Autopilot • Automated weekly report
+    ${branding.companyName} • Automated weekly SEO report
   </p>
 
 </div>
@@ -224,44 +223,21 @@ export async function sendReport(
   ]);
   const html = buildReportHtml(reportData, branding);
 
-  if (!RESEND_API_KEY) {
-    // If Resend not configured, return the HTML for preview
+  const result = await sendSeoDigest({
+    to: toOverride || branding.toEmail,
+    from: branding.fromEmail,
+    subject: `SEO Report — Health ${reportData.currentHealth}/100 — ${reportData.period}`,
+    html,
+  });
+
+  if (!result.success) {
     return {
       success: false,
-      message: "RESEND_API_KEY not configured. Report generated but not sent.",
+      message: result.error ?? "Email send failed",
     };
   }
 
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: branding.fromEmail,
-        to: toOverride || branding.toEmail,
-        subject: `SEO Report — Health ${reportData.currentHealth}/100 — ${reportData.period}`,
-        html,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      return {
-        success: false,
-        message: `Email send failed: ${JSON.stringify(err)}`,
-      };
-    }
-
-    return { success: true, message: "Report sent successfully" };
-  } catch (err) {
-    return {
-      success: false,
-      message: `Email send error: ${err instanceof Error ? err.message : String(err)}`,
-    };
-  }
+  return { success: true, message: "Report sent successfully" };
 }
 
 /* ── Preview report (returns HTML string) ── */
