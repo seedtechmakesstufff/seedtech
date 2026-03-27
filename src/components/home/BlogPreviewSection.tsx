@@ -4,6 +4,7 @@ import { getPublishedPosts } from "@/lib/blog";
 import { format } from "date-fns";
 import type { BlogPost } from "@/types/blog";
 import { cn } from "@/lib/utils";
+import { AnimatedH2 } from "@/components/kit";
 
 /**
  * Server component — fetches the 3 most recent published blog posts
@@ -29,9 +30,9 @@ export async function BlogPreviewSection() {
             <p className="text-seed-600 text-eyebrow uppercase tracking-widest mb-3">
               Insights
             </p>
-            <h2 className="font-display text-heading md:text-heading-lg text-gray-900 leading-[1.1]">
+            <AnimatedH2 className="font-display text-heading md:text-heading-lg text-gray-900 leading-[1.1]">
               From the Blog
-            </h2>
+            </AnimatedH2>
           </div>
           <Link
             href="/blog"

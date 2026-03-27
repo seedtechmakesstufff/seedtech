@@ -11,10 +11,11 @@ const config: Config = {
       /* ── Brand Colors (from Figma Design Kit) ── */
       colors: {
         dark: {
-          base: "#0a0a0f",
-          raised: "#0c0c14",
-          elevated: "#14141f",
-          overlay: "#1a1a28",
+          base: "rgb(var(--admin-bg-base, 10 10 15) / <alpha-value>)",
+          raised: "rgb(var(--admin-bg-raised, 12 12 20) / <alpha-value>)",
+          elevated: "rgb(var(--admin-bg-elevated, 20 20 31) / <alpha-value>)",
+          overlay: "rgb(var(--admin-bg-overlay, 26 26 40) / <alpha-value>)",
+          border: "var(--admin-border, rgba(255,255,255,0.06))",
         },
         light: {
           base: "#f8f8fa",

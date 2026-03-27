@@ -1,10 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Lottie from "lottie-react";
+import type { LottieRefCurrentProps } from "lottie-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Brain, BarChart3, FileText, LayoutDashboard } from "lucide-react";
+import auditAnimation from "@/../public/lotties/audit-card-animation.json";
+import { AnimatedH2 } from "@/components/kit";
+
+function PingPongLottie({ animationData, className }: { animationData: object; className?: string }) {
+  const ref = useRef<LottieRefCurrentProps>(null);
+  const mounted = useRef(true);
+
+  return (
+    <Lottie
+      lottieRef={ref}
+      animationData={animationData}
+      loop={false}
+      autoplay
+      className={className}
+      onDOMLoaded={() => {
+        mounted.current = true;
+      }}
+      onComplete={() => {
+        if (!mounted.current) return;
+        const anim = ref.current?.animationItem;
+        if (!anim) return;
+        const newDir = anim.playDirection === 1 ? -1 : 1;
+        // Use goToAndPlay to eliminate the pause — jump to the
+        // correct boundary frame and play in the new direction instantly
+        anim.setDirection(newDir as 1 | -1);
+        if (newDir === -1) {
+          anim.goToAndPlay(anim.totalFrames - 1, true);
+        } else {
+          anim.goToAndPlay(0, true);
+        }
+      }}
+    />
+  );
+}
 
 const glassStyle: React.CSSProperties = {
   borderRadius: 16,
@@ -21,6 +57,8 @@ interface PillarData {
   id: string;
   icon: React.ReactNode;
   miniTitle: string;
+  image: string;
+  lottie?: object;
   heading: React.ReactNode;
   description: string;
   bullets: string[];
@@ -33,6 +71,7 @@ const pillars: PillarData[] = [
     id: "citations",
     icon: <Brain className="w-5 h-5" />,
     miniTitle: "AI CITATION ENGINE",
+    image: "/img/seed graphics/seo_graphic.webp",
     heading: (
       <>
         BE THE SOURCE <span className="text-seed-400">AI RECOMMENDS</span>
@@ -53,6 +92,8 @@ const pillars: PillarData[] = [
     id: "audits",
     icon: <BarChart3 className="w-5 h-5" />,
     miniTitle: "AUTOMATED AUDITS",
+    image: "/img/seo-autopilot/seo_audit_card_2x.webp",
+    lottie: auditAnimation,
     heading: (
       <>
         WEEKLY SEO INTELLIGENCE,{" "}
@@ -74,6 +115,7 @@ const pillars: PillarData[] = [
     id: "content",
     icon: <FileText className="w-5 h-5" />,
     miniTitle: "AI-FIRST CONTENT",
+    image: "/img/seo-autopilot/seo_create_content_card_2x.webp",
     heading: (
       <>
         CONTENT BUILT TO BE{" "}
@@ -95,6 +137,7 @@ const pillars: PillarData[] = [
     id: "dashboard",
     icon: <LayoutDashboard className="w-5 h-5" />,
     miniTitle: "YOUR SEO DASHBOARD",
+    image: "/img/seo-autopilot/seo_dashboard_card_2x.webp",
     heading: (
       <>
         MANAGE YOUR SEO{" "}
@@ -133,13 +176,20 @@ function MiniCard({
     >
       {/* Floating graphic */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 w-[160px] h-[160px] pointer-events-none select-none">
-        <Image
-          src="/img/seed graphics/seo_graphic.webp"
-          alt={pillar.miniTitle}
-          fill
-          className="object-contain object-bottom drop-shadow-2xl"
-          sizes="160px"
-        />
+        {pillar.lottie ? (
+          <PingPongLottie
+            animationData={pillar.lottie}
+            className="w-full h-full drop-shadow-2xl"
+          />
+        ) : (
+          <Image
+            src={pillar.image}
+            alt={pillar.miniTitle}
+            fill
+            className="object-contain object-bottom drop-shadow-2xl"
+            sizes="160px"
+          />
+        )}
       </div>
 
       {/* Glass card — grows on active */}
@@ -184,10 +234,12 @@ export function AutopilotSection() {
           <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-3">
             SEO Autopilot
           </p>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-            SEO HAS CHANGED.{" "}
-            <span className="text-seed-400">YOUR STRATEGY MUST TOO.</span>
-          </h2>
+          <AnimatedH2
+            className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight"
+            highlightWords={["TOO."]}
+          >
+            SEO HAS CHANGED. YOUR STRATEGY MUST TOO.
+          </AnimatedH2>
           <p className="mt-4 text-sm md:text-base text-white/45 max-w-2xl mx-auto leading-relaxed">
             AI now answers more searches than ever — before anyone clicks a link.
             Businesses that don&apos;t adapt lose visibility. SEO Autopilot is built for this shift.
@@ -278,13 +330,20 @@ export function AutopilotSection() {
                   transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   className="relative w-[240px] h-[240px] lg:w-[320px] lg:h-[320px] lg:-mr-8 lg:-mb-8"
                 >
-                  <Image
-                    src="/img/seed graphics/seo_graphic.webp"
-                    alt="SEO Autopilot"
-                    fill
-                    className="object-contain object-bottom"
-                    sizes="(max-width: 1024px) 240px, 320px"
-                  />
+                  {active.lottie ? (
+                    <PingPongLottie
+                      animationData={active.lottie}
+                      className="absolute inset-0 w-full h-full"
+                    />
+                  ) : (
+                    <Image
+                      src={active.image}
+                      alt={active.miniTitle}
+                      fill
+                      className="object-contain object-bottom"
+                      sizes="(max-width: 1024px) 240px, 320px"
+                    />
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>

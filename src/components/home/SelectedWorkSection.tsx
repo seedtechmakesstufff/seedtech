@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnimatedH2 } from "@/components/kit";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -97,12 +98,12 @@ export function SelectedWorkSection() {
           transition={{ duration: 0.6, ease: EXPO_OUT }}
           className="text-center mb-12"
         >
-          <h2 className="font-display text-heading md:text-heading-lg text-white leading-[1.1]">
-            Selected{" "}
-            <span className="inline-block bg-gradient-to-r from-seed-400 to-emerald-400 bg-clip-text text-transparent italic pr-2">
-              Work
-            </span>
-          </h2>
+          <AnimatedH2
+            className="font-display text-heading md:text-heading-lg text-white leading-[1.1]"
+            highlightWords={["Work"]}
+          >
+            Selected Work
+          </AnimatedH2>
           <Link
             href="/our-work"
             className="inline-flex items-center gap-2 mt-4 text-sm text-white/40 hover:text-white/70 transition-colors group"

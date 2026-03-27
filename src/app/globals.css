@@ -322,3 +322,219 @@
     0 2px 8px rgba(16,185,129,0.10),
     0 1px 2px rgba(0,0,0,0.04);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ADMIN THEME SYSTEM
+   ══════════════════════════════════════════════════════════════════════════════
+   Scoped to [data-admin-theme] so the public site is never affected.
+   The dark.* tokens in tailwind.config.ts resolve to var(--admin-bg-*, #fallback)
+   — outside admin, the fallbacks (dark hex values) kick in unchanged.            */
+
+/* ── Light Theme (admin default) ──────────────────────────────────────────── */
+[data-admin-theme="light"] {
+  --admin-bg-base: 245 245 247;
+  --admin-bg-raised: 255 255 255;
+  --admin-bg-elevated: 240 240 244;
+  --admin-bg-overlay: 232 232 238;
+  --admin-border: rgba(0,0,0,0.08);
+  color-scheme: light;
+}
+
+/* ── Dark Theme ───────────────────────────────────────────────────────────── */
+[data-admin-theme="dark"] {
+  --admin-bg-base: 10 10 15;
+  --admin-bg-raised: 12 12 20;
+  --admin-bg-elevated: 20 20 31;
+  --admin-bg-overlay: 26 26 40;
+  --admin-border: rgba(255,255,255,0.06);
+  color-scheme: dark;
+}
+
+/* ── Light Theme: Text Overrides ──────────────────────────────────────────── */
+[data-admin-theme="light"] .text-white {
+  color: #111827 !important;
+}
+[data-admin-theme="light"] .text-white\/80 {
+  color: #1f2937 !important;
+}
+[data-admin-theme="light"] .text-white\/70 {
+  color: #1f2937 !important;
+}
+[data-admin-theme="light"] .text-white\/60 {
+  color: #374151 !important;
+}
+[data-admin-theme="light"] .text-white\/50 {
+  color: #4b5563 !important;
+}
+[data-admin-theme="light"] .text-white\/40 {
+  color: #6b7280 !important;
+}
+[data-admin-theme="light"] .text-white\/30 {
+  color: #9ca3af !important;
+}
+[data-admin-theme="light"] .text-white\/20 {
+  color: #b0b5bd !important;
+}
+[data-admin-theme="light"] .text-white\/10 {
+  color: #d1d5db !important;
+}
+
+/* Zinc text (used in SEO tabs) */
+[data-admin-theme="light"] .text-zinc-400 {
+  color: #4b5563 !important;
+}
+[data-admin-theme="light"] .text-zinc-500 {
+  color: #4b5563 !important;
+}
+[data-admin-theme="light"] .text-zinc-600 {
+  color: #374151 !important;
+}
+[data-admin-theme="light"] .text-zinc-300 {
+  color: #1f2937 !important;
+}
+
+/* ── Light Theme: Border Overrides ────────────────────────────────────────── */
+[data-admin-theme="light"] .border-white\/\[0\.06\] {
+  border-color: rgba(0,0,0,0.12) !important;
+}
+[data-admin-theme="light"] .border-white\/\[0\.08\] {
+  border-color: rgba(0,0,0,0.15) !important;
+}
+[data-admin-theme="light"] .border-white\/\[0\.04\] {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+[data-admin-theme="light"] .border-dark-border {
+  border-color: rgba(0,0,0,0.12) !important;
+}
+
+/* ── Light Theme: Background Overrides ────────────────────────────────────── */
+[data-admin-theme="light"] .bg-white\/\[0\.02\] {
+  background-color: rgba(0,0,0,0.02) !important;
+}
+[data-admin-theme="light"] .bg-white\/\[0\.03\] {
+  background-color: rgba(0,0,0,0.03) !important;
+}
+[data-admin-theme="light"] .bg-white\/\[0\.04\] {
+  background-color: rgba(0,0,0,0.04) !important;
+}
+[data-admin-theme="light"] .bg-white\/\[0\.06\] {
+  background-color: rgba(0,0,0,0.06) !important;
+}
+[data-admin-theme="light"] .bg-dark-base\/50 {
+  background-color: rgba(245,245,247,0.5) !important;
+}
+[data-admin-theme="light"] .bg-dark-base\/95 {
+  background-color: rgba(245,245,247,0.95) !important;
+}
+
+/* Zinc backgrounds */
+[data-admin-theme="light"] .bg-zinc-500\/20 {
+  background-color: rgba(107,114,128,0.12) !important;
+}
+
+/* ── Light Theme: Hover Overrides ─────────────────────────────────────────── */
+[data-admin-theme="light"] .hover\:bg-white\/\[0\.02\]:hover {
+  background-color: rgba(0,0,0,0.03) !important;
+}
+[data-admin-theme="light"] .hover\:bg-white\/\[0\.03\]:hover {
+  background-color: rgba(0,0,0,0.05) !important;
+}
+[data-admin-theme="light"] .hover\:bg-white\/\[0\.04\]:hover {
+  background-color: rgba(0,0,0,0.06) !important;
+}
+[data-admin-theme="light"] .hover\:bg-white\/\[0\.06\]:hover {
+  background-color: rgba(0,0,0,0.08) !important;
+}
+[data-admin-theme="light"] .hover\:text-white:hover {
+  color: #111827 !important;
+}
+[data-admin-theme="light"] .hover\:text-white\/70:hover {
+  color: #1f2937 !important;
+}
+[data-admin-theme="light"] .hover\:border-white\/\[0\.06\]:hover {
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+/* ── Light Theme: Placeholder Overrides ───────────────────────────────────── */
+[data-admin-theme="light"] .placeholder\:text-white\/30::placeholder {
+  color: #9ca3af !important;
+}
+[data-admin-theme="light"] .placeholder\:text-white\/20::placeholder {
+  color: #d1d5db !important;
+}
+[data-admin-theme="light"] .placeholder\:text-zinc-500::placeholder {
+  color: #9ca3af !important;
+}
+
+/* ── Light Theme: Status Color Adjustments ────────────────────────────────── */
+[data-admin-theme="light"] .text-green-400 {
+  color: #16a34a !important;
+}
+[data-admin-theme="light"] .text-red-400 {
+  color: #dc2626 !important;
+}
+[data-admin-theme="light"] .text-yellow-400 {
+  color: #ca8a04 !important;
+}
+[data-admin-theme="light"] .text-blue-400 {
+  color: #2563eb !important;
+}
+[data-admin-theme="light"] .text-purple-400 {
+  color: #7c3aed !important;
+}
+[data-admin-theme="light"] .bg-green-500\/20 {
+  background-color: rgba(22,163,74,0.12) !important;
+}
+[data-admin-theme="light"] .bg-red-500\/20 {
+  background-color: rgba(220,38,38,0.10) !important;
+}
+[data-admin-theme="light"] .bg-yellow-500\/20 {
+  background-color: rgba(202,138,4,0.10) !important;
+}
+[data-admin-theme="light"] .bg-blue-500\/20 {
+  background-color: rgba(37,99,235,0.10) !important;
+}
+[data-admin-theme="light"] .bg-purple-500\/20 {
+  background-color: rgba(124,58,237,0.10) !important;
+}
+
+/* ── Light Theme: Seed accent adjustments for light bg ────────────────────── */
+[data-admin-theme="light"] .text-seed-400 {
+  color: #0f9c45 !important;
+}
+[data-admin-theme="light"] .bg-seed-500\/10 {
+  background-color: rgba(64,166,96,0.12) !important;
+}
+[data-admin-theme="light"] .bg-seed-500\/5 {
+  background-color: rgba(64,166,96,0.08) !important;
+}
+[data-admin-theme="light"] .bg-seed-500\/20 {
+  background-color: rgba(64,166,96,0.15) !important;
+}
+
+/* ── Light Theme: Shadow Overrides ────────────────────────────────────────── */
+[data-admin-theme="light"] .shadow-2xl {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04) !important;
+}
+[data-admin-theme="light"] .shadow-xl {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+/* ── Light Theme: Scrollbar ───────────────────────────────────────────────── */
+[data-admin-theme="light"] ::-webkit-scrollbar-track {
+  background: #f5f5f7;
+}
+[data-admin-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+[data-admin-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ── Light Theme: Focus ring adjustment ───────────────────────────────────── */
+[data-admin-theme="light"] .focus\:ring-seed-500\/50:focus {
+  --tw-ring-color: rgba(64,166,96,0.3);
+}
+[data-admin-theme="light"] .focus\:ring-seed-500\/20:focus {
+  --tw-ring-color: rgba(64,166,96,0.15);
+}

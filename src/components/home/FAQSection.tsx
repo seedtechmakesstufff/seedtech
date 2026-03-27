@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { homepageFAQs } from "@/data/faqs";
+import { AnimatedH2 } from "@/components/kit";
 
 /* ── Accordion Item ── */
 function FAQItem({
@@ -78,9 +79,9 @@ export function FAQSection() {
           <p className="text-seed-500 text-eyebrow uppercase tracking-widest mb-3">
             FAQ
           </p>
-          <h2 className="font-display text-heading md:text-heading-lg text-white leading-[1.1]">
+          <AnimatedH2 className="font-display text-heading md:text-heading-lg text-white leading-[1.1]">
             Frequently Asked Questions
-          </h2>
+          </AnimatedH2>
           <p className="mt-4 text-white/40 text-body-lg max-w-xl mx-auto">
             Questions most people consider when discussing our services
           </p>

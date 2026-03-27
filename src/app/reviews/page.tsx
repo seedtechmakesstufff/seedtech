@@ -137,32 +137,6 @@ function ReviewModal({
   );
 }
 
-/* ── Stats ── */
-function ReviewStats() {
-  const avgRating =
-    reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
-
-  return (
-    <div className="flex flex-wrap items-center justify-center gap-8 mb-16">
-      {[
-        { label: "Average Rating", value: avgRating.toFixed(1), suffix: "/5" },
-        { label: "Total Reviews", value: reviews.length.toString(), suffix: "+" },
-        { label: "5-Star Reviews", value: reviews.filter((r) => r.rating === 5).length.toString(), suffix: "" },
-      ].map((stat) => (
-        <div key={stat.label} className="text-center">
-          <p className="text-3xl font-bold text-white">
-            {stat.value}
-            <span className="text-seed-400">{stat.suffix}</span>
-          </p>
-          <p className="text-xs text-white/30 mt-1 uppercase tracking-wider">
-            {stat.label}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /* ── Page ── */
 export default function ReviewsPage() {
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -194,8 +168,6 @@ export default function ReviewsPage() {
 
       {/* Stats + Grid */}
       <Section>
-        <ReviewStats />
-
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {reviews.map((review, i) => (
             <FullReviewCard

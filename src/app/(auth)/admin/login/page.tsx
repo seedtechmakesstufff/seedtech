@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { AdminThemeProvider } from "@/components/providers/AdminThemeProvider";
 
 function LoginForm() {
   const router = useRouter();
@@ -101,7 +102,9 @@ function LoginForm() {
 export default function AdminLoginPage() {
   return (
     <AuthProvider>
-      <LoginForm />
+      <AdminThemeProvider>
+        <LoginForm />
+      </AdminThemeProvider>
     </AuthProvider>
   );
 }

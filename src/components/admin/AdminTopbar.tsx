@@ -1,8 +1,8 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import { LogOut, Menu } from "lucide-react";
-import { useState } from "react";
+import { LogOut, Menu, Sun, Moon, User, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,9 +13,9 @@ import {
   Settings,
   Sprout,
   X,
-  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAdminTheme } from "@/components/providers/AdminThemeProvider";
 
 interface NavItem {
   label: string;
@@ -47,7 +47,20 @@ interface AdminTopbarProps {
 
 export function AdminTopbar({ user }: AdminTopbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { theme, toggleTheme } = useAdminTheme();
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   return (
     <>
@@ -63,18 +76,67 @@ export function AdminTopbar({ user }: AdminTopbarProps) {
         {/* Spacer on desktop */}
         <div className="hidden lg:block" />
 
-        {/* Right side */}
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-white/40 hidden sm:block">
-            {user?.email}
-          </span>
+        {/* Right side — user dropdown */}
+        <div ref={userMenuRef} className="relative">
           <button
-            onClick={() => signOut({ callbackUrl: "/admin/login" })}
-            className="flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
           >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Sign out</span>
+            <div className="w-7 h-7 rounded-full bg-seed-500/20 flex items-center justify-center shrink-0">
+              <User className="w-3.5 h-3.5 text-seed-400" />
+            </div>
+            <span className="text-sm text-white/50 hidden sm:block max-w-[180px] truncate">
+              {user?.email}
+            </span>
+            <ChevronDown
+              className={cn(
+                "w-3.5 h-3.5 text-white/30 transition-transform duration-200",
+                userMenuOpen && "rotate-180"
+              )}
+            />
           </button>
+
+          {userMenuOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-64 bg-dark-raised border border-white/[0.08] rounded-xl shadow-xl z-50 overflow-hidden">
+              {/* User info */}
+              <div className="px-4 py-3 border-b border-white/[0.06]">
+                <p className="text-sm font-medium text-white">
+                  {user?.name || user?.email?.split("@")[0] || "Admin"}
+                </p>
+                <p className="text-xs text-white/40 truncate mt-0.5">
+                  {user?.email}
+                </p>
+              </div>
+
+              {/* Theme toggle */}
+              <button
+                onClick={() => {
+                  toggleTheme();
+                  setUserMenuOpen(false);
+                }}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-white/60 hover:bg-white/[0.04] transition-colors"
+              >
+                {theme === "light" ? (
+                  <Moon className="w-4 h-4" />
+                ) : (
+                  <Sun className="w-4 h-4" />
+                )}
+                {theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+              </button>
+
+              {/* Divider */}
+              <div className="border-t border-white/[0.06]" />
+
+              {/* Sign out */}
+              <button
+                onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-white/[0.04] transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
