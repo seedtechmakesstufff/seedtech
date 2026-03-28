@@ -21,13 +21,13 @@ export function ProcessStep({ step, title, description, theme = "light", classNa
       )}
     >
       <span className={cn(
-        "font-display text-step-number block mb-4",
-        isDark ? "text-white/[0.06]" : "text-dark-base/[0.06]"
+        "font-display text-[4rem] md:text-[5rem] leading-none block mb-5",
+        isDark ? "text-white/[0.18]" : "text-dark-base/[0.18]"
       )}>
         {step}
       </span>
       <h3 className={cn(
-        "font-display text-card-title mb-3",
+        "font-display text-xl md:text-2xl mb-3",
         isDark ? "text-white" : "text-dark-base"
       )}>
         {title}

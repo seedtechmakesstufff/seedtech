@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Rocket, ShoppingCart, SquareTerminal } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
@@ -84,7 +84,7 @@ const pricing = [
       "Up to 5 pages",
       "Mobile-responsive design",
       "Fast, modern website build",
-      "Basic SEO setup",
+      "Includes SeedTech's comprehensive SEO platform",
       "Contact form",
       "Launch and deployment",
     ],
@@ -99,7 +99,7 @@ const pricing = [
       "8–15 pages",
       "Custom design and layout",
       "Advanced UI components",
-      "SEO-friendly structure",
+      "Includes SeedTech's comprehensive SEO platform",
       "Content strategy support",
       "Scalable architecture",
     ],
@@ -160,21 +160,109 @@ export default function WebDevelopmentPage() {
           <p className="text-eyebrow uppercase tracking-[0.2em] text-seed-400 mb-6">
             Web Development
           </p>
-          <AnimatedH1 highlightWords={["Actually", "Work"]} className="mb-8 text-center">
-            We Build Websites That Actually Work
+          <AnimatedH1 highlightWords={["Ecommerce,", "Platforms"]} className="mb-8 text-center">
+            Websites, Ecommerce, and Custom Platforms — Built for How Your Business Actually Operates
           </AnimatedH1>
-          <p className="text-body-lg text-light-base/50 max-w-2xl mx-auto mb-12 leading-relaxed">
-            Custom websites, ecommerce platforms, and web applications —
-            designed and built from scratch for businesses that take their
-            online presence seriously.
+          <p className="text-body-lg text-light-base/50 max-w-2xl mx-auto mb-4 leading-relaxed">
+            From fast-launch business websites on the SeedTech Platform to full-stack ecommerce and custom software development, we build digital systems that are designed around the business — not forced into a one-size-fits-all template.
           </p>
-          <QuoteButton
-            service="web-development"
-            className="inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-gradient-brand text-white text-base font-medium hover:shadow-glowSeed transition-all duration-300"
-          >
-            Start a Project
-            <ArrowRight className="w-5 h-5" />
-          </QuoteButton>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          CHOOSE YOUR PATH — three build tracks
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="relative bg-dark-base py-24 md:py-32 overflow-hidden">
+        <GradientOrb color="seed" size="lg" className="top-0 left-1/4 opacity-10" />
+        <GradientOrb color="blue" size="lg" className="bottom-0 right-1/4 opacity-8" />
+        <div className="relative z-10 mx-auto max-w-6xl px-6">
+          <div className="text-center mb-16">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-seed-400 mb-5">
+              Choose Your Path
+            </p>
+            <AnimatedH2
+              highlightWords={["Three"]}
+              className="font-display text-heading md:text-heading-lg text-white leading-tight mb-4"
+            >
+              Three Ways We Build
+            </AnimatedH2>
+            <p className="text-sm md:text-base text-white/40 max-w-lg mx-auto">
+              Every business is different. Pick the track that fits yours.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* ── Card 1: SeedTech Platform ─────────────────────────────── */}
+            <Link href="/services/seedtech-platform" className="group relative liquid-glass liquid-glass-hover rounded-2xl p-8 flex flex-col min-h-[340px] overflow-hidden">
+              {/* Tint glow on hover */}
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-seed-500/10 via-transparent to-transparent pointer-events-none" />
+              {/* Number watermark */}
+              <span className="absolute top-5 right-6 text-[80px] font-display font-bold leading-none text-white/[0.03] select-none pointer-events-none">
+                01
+              </span>
+              <div className="relative z-[1] flex flex-col flex-1">
+                <div className="w-11 h-11 rounded-xl bg-seed-500/15 border border-seed-500/20 flex items-center justify-center mb-5 group-hover:bg-seed-500/25 transition-colors duration-300">
+                  <Rocket className="w-5 h-5 text-seed-400" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-display font-semibold tracking-wide text-white mb-3">
+                  Launch Faster on the SeedTech Platform
+                </h3>
+                <p className="text-sm text-white/50 leading-relaxed mb-6 flex-1">
+                  For service businesses, lead-generation brands, and professional firms, the SeedTech Platform is the fastest way to launch a high-performance site with modern infrastructure and SEO Autopilot already configured from your business context.
+                </p>
+                <div className="flex items-center gap-2 text-seed-400 text-sm font-medium group-hover:gap-3 transition-all duration-300">
+                  <span>Most popular</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </Link>
+
+            {/* ── Card 2: Full-Stack Ecommerce ──────────────────────────── */}
+            <Link href="/services/ecommerce-development" className="group relative liquid-glass liquid-glass-hover rounded-2xl p-8 flex flex-col min-h-[340px] overflow-hidden">
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+              <span className="absolute top-5 right-6 text-[80px] font-display font-bold leading-none text-white/[0.03] select-none pointer-events-none">
+                02
+              </span>
+              <div className="relative z-[1] flex flex-col flex-1">
+                <div className="w-11 h-11 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center mb-5 group-hover:bg-blue-500/25 transition-colors duration-300">
+                  <ShoppingCart className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-display font-semibold tracking-wide text-white mb-3">
+                  Full-Stack Ecommerce for Businesses That Need to Sell Online
+                </h3>
+                <p className="text-sm text-white/50 leading-relaxed mb-6 flex-1">
+                  We design and build ecommerce experiences on Shopify, BigCommerce, and WordPress for businesses that need more than a simple brochure site — whether that means better storefront UX, platform migration, product architecture, or custom commerce functionality.
+                </p>
+                <div className="flex items-center gap-2 text-blue-400 text-sm font-medium group-hover:gap-3 transition-all duration-300">
+                  <span>Explore ecommerce</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </Link>
+
+            {/* ── Card 3: Custom Software ───────────────────────────────── */}
+            <Link href="/services/custom-development" className="group relative liquid-glass liquid-glass-hover rounded-2xl p-8 flex flex-col min-h-[340px] overflow-hidden">
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent pointer-events-none" />
+              <span className="absolute top-5 right-6 text-[80px] font-display font-bold leading-none text-white/[0.03] select-none pointer-events-none">
+                03
+              </span>
+              <div className="relative z-[1] flex flex-col flex-1">
+                <div className="w-11 h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/20 flex items-center justify-center mb-5 group-hover:bg-cyan-500/25 transition-colors duration-300">
+                  <SquareTerminal className="w-5 h-5 text-cyan-400" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-display font-semibold tracking-wide text-white mb-3">
+                  Custom Software, Products, and Business Systems
+                </h3>
+                <p className="text-sm text-white/50 leading-relaxed mb-6 flex-1">
+                  When your needs go beyond a website or storefront, we build custom SaaS products, internal tools, web apps, PWAs, and business platforms designed around the way your company actually works.
+                </p>
+                <div className="flex items-center gap-2 text-cyan-400 text-sm font-medium group-hover:gap-3 transition-all duration-300">
+                  <span>Discuss your project</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 

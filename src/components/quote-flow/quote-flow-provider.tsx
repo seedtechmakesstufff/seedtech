@@ -6,7 +6,8 @@ import type { ServicePath } from "./types";
 interface QuoteFlowContextValue {
   isOpen: boolean;
   preselectedService: ServicePath | null;
-  openQuoteFlow: (service?: ServicePath) => void;
+  preselectedTier: string | null;
+  openQuoteFlow: (service?: ServicePath, tier?: string) => void;
   closeQuoteFlow: () => void;
 }
 
@@ -14,11 +15,12 @@ const QuoteFlowContext = createContext<QuoteFlowContextValue | null>(null);
 
 export function QuoteFlowProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [preselectedService, setPreselectedService] =
-    useState<ServicePath | null>(null);
+  const [preselectedService, setPreselectedService] = useState<ServicePath | null>(null);
+  const [preselectedTier, setPreselectedTier] = useState<string | null>(null);
 
-  const openQuoteFlow = useCallback((service?: ServicePath) => {
+  const openQuoteFlow = useCallback((service?: ServicePath, tier?: string) => {
     setPreselectedService(service ?? null);
+    setPreselectedTier(tier ?? null);
     setIsOpen(true);
     document.body.style.overflow = "hidden";
   }, []);
@@ -26,12 +28,13 @@ export function QuoteFlowProvider({ children }: { children: React.ReactNode }) {
   const closeQuoteFlow = useCallback(() => {
     setIsOpen(false);
     setPreselectedService(null);
+    setPreselectedTier(null);
     document.body.style.overflow = "";
   }, []);
 
   return (
     <QuoteFlowContext.Provider
-      value={{ isOpen, preselectedService, openQuoteFlow, closeQuoteFlow }}
+      value={{ isOpen, preselectedService, preselectedTier, openQuoteFlow, closeQuoteFlow }}
     >
       {children}
     </QuoteFlowContext.Provider>

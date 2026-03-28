@@ -7,16 +7,17 @@ interface QuoteButtonProps {
   children: React.ReactNode;
   className?: string;
   service?: ServicePath;
+  tier?: string;
 }
 
 /**
  * A button that opens the QuoteFlowModal when clicked.
- * Use this in both server and client components.
+ * Pass `tier` to skip the package selection step and pre-select a specific package.
  */
-export function QuoteButton({ children, className, service }: QuoteButtonProps) {
+export function QuoteButton({ children, className, service, tier }: QuoteButtonProps) {
   const { openQuoteFlow } = useQuoteFlow();
   return (
-    <button onClick={() => openQuoteFlow(service)} className={className}>
+    <button onClick={() => openQuoteFlow(service, tier)} className={className}>
       {children}
     </button>
   );

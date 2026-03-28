@@ -6,6 +6,7 @@ import { Star, ArrowRight, X, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { reviews, type Review } from "@/data/reviews";
 import Link from "next/link";
+import { AnimatedH2 } from "@/components/kit";
 
 /* ── Logo clients (scrolling row) ── */
 const clientLogos = [
@@ -231,12 +232,12 @@ export function TrustedBySection() {
       <div className="relative z-10">
         {/* Header */}
         <div className="mx-auto max-w-3xl px-6 text-center mb-16">
-          <h2 className="font-display text-heading md:text-heading-lg text-white leading-[1.1]">
-            Infrastructure Trusted by{" "}
-            <span className="bg-gradient-to-r from-seed-400 to-emerald-400 bg-clip-text text-transparent">
-              Brands
-            </span>
-          </h2>
+          <AnimatedH2
+            className="font-display text-heading md:text-heading-lg text-white leading-[1.1]"
+            highlightWords={["Brands"]}
+          >
+            Infrastructure Trusted by Brands
+          </AnimatedH2>
           <p className="mt-5 text-body-lg text-white/50 leading-relaxed">
             SeedTech has powered IT &amp; Website infrastructures for numerous
             businesses — small to large

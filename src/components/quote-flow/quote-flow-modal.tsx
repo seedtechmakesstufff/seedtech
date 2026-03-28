@@ -26,7 +26,6 @@ import {
   Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { validateEmail } from "@/lib/validation";
 import { useQuoteFlow } from "./quote-flow-provider";
 import { QuotePriceCalculator } from "@/components/quote-generator/quote-price-calculator";
 import type { ServicePath, WebDevTier, QuoteFlowStep } from "./types";
@@ -42,7 +41,7 @@ const webDevTiers: WebDevTier[] = [
       "Up to 5 pages",
       "Mobile-responsive design",
       "Fast, modern website build",
-      "Basic SEO setup",
+      "Includes SeedTech's comprehensive SEO platform",
       "Contact form",
       "Launch and deployment",
     ],
@@ -58,7 +57,7 @@ const webDevTiers: WebDevTier[] = [
       "8–15 pages",
       "Custom design and layout",
       "Advanced UI components",
-      "SEO-friendly structure",
+      "Includes SeedTech's comprehensive SEO platform",
       "Content strategy support",
       "Scalable architecture",
     ],
@@ -170,7 +169,7 @@ function FlowTextarea({
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export function QuoteFlowModal() {
-  const { isOpen, preselectedService, closeQuoteFlow } = useQuoteFlow();
+  const { isOpen, preselectedService, preselectedTier, closeQuoteFlow } = useQuoteFlow();
 
   const [step, setStep] = useState<QuoteFlowStep>("select-service");
   const [servicePath, setServicePath] = useState<ServicePath | null>(null);
@@ -188,21 +187,23 @@ export function QuoteFlowModal() {
     currentSiteUrl: "",
     notes: "",
   });
-  const [webEmailError, setWebEmailError] = useState("");
-  const [webEmailSuggestion, setWebEmailSuggestion] = useState("");
 
-  // ── Handle preselected service ──
+  // ── Handle preselected service / tier ──
   useEffect(() => {
     if (isOpen && preselectedService) {
       setServicePath(preselectedService);
       if (preselectedService === "it-support") {
         setStep("it-wizard");
         setItStep(0);
+      } else if (preselectedTier) {
+        // Skip tier selection — go straight to contact with tier pre-set
+        setSelectedTier(preselectedTier);
+        setStep("web-contact");
       } else {
         setStep("web-select-tier");
       }
     }
-  }, [isOpen, preselectedService]);
+  }, [isOpen, preselectedService, preselectedTier]);
 
   // ── Reset on close ──
   const handleClose = useCallback(() => {
@@ -221,8 +222,6 @@ export function QuoteFlowModal() {
         currentSiteUrl: "",
         notes: "",
       });
-      setWebEmailError("");
-      setWebEmailSuggestion("");
     }, 300);
   }, [closeQuoteFlow]);
 
@@ -298,7 +297,7 @@ export function QuoteFlowModal() {
   };
 
   const isWebFormValid =
-    webForm.fullName && webForm.email && webForm.phone && webForm.businessName && validateEmail(webForm.email).valid;
+    webForm.fullName && webForm.email && webForm.phone && webForm.businessName;
 
   // ── Progress helpers ──
   const getProgressInfo = (): { label: string; percent: number } => {
@@ -690,40 +689,14 @@ export function QuoteFlowModal() {
                           label="Email"
                           type="email"
                           value={webForm.email}
-                          onChange={(e) => {
-                            setWebForm((f) => ({ ...f, email: e.target.value }));
-                            setWebEmailError("");
-                            setWebEmailSuggestion("");
-                          }}
-                          onBlur={() => {
-                            if (!webForm.email) return;
-                            const r = validateEmail(webForm.email);
-                            if (!r.valid) {
-                              setWebEmailError(r.error || "Invalid email.");
-                              setWebEmailSuggestion(r.suggestion || "");
-                            }
-                          }}
+                          onChange={(e) =>
+                            setWebForm((f) => ({
+                              ...f,
+                              email: e.target.value,
+                            }))
+                          }
                           placeholder="jane@company.com"
-                          className={webEmailError ? "border-red-500/50" : ""}
                         />
-                        {webEmailError && (
-                          <div className="md:col-span-2 -mt-3 px-1">
-                            <p className="text-red-400 text-xs">{webEmailError}</p>
-                            {webEmailSuggestion && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setWebForm((f) => ({ ...f, email: webEmailSuggestion }));
-                                  setWebEmailError("");
-                                  setWebEmailSuggestion("");
-                                }}
-                                className="text-seed-400 hover:text-seed-300 text-xs underline underline-offset-2 mt-0.5"
-                              >
-                                Did you mean {webEmailSuggestion}?
-                              </button>
-                            )}
-                          </div>
-                        )}
                         <FlowInput
                           id="web-phone"
                           label="Phone"
@@ -780,11 +753,14 @@ export function QuoteFlowModal() {
 
                     <div className="flex items-center justify-center gap-4 mt-10">
                       <button
-                        onClick={() => setStep("web-select-tier")}
+                        onClick={() => {
+                          setSelectedTier(null);
+                          setStep("web-select-tier");
+                        }}
                         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm text-white/40 hover:text-white/70 transition-colors"
                       >
                         <ArrowLeft className="w-3.5 h-3.5" />
-                        Back
+                        Change package
                       </button>
                       <button
                         onClick={handleWebSubmit}

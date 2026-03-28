@@ -22,9 +22,9 @@ import {
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata = {
-  title: "SEO Autopilot — Turn Search Data Into a Publishing System | SeedTech",
+  title: "SEO Autopilot — Launch Your Website with SEO Already Operational | SeedTech",
   description:
-    "SEO Autopilot turns Search Console, site context, and competitor signals into a prioritized backlog, structured briefs, and publish-ready content — so you can ship the SEO fundamentals that still matter in Google and AI search.",
+    "SeedTech websites are scaffolded from your business context and launched with SEO Autopilot already configured — ready to monitor visibility, plan content, and improve search performance from day one.",
 };
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -167,42 +167,33 @@ export default function SeoAutopilotPage() {
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-seed-400 mb-6">
-            SEO Autopilot
+            Built into the SeedTech platform
           </p>
           <AnimatedH1
-            highlightWords={["Publishing", "System."]}
+            highlightWords={["SEO", "operational."]}
             className="mb-8 text-center leading-[1.05]"
           >
-            Turn Search Data Into a Publishing System.
+            Launch your website with SEO already operational.
           </AnimatedH1>
-          <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-4 leading-relaxed">
-            SEO Autopilot turns Search Console, site context, and competitor signals into a prioritized backlog, structured briefs, and publish-ready content.
+          <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-6 leading-relaxed">
+            SeedTech websites are scaffolded from your business context and launched with SEO Autopilot already configured — so your site is not just live fast, it is ready to monitor visibility, plan content, and improve search performance from day one.
           </p>
-          <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Ship the SEO fundamentals that still matter in Google and AI search — without juggling five tools and a spreadsheet.
+          <p className="text-sm text-white/30 max-w-xl mx-auto mb-10 leading-relaxed">
+            Best for service-business and lead-generation websites. Ecommerce is not currently supported.
           </p>
-          {/* Trust line */}
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/35 mb-10">
-            {["Built on Search Console data", "Internal linking included", "Review before publish", "CMS publishing ready"].map((t) => (
-              <span key={t} className="flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-seed-400/60 shrink-0" />
-                {t}
-              </span>
-            ))}
-          </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/contact"
               className="inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-gradient-to-r from-seed-500 to-emerald-500 text-white text-base font-semibold hover:shadow-glowSeed transition-all duration-300"
             >
-              Start With Your Site
+              Start Your Website Build
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              href="#how-it-works"
+              href="/pricing"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-white/10 text-white/60 text-base font-medium hover:text-white hover:border-white/20 transition-all duration-300"
             >
-              See How It Works
+              See Platform Pricing
             </Link>
           </div>
         </div>
@@ -332,10 +323,10 @@ export default function SeoAutopilotPage() {
               The Dashboard
             </p>
             <AnimatedH2
-              highlightWords={["Agency", "Fees."]}
+              highlightWords={["modern", "SEO"]}
               className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-5"
             >
-              One Platform. Zero Agency Fees.
+              One platform for modern SEO execution.
             </AnimatedH2>
             <p className="text-sm md:text-base text-white/45 max-w-xl mx-auto leading-relaxed">
               Every piece of intelligence your SEO strategy needs — built directly into your website.
