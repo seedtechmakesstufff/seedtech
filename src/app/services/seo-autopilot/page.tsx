@@ -5,7 +5,6 @@ import {
   BarChart3,
   FileText,
   LayoutDashboard,
-  TrendingUp,
   Search,
   Zap,
   CheckCircle2,
@@ -23,95 +22,95 @@ import {
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata = {
-  title: "SEO Autopilot — AI-Powered SEO for Modern Businesses | SeedTech",
+  title: "SEO Autopilot — Turn Search Data Into a Publishing System | SeedTech",
   description:
-    "65% of searches now end without a click. SEO Autopilot tracks your brand across ChatGPT, Perplexity, Google AIO, and Gemini — so you become the source AI recommends.",
+    "SEO Autopilot turns Search Console, site context, and competitor signals into a prioritized backlog, structured briefs, and publish-ready content — so you can ship the SEO fundamentals that still matter in Google and AI search.",
 };
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
 const problems = [
   {
-    icon: <TrendingUp className="w-5 h-5" />,
-    title: "AI is eating your traffic",
-    body: "65% of searches now end with an AI-generated answer — no click required. If AI doesn't cite you, you're invisible.",
+    icon: <Search className="w-5 h-5" />,
+    title: "Your search data lives in Search Console",
+    body: "Clicks, impressions, positions — it's all there. But it stays in Search Console and never connects to what you publish.",
   },
   {
-    icon: <Search className="w-5 h-5" />,
-    title: "Old SEO tactics no longer work",
-    body: "Keyword stuffing, generic blog posts, and link farms don't get you cited by ChatGPT or Perplexity. The rules have changed.",
+    icon: <FileText className="w-5 h-5" />,
+    title: "Your opportunities live in a spreadsheet",
+    body: "Someone exports keywords into a doc. Priorities get discussed. A brief might get written. Maybe.",
   },
   {
     icon: <Bot className="w-5 h-5" />,
-    title: "You can't see where you stand",
-    body: "Traditional tools track Google rankings. None of them show you how often AI systems mention your brand — or why they don't.",
+    title: "Your links get handled at the end",
+    body: "Internal links — the thing Google says helps it find and rank new pages — gets skipped or forgotten entirely.",
   },
 ];
 
 const pillars = [
   {
-    id: "citations",
-    icon: <Brain className="w-6 h-6" />,
-    title: "AI Citation Engine",
-    tagline: "Be the source AI recommends",
+    id: "connect",
+    icon: <BarChart3 className="w-6 h-6" />,
+    title: "Connect Your Site & Search Console",
+    tagline: "Start with first-party data",
     description:
-      "SEO Autopilot monitors your brand across ChatGPT, Perplexity, Google AI Overviews, Gemini, and Copilot in real time. You'll know exactly when AI mentions you, what it says, whether it links to you, and what you need to change to become the go-to source it cites.",
+      "SEO Autopilot analyzes what your site is about, what Google already rewards, and where the gaps are — using real Search Console data, not generic keyword lists. Clicks, impressions, CTR, average position, pages, and queries: your first-party intelligence layer.",
     bullets: [
-      "Live citation monitoring across 5 AI engines",
-      "AI Visibility score (0–100) for every page",
-      "Content recommendations to increase citation rate",
-      "Brand sentiment and mention tracking",
+      "Live Search Console performance data",
+      "Site context analysis — what you do, where, for whom",
+      "Automatic gap detection between rankings and content",
+      "AI-feature traffic included in Web report tracking",
     ],
-    stat: "5",
-    statLabel: "AI platforms monitored",
+    stat: "1st",
+    statLabel: "party search data, not guesses",
     color: "from-seed-600/20 to-emerald-600/10",
   },
   {
-    id: "audits",
-    icon: <BarChart3 className="w-6 h-6" />,
-    title: "Automated Weekly Audits",
-    tagline: "Real data, every Monday",
+    id: "backlog",
+    icon: <Brain className="w-6 h-6" />,
+    title: "Turn Signals Into a Ranked Backlog",
+    tagline: "Prioritize what actually matters",
     description:
-      "Ranking on Google is harder than ever. You need consistent data to know where you stand. SEO Autopilot crawls your entire site weekly, tracks every keyword position, and delivers a health score — so you're always making decisions based on real numbers, not guesses.",
+      "Instead of dumping keywords, SEO Autopilot combines your site context, Search Console signals, and competitor patterns into a prioritized queue of what to publish next — mapped to the words your customers actually search for.",
     bullets: [
-      "25+ on-page SEO checks every week",
-      "Keyword position tracking with trend history",
-      "Site health score with delta from prior week",
-      "Competitor benchmarking and gap analysis",
+      "Competitor content gap analysis",
+      "Backlog ranked by search demand and site authority",
+      "Focused on helpful, people-first topics — not volume",
+      "Updated automatically as rankings shift",
     ],
     stat: "25+",
-    statLabel: "automated checks weekly",
+    statLabel: "automated checks per audit cycle",
     color: "from-brand-blue/15 to-brand-cyan/10",
   },
   {
     id: "content",
     icon: <FileText className="w-6 h-6" />,
-    title: "AI-First Content",
+    title: "Generate Structured, Reviewable Content",
     tagline: "Built to be cited, not just ranked",
     description:
-      "AI systems cite content that is structured, authoritative, and answers questions directly. SEO Autopilot scores your existing content and generates new blog posts engineered for the exact format AI platforms pull from — E-E-A-T scoring, topic cluster maps, and citation-optimized structure built in.",
+      "Generate strategy-grade briefs, recommended angles, draft copy, CTAs, and supporting structure — all reflecting what your site does and what your audience actually searches for. Review before you publish. Keep control of the strategy.",
     bullets: [
-      "E-E-A-T scoring (Experience, Expertise, Authority, Trust)",
-      "Topic cluster maps with content gap analysis",
-      "AI-first blog generation with citation structure",
-      "Internal linking recommendations",
+      "On-brand drafts with your tone, services, and location",
+      "Structured for E-E-A-T: expertise, authority, trust",
+      "Internal link recommendations built into every draft",
+      "AI process transparency — review when you want it",
     ],
     stat: "50%",
-    statLabel: "of score weighted to AI visibility",
+    statLabel: "of score weighted to content quality",
     color: "from-brand-cyan/15 to-emerald-600/10",
   },
   {
-    id: "dashboard",
+    id: "publish",
     icon: <LayoutDashboard className="w-6 h-6" />,
-    title: "Your SEO Command Center",
-    tagline: "Manage SEO without an agency",
+    title: "Connect & Publish From One Dashboard",
+    tagline: "Ship SEO without juggling five tools",
     description:
-      "Most businesses pay agencies thousands per month for reports they can't act on. SEO Autopilot gives you a 9-tab command center built directly into your website — keywords, audits, insights, citations, competitors, and strategy — all in one place, explained in plain English.",
+      "Internal links, crawlable site structure, and CMS publishing — all from one place. New content doesn't launch as an island. Every page connects to the rest of your site so Google can find it, understand it, and rank it.",
     bullets: [
-      "9-tab dashboard: keywords, audits, insights, citations",
-      "Weekly digest emailed to your inbox automatically",
-      "AI Strategy Advisor with real-time recommendations",
-      "Competitor content analysis and opportunity alerts",
+      "Internal linking built in — not an afterthought",
+      "CMS scheduling from your admin panel",
+      "Weekly digest emailed every Monday",
+      "No third-party logins, no agency retainer",
     ],
     stat: "9",
     statLabel: "dashboard tabs in one platform",
@@ -171,30 +170,32 @@ export default function SeoAutopilotPage() {
             SEO Autopilot
           </p>
           <AnimatedH1
-            highlightWords={["AI", "Recommends"]}
+            highlightWords={["Publishing", "System."]}
             className="mb-8 text-center leading-[1.05]"
           >
-            Become the Source AI Recommends
+            Turn Search Data Into a Publishing System.
           </AnimatedH1>
           <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-4 leading-relaxed">
-            65% of searches now end with an AI-generated answer — no click required.
-            Your competitors are losing visibility and don&apos;t even know it.
+            SEO Autopilot turns Search Console, site context, and competitor signals into a prioritized backlog, structured briefs, and publish-ready content.
           </p>
           <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-8 leading-relaxed">
-            SEO Autopilot is built into every website we build — giving you a best-in-class
-            website and a full AI-search intelligence layer, all in one.
+            Ship the SEO fundamentals that still matter in Google and AI search — without juggling five tools and a spreadsheet.
           </p>
-          {/* Requirement callout */}
-          <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-seed-500/30 bg-seed-500/5 text-seed-400 text-sm mb-10">
-            <span className="w-1.5 h-1.5 rounded-full bg-seed-400 shrink-0" />
-            Requires a SeedTech-built website — included in every web development engagement
+          {/* Trust line */}
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/35 mb-10">
+            {["Built on Search Console data", "Internal linking included", "Review before publish", "CMS publishing ready"].map((t) => (
+              <span key={t} className="flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full bg-seed-400/60 shrink-0" />
+                {t}
+              </span>
+            ))}
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/contact"
               className="inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-gradient-to-r from-seed-500 to-emerald-500 text-white text-base font-semibold hover:shadow-glowSeed transition-all duration-300"
             >
-              Start with a New Website
+              Start With Your Site
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
@@ -217,14 +218,13 @@ export default function SeoAutopilotPage() {
               The Problem
             </p>
             <AnimatedH2
-              highlightWords={["Changed"]}
+              highlightWords={["Fragmented."]}
               className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-5"
             >
-              SEO Has Changed. Most Businesses Haven&apos;t.
+              SEO Isn&apos;t Hard. It&apos;s Fragmented.
             </AnimatedH2>
             <p className="text-sm md:text-base text-white/45 max-w-2xl mx-auto leading-relaxed">
-              AI-generated answers now dominate the top of search results.
-              If AI doesn&apos;t cite you, millions of potential customers will never see your name.
+              Your search data, your opportunities, your briefs, your links, your publishing — they all live in different places. SEO Autopilot turns that into one system.
             </p>
           </div>
 
@@ -251,14 +251,17 @@ export default function SeoAutopilotPage() {
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-4">
-              What It Does
+              How It Works
             </p>
             <AnimatedH2
-              highlightWords={["Autopilot"]}
+              highlightWords={["Backlog", "Publish-Ready"]}
               className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight"
             >
-              Everything Your SEO Needs on Autopilot
+              From Backlog to Publish-Ready
             </AnimatedH2>
+            <p className="mt-4 text-sm md:text-base text-white/45 max-w-xl mx-auto leading-relaxed">
+              Discover what matters, prioritize it, generate it with context, connect it to the rest of your site, and ship it — all in one system.
+            </p>
           </div>
 
           <div className="flex flex-col gap-10">
@@ -329,10 +332,10 @@ export default function SeoAutopilotPage() {
               The Dashboard
             </p>
             <AnimatedH2
-              highlightWords={["Nine", "Tabs"]}
+              highlightWords={["Agency", "Fees."]}
               className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-5"
             >
-              Nine Tabs. Zero Agency Fees.
+              One Platform. Zero Agency Fees.
             </AnimatedH2>
             <p className="text-sm md:text-base text-white/45 max-w-xl mx-auto leading-relaxed">
               Every piece of intelligence your SEO strategy needs — built directly into your website.
@@ -370,7 +373,7 @@ export default function SeoAutopilotPage() {
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-4">
-              How It Works
+              Setup
             </p>
             <AnimatedH2
               highlightWords={["Built", "In"]}
@@ -388,18 +391,60 @@ export default function SeoAutopilotPage() {
             <ProcessStep
               step="01"
               title="We build your website"
-              description="We design and develop your site on our framework — a modern Next.js stack built specifically to support SEO Autopilot's intelligence layer, AI citation scoring, and weekly automation."
+              description="We design and develop your site on our framework — a modern Next.js stack built to support SEO Autopilot's intelligence layer, Search Console integration, and weekly automation from launch day."
             />
             <ProcessStep
               step="02"
               title="We configure Autopilot for your business"
-              description="We set up your business profile, tracked keywords, industry scoring config, competitors, and author credentials — customized for your vertical and location."
+              description="We set up your business profile, tracked keywords, competitor list, and Search Console connection — customized for your vertical and location so the backlog reflects what your customers actually search for."
             />
             <ProcessStep
               step="03"
               title="Weekly intelligence, automatically"
-              description="Every Monday, Autopilot crawls your site, tracks keyword positions, checks brand mentions across 5 AI engines, and emails you a plain-English digest of what changed and what to do next."
+              description="Every Monday, Autopilot crawls your site, tracks keyword positions, surfaces content opportunities, and emails you a plain-English digest of what changed and what to do next."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          WHY NOW — Search changed, fundamentals didn't
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="bg-dark-raised py-24 md:py-32">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-4">
+                Why Now
+              </p>
+              <AnimatedH2
+                highlightWords={["Fundamentals", "Didn't."]}
+                className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-white uppercase leading-tight mb-6"
+              >
+                Search Changed. The Fundamentals Didn&apos;t.
+              </AnimatedH2>
+              <p className="text-sm md:text-[15px] text-white/45 leading-relaxed mb-4">
+                People are searching differently — longer questions, more complex queries, and more answer-led experiences. AI Overviews are used by more than a billion people. In Google&apos;s biggest markets, they&apos;ve driven over a 10% increase in Google usage for the queries where they appear.
+              </p>
+              <p className="text-sm md:text-[15px] text-white/45 leading-relaxed">
+                That doesn&apos;t mean SEO is dead. It means visibility now depends even more on publishing pages that are useful, trustworthy, and easy for modern search systems to surface and cite. The fundamentals got more important — not less.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4">
+              {[
+                { label: "Google Search Essentials", note: "Helpful, people-first content. Descriptive titles and headings. Crawlable links. No special AI-only markup required." },
+                { label: "AI Overviews & AI Mode", note: "Same foundational SEO practices apply. Internal links, page experience, and accurate structured data remain worthwhile." },
+                { label: "ChatGPT & Copilot Search", note: "AI answer engines cite sources inline and in a Sources panel. Discoverable, credible, and easy to cite is the right target." },
+              ].map((item) => (
+                <div key={item.label} style={glassStyle} className="p-5 flex flex-col gap-1.5">
+                  <p className="text-sm font-semibold text-white flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-seed-400 shrink-0" />
+                    {item.label}
+                  </p>
+                  <p className="text-xs text-white/40 leading-relaxed pl-6">{item.note}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -495,14 +540,64 @@ export default function SeoAutopilotPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
+          TRUST MODULE — people-first SEO, not scaled spam
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="bg-dark-base py-20 md:py-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <div
+            style={{
+              borderRadius: 20,
+              border: "1px solid rgba(74, 222, 128, 0.12)",
+              background: "linear-gradient(135deg, rgba(64,166,96,0.06) 0%, rgba(255,255,255,0.02) 100%)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+            }}
+            className="p-10 md:p-14"
+          >
+            <div className="text-center mb-10">
+              <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-4">Our Approach</p>
+              <AnimatedH2
+                highlightWords={["Spam"]}
+                className="font-display text-2xl md:text-3xl font-bold text-white leading-tight"
+              >
+                Built for People-First SEO. Not Scaled Spam.
+              </AnimatedH2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "Uses first-party search data",
+                  body: "Every recommendation starts with your actual Search Console data — not generic keyword prompts. Your real clicks, impressions, and rankings drive the backlog.",
+                },
+                {
+                  title: "Pages connect. They don't launch as islands.",
+                  body: "Internal linking is built into every publish workflow — not an afterthought. Google says links help it find and rank new pages. We take that seriously.",
+                },
+                {
+                  title: "Review when you want it",
+                  body: "Automate the busywork. Keep control of the strategy. Every draft is reviewable before it publishes. You stay in the loop on what goes live.",
+                },
+              ].map((item) => (
+                <div key={item.title} style={glassStyle} className="p-6 flex flex-col gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-seed-400" />
+                  <p className="text-sm font-semibold text-white">{item.title}</p>
+                  <p className="text-xs text-white/40 leading-relaxed">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════
           CTA
           ══════════════════════════════════════════════════════════════════════ */}
       <section className="bg-dark-base py-16 px-6">
         <div className="mx-auto max-w-4xl">
           <CTABanner
             theme="light"
-            title="Ready to get cited by AI?"
-            description="Let's talk about your website and get SEO Autopilot working for your business."
+            title="Automate the busywork. Keep control of the strategy."
+            description="Let's talk about your site and get SEO Autopilot working for your business."
             primaryLabel="Start the Conversation"
             primaryHref="/contact"
             secondaryLabel="See Web Development"

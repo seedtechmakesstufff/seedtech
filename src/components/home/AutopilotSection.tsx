@@ -70,90 +70,91 @@ const pillars: PillarData[] = [
   {
     id: "citations",
     icon: <Brain className="w-5 h-5" />,
-    miniTitle: "AI CITATION ENGINE",
+    miniTitle: "AI SEARCH VISIBILITY INTELLIGENCE",
     image: "/img/seed graphics/seo_graphic.webp",
     heading: (
       <>
-        BE THE SOURCE <span className="text-seed-400">AI RECOMMENDS</span>
+        SEE WHERE AI SEARCH{" "}
+        <span className="text-seed-400">SURFACES YOUR BRAND</span>
       </>
     ),
     description:
-      "65% of searches now end with an AI-generated answer — no click required. SEO Autopilot tracks your brand across ChatGPT, Perplexity, Google AIO, Gemini, and Copilot so you know exactly when AI mentions you, what it says, and how to become the go-to source it cites.",
+      "Track how your brand appears across ChatGPT, Perplexity, Google AI features, Gemini, and Copilot. SEO Autopilot helps you monitor mentions, source visibility, and content patterns so you can create pages that are more discoverable, more credible, and easier for modern search systems to cite.",
     bullets: [
-      "Live citation monitoring across 5 AI engines",
-      "AI Visibility scoring for every page (0–100)",
-      "Content recommendations to increase citation rate",
-      "Brand sentiment and mention tracking",
+      "Brand and citation monitoring across 5 AI platforms",
+      "AI visibility scoring by page",
+      "Recommendations to improve source-readiness",
+      "Mention sentiment and trend tracking",
     ],
     stat: "5",
-    statLabel: "AI engines monitored",
+    statLabel: "AI platforms monitored",
   },
   {
     id: "audits",
     icon: <BarChart3 className="w-5 h-5" />,
-    miniTitle: "AUTOMATED AUDITS",
+    miniTitle: "WEEKLY SEO INTELLIGENCE",
     image: "/img/seo-autopilot/seo_audit_card_2x.webp",
     lottie: auditAnimation,
     heading: (
       <>
         WEEKLY SEO INTELLIGENCE,{" "}
-        <span className="text-seed-400">ON AUTOPILOT</span>
+        <span className="text-seed-400">WITHOUT THE SPREADSHEETS</span>
       </>
     ),
     description:
-      "Ranking on Google is harder than ever and AI is eating traffic. You need consistent data to know where you stand. SEO Autopilot crawls your entire site weekly, tracks every keyword position, and delivers a health score — so you're always making decisions based on real numbers, not guesses.",
+      "SEO Autopilot runs recurring checks across your site to surface technical issues, content gaps, keyword movement, and health trends — so you can act on first-party search data instead of guessing what changed.",
     bullets: [
-      "25+ on-page SEO checks every week",
-      "Keyword position tracking with trend history",
-      "Site health score with delta from prior week",
-      "Competitor benchmarking and gap analysis",
+      "25+ recurring SEO and content checks",
+      "Keyword trend tracking over time",
+      "Site health score with week-over-week change",
+      "Competitor and gap monitoring",
     ],
     stat: "25+",
-    statLabel: "automated checks weekly",
+    statLabel: "automated checks per cycle",
   },
   {
     id: "content",
     icon: <FileText className="w-5 h-5" />,
-    miniTitle: "AI-FIRST CONTENT",
+    miniTitle: "SEARCH-READY CONTENT ENGINE",
     image: "/img/seo-autopilot/seo_create_content_card_2x.webp",
     heading: (
       <>
-        CONTENT BUILT TO BE{" "}
-        <span className="text-seed-400">CITED, NOT JUST RANKED</span>
+        CONTENT BUILT TO INFORM, RANK,{" "}
+        <span className="text-seed-400">AND EARN CITATIONS</span>
       </>
     ),
     description:
-      "The old playbook — stuff keywords, build links, wait — is dead. AI systems cite content that is structured, authoritative, and answers questions directly. SEO Autopilot scores your existing content and generates new blog posts engineered for the exact format AI platforms pull from.",
+      "SEO Autopilot helps you create content that is easier for people to trust and easier for search systems to understand — using structured briefs, clear formatting, internal link recommendations, and source-ready page architecture.",
     bullets: [
-      "E-E-A-T scoring (Experience, Expertise, Authority, Trust)",
-      "Topic cluster maps with content gap analysis",
-      "AI-first blog generation with citation structure",
-      "Internal linking recommendations",
+      "Topic clusters and content gap mapping",
+      "Briefs and drafts shaped by search intent",
+      "Internal linking built in — not an afterthought",
+      "Authority and trust signals review driven towards E-E-A-T",
     ],
-    stat: "50%",
-    statLabel: "of score weighted to AI visibility",
+    stat: "Search-ready",
+    statLabel: "content structured for discoverability",
   },
   {
     id: "dashboard",
     icon: <LayoutDashboard className="w-5 h-5" />,
-    miniTitle: "YOUR SEO DASHBOARD",
+    miniTitle: "9 SEO WORKSTREAMS IN ONE PLATFORM",
     image: "/img/seo-autopilot/seo_dashboard_card_2x.webp",
     heading: (
       <>
-        MANAGE YOUR SEO{" "}
-        <span className="text-seed-400">WITHOUT AN AGENCY</span>
+        ONE COMMAND CENTER FOR{" "}
+        <span className="text-seed-400">YOUR SEO OPERATIONS</span>
       </>
     ),
     description:
-      "Most businesses pay agencies thousands per month for reports they can't act on. SEO Autopilot gives you a 9-tab command center built into your own website — keywords, audits, insights, citations, competitors, and strategy — all in one place, explained in plain English.",
+      "See rankings, audits, insights, content opportunities, citations, and strategy in one place. SEO Autopilot gives your team a clear operating view of what is happening, what needs attention, and what to publish next — powered by Search Console-led, first-party search data.",
     bullets: [
-      "9-tab dashboard: keywords, audits, insights, citations",
-      "Weekly digest emailed to your inbox automatically",
-      "AI Strategy Advisor with real-time recommendations",
-      "Competitor content analysis and opportunity alerts",
+      "Unified dashboard for rankings, audits, and insights",
+      "Weekly digest delivered automatically",
+      "Strategy recommendations in plain English",
+      "Competitor and opportunity monitoring",
     ],
     stat: "9",
-    statLabel: "dashboard tabs in one platform",
+    statLabel: "SEO workstreams in one platform",
   },
 ];
 
@@ -236,13 +237,12 @@ export function AutopilotSection() {
           </p>
           <AnimatedH2
             className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight"
-            highlightWords={["TOO."]}
+            highlightWords={["Didn't."]}
           >
-            SEO HAS CHANGED. YOUR STRATEGY MUST TOO.
+            Search Changed. The Fundamentals Didn&apos;t.
           </AnimatedH2>
           <p className="mt-4 text-sm md:text-base text-white/45 max-w-2xl mx-auto leading-relaxed">
-            AI now answers more searches than ever — before anyone clicks a link.
-            Businesses that don&apos;t adapt lose visibility. SEO Autopilot is built for this shift.
+            Search is changing fast, but the fundamentals still matter. SEO Autopilot turns search data, site context, audits, internal linking, and content workflows into one operating system — so your team can improve visibility with structure, consistency, and clear next steps.
           </p>
         </div>
 
