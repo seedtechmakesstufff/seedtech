@@ -2,20 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-interface WaveLayer {
-  baseY: number;
-  amplitude: number;
-  frequency: number;
-  speed: number;
-  phase: number;
-  thickness: number;
-  lift: number;
-  alpha: number;
-  driftX: number;
-  driftY: number;
-  detail: number;
-}
-
 interface MattsCustomBackgroundProps {
   className?: string;
   blobCount?: number;
@@ -32,16 +18,6 @@ const isSafari = typeof navigator !== "undefined"
 const isMobile = typeof navigator !== "undefined"
   ? /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
   : false;
-
-const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-
-function makeRng(seed: number) {
-  let s = seed >>> 0;
-  return () => {
-    s = (1664525 * s + 1013904223) >>> 0;
-    return s / 0xffffffff;
-  };
-}
 
 function rgba(r: number, g: number, b: number, a: number) {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
@@ -65,53 +41,37 @@ function noise1D(time: number, seed: number) {
 }
 
 function drift(time: number, seed: number) {
-  const a = noise1D(time * 0.16, seed) * 2 - 1;
+  const a = noise1D(time * 0.17, seed) * 2 - 1;
   const b = noise1D(time * 0.071, seed + 13.2) * 2 - 1;
-  const c = noise1D(time * 0.031, seed + 29.4) * 2 - 1;
-  return a * 0.58 + b * 0.29 + c * 0.13;
+  const c = noise1D(time * 0.029, seed + 29.4) * 2 - 1;
+  return a * 0.56 + b * 0.29 + c * 0.15;
 }
 
-function drawWavePath(
+function drawCurveStroke(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  layer: WaveLayer,
-  time: number
+  offsetY: number,
+  offsetX: number,
+  controlLift: number,
+  lineWidth: number,
+  color: string
 ) {
-  const yAt = (x: number) => {
-    const nx = x / width;
-    const primary = Math.sin(nx * Math.PI * layer.frequency + time * layer.speed + layer.phase);
-    const secondary = Math.sin(nx * Math.PI * (layer.frequency * 1.43) - time * (layer.speed * 0.47) + layer.phase * 0.7);
-    const tertiary = Math.sin(nx * Math.PI * (layer.frequency * 0.72) + time * (layer.speed * 0.19) + layer.phase * 1.3);
-    return (
-      layer.baseY +
-      primary * layer.amplitude +
-      secondary * (layer.amplitude * layer.detail) +
-      tertiary * (layer.amplitude * 0.16)
-    ) * height;
-  };
+  const p0 = { x: -width * 0.02 + offsetX, y: height * (0.8 + offsetY) };
+  const p1 = { x: width * 0.24 + offsetX, y: height * (0.34 + controlLift + offsetY) };
+  const p2 = { x: width * 0.62 + offsetX, y: height * (0.7 - controlLift * 0.65 + offsetY) };
+  const p3 = { x: width * 1.02 + offsetX, y: height * (0.56 + offsetY) };
 
   ctx.beginPath();
-  ctx.moveTo(-width * 0.08, yAt(0) - layer.lift * height);
-
-  const segments = 7;
-  for (let i = 0; i < segments; i++) {
-    const x0 = (i / segments) * width;
-    const x1 = ((i + 1) / segments) * width;
-    const y0 = yAt(x0);
-    const y1 = yAt(x1);
-    const cx = (x0 + x1) / 2;
-    ctx.bezierCurveTo(cx, y0 - layer.lift * height, cx, y1 - layer.lift * height, x1, y1 - layer.lift * height);
-  }
-
-  ctx.lineTo(width * 1.06, height * 1.08);
-  ctx.lineTo(-width * 0.08, height * 1.08);
-  ctx.closePath();
+  ctx.moveTo(p0.x, p0.y);
+  ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = color;
+  ctx.stroke();
 }
 
 export default function MattsCustomBackground({
   className = "",
-  blobCount = 7,
 }: MattsCustomBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
@@ -130,123 +90,46 @@ export default function MattsCustomBackground({
     let height = 0;
     const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
 
-    let topField: CanvasGradient | null = null;
-    let atmosphericFalloff: CanvasGradient | null = null;
-    let upperLift: CanvasGradient | null = null;
-    let centerHaze: CanvasGradient | null = null;
-    let lowerMist: CanvasGradient | null = null;
-    let rightBloom: CanvasGradient | null = null;
-    let rightBloomSoft: CanvasGradient | null = null;
-    let lowerShadow: CanvasGradient | null = null;
-    let vignette: CanvasGradient | null = null;
-
-    const seed = Math.floor(Math.random() * 1_000_000_000);
-    const rnd = makeRng(seed);
-
-    const qualityLayerCount = isLowPower ? 3 : clamp(Math.round(blobCount * 0.6), 4, 5);
-
-    const layers: WaveLayer[] = Array.from({ length: qualityLayerCount }, (_, i) => ({
-      baseY: 0.5 + i * 0.08 + rnd() * 0.04,
-      amplitude: 0.038 + rnd() * 0.03,
-      frequency: 0.82 + rnd() * 0.72,
-      speed: 0.19 + rnd() * 0.16,
-      phase: rnd() * Math.PI * 2,
-      thickness: 0.18 + rnd() * 0.16,
-      lift: 0.028 + rnd() * 0.024,
-      alpha: 0.2 - i * 0.022,
-      driftX: 0.01 + rnd() * 0.018,
-      driftY: 0.006 + rnd() * 0.01,
-      detail: 0.14 + rnd() * 0.08,
-    }));
+    let baseField: CanvasGradient | null = null;
+    let topAtmosphere: CanvasGradient | null = null;
+    let lowerFalloff: CanvasGradient | null = null;
+    let cornerVignette: CanvasGradient | null = null;
 
     const rebuildStatics = () => {
-      topField = ctx.createLinearGradient(0, 0, width, height);
-      topField.addColorStop(0, "#050806");
-      topField.addColorStop(0.2, "#07110B");
-      topField.addColorStop(0.44, "#1B4027");
-      topField.addColorStop(0.68, "#2D6E42");
-      topField.addColorStop(1, "#08110B");
+      baseField = ctx.createLinearGradient(0, 0, width, height);
+      baseField.addColorStop(0, "#030805");
+      baseField.addColorStop(0.18, "#06110a");
+      baseField.addColorStop(0.5, "#173923");
+      baseField.addColorStop(0.82, "#1f4f30");
+      baseField.addColorStop(1, "#0a180f");
 
-      atmosphericFalloff = ctx.createLinearGradient(0, 0, 0, height);
-      atmosphericFalloff.addColorStop(0, "rgba(0, 0, 0, 0.14)");
-      atmosphericFalloff.addColorStop(0.28, "rgba(0, 0, 0, 0.015)");
-      atmosphericFalloff.addColorStop(1, "rgba(0, 0, 0, 0.3)");
-
-      upperLift = ctx.createRadialGradient(
-        width * 0.5,
-        height * 0.12,
-        width * 0.04,
-        width * 0.5,
-        height * 0.12,
-        width * 0.7
+      topAtmosphere = ctx.createRadialGradient(
+        width * 0.48,
+        height * 0.14,
+        width * 0.06,
+        width * 0.48,
+        height * 0.14,
+        width * 0.85
       );
-      upperLift.addColorStop(0, rgba(94, 175, 119, 0.1));
-      upperLift.addColorStop(0.35, rgba(58, 144, 84, 0.06));
-      upperLift.addColorStop(1, rgba(0, 0, 0, 0));
+      topAtmosphere.addColorStop(0, rgba(94, 175, 119, 0.12));
+      topAtmosphere.addColorStop(0.28, rgba(58, 144, 84, 0.08));
+      topAtmosphere.addColorStop(0.72, rgba(31, 79, 48, 0.03));
+      topAtmosphere.addColorStop(1, rgba(0, 0, 0, 0));
 
-      centerHaze = ctx.createRadialGradient(
-        width * 0.46,
-        height * 0.58,
-        width * 0.04,
-        width * 0.46,
-        height * 0.58,
-        width * 0.42
-      );
-      centerHaze.addColorStop(0, rgba(94, 175, 119, 0.09));
-      centerHaze.addColorStop(0.45, rgba(58, 144, 84, 0.045));
-      centerHaze.addColorStop(1, rgba(0, 0, 0, 0));
+      lowerFalloff = ctx.createLinearGradient(0, height * 0.4, 0, height);
+      lowerFalloff.addColorStop(0, rgba(0, 0, 0, 0));
+      lowerFalloff.addColorStop(1, rgba(0, 0, 0, 0.42));
 
-      lowerMist = ctx.createRadialGradient(
-        width * 0.14,
-        height * 0.9,
-        width * 0.02,
-        width * 0.14,
-        height * 0.9,
-        width * 0.3
-      );
-      lowerMist.addColorStop(0, rgba(184, 210, 192, 0.11));
-      lowerMist.addColorStop(0.38, rgba(127, 167, 140, 0.07));
-      lowerMist.addColorStop(1, rgba(0, 0, 0, 0));
-
-      rightBloom = ctx.createRadialGradient(
-        width * 0.93,
-        height * 0.58,
-        width * 0.02,
-        width * 0.93,
-        height * 0.58,
-        width * 0.4
-      );
-      rightBloom.addColorStop(0, rgba(184, 210, 192, 0.3));
-      rightBloom.addColorStop(0.22, rgba(127, 167, 140, 0.15));
-      rightBloom.addColorStop(0.62, rgba(58, 144, 84, 0.06));
-      rightBloom.addColorStop(1, rgba(0, 0, 0, 0));
-
-      rightBloomSoft = ctx.createRadialGradient(
-        width * 0.88,
-        height * 0.52,
-        width * 0.04,
-        width * 0.88,
-        height * 0.52,
-        width * 0.52
-      );
-      rightBloomSoft.addColorStop(0, rgba(184, 210, 192, 0.12));
-      rightBloomSoft.addColorStop(0.48, rgba(127, 167, 140, 0.08));
-      rightBloomSoft.addColorStop(1, rgba(0, 0, 0, 0));
-
-      lowerShadow = ctx.createLinearGradient(0, height * 0.45, 0, height);
-      lowerShadow.addColorStop(0, rgba(0, 0, 0, 0));
-      lowerShadow.addColorStop(1, rgba(0, 0, 0, 0.5));
-
-      vignette = ctx.createRadialGradient(
+      cornerVignette = ctx.createRadialGradient(
         width * 0.52,
-        height * 0.42,
-        width * 0.18,
+        height * 0.48,
+        width * 0.2,
         width * 0.52,
-        height * 0.42,
+        height * 0.48,
         width * 0.95
       );
-      vignette.addColorStop(0, rgba(0, 0, 0, 0));
-      vignette.addColorStop(1, rgba(0, 0, 0, 0.7));
+      cornerVignette.addColorStop(0, rgba(0, 0, 0, 0));
+      cornerVignette.addColorStop(1, rgba(0, 0, 0, 0.62));
     };
 
     const resize = () => {
@@ -255,7 +138,7 @@ export default function MattsCustomBackground({
       height = rect.height;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
-      topField = null;
+      baseField = null;
     };
 
     resize();
@@ -284,176 +167,179 @@ export default function MattsCustomBackground({
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      if (!topField) rebuildStatics();
+      if (!baseField) rebuildStatics();
 
-      ctx.fillStyle = topField!;
+      ctx.fillStyle = baseField!;
       ctx.fillRect(0, 0, width, height);
 
-      ctx.fillStyle = atmosphericFalloff!;
-      ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = upperLift!;
-      ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = centerHaze!;
+      ctx.fillStyle = topAtmosphere!;
       ctx.fillRect(0, 0, width, height);
 
-      const seamGlide = drift(time, 1.6) * width * 0.016;
-      const seamLift = drift(time, 3.8) * height * 0.006;
-      const bloomOffsetX = drift(time, 5.3) * width * 0.018;
-      const bloomOffsetY = drift(time, 7.1) * height * 0.014;
+      const seamOffsetX = drift(time, 1.7) * width * 0.02;
+      const seamOffsetY = drift(time, 3.1) * height * 0.02;
+      const controlLift = drift(time, 5.9) * 0.03;
 
-      const waveColors = [
-        [7, 17, 11],
-        [27, 64, 39],
-        [45, 110, 66],
-        [58, 144, 84],
-        [94, 175, 119],
-      ];
+      const p0 = { x: -width * 0.02 + seamOffsetX, y: height * (0.8 + seamOffsetY) };
+      const p1 = { x: width * 0.24 + seamOffsetX, y: height * (0.34 + controlLift + seamOffsetY) };
+      const p2 = { x: width * 0.62 + seamOffsetX, y: height * (0.7 - controlLift * 0.65 + seamOffsetY) };
+      const p3 = { x: width * 1.02 + seamOffsetX, y: height * (0.56 + seamOffsetY) };
 
-      layers.forEach((layer, index) => {
-        const offsetX = drift(time + index * 0.9, layer.phase) * width * layer.driftX;
-        const offsetY = drift(time + index * 1.4, layer.phase * 1.2) * layer.driftY;
-        ctx.save();
-        ctx.translate(offsetX, offsetY * height);
-        drawWavePath(ctx, width, height, {
-          ...layer,
-          phase:
-            layer.phase +
-            drift(time + index, layer.phase + 9.4) * 0.24 +
-            time * 0.01 * (index % 2 === 0 ? 1 : -0.4),
-          baseY:
-            layer.baseY -
-            drift(time + index * 1.1, layer.phase + 4.7) * 0.01 -
-            drift(time * 0.7 + index * 0.6, layer.phase + 12.8) * 0.004,
-        }, time);
-
-        const color = waveColors[Math.min(index, waveColors.length - 1)];
-        ctx.clip();
-
-        const softFill = ctx.createRadialGradient(
-          width * (0.34 + index * 0.09) + drift(time + index * 0.8, index + 0.5) * width * 0.03,
-          height * (0.66 + index * 0.04),
-          width * 0.04,
-          width * (0.34 + index * 0.09),
-          height * (0.66 + index * 0.04),
-          width * (0.46 - index * 0.035)
-        );
-        softFill.addColorStop(0, rgba(color[0], color[1], color[2], layer.alpha * 0.42));
-        softFill.addColorStop(0.45, rgba(color[0], color[1], color[2], layer.alpha * 0.22));
-        softFill.addColorStop(1, rgba(0, 0, 0, 0));
-
-        const bodyFill = ctx.createLinearGradient(0, height * 0.26, width, height);
-        bodyFill.addColorStop(0, rgba(color[0], color[1], color[2], layer.alpha * 0.18));
-        bodyFill.addColorStop(0.42, rgba(color[0], color[1], color[2], layer.alpha * 0.56));
-        bodyFill.addColorStop(1, rgba(0, 0, 0, layer.alpha * 0.08));
-
-        ctx.filter = isLowPower ? "blur(18px)" : "blur(34px)";
-        ctx.fillStyle = softFill;
-        ctx.fillRect(-width * 0.12, -height * 0.08, width * 1.24, height * 1.18);
-
-        ctx.filter = isLowPower ? "blur(8px)" : "blur(14px)";
-        ctx.fillStyle = bodyFill;
-        ctx.fillRect(-width * 0.1, -height * 0.08, width * 1.2, height * 1.16);
-
-        const sheen = ctx.createLinearGradient(0, height * 0.34, width, height * 0.82);
-        sheen.addColorStop(0, rgba(184, 210, 192, 0));
-        sheen.addColorStop(0.3, rgba(184, 210, 192, layer.alpha * 0.08));
-        sheen.addColorStop(0.55, rgba(184, 210, 192, layer.alpha * 0.035));
-        sheen.addColorStop(1, rgba(184, 210, 192, 0));
-        ctx.globalCompositeOperation = isLowPower ? "screen" : "lighter";
-        ctx.filter = isLowPower ? "blur(10px)" : "blur(18px)";
-        ctx.fillStyle = sheen;
-        ctx.fillRect(-width * 0.08, -height * 0.04, width * 1.16, height * 1.08);
-
-        ctx.globalCompositeOperation = "source-over";
-        ctx.filter = "none";
-        ctx.restore();
-      });
-
+      // Main lower mass under the seam.
       ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+      ctx.lineTo(width * 1.04, height * 1.05);
+      ctx.lineTo(-width * 0.04, height * 1.05);
+      ctx.closePath();
+      ctx.clip();
+
+      const lowerBody = ctx.createRadialGradient(
+        width * 0.54 + drift(time, 8.2) * width * 0.04,
+        height * 0.82 + drift(time, 9.3) * height * 0.03,
+        width * 0.03,
+        width * 0.54,
+        height * 0.82,
+        width * 0.66
+      );
+      lowerBody.addColorStop(0, rgba(94, 175, 119, 0.16));
+      lowerBody.addColorStop(0.18, rgba(58, 144, 84, 0.12));
+      lowerBody.addColorStop(0.46, rgba(31, 79, 48, 0.08));
+      lowerBody.addColorStop(1, rgba(0, 0, 0, 0));
+      ctx.filter = isLowPower ? "blur(26px)" : "blur(46px)";
+      ctx.fillStyle = lowerBody;
+      ctx.fillRect(-width * 0.08, height * 0.28, width * 1.16, height * 0.84);
+
+      const lowerGlide = ctx.createLinearGradient(0, height * 0.44, width, height * 0.98);
+      lowerGlide.addColorStop(0, rgba(184, 210, 192, 0.03));
+      lowerGlide.addColorStop(0.35, rgba(184, 210, 192, 0.07));
+      lowerGlide.addColorStop(0.7, rgba(184, 210, 192, 0.02));
+      lowerGlide.addColorStop(1, rgba(0, 0, 0, 0));
       ctx.globalCompositeOperation = isLowPower ? "screen" : "lighter";
-      for (let i = 0; i < (isLowPower ? 2 : 3); i++) {
-        const glaze = ctx.createRadialGradient(
-          width * (0.36 + i * 0.17) + wander(time, 0.13 + i * 0.02, 0.061, 0.023, i + 1.2) * width * 0.02,
-          height * (0.58 + i * 0.08),
-          width * 0.015,
-          width * (0.36 + i * 0.17),
-          height * (0.58 + i * 0.08),
-          width * (0.22 + i * 0.04)
-        );
-        glaze.addColorStop(0, rgba(94, 175, 119, 0.07 - i * 0.012));
-        glaze.addColorStop(0.4, rgba(58, 144, 84, 0.04 - i * 0.008));
-        glaze.addColorStop(1, rgba(0, 0, 0, 0));
-        ctx.fillStyle = glaze;
-        ctx.fillRect(0, 0, width, height);
-      }
+      ctx.filter = isLowPower ? "blur(18px)" : "blur(32px)";
+      ctx.fillStyle = lowerGlide;
+      ctx.fillRect(-width * 0.08, height * 0.34, width * 1.16, height * 0.74);
+
       ctx.restore();
 
-      const lowerBulge = ctx.createRadialGradient(
-        width * 0.28 + drift(time, 0.7) * width * 0.016,
-        height * 0.86 + drift(time, 2.9) * height * 0.01,
+      // Upper sweep and folded streak region around the seam.
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(-width * 0.04, height * 0.14);
+      ctx.lineTo(width * 1.04, height * 0.14);
+      ctx.lineTo(width * 1.04, height * 0.72);
+      ctx.bezierCurveTo(
+        width * 0.84 + seamOffsetX, height * (0.55 + seamOffsetY),
+        width * 0.56 + seamOffsetX, height * (0.62 + seamOffsetY),
+        width * 0.22 + seamOffsetX, height * (0.46 + seamOffsetY)
+      );
+      ctx.bezierCurveTo(
+        width * 0.1 + seamOffsetX, height * (0.41 + seamOffsetY),
+        width * 0.02 + seamOffsetX, height * (0.45 + seamOffsetY),
+        -width * 0.04, height * 0.5
+      );
+      ctx.closePath();
+      ctx.clip();
+
+      const upperBody = ctx.createRadialGradient(
+        width * 0.78 + drift(time, 11.4) * width * 0.03,
+        height * 0.34 + drift(time, 12.3) * height * 0.02,
         width * 0.04,
-        width * 0.28,
-        height * 0.86,
-        width * 0.48
+        width * 0.78,
+        height * 0.34,
+        width * 0.42
       );
-      lowerBulge.addColorStop(0, rgba(94, 175, 119, 0.18));
-      lowerBulge.addColorStop(0.38, rgba(58, 144, 84, 0.1));
-      lowerBulge.addColorStop(1, rgba(0, 0, 0, 0));
-      ctx.fillStyle = lowerBulge;
-      ctx.fillRect(0, height * 0.48, width, height * 0.6);
-      ctx.fillStyle = lowerMist!;
-      ctx.fillRect(0, height * 0.55, width, height * 0.45);
+      upperBody.addColorStop(0, rgba(94, 175, 119, 0.18));
+      upperBody.addColorStop(0.2, rgba(58, 144, 84, 0.12));
+      upperBody.addColorStop(0.5, rgba(31, 79, 48, 0.08));
+      upperBody.addColorStop(1, rgba(0, 0, 0, 0));
+      ctx.filter = isLowPower ? "blur(18px)" : "blur(34px)";
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = upperBody;
+      ctx.fillRect(-width * 0.06, height * 0.12, width * 1.12, height * 0.66);
 
-      ctx.save();
+      for (let i = 0; i < (isLowPower ? 4 : 7); i++) {
+        const spread = i * 0.008;
+        const alpha = 0.055 - i * 0.006;
+        const blur = isLowPower ? 10 + i * 2 : 16 + i * 3;
+        ctx.filter = `blur(${blur}px)`;
+        ctx.globalCompositeOperation = isLowPower ? "screen" : "lighter";
+        drawCurveStroke(
+          ctx,
+          width,
+          height,
+          seamOffsetY - 0.022 + spread + drift(time + i * 0.7, 14 + i) * 0.004,
+          seamOffsetX + drift(time + i * 0.5, 20 + i) * width * 0.01,
+          controlLift + 0.01,
+          isLowPower ? 9 - i : 14 - i * 1.2,
+          rgba(184, 210, 192, Math.max(alpha, 0.01))
+        );
+      }
+
+      ctx.restore();
+
+      // Broad lower left and right soft masses from the reference.
+      ctx.filter = isLowPower ? "blur(22px)" : "blur(40px)";
+      const leftMass = ctx.createRadialGradient(
+        width * 0.04 + drift(time, 31.2) * width * 0.02,
+        height * 0.92,
+        width * 0.02,
+        width * 0.04,
+        height * 0.92,
+        width * 0.32
+      );
+      leftMass.addColorStop(0, rgba(184, 210, 192, 0.11));
+      leftMass.addColorStop(0.3, rgba(127, 167, 140, 0.07));
+      leftMass.addColorStop(1, rgba(0, 0, 0, 0));
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = leftMass;
+      ctx.fillRect(-width * 0.04, height * 0.66, width * 0.44, height * 0.42);
+
+      const rightMass = ctx.createRadialGradient(
+        width * 0.94 + drift(time, 37.4) * width * 0.015,
+        height * 0.7 + drift(time, 39.5) * height * 0.02,
+        width * 0.03,
+        width * 0.94,
+        height * 0.7,
+        width * 0.36
+      );
+      rightMass.addColorStop(0, rgba(184, 210, 192, 0.22));
+      rightMass.addColorStop(0.34, rgba(127, 167, 140, 0.11));
+      rightMass.addColorStop(1, rgba(0, 0, 0, 0));
+      ctx.fillStyle = rightMass;
+      ctx.fillRect(width * 0.62, height * 0.34, width * 0.46, height * 0.78);
+
+      // Main seam with soft glow underlay.
       ctx.globalCompositeOperation = isLowPower ? "screen" : "lighter";
-      ctx.translate(seamGlide, seamLift);
-      ctx.beginPath();
-      ctx.moveTo(-width * 0.04, height * 0.572);
-      ctx.bezierCurveTo(
-        width * 0.16, height * 0.5,
-        width * 0.34, height * 0.522,
-        width * 0.5, height * 0.56
+      ctx.filter = isLowPower ? "blur(12px)" : "blur(20px)";
+      drawCurveStroke(
+        ctx,
+        width,
+        height,
+        seamOffsetY,
+        seamOffsetX,
+        controlLift,
+        isLowPower ? 7 : 10,
+        rgba(184, 210, 192, 0.12)
       );
-      ctx.bezierCurveTo(
-        width * 0.68, height * 0.603,
-        width * 0.84, height * 0.55,
-        width * 1.04, height * 0.51
-      );
-      ctx.lineWidth = isLowPower ? 4.5 : 7.5;
-      ctx.strokeStyle = rgba(184, 210, 192, 0.08);
-      ctx.shadowColor = rgba(184, 210, 192, 0.12);
-      ctx.shadowBlur = isLowPower ? 12 : 22;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-width * 0.04, height * 0.565);
-      ctx.bezierCurveTo(
-        width * 0.16, height * 0.49,
-        width * 0.34, height * 0.515,
-        width * 0.5, height * 0.555
-      );
-      ctx.bezierCurveTo(
-        width * 0.68, height * 0.598,
-        width * 0.84, height * 0.545,
-        width * 1.04, height * 0.505
-      );
-      ctx.lineWidth = isLowPower ? 1.2 : 1.55;
-      ctx.strokeStyle = rgba(214, 232, 220, 0.72 + Math.sin(time * 0.37) * 0.03);
-      ctx.shadowColor = rgba(184, 210, 192, 0.28);
-      ctx.shadowBlur = isLowPower ? 8 : 14;
-      ctx.stroke();
-      ctx.restore();
 
-      ctx.save();
-      ctx.translate(-width * 0.012 + bloomOffsetX, height * 0.008 + bloomOffsetY);
-      ctx.fillStyle = rightBloom!;
-      ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = rightBloomSoft!;
-      ctx.fillRect(0, 0, width, height);
-      ctx.restore();
+      ctx.filter = "none";
+      drawCurveStroke(
+        ctx,
+        width,
+        height,
+        seamOffsetY,
+        seamOffsetX,
+        controlLift,
+        isLowPower ? 1.35 : 1.7,
+        rgba(228, 238, 230, 0.74)
+      );
 
-      ctx.fillStyle = lowerShadow!;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.filter = "none";
+      ctx.fillStyle = lowerFalloff!;
       ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = vignette!;
+      ctx.fillStyle = cornerVignette!;
       ctx.fillRect(0, 0, width, height);
 
       ctx.restore();
@@ -465,7 +351,7 @@ export default function MattsCustomBackground({
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [blobCount]);
+  }, []);
 
   return (
     <canvas
