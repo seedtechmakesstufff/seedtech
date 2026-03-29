@@ -273,11 +273,11 @@ export default function WebDevelopmentPage() {
         <div className="mx-auto max-w-5xl px-6 text-center mb-14">
           {/* Validated pill */}
           <LiquidGlassPill variant="default" className="mb-6">Validated</LiquidGlassPill>
-          <AnimatedH2 className="font-display text-heading md:text-title text-white leading-[1.1] mb-6">
-            Infrastructure Trusted by Brands
+          <AnimatedH2 className="font-display text-heading md:text-title text-white leading-[1.1] mb-6" highlightWords={["Small", "Medium"]}>
+            Trusted by Small and Medium Businesses
           </AnimatedH2>
           <p className="text-body-lg text-light-base/40 max-w-2xl mx-auto leading-relaxed">
-            SeedTech has powered IT &amp; Website infrastructures for numerous businesses — small to large.
+            We specialize in prioritizing and customizing what works best for your business.
           </p>
         </div>
 

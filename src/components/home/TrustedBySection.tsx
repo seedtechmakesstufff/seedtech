@@ -234,13 +234,12 @@ export function TrustedBySection() {
         <div className="mx-auto max-w-3xl px-6 text-center mb-16">
           <AnimatedH2
             className="font-display text-heading md:text-heading-lg text-white leading-[1.1]"
-            highlightWords={["Brands"]}
+            highlightWords={["Small", "Medium"]}
           >
-            Infrastructure Trusted by Brands
+            Trusted by Small and Medium Businesses
           </AnimatedH2>
           <p className="mt-5 text-body-lg text-white/50 leading-relaxed">
-            SeedTech has powered IT &amp; Website infrastructures for numerous
-            businesses — small to large
+            We specialize in prioritizing and customizing what works best for your business
           </p>
         </div>
 

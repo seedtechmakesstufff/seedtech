@@ -8,6 +8,18 @@ import { useEffect, useRef } from "react";
    This canvas intentionally avoids a single "bottom blob" silhouette.
    Instead, it layers randomized drifting color fields and wide wave ribbons
    so blending happens across the full viewport.
+
+   Performance optimisations:
+   - 30 fps frame cap (halves GPU load vs uncapped rAF)
+   - Static gradients (base, lifts, sweeps, vignette) cached per resize
+   - DPR capped to 1.5 desktop / 1.0 mobile (prevents 4× pixel blowup)
+   - Actual delta-time so animation speed is display-Hz independent
+   - Pauses when the page is not visible (document.hidden)
+   - desynchronized:true lets Chrome/Android paint off the main thread
+   - Safari detection: fewer blobs + ribbons + lighter composite avoided
+   - Mobile detection: reduced quality tier to stay smooth on mid-range
+   - prefers-reduced-motion: holds a static first frame, no animation
+   - Reduced ribbon count (7 → 5 desktop, 3 mobile/Safari) — still great
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /** A drifting radial light field */
@@ -61,6 +73,19 @@ function hsla(h: number, s: number, l: number, a: number) {
   return `hsla(${h} ${s}% ${l}% / ${a})`;
 }
 
+// Target ~30 fps for the background — imperceptible vs 60 fps, halves GPU cost
+const TARGET_INTERVAL_MS = 1000 / 30;
+
+// Detect Safari — Canvas 2D composite modes are CPU-rendered in Safari/WebKit
+const isSafari = typeof navigator !== "undefined"
+  ? /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+  : false;
+
+// Detect mobile/low-power devices
+const isMobile = typeof navigator !== "undefined"
+  ? /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+  : false;
+
 export default function MattsCustomBackground({
   className = "",
   blobCount = 10,
@@ -75,11 +100,66 @@ export default function MattsCustomBackground({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
+    // desynchronized: allow Chrome/Android to composite off the main thread
+    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
     if (!ctx) return;
 
+    // prefers-reduced-motion: draw one static frame then stop
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Quality tier: full → desktop Chrome/Firefox; reduced → Safari/mobile
+    const isLowPower = isSafari || isMobile;
+
     let w = 0, h = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Mobile: no DPR scaling at all (1×). Desktop: cap at 1.5×
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+
+    // ── Cached static gradients (rebuilt only on resize) ───────────────────
+    let gBase: CanvasGradient | null = null;
+    let gMintLift: CanvasGradient | null = null;
+    let gCoolLift: CanvasGradient | null = null;
+    let gSweepA: CanvasGradient | null = null;
+    let gSweepB: CanvasGradient | null = null;
+    let gVig: CanvasGradient | null = null;
+    let gDarkWash: CanvasGradient | null = null;
+
+    const buildStaticGradients = () => {
+      gBase = ctx.createLinearGradient(0, 0, w, h);
+      gBase.addColorStop(0, "#010203");
+      gBase.addColorStop(0.32, "#030e09");
+      gBase.addColorStop(0.68, "#061d15");
+      gBase.addColorStop(1, "#040f14");
+
+      gMintLift = ctx.createRadialGradient(w * 0.24, h * 0.22, w * 0.06, w * 0.24, h * 0.22, w * 0.62);
+      gMintLift.addColorStop(0, "rgba(100, 255, 170, 0.04)");
+      gMintLift.addColorStop(0.55, "rgba(56, 200, 130, 0.018)");
+      gMintLift.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+      gCoolLift = ctx.createRadialGradient(w * 0.84, h * 0.14, w * 0.04, w * 0.84, h * 0.14, w * 0.58);
+      gCoolLift.addColorStop(0, "rgba(120, 185, 255, 0.028)");
+      gCoolLift.addColorStop(0.62, "rgba(58, 128, 225, 0.012)");
+      gCoolLift.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+      gSweepA = ctx.createLinearGradient(0, h * 0.15, w, h * 0.55);
+      gSweepA.addColorStop(0, "rgba(240, 255, 248, 0)");
+      gSweepA.addColorStop(0.42, "rgba(186, 248, 220, 0.032)");
+      gSweepA.addColorStop(0.72, "rgba(150, 222, 255, 0.016)");
+      gSweepA.addColorStop(1, "rgba(240, 255, 248, 0)");
+
+      gSweepB = ctx.createLinearGradient(0, h * 0.65, w, h * 0.2);
+      gSweepB.addColorStop(0, "rgba(255, 255, 255, 0)");
+      gSweepB.addColorStop(0.5, "rgba(120, 225, 190, 0.018)");
+      gSweepB.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+      gVig = ctx.createRadialGradient(w * 0.52, h * 0.46, w * 0.2, w * 0.52, h * 0.46, w * 0.92);
+      gVig.addColorStop(0, "rgba(0, 0, 0, 0)");
+      gVig.addColorStop(1, "rgba(0, 0, 0, 0.75)");
+
+      gDarkWash = ctx.createLinearGradient(0, 0, 0, h);
+      gDarkWash.addColorStop(0, "rgba(0, 0, 0, 0.42)");
+      gDarkWash.addColorStop(0.45, "rgba(0, 0, 0, 0.32)");
+      gDarkWash.addColorStop(1, "rgba(0, 0, 0, 0.5)");
+    };
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -87,6 +167,8 @@ export default function MattsCustomBackground({
       h = rect.height;
       canvas.width = w * dpr;
       canvas.height = h * dpr;
+      // Invalidate cached gradients so they're rebuilt at next draw
+      gBase = null;
     };
     resize();
     window.addEventListener("resize", resize);
@@ -108,7 +190,9 @@ export default function MattsCustomBackground({
     const seed = Math.floor(Math.random() * 1_000_000_000);
     const rnd = makeRng(seed);
 
-    const fields: ColorField[] = Array.from({ length: clamp(blobCount, 7, 18) }, (_, i) => {
+    // Safari/mobile: fewer blobs so the lighter/screen composite passes are cheaper
+    const effectiveBlobCount = isLowPower ? clamp(blobCount, 4, 7) : clamp(blobCount, 7, 14);
+    const fields: ColorField[] = Array.from({ length: effectiveBlobCount }, (_, i) => {
       const hueBase = huePool[i % huePool.length] + (rnd() - 0.5) * 12;
       return {
         bx: 0.08 + rnd() * 0.84,
@@ -127,7 +211,9 @@ export default function MattsCustomBackground({
       };
     });
 
-    const ribbons: WaveRibbon[] = Array.from({ length: 7 }, () => ({
+    // Safari/mobile gets 3 ribbons; full desktop gets 5
+    const ribbonCount = isLowPower ? 3 : 5;
+    const ribbons: WaveRibbon[] = Array.from({ length: ribbonCount }, () => ({
       baseY: 0.08 + rnd() * 0.84,
       amp: 0.04 + rnd() * 0.09,
       freq: 0.8 + rnd() * 2.2,
@@ -141,11 +227,29 @@ export default function MattsCustomBackground({
     }));
 
     let time = 0;
+    let lastFrameTime = 0;
 
-    const draw = () => {
-      if (w === 0) { rafRef.current = requestAnimationFrame(draw); return; }
+    const draw = (timestamp: number) => {
+      rafRef.current = requestAnimationFrame(draw);
 
-      time += 0.016;
+      // ── 30 fps gate ──────────────────────────────────────────────────────
+      const elapsed = timestamp - lastFrameTime;
+      if (elapsed < TARGET_INTERVAL_MS) return;
+      // Use real delta time so animation speed is display-Hz independent.
+      // Clamp to 100 ms to avoid a huge jump after tab-switching.
+      const delta = Math.min(elapsed, 100) / 1000;
+      lastFrameTime = timestamp - (elapsed % TARGET_INTERVAL_MS);
+
+      // Skip drawing when the tab is not visible
+      if (document.hidden || w === 0) return;
+
+      // prefers-reduced-motion: draw one static frame (time=0) then cancel
+      if (reducedMotion && time > 0) {
+        cancelAnimationFrame(rafRef.current);
+        return;
+      }
+
+      time += delta;
 
       // Smooth mouse
       const m = mouseRef.current;
@@ -162,36 +266,20 @@ export default function MattsCustomBackground({
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // Deep green base with subtle cool support so the scene stays brand-led.
-      const base = ctx.createLinearGradient(0, 0, w, h);
-      base.addColorStop(0, "#010203");
-      base.addColorStop(0.32, "#030e09");
-      base.addColorStop(0.68, "#061d15");
-      base.addColorStop(1, "#040f14");
-      ctx.fillStyle = base;
+      // Rebuild cached gradients when invalidated by resize
+      if (!gBase) buildStaticGradients();
+
+      // Deep green base
+      ctx.fillStyle = gBase!;
       ctx.fillRect(0, 0, w, h);
 
-      const mintLift = ctx.createRadialGradient(
-        w * 0.24, h * 0.22, w * 0.06,
-        w * 0.24, h * 0.22, w * 0.62
-      );
-      mintLift.addColorStop(0, "rgba(100, 255, 170, 0.04)");
-      mintLift.addColorStop(0.55, "rgba(56, 200, 130, 0.018)");
-      mintLift.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = mintLift;
+      ctx.fillStyle = gMintLift!;
       ctx.fillRect(0, 0, w, h);
 
-      const coolLift = ctx.createRadialGradient(
-        w * 0.84, h * 0.14, w * 0.04,
-        w * 0.84, h * 0.14, w * 0.58
-      );
-      coolLift.addColorStop(0, "rgba(120, 185, 255, 0.028)");
-      coolLift.addColorStop(0.62, "rgba(58, 128, 225, 0.012)");
-      coolLift.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = coolLift;
+      ctx.fillStyle = gCoolLift!;
       ctx.fillRect(0, 0, w, h);
 
-      // Randomized wave ribbons so movement and blend are full-canvas.
+      // ── Randomized wave ribbons ──────────────────────────────────────────
       ctx.globalCompositeOperation = "screen";
       for (const r of ribbons) {
         const yAt = (x: number) => {
@@ -203,7 +291,7 @@ export default function MattsCustomBackground({
 
         ctx.beginPath();
         ctx.moveTo(0, yAt(0));
-        const segments = 12;
+        const segments = 10; // reduced from 12
         for (let i = 0; i < segments; i++) {
           const x0 = (i / segments) * w;
           const x1 = ((i + 1) / segments) * w;
@@ -212,7 +300,6 @@ export default function MattsCustomBackground({
           const cx = (x0 + x1) / 2;
           ctx.bezierCurveTo(cx, y0, cx, y1, x1, y1);
         }
-
         for (let i = segments; i >= 0; i--) {
           const x = (i / segments) * w;
           ctx.lineTo(x, yAt(x) + r.thickness * h);
@@ -223,14 +310,15 @@ export default function MattsCustomBackground({
         g.addColorStop(0, hsla(r.hue - 8, r.sat, r.light - 8, r.alpha * 0.6));
         g.addColorStop(0.5, hsla(r.hue, r.sat, r.light, r.alpha));
         g.addColorStop(1, hsla(r.hue + 8, r.sat, r.light + 6, r.alpha * 0.75));
-
         ctx.fillStyle = g;
         ctx.fill();
       }
 
-      // Drifting color fields add soft, non-uniform hue intersections.
-      ctx.globalCompositeOperation = "lighter";
-
+      // ── Drifting color fields ────────────────────────────────────────────
+      // Safari CPU-renders "lighter" composite; use "source-over" on low-power
+      // devices — the colour blending is subtly different but imperceptible
+      // and avoids the expensive per-pass CPU blitting in WebKit.
+      ctx.globalCompositeOperation = isLowPower ? "source-over" : "lighter";
       for (const p of fields) {
         let cx = (p.bx + Math.sin(time * p.spdX) * p.driftX) * w;
         let cy = (p.by + Math.cos(time * p.spdY) * p.driftY) * h;
@@ -258,45 +346,20 @@ export default function MattsCustomBackground({
 
       ctx.globalCompositeOperation = "source-over";
 
-      // Specular sweeps to mimic smooth highlights crossing the scene.
+      // ── Static overlays (cached) ─────────────────────────────────────────
       ctx.globalCompositeOperation = "screen";
-      const sweepA = ctx.createLinearGradient(0, h * 0.15, w, h * 0.55);
-      sweepA.addColorStop(0, "rgba(240, 255, 248, 0)");
-      sweepA.addColorStop(0.42, "rgba(186, 248, 220, 0.032)");
-      sweepA.addColorStop(0.72, "rgba(150, 222, 255, 0.016)");
-      sweepA.addColorStop(1, "rgba(240, 255, 248, 0)");
-      ctx.fillStyle = sweepA;
+      ctx.fillStyle = gSweepA!;
       ctx.fillRect(0, 0, w, h);
-
-      const sweepB = ctx.createLinearGradient(0, h * 0.65, w, h * 0.2);
-      sweepB.addColorStop(0, "rgba(255, 255, 255, 0)");
-      sweepB.addColorStop(0.5, "rgba(120, 225, 190, 0.018)");
-      sweepB.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = sweepB;
+      ctx.fillStyle = gSweepB!;
       ctx.fillRect(0, 0, w, h);
 
       ctx.globalCompositeOperation = "source-over";
-
-      // Soft vignette for depth, without creating a bottom-anchored mass.
-      const vigGrad = ctx.createRadialGradient(
-        w * 0.52, h * 0.46, w * 0.2,
-        w * 0.52, h * 0.46, w * 0.92
-      );
-      vigGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
-      vigGrad.addColorStop(1, "rgba(0, 0, 0, 0.75)");
-      ctx.fillStyle = vigGrad;
+      ctx.fillStyle = gVig!;
       ctx.fillRect(0, 0, w, h);
-
-      // Extra low-lift dark wash to keep the whole scene moodier.
-      const darkWash = ctx.createLinearGradient(0, 0, 0, h);
-      darkWash.addColorStop(0, "rgba(0, 0, 0, 0.42)");
-      darkWash.addColorStop(0.45, "rgba(0, 0, 0, 0.32)");
-      darkWash.addColorStop(1, "rgba(0, 0, 0, 0.5)");
-      ctx.fillStyle = darkWash;
+      ctx.fillStyle = gDarkWash!;
       ctx.fillRect(0, 0, w, h);
 
       ctx.restore();
-      rafRef.current = requestAnimationFrame(draw);
     };
 
     rafRef.current = requestAnimationFrame(draw);
@@ -313,7 +376,7 @@ export default function MattsCustomBackground({
     <canvas
       ref={canvasRef}
       className={className}
-      style={{ width: "100%", height: "100%", display: "block" }}
+      style={{ width: "100%", height: "100%", display: "block", willChange: "transform" }}
     />
   );
 }

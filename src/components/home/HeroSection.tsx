@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { motion, type Transition } from "framer-motion";
-import { BodyLg, GradientText } from "@/components/kit";
 import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
 import MattsCustomBackground from "@/components/ui/MattsCustomBackground";
