@@ -24,16 +24,12 @@ const heroCards = [
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-black">
-      {/* Interactive liquid glass canvas — responds to mouse */}
+      {/* Ambient satin-wave canvas background */}
       <div className="absolute inset-0 z-[1]">
-        <MattsCustomBackground
-          blobCount={7}
-          mouseStrength={0.18}
-          mouseRadius={0.28}
-        />
+        <MattsCustomBackground blobCount={7} />
       </div>
 
-      {/* Content — pointer-events-none so canvas receives hover, re-enabled on interactive children */}
+      {/* Content layer */}
       <div className="relative z-10 mx-auto max-w-6xl px-6 pt-36 pb-8 text-center w-full pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto">
 
         {/* Liquid Glass service pills */}

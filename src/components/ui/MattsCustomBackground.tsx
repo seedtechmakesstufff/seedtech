@@ -2,54 +2,18 @@
 
 import { useEffect, useRef } from "react";
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MattsCustomBackground — multi-hue fluid blend field.
-
-   This canvas intentionally avoids a single "bottom blob" silhouette.
-   Instead, it layers randomized drifting color fields and wide wave ribbons
-   so blending happens across the full viewport.
-
-   Performance optimisations:
-   - 30 fps frame cap (halves GPU load vs uncapped rAF)
-   - Static gradients (base, lifts, sweeps, vignette) cached per resize
-   - DPR capped to 1.5 desktop / 1.0 mobile (prevents 4× pixel blowup)
-   - Actual delta-time so animation speed is display-Hz independent
-   - Pauses when the page is not visible (document.hidden)
-   - desynchronized:true lets Chrome/Android paint off the main thread
-   - Safari detection: fewer blobs + ribbons + lighter composite avoided
-   - Mobile detection: reduced quality tier to stay smooth on mid-range
-   - prefers-reduced-motion: holds a static first frame, no animation
-   - Reduced ribbon count (7 → 5 desktop, 3 mobile/Safari) — still great
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/** A drifting radial light field */
-interface ColorField {
-  bx: number;
-  by: number;
-  driftX: number;
-  driftY: number;
-  spdX: number;
-  spdY: number;
-  size: number;
-  hue: number;
-  sat: number;
-  light: number;
-  alpha: number;
-  feather: number;
-  mouseWeight: number;
-}
-
-interface WaveRibbon {
+interface WaveLayer {
   baseY: number;
-  amp: number;
-  freq: number;
+  amplitude: number;
+  frequency: number;
   speed: number;
   phase: number;
   thickness: number;
-  hue: number;
-  sat: number;
-  light: number;
+  lift: number;
   alpha: number;
+  driftX: number;
+  driftY: number;
+  detail: number;
 }
 
 interface MattsCustomBackgroundProps {
@@ -58,6 +22,16 @@ interface MattsCustomBackgroundProps {
   mouseStrength?: number;
   mouseRadius?: number;
 }
+
+const TARGET_INTERVAL_MS = 1000 / 30;
+
+const isSafari = typeof navigator !== "undefined"
+  ? /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+  : false;
+
+const isMobile = typeof navigator !== "undefined"
+  ? /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+  : false;
 
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
@@ -69,162 +43,219 @@ function makeRng(seed: number) {
   };
 }
 
-function hsla(h: number, s: number, l: number, a: number) {
-  return `hsla(${h} ${s}% ${l}% / ${a})`;
+function rgba(r: number, g: number, b: number, a: number) {
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-// Target ~30 fps for the background — imperceptible vs 60 fps, halves GPU cost
-const TARGET_INTERVAL_MS = 1000 / 30;
+function wander(time: number, a: number, b: number, c: number, phase: number) {
+  return (
+    Math.sin(time * a + phase) * 0.58 +
+    Math.sin(time * b + phase * 1.7) * 0.28 +
+    Math.sin(time * c + phase * 2.3) * 0.14
+  );
+}
 
-// Detect Safari — Canvas 2D composite modes are CPU-rendered in Safari/WebKit
-const isSafari = typeof navigator !== "undefined"
-  ? /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
-  : false;
+function drawWavePath(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  layer: WaveLayer,
+  time: number
+) {
+  const yAt = (x: number) => {
+    const nx = x / width;
+    const primary = Math.sin(nx * Math.PI * layer.frequency + time * layer.speed + layer.phase);
+    const secondary = Math.sin(nx * Math.PI * (layer.frequency * 1.43) - time * (layer.speed * 0.47) + layer.phase * 0.7);
+    const tertiary = Math.sin(nx * Math.PI * (layer.frequency * 0.72) + time * (layer.speed * 0.19) + layer.phase * 1.3);
+    return (
+      layer.baseY +
+      primary * layer.amplitude +
+      secondary * (layer.amplitude * layer.detail) +
+      tertiary * (layer.amplitude * 0.16)
+    ) * height;
+  };
 
-// Detect mobile/low-power devices
-const isMobile = typeof navigator !== "undefined"
-  ? /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
-  : false;
+  ctx.beginPath();
+  ctx.moveTo(-width * 0.08, yAt(0) - layer.lift * height);
+
+  const segments = 7;
+  for (let i = 0; i < segments; i++) {
+    const x0 = (i / segments) * width;
+    const x1 = ((i + 1) / segments) * width;
+    const y0 = yAt(x0);
+    const y1 = yAt(x1);
+    const cx = (x0 + x1) / 2;
+    ctx.bezierCurveTo(cx, y0 - layer.lift * height, cx, y1 - layer.lift * height, x1, y1 - layer.lift * height);
+  }
+
+  ctx.lineTo(width * 1.06, height * 1.08);
+  ctx.lineTo(-width * 0.08, height * 1.08);
+  ctx.closePath();
+}
 
 export default function MattsCustomBackground({
   className = "",
-  blobCount = 10,
-  mouseStrength = 0.18,
-  mouseRadius = 0.3,
+  blobCount = 7,
 }: MattsCustomBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: -9999, y: -9999, smoothX: -9999, smoothY: -9999 });
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // desynchronized: allow Chrome/Android to composite off the main thread
     const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
     if (!ctx) return;
 
-    // prefers-reduced-motion: draw one static frame then stop
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // Quality tier: full → desktop Chrome/Firefox; reduced → Safari/mobile
     const isLowPower = isSafari || isMobile;
 
-    let w = 0, h = 0;
-    // Mobile: no DPR scaling at all (1×). Desktop: cap at 1.5×
+    let width = 0;
+    let height = 0;
     const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
 
-    // ── Cached static gradients (rebuilt only on resize) ───────────────────
-    let gBase: CanvasGradient | null = null;
-    let gMintLift: CanvasGradient | null = null;
-    let gCoolLift: CanvasGradient | null = null;
-    let gSweepA: CanvasGradient | null = null;
-    let gSweepB: CanvasGradient | null = null;
-    let gVig: CanvasGradient | null = null;
-    let gDarkWash: CanvasGradient | null = null;
+    let topField: CanvasGradient | null = null;
+    let atmosphericFalloff: CanvasGradient | null = null;
+    let upperLift: CanvasGradient | null = null;
+    let centerHaze: CanvasGradient | null = null;
+    let lowerMist: CanvasGradient | null = null;
+    let rightBloom: CanvasGradient | null = null;
+    let rightBloomSoft: CanvasGradient | null = null;
+    let leftEdgeFeather: CanvasGradient | null = null;
+    let rightEdgeFeather: CanvasGradient | null = null;
+    let lowerShadow: CanvasGradient | null = null;
+    let vignette: CanvasGradient | null = null;
 
-    const buildStaticGradients = () => {
-      gBase = ctx.createLinearGradient(0, 0, w, h);
-      gBase.addColorStop(0, "#010203");
-      gBase.addColorStop(0.32, "#030e09");
-      gBase.addColorStop(0.68, "#061d15");
-      gBase.addColorStop(1, "#040f14");
+    const seed = Math.floor(Math.random() * 1_000_000_000);
+    const rnd = makeRng(seed);
 
-      gMintLift = ctx.createRadialGradient(w * 0.24, h * 0.22, w * 0.06, w * 0.24, h * 0.22, w * 0.62);
-      gMintLift.addColorStop(0, "rgba(100, 255, 170, 0.04)");
-      gMintLift.addColorStop(0.55, "rgba(56, 200, 130, 0.018)");
-      gMintLift.addColorStop(1, "rgba(0, 0, 0, 0)");
+    const qualityLayerCount = isLowPower ? 3 : clamp(Math.round(blobCount * 0.6), 4, 5);
 
-      gCoolLift = ctx.createRadialGradient(w * 0.84, h * 0.14, w * 0.04, w * 0.84, h * 0.14, w * 0.58);
-      gCoolLift.addColorStop(0, "rgba(120, 185, 255, 0.028)");
-      gCoolLift.addColorStop(0.62, "rgba(58, 128, 225, 0.012)");
-      gCoolLift.addColorStop(1, "rgba(0, 0, 0, 0)");
+    const layers: WaveLayer[] = Array.from({ length: qualityLayerCount }, (_, i) => ({
+      baseY: 0.5 + i * 0.08 + rnd() * 0.04,
+      amplitude: 0.038 + rnd() * 0.03,
+      frequency: 0.82 + rnd() * 0.72,
+      speed: 0.19 + rnd() * 0.16,
+      phase: rnd() * Math.PI * 2,
+      thickness: 0.18 + rnd() * 0.16,
+      lift: 0.028 + rnd() * 0.024,
+      alpha: 0.2 - i * 0.022,
+      driftX: 0.01 + rnd() * 0.018,
+      driftY: 0.006 + rnd() * 0.01,
+      detail: 0.14 + rnd() * 0.08,
+    }));
 
-      gSweepA = ctx.createLinearGradient(0, h * 0.15, w, h * 0.55);
-      gSweepA.addColorStop(0, "rgba(240, 255, 248, 0)");
-      gSweepA.addColorStop(0.42, "rgba(186, 248, 220, 0.032)");
-      gSweepA.addColorStop(0.72, "rgba(150, 222, 255, 0.016)");
-      gSweepA.addColorStop(1, "rgba(240, 255, 248, 0)");
+    const rebuildStatics = () => {
+      topField = ctx.createLinearGradient(0, 0, width, height);
+      topField.addColorStop(0, "#050806");
+      topField.addColorStop(0.2, "#07110B");
+      topField.addColorStop(0.44, "#1B4027");
+      topField.addColorStop(0.68, "#2D6E42");
+      topField.addColorStop(1, "#08110B");
 
-      gSweepB = ctx.createLinearGradient(0, h * 0.65, w, h * 0.2);
-      gSweepB.addColorStop(0, "rgba(255, 255, 255, 0)");
-      gSweepB.addColorStop(0.5, "rgba(120, 225, 190, 0.018)");
-      gSweepB.addColorStop(1, "rgba(255, 255, 255, 0)");
+      atmosphericFalloff = ctx.createLinearGradient(0, 0, 0, height);
+      atmosphericFalloff.addColorStop(0, "rgba(0, 0, 0, 0.14)");
+      atmosphericFalloff.addColorStop(0.28, "rgba(0, 0, 0, 0.015)");
+      atmosphericFalloff.addColorStop(1, "rgba(0, 0, 0, 0.3)");
 
-      gVig = ctx.createRadialGradient(w * 0.52, h * 0.46, w * 0.2, w * 0.52, h * 0.46, w * 0.92);
-      gVig.addColorStop(0, "rgba(0, 0, 0, 0)");
-      gVig.addColorStop(1, "rgba(0, 0, 0, 0.75)");
+      upperLift = ctx.createRadialGradient(
+        width * 0.5,
+        height * 0.12,
+        width * 0.04,
+        width * 0.5,
+        height * 0.12,
+        width * 0.7
+      );
+      upperLift.addColorStop(0, rgba(94, 175, 119, 0.1));
+      upperLift.addColorStop(0.35, rgba(58, 144, 84, 0.06));
+      upperLift.addColorStop(1, rgba(0, 0, 0, 0));
 
-      gDarkWash = ctx.createLinearGradient(0, 0, 0, h);
-      gDarkWash.addColorStop(0, "rgba(0, 0, 0, 0.42)");
-      gDarkWash.addColorStop(0.45, "rgba(0, 0, 0, 0.32)");
-      gDarkWash.addColorStop(1, "rgba(0, 0, 0, 0.5)");
+      centerHaze = ctx.createRadialGradient(
+        width * 0.46,
+        height * 0.58,
+        width * 0.04,
+        width * 0.46,
+        height * 0.58,
+        width * 0.42
+      );
+      centerHaze.addColorStop(0, rgba(94, 175, 119, 0.09));
+      centerHaze.addColorStop(0.45, rgba(58, 144, 84, 0.045));
+      centerHaze.addColorStop(1, rgba(0, 0, 0, 0));
+
+      lowerMist = ctx.createRadialGradient(
+        width * 0.14,
+        height * 0.9,
+        width * 0.02,
+        width * 0.14,
+        height * 0.9,
+        width * 0.3
+      );
+      lowerMist.addColorStop(0, rgba(184, 210, 192, 0.11));
+      lowerMist.addColorStop(0.38, rgba(127, 167, 140, 0.07));
+      lowerMist.addColorStop(1, rgba(0, 0, 0, 0));
+
+      leftEdgeFeather = ctx.createLinearGradient(0, 0, width * 0.18, 0);
+      leftEdgeFeather.addColorStop(0, rgba(0, 0, 0, 0.16));
+      leftEdgeFeather.addColorStop(0.35, rgba(0, 0, 0, 0.05));
+      leftEdgeFeather.addColorStop(1, rgba(0, 0, 0, 0));
+
+      rightEdgeFeather = ctx.createLinearGradient(width * 0.82, 0, width, 0);
+      rightEdgeFeather.addColorStop(0, rgba(0, 0, 0, 0));
+      rightEdgeFeather.addColorStop(0.65, rgba(0, 0, 0, 0.05));
+      rightEdgeFeather.addColorStop(1, rgba(0, 0, 0, 0.15));
+
+      rightBloom = ctx.createRadialGradient(
+        width * 0.93,
+        height * 0.58,
+        width * 0.02,
+        width * 0.93,
+        height * 0.58,
+        width * 0.4
+      );
+      rightBloom.addColorStop(0, rgba(184, 210, 192, 0.3));
+      rightBloom.addColorStop(0.22, rgba(127, 167, 140, 0.15));
+      rightBloom.addColorStop(0.62, rgba(58, 144, 84, 0.06));
+      rightBloom.addColorStop(1, rgba(0, 0, 0, 0));
+
+      rightBloomSoft = ctx.createRadialGradient(
+        width * 0.88,
+        height * 0.52,
+        width * 0.04,
+        width * 0.88,
+        height * 0.52,
+        width * 0.52
+      );
+      rightBloomSoft.addColorStop(0, rgba(184, 210, 192, 0.12));
+      rightBloomSoft.addColorStop(0.48, rgba(127, 167, 140, 0.08));
+      rightBloomSoft.addColorStop(1, rgba(0, 0, 0, 0));
+
+      lowerShadow = ctx.createLinearGradient(0, height * 0.45, 0, height);
+      lowerShadow.addColorStop(0, rgba(0, 0, 0, 0));
+      lowerShadow.addColorStop(1, rgba(0, 0, 0, 0.5));
+
+      vignette = ctx.createRadialGradient(
+        width * 0.52,
+        height * 0.42,
+        width * 0.18,
+        width * 0.52,
+        height * 0.42,
+        width * 0.95
+      );
+      vignette.addColorStop(0, rgba(0, 0, 0, 0));
+      vignette.addColorStop(1, rgba(0, 0, 0, 0.7));
     };
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      w = rect.width;
-      h = rect.height;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      // Invalidate cached gradients so they're rebuilt at next draw
-      gBase = null;
+      width = rect.width;
+      height = rect.height;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      topField = null;
     };
+
     resize();
     window.addEventListener("resize", resize);
-
-    const onPointerMove = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current.x = e.clientX - rect.left;
-      mouseRef.current.y = e.clientY - rect.top;
-    };
-    const onPointerLeave = () => {
-      mouseRef.current.x = -9999;
-      mouseRef.current.y = -9999;
-    };
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerleave", onPointerLeave);
-
-    // SeedTech-first palette: emerald + mint + cyan, with restrained blue support.
-    const huePool = [128, 136, 146, 158, 170, 188, 206];
-    const seed = Math.floor(Math.random() * 1_000_000_000);
-    const rnd = makeRng(seed);
-
-    // Safari/mobile: fewer blobs so the lighter/screen composite passes are cheaper
-    const effectiveBlobCount = isLowPower ? clamp(blobCount, 4, 7) : clamp(blobCount, 7, 14);
-    const fields: ColorField[] = Array.from({ length: effectiveBlobCount }, (_, i) => {
-      const hueBase = huePool[i % huePool.length] + (rnd() - 0.5) * 12;
-      return {
-        bx: 0.08 + rnd() * 0.84,
-        by: 0.07 + rnd() * 0.86,
-        driftX: 0.03 + rnd() * 0.07,
-        driftY: 0.03 + rnd() * 0.07,
-        spdX: 0.08 + rnd() * 0.22,
-        spdY: 0.08 + rnd() * 0.22,
-        size: 0.24 + rnd() * 0.34,
-        hue: hueBase,
-        sat: 68 + rnd() * 20,
-        light: 36 + rnd() * 16,
-        alpha: 0.025 + rnd() * 0.035,
-        feather: 0.38 + rnd() * 0.26,
-        mouseWeight: 0.3 + rnd() * 0.7,
-      };
-    });
-
-    // Safari/mobile gets 3 ribbons; full desktop gets 5
-    const ribbonCount = isLowPower ? 3 : 5;
-    const ribbons: WaveRibbon[] = Array.from({ length: ribbonCount }, () => ({
-      baseY: 0.08 + rnd() * 0.84,
-      amp: 0.04 + rnd() * 0.09,
-      freq: 0.8 + rnd() * 2.2,
-      speed: 0.08 + rnd() * 0.2,
-      phase: rnd() * Math.PI * 2,
-      thickness: 0.12 + rnd() * 0.22,
-      hue: huePool[Math.floor(rnd() * huePool.length)] + (rnd() - 0.5) * 10,
-      sat: 72 + rnd() * 18,
-      light: 44 + rnd() * 20,
-      alpha: 0.016 + rnd() * 0.02,
-    }));
 
     let time = 0;
     let lastFrameTime = 0;
@@ -232,18 +263,13 @@ export default function MattsCustomBackground({
     const draw = (timestamp: number) => {
       rafRef.current = requestAnimationFrame(draw);
 
-      // ── 30 fps gate ──────────────────────────────────────────────────────
       const elapsed = timestamp - lastFrameTime;
       if (elapsed < TARGET_INTERVAL_MS) return;
-      // Use real delta time so animation speed is display-Hz independent.
-      // Clamp to 100 ms to avoid a huge jump after tab-switching.
+
       const delta = Math.min(elapsed, 100) / 1000;
       lastFrameTime = timestamp - (elapsed % TARGET_INTERVAL_MS);
 
-      // Skip drawing when the tab is not visible
-      if (document.hidden || w === 0) return;
-
-      // prefers-reduced-motion: draw one static frame (time=0) then cancel
+      if (document.hidden || width === 0) return;
       if (reducedMotion && time > 0) {
         cancelAnimationFrame(rafRef.current);
         return;
@@ -251,113 +277,197 @@ export default function MattsCustomBackground({
 
       time += delta;
 
-      // Smooth mouse
-      const m = mouseRef.current;
-      if (m.x > -5000) {
-        m.smoothX += (m.x - m.smoothX) * 0.04;
-        m.smoothY += (m.y - m.smoothY) * 0.04;
-      } else {
-        m.smoothX += (-9999 - m.smoothX) * 0.01;
-        m.smoothY += (-9999 - m.smoothY) * 0.01;
-      }
-      const mouseNX = m.smoothX > -5000 ? m.smoothX / w : -9999;
-      const mouseNY = m.smoothX > -5000 ? m.smoothY / h : -9999;
-
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // Rebuild cached gradients when invalidated by resize
-      if (!gBase) buildStaticGradients();
+      if (!topField) rebuildStatics();
 
-      // Deep green base
-      ctx.fillStyle = gBase!;
-      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = topField!;
+      ctx.fillRect(0, 0, width, height);
 
-      ctx.fillStyle = gMintLift!;
-      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = atmosphericFalloff!;
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = upperLift!;
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = centerHaze!;
+      ctx.fillRect(0, 0, width, height);
 
-      ctx.fillStyle = gCoolLift!;
-      ctx.fillRect(0, 0, w, h);
+      const seamGlide = wander(time, 0.23, 0.11, 0.051, 1.6) * width * 0.018;
+      const seamLift = wander(time, 0.17, 0.07, 0.031, 0.8) * height * 0.008;
+      const bloomScale = 1 + wander(time, 0.16, 0.06, 0.027, 2.4) * 0.026;
 
-      // ── Randomized wave ribbons ──────────────────────────────────────────
-      ctx.globalCompositeOperation = "screen";
-      for (const r of ribbons) {
-        const yAt = (x: number) => {
-          const nx = x / w;
-          const main = Math.sin(nx * Math.PI * r.freq + time * r.speed + r.phase);
-          const ripple = Math.sin(nx * Math.PI * (r.freq * 1.9) - time * (r.speed * 0.45) + r.phase * 0.7);
-          return (r.baseY + main * r.amp + ripple * (r.amp * 0.32)) * h;
-        };
+      const waveColors = [
+        [7, 17, 11],
+        [27, 64, 39],
+        [45, 110, 66],
+        [58, 144, 84],
+        [94, 175, 119],
+      ];
 
-        ctx.beginPath();
-        ctx.moveTo(0, yAt(0));
-        const segments = 10; // reduced from 12
-        for (let i = 0; i < segments; i++) {
-          const x0 = (i / segments) * w;
-          const x1 = ((i + 1) / segments) * w;
-          const y0 = yAt(x0);
-          const y1 = yAt(x1);
-          const cx = (x0 + x1) / 2;
-          ctx.bezierCurveTo(cx, y0, cx, y1, x1, y1);
-        }
-        for (let i = segments; i >= 0; i--) {
-          const x = (i / segments) * w;
-          ctx.lineTo(x, yAt(x) + r.thickness * h);
-        }
-        ctx.closePath();
+      layers.forEach((layer, index) => {
+        const offsetX = wander(
+          time,
+          0.09 + layer.driftX,
+          0.043 + layer.driftX * 0.5,
+          0.019 + layer.driftX * 0.2,
+          layer.phase
+        ) * width * layer.driftX;
+        const offsetY = wander(
+          time,
+          0.07 + layer.driftY,
+          0.031 + layer.driftY * 0.4,
+          0.015 + layer.driftY * 0.2,
+          layer.phase * 1.2
+        ) * layer.driftY;
+        ctx.save();
+        ctx.translate(offsetX, offsetY * height);
+        drawWavePath(ctx, width, height, {
+          ...layer,
+          phase:
+            layer.phase +
+            time * 0.028 * (index % 2 === 0 ? 1 : -0.62) +
+            Math.sin(time * 0.06 + index) * 0.12,
+          baseY:
+            layer.baseY -
+            Math.sin(time * (0.08 + index * 0.026)) * 0.008 -
+            Math.sin(time * 0.034 + index * 1.7) * 0.005,
+        }, time);
 
-        const g = ctx.createLinearGradient(0, 0, w, h);
-        g.addColorStop(0, hsla(r.hue - 8, r.sat, r.light - 8, r.alpha * 0.6));
-        g.addColorStop(0.5, hsla(r.hue, r.sat, r.light, r.alpha));
-        g.addColorStop(1, hsla(r.hue + 8, r.sat, r.light + 6, r.alpha * 0.75));
-        ctx.fillStyle = g;
-        ctx.fill();
+        const color = waveColors[Math.min(index, waveColors.length - 1)];
+        ctx.clip();
+
+        const softFill = ctx.createRadialGradient(
+          width * (0.34 + index * 0.09) + wander(time, 0.11, 0.047, 0.019, index + 0.5) * width * 0.035,
+          height * (0.66 + index * 0.04),
+          width * 0.04,
+          width * (0.34 + index * 0.09),
+          height * (0.66 + index * 0.04),
+          width * (0.46 - index * 0.035)
+        );
+        softFill.addColorStop(0, rgba(color[0], color[1], color[2], layer.alpha * 0.42));
+        softFill.addColorStop(0.45, rgba(color[0], color[1], color[2], layer.alpha * 0.22));
+        softFill.addColorStop(1, rgba(0, 0, 0, 0));
+
+        const bodyFill = ctx.createLinearGradient(0, height * 0.26, width, height);
+        bodyFill.addColorStop(0, rgba(color[0], color[1], color[2], layer.alpha * 0.18));
+        bodyFill.addColorStop(0.42, rgba(color[0], color[1], color[2], layer.alpha * 0.56));
+        bodyFill.addColorStop(1, rgba(0, 0, 0, layer.alpha * 0.08));
+
+        ctx.filter = isLowPower ? "blur(18px)" : "blur(34px)";
+        ctx.fillStyle = softFill;
+        ctx.fillRect(-width * 0.12, -height * 0.08, width * 1.24, height * 1.18);
+
+        ctx.filter = isLowPower ? "blur(8px)" : "blur(14px)";
+        ctx.fillStyle = bodyFill;
+        ctx.fillRect(-width * 0.1, -height * 0.08, width * 1.2, height * 1.16);
+
+        const sheen = ctx.createLinearGradient(0, height * 0.34, width, height * 0.82);
+        sheen.addColorStop(0, rgba(184, 210, 192, 0));
+        sheen.addColorStop(0.3, rgba(184, 210, 192, layer.alpha * 0.08));
+        sheen.addColorStop(0.55, rgba(184, 210, 192, layer.alpha * 0.035));
+        sheen.addColorStop(1, rgba(184, 210, 192, 0));
+        ctx.globalCompositeOperation = isLowPower ? "screen" : "lighter";
+        ctx.filter = isLowPower ? "blur(10px)" : "blur(18px)";
+        ctx.fillStyle = sheen;
+        ctx.fillRect(-width * 0.08, -height * 0.04, width * 1.16, height * 1.08);
+
+        ctx.globalCompositeOperation = "source-over";
+        ctx.filter = "none";
+        ctx.restore();
+      });
+
+      ctx.save();
+      ctx.globalCompositeOperation = isLowPower ? "screen" : "lighter";
+      for (let i = 0; i < (isLowPower ? 2 : 3); i++) {
+        const glaze = ctx.createRadialGradient(
+          width * (0.36 + i * 0.17) + wander(time, 0.13 + i * 0.02, 0.061, 0.023, i + 1.2) * width * 0.02,
+          height * (0.58 + i * 0.08),
+          width * 0.015,
+          width * (0.36 + i * 0.17),
+          height * (0.58 + i * 0.08),
+          width * (0.22 + i * 0.04)
+        );
+        glaze.addColorStop(0, rgba(94, 175, 119, 0.07 - i * 0.012));
+        glaze.addColorStop(0.4, rgba(58, 144, 84, 0.04 - i * 0.008));
+        glaze.addColorStop(1, rgba(0, 0, 0, 0));
+        ctx.fillStyle = glaze;
+        ctx.fillRect(0, 0, width, height);
       }
+      ctx.restore();
 
-      // ── Drifting color fields ────────────────────────────────────────────
-      // Safari CPU-renders "lighter" composite; use "source-over" on low-power
-      // devices — the colour blending is subtly different but imperceptible
-      // and avoids the expensive per-pass CPU blitting in WebKit.
-      ctx.globalCompositeOperation = isLowPower ? "source-over" : "lighter";
-      for (const p of fields) {
-        let cx = (p.bx + Math.sin(time * p.spdX) * p.driftX) * w;
-        let cy = (p.by + Math.cos(time * p.spdY) * p.driftY) * h;
+      const lowerBulge = ctx.createRadialGradient(
+        width * 0.28 + wander(time, 0.21, 0.09, 0.041, 0.7) * width * 0.018,
+        height * 0.86,
+        width * 0.04,
+        width * 0.28,
+        height * 0.86,
+        width * 0.48
+      );
+      lowerBulge.addColorStop(0, rgba(94, 175, 119, 0.18));
+      lowerBulge.addColorStop(0.38, rgba(58, 144, 84, 0.1));
+      lowerBulge.addColorStop(1, rgba(0, 0, 0, 0));
+      ctx.fillStyle = lowerBulge;
+      ctx.fillRect(0, height * 0.48, width, height * 0.6);
+      ctx.fillStyle = lowerMist!;
+      ctx.fillRect(0, height * 0.55, width, height * 0.45);
 
-        if (mouseNX > -1) {
-          const dx = cx / w - mouseNX;
-          const dy = cy / h - mouseNY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const radius = clamp(mouseRadius, 0.16, 0.6);
-          if (dist < radius) {
-            const push = Math.pow(1 - dist / radius, 2) * clamp(mouseStrength, 0, 0.6) * p.mouseWeight;
-            cx += (dx / (dist + 0.001)) * push * w;
-            cy += (dy / (dist + 0.001)) * push * h;
-          }
-        }
+      ctx.save();
+      ctx.globalCompositeOperation = isLowPower ? "screen" : "lighter";
+      ctx.translate(seamGlide, seamLift);
+      ctx.beginPath();
+      ctx.moveTo(-width * 0.04, height * 0.572);
+      ctx.bezierCurveTo(
+        width * 0.16, height * 0.5,
+        width * 0.34, height * 0.522,
+        width * 0.5, height * 0.56
+      );
+      ctx.bezierCurveTo(
+        width * 0.68, height * 0.603,
+        width * 0.84, height * 0.55,
+        width * 1.04, height * 0.51
+      );
+      ctx.lineWidth = isLowPower ? 4.5 : 7.5;
+      ctx.strokeStyle = rgba(184, 210, 192, 0.08);
+      ctx.shadowColor = rgba(184, 210, 192, 0.12);
+      ctx.shadowBlur = isLowPower ? 12 : 22;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-width * 0.04, height * 0.565);
+      ctx.bezierCurveTo(
+        width * 0.16, height * 0.49,
+        width * 0.34, height * 0.515,
+        width * 0.5, height * 0.555
+      );
+      ctx.bezierCurveTo(
+        width * 0.68, height * 0.598,
+        width * 0.84, height * 0.545,
+        width * 1.04, height * 0.505
+      );
+      ctx.lineWidth = isLowPower ? 1.2 : 1.55;
+      ctx.strokeStyle = rgba(214, 232, 220, 0.72 + Math.sin(time * 0.37) * 0.03);
+      ctx.shadowColor = rgba(184, 210, 192, 0.28);
+      ctx.shadowBlur = isLowPower ? 8 : 14;
+      ctx.stroke();
+      ctx.restore();
 
-        const r = p.size * w;
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-        grad.addColorStop(0, hsla(p.hue + 4, p.sat, p.light + 10, p.alpha));
-        grad.addColorStop(p.feather, hsla(p.hue, p.sat, p.light, p.alpha * 0.62));
-        grad.addColorStop(1, hsla(p.hue - 8, p.sat, p.light - 16, 0));
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
-      }
+      ctx.save();
+      ctx.translate(-width * 0.012, height * 0.008);
+      ctx.scale(bloomScale, bloomScale);
+      ctx.fillStyle = rightBloom!;
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = rightBloomSoft!;
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
 
-      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = leftEdgeFeather!;
+      ctx.fillRect(0, 0, width * 0.18, height);
+      ctx.fillStyle = rightEdgeFeather!;
+      ctx.fillRect(width * 0.82, 0, width * 0.18, height);
 
-      // ── Static overlays (cached) ─────────────────────────────────────────
-      ctx.globalCompositeOperation = "screen";
-      ctx.fillStyle = gSweepA!;
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = gSweepB!;
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = gVig!;
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = gDarkWash!;
-      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = lowerShadow!;
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = vignette!;
+      ctx.fillRect(0, 0, width, height);
 
       ctx.restore();
     };
@@ -367,10 +477,8 @@ export default function MattsCustomBackground({
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener("resize", resize);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerleave", onPointerLeave);
     };
-  }, [blobCount, mouseRadius, mouseStrength]);
+  }, [blobCount]);
 
   return (
     <canvas
