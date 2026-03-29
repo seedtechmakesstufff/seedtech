@@ -26,7 +26,7 @@ export function HeroSection() {
     <section className="relative overflow-hidden bg-black">
       {/* Ambient satin-wave canvas background */}
       <div className="absolute inset-0 z-[1]">
-        <MattsCustomBackground blobCount={7} />
+        <MattsCustomBackground />
       </div>
 
       {/* Content layer */}
