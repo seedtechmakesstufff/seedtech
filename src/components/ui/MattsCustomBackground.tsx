@@ -19,10 +19,6 @@ const isMobile = typeof navigator !== "undefined"
   ? /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
   : false;
 
-function rgba(r: number, g: number, b: number, a: number) {
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
-}
-
 function smoothstep(t: number) {
   return t * t * (3 - 2 * t);
 }
@@ -47,104 +43,29 @@ function drift(time: number, seed: number) {
   return a * 0.56 + b * 0.29 + c * 0.15;
 }
 
-function drawCurveStroke(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  offsetY: number,
-  offsetX: number,
-  controlLift: number,
-  lineWidth: number,
-  color: string
-) {
-  ctx.beginPath();
-  ctx.moveTo(-width * 0.02 + offsetX, height * (0.8 + offsetY));
-  ctx.bezierCurveTo(
-    width * 0.24 + offsetX,
-    height * (0.34 + controlLift + offsetY),
-    width * 0.62 + offsetX,
-    height * (0.7 - controlLift * 0.65 + offsetY),
-    width * 1.02 + offsetX,
-    height * (0.56 + offsetY)
-  );
-  ctx.lineWidth = lineWidth;
-  ctx.strokeStyle = color;
-  ctx.stroke();
-}
-
 export default function MattsCustomBackground({
   className = "",
 }: MattsCustomBackgroundProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const atmosphereRef = useRef<HTMLDivElement>(null);
+  const lowerMassRef = useRef<HTMLDivElement>(null);
+  const upperMassRef = useRef<HTMLDivElement>(null);
+  const leftMassRef = useRef<HTMLDivElement>(null);
+  const rightMassRef = useRef<HTMLDivElement>(null);
+  const seamGroupRef = useRef<SVGGElement>(null);
+  const streakGroupRef = useRef<SVGGElement>(null);
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
-    if (!ctx) return;
-
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const lowPower = isSafari || isMobile;
 
-    let width = 0;
-    let height = 0;
-    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
-
-    let baseField: CanvasGradient | null = null;
-    let topAtmosphere: CanvasGradient | null = null;
-    let lowerFalloff: CanvasGradient | null = null;
-    let cornerVignette: CanvasGradient | null = null;
-
-    const rebuildStatics = () => {
-      baseField = ctx.createLinearGradient(0, 0, width, height);
-      baseField.addColorStop(0, "#030805");
-      baseField.addColorStop(0.2, "#06110a");
-      baseField.addColorStop(0.5, "#173923");
-      baseField.addColorStop(0.84, "#1f4f30");
-      baseField.addColorStop(1, "#0a180f");
-
-      topAtmosphere = ctx.createRadialGradient(
-        width * 0.5,
-        height * 0.16,
-        width * 0.05,
-        width * 0.5,
-        height * 0.16,
-        width * 0.88
-      );
-      topAtmosphere.addColorStop(0, rgba(94, 175, 119, 0.12));
-      topAtmosphere.addColorStop(0.3, rgba(58, 144, 84, 0.08));
-      topAtmosphere.addColorStop(0.7, rgba(31, 79, 48, 0.02));
-      topAtmosphere.addColorStop(1, rgba(0, 0, 0, 0));
-
-      lowerFalloff = ctx.createLinearGradient(0, height * 0.46, 0, height);
-      lowerFalloff.addColorStop(0, rgba(0, 0, 0, 0));
-      lowerFalloff.addColorStop(1, rgba(0, 0, 0, 0.42));
-
-      cornerVignette = ctx.createRadialGradient(
-        width * 0.52,
-        height * 0.5,
-        width * 0.2,
-        width * 0.52,
-        height * 0.5,
-        width * 0.96
-      );
-      cornerVignette.addColorStop(0, rgba(0, 0, 0, 0));
-      cornerVignette.addColorStop(1, rgba(0, 0, 0, 0.62));
-    };
-
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      baseField = null;
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
+    const layers = [
+      { ref: atmosphereRef, x: 6, y: 3, seedX: 1.7, seedY: 2.9 },
+      { ref: lowerMassRef, x: 12, y: 8, seedX: 4.3, seedY: 5.8 },
+      { ref: upperMassRef, x: 10, y: 6, seedX: 7.1, seedY: 8.4 },
+      { ref: leftMassRef, x: 7, y: 6, seedX: 10.6, seedY: 11.8 },
+      { ref: rightMassRef, x: 10, y: 8, seedX: 13.7, seedY: 14.9 },
+    ];
 
     let time = 0;
     let lastFrameTime = 0;
@@ -157,157 +78,204 @@ export default function MattsCustomBackground({
 
       const delta = Math.min(elapsed, 100) / 1000;
       lastFrameTime = timestamp - (elapsed % TARGET_INTERVAL_MS);
-
-      if (document.hidden || width === 0) return;
-      if (reducedMotion && time > 0) {
-        cancelAnimationFrame(rafRef.current);
-        return;
-      }
-
       time += delta;
 
-      ctx.save();
-      ctx.scale(dpr, dpr);
+      for (const layer of layers) {
+        const el = layer.ref.current;
+        if (!el) continue;
+        if (reducedMotion) {
+          el.style.transform = "translate3d(0px, 0px, 0)";
+          continue;
+        }
 
-      if (!baseField) rebuildStatics();
-
-      ctx.fillStyle = baseField!;
-      ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = topAtmosphere!;
-      ctx.fillRect(0, 0, width, height);
-
-      const seamOffsetX = drift(time, 1.7) * width * 0.018;
-      const seamOffsetY = drift(time, 3.1) * height * 0.014;
-      const controlLift = drift(time, 5.9) * 0.028;
-
-      // Main lower continuous mass.
-      const lowerMass = ctx.createRadialGradient(
-        width * 0.52 + drift(time, 8.2) * width * 0.03,
-        height * 0.84 + drift(time, 9.3) * height * 0.025,
-        width * 0.04,
-        width * 0.52,
-        height * 0.84,
-        width * 0.72
-      );
-      lowerMass.addColorStop(0, rgba(94, 175, 119, 0.17));
-      lowerMass.addColorStop(0.2, rgba(58, 144, 84, 0.12));
-      lowerMass.addColorStop(0.48, rgba(31, 79, 48, 0.07));
-      lowerMass.addColorStop(1, rgba(0, 0, 0, 0));
-      ctx.filter = lowPower ? "blur(24px)" : "blur(44px)";
-      ctx.fillStyle = lowerMass;
-      ctx.fillRect(-width * 0.12, height * 0.26, width * 1.24, height * 0.9);
-
-      // Upper ridge glow near the seam.
-      const upperMass = ctx.createRadialGradient(
-        width * 0.76 + drift(time, 11.4) * width * 0.028,
-        height * 0.36 + drift(time, 12.3) * height * 0.02,
-        width * 0.04,
-        width * 0.76,
-        height * 0.36,
-        width * 0.46
-      );
-      upperMass.addColorStop(0, rgba(94, 175, 119, 0.16));
-      upperMass.addColorStop(0.22, rgba(58, 144, 84, 0.1));
-      upperMass.addColorStop(0.55, rgba(31, 79, 48, 0.05));
-      upperMass.addColorStop(1, rgba(0, 0, 0, 0));
-      ctx.fillStyle = upperMass;
-      ctx.fillRect(-width * 0.08, height * 0.08, width * 1.18, height * 0.72);
-
-      // Left and right diffuse masses from the reference.
-      const leftMass = ctx.createRadialGradient(
-        width * 0.06 + drift(time, 15.6) * width * 0.02,
-        height * 0.94,
-        width * 0.02,
-        width * 0.06,
-        height * 0.94,
-        width * 0.34
-      );
-      leftMass.addColorStop(0, rgba(184, 210, 192, 0.1));
-      leftMass.addColorStop(0.34, rgba(127, 167, 140, 0.06));
-      leftMass.addColorStop(1, rgba(0, 0, 0, 0));
-      ctx.fillStyle = leftMass;
-      ctx.fillRect(-width * 0.04, height * 0.62, width * 0.42, height * 0.46);
-
-      const rightMass = ctx.createRadialGradient(
-        width * 0.94 + drift(time, 18.4) * width * 0.014,
-        height * 0.72 + drift(time, 19.7) * height * 0.02,
-        width * 0.03,
-        width * 0.94,
-        height * 0.72,
-        width * 0.38
-      );
-      rightMass.addColorStop(0, rgba(184, 210, 192, 0.22));
-      rightMass.addColorStop(0.32, rgba(127, 167, 140, 0.11));
-      rightMass.addColorStop(1, rgba(0, 0, 0, 0));
-      ctx.fillStyle = rightMass;
-      ctx.fillRect(width * 0.6, height * 0.32, width * 0.44, height * 0.8);
-
-      // Smeared bands that follow the seam.
-      ctx.globalCompositeOperation = lowPower ? "screen" : "lighter";
-      for (let i = 0; i < (lowPower ? 4 : 7); i++) {
-        const alpha = 0.05 - i * 0.005;
-        const blur = lowPower ? 10 + i * 2 : 16 + i * 3;
-        ctx.filter = `blur(${blur}px)`;
-        drawCurveStroke(
-          ctx,
-          width,
-          height,
-          seamOffsetY - 0.025 + i * 0.008 + drift(time + i * 0.6, 22 + i) * 0.003,
-          seamOffsetX + drift(time + i * 0.8, 31 + i) * width * 0.008,
-          controlLift + 0.01,
-          lowPower ? 8 - i * 0.8 : 13 - i,
-          rgba(184, 210, 192, Math.max(alpha, 0.01))
-        );
+        const x = drift(time, layer.seedX) * layer.x;
+        const y = drift(time, layer.seedY) * layer.y;
+        el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       }
 
-      // Main seam.
-      ctx.filter = lowPower ? "blur(10px)" : "blur(18px)";
-      drawCurveStroke(
-        ctx,
-        width,
-        height,
-        seamOffsetY,
-        seamOffsetX,
-        controlLift,
-        lowPower ? 7 : 10,
-        rgba(184, 210, 192, 0.11)
-      );
-
-      ctx.filter = "none";
-      drawCurveStroke(
-        ctx,
-        width,
-        height,
-        seamOffsetY,
-        seamOffsetX,
-        controlLift,
-        lowPower ? 1.3 : 1.6,
-        rgba(228, 238, 230, 0.74)
-      );
-
-      ctx.globalCompositeOperation = "source-over";
-      ctx.filter = "none";
-      ctx.fillStyle = lowerFalloff!;
-      ctx.fillRect(0, 0, width, height);
-      ctx.fillStyle = cornerVignette!;
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.restore();
+      const seam = seamGroupRef.current;
+      const streaks = streakGroupRef.current;
+      if (seam) {
+        const sx = reducedMotion ? 0 : drift(time, 17.4) * 10;
+        const sy = reducedMotion ? 0 : drift(time, 18.6) * 8;
+        seam.style.transform = `translate3d(${sx}px, ${sy}px, 0)`;
+      }
+      if (streaks) {
+        const sx = reducedMotion ? 0 : drift(time, 20.1) * 14;
+        const sy = reducedMotion ? 0 : drift(time, 21.3) * 10;
+        streaks.style.transform = `translate3d(${sx}px, ${sy}px, 0)`;
+      }
     };
 
     rafRef.current = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      window.removeEventListener("resize", resize);
-    };
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
+  const blurHeavy = isMobile ? "60px" : "95px";
+  const blurMedium = isMobile ? "34px" : "56px";
+  const blurLight = isMobile ? "18px" : "28px";
+  const streakCount = isSafari || isMobile ? 4 : 6;
+
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={rootRef}
       className={className}
-      style={{ width: "100%", height: "100%", display: "block", willChange: "transform" }}
-    />
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        overflow: "hidden",
+        background:
+          "linear-gradient(180deg, #030805 0%, #06110a 22%, #173923 58%, #1f4f30 84%, #0a180f 100%)",
+      }}
+    >
+      <div
+        ref={atmosphereRef}
+        style={{
+          position: "absolute",
+          inset: "-8%",
+          willChange: "transform",
+          background:
+            "radial-gradient(72% 48% at 50% 14%, rgba(94,175,119,0.18) 0%, rgba(58,144,84,0.11) 30%, rgba(31,79,48,0.04) 62%, rgba(0,0,0,0) 100%)",
+        }}
+      />
+
+      <div
+        ref={lowerMassRef}
+        style={{
+          position: "absolute",
+          left: "-8%",
+          bottom: "-18%",
+          width: "118%",
+          height: "78%",
+          borderRadius: "50%",
+          filter: `blur(${blurHeavy})`,
+          willChange: "transform",
+          background:
+            "radial-gradient(70% 78% at 52% 36%, rgba(94,175,119,0.18) 0%, rgba(58,144,84,0.12) 24%, rgba(31,79,48,0.08) 54%, rgba(0,0,0,0) 100%)",
+          opacity: lowPower ? 0.88 : 1,
+        }}
+      />
+
+      <div
+        ref={upperMassRef}
+        style={{
+          position: "absolute",
+          right: "-12%",
+          top: "8%",
+          width: "74%",
+          height: "46%",
+          borderRadius: "50%",
+          filter: `blur(${blurMedium})`,
+          willChange: "transform",
+          background:
+            "radial-gradient(76% 76% at 56% 46%, rgba(94,175,119,0.16) 0%, rgba(58,144,84,0.1) 26%, rgba(31,79,48,0.05) 58%, rgba(0,0,0,0) 100%)",
+          opacity: lowPower ? 0.82 : 0.94,
+        }}
+      />
+
+      <div
+        ref={leftMassRef}
+        style={{
+          position: "absolute",
+          left: "-8%",
+          bottom: "-6%",
+          width: "34%",
+          height: "40%",
+          borderRadius: "50%",
+          filter: `blur(${blurHeavy})`,
+          willChange: "transform",
+          background:
+            "radial-gradient(72% 76% at 50% 50%, rgba(184,210,192,0.12) 0%, rgba(127,167,140,0.07) 34%, rgba(0,0,0,0) 100%)",
+        }}
+      />
+
+      <div
+        ref={rightMassRef}
+        style={{
+          position: "absolute",
+          right: "-10%",
+          bottom: "-2%",
+          width: "40%",
+          height: "58%",
+          borderRadius: "50%",
+          filter: `blur(${blurHeavy})`,
+          willChange: "transform",
+          background:
+            "radial-gradient(74% 80% at 48% 44%, rgba(184,210,192,0.24) 0%, rgba(127,167,140,0.11) 34%, rgba(0,0,0,0) 100%)",
+        }}
+      />
+
+      <svg
+        viewBox="0 0 1000 600"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          overflow: "visible",
+        }}
+      >
+        <g
+          ref={streakGroupRef}
+          style={{ willChange: "transform", transformOrigin: "50% 50%" }}
+        >
+          {Array.from({ length: streakCount }).map((_, i) => (
+            <path
+              key={i}
+              d={`M -20 ${470 - i * 10} C 240 ${220 - i * 10}, 620 ${430 - i * 8}, 1020 ${320 - i * 6}`}
+              fill="none"
+              stroke="rgba(184,210,192,0.07)"
+              strokeWidth={14 - i * 2}
+              strokeLinecap="round"
+              style={{
+                filter: `blur(${Math.max(6, 18 - i * 2)}px)`,
+                mixBlendMode: "screen",
+              }}
+            />
+          ))}
+        </g>
+
+        <g
+          ref={seamGroupRef}
+          style={{ willChange: "transform", transformOrigin: "50% 50%" }}
+        >
+          <path
+            d="M -20 470 C 240 220, 620 430, 1020 320"
+            fill="none"
+            stroke="rgba(184,210,192,0.11)"
+            strokeWidth={10}
+            strokeLinecap="round"
+            style={{ filter: `blur(${blurLight})`, mixBlendMode: "screen" }}
+          />
+          <path
+            d="M -20 470 C 240 220, 620 430, 1020 320"
+            fill="none"
+            stroke="rgba(228,238,230,0.76)"
+            strokeWidth={1.7}
+            strokeLinecap="round"
+          />
+        </g>
+      </svg>
+
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(180deg, rgba(0,0,0,0) 44%, rgba(0,0,0,0.42) 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(80% 86% at 52% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.62) 100%)",
+        }}
+      />
+    </div>
   );
 }
