@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import { motion, type Transition } from "framer-motion";
-import { GradientOrb, FloatingOrb, GridPattern } from "@/components/kit";
 import { BodyLg } from "@/components/kit";
 import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
-import DotGrid from "@/components/ui/DotGrid";
+import MattsCustomBackground from "@/components/ui/MattsCustomBackground";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -25,45 +24,18 @@ const heroCards = [
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-dark-base">
-      {/* Background effects */}
-      <GradientOrb
-        color="seed"
-        size="xl"
-        className="top-0 left-1/4 -translate-y-1/3 opacity-20"
-      />
-      <GradientOrb
-        color="blue"
-        size="lg"
-        className="bottom-0 right-0 translate-y-1/3 opacity-15"
-      />
-      <FloatingOrb
-        color="cyan"
-        size="sm"
-        className="top-1/3 right-1/4 opacity-20"
-        delay={2}
-      />
-      <GridPattern />
-
-      {/* Interactive DotGrid background */}
+    <section className="relative overflow-hidden bg-black">
+      {/* Interactive liquid glass canvas — responds to mouse */}
       <div className="absolute inset-0 z-[1]">
-        <DotGrid
-          dotSize={4}
-          gap={14}
-          baseColor="#292929"
-          activeColor="#03820b"
-          proximity={120}
-          speedTrigger={10}
-          shockRadius={310}
-          shockStrength={3}
-          maxSpeed={5000}
-          resistance={750}
-          returnDuration={1.5}
+        <MattsCustomBackground
+          blobCount={7}
+          mouseStrength={0.18}
+          mouseRadius={0.28}
         />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 mx-auto max-w-6xl px-6 pt-36 pb-8 text-center w-full">
+      {/* Content — pointer-events-none so canvas receives hover, re-enabled on interactive children */}
+      <div className="relative z-10 mx-auto max-w-6xl px-6 pt-36 pb-8 text-center w-full pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto">
 
         {/* Liquid Glass service pills */}
         <motion.div

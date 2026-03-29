@@ -166,7 +166,7 @@ export async function auditSite(
 
 /* ── Helpers ── */
 
-function numericValue(audit: any): number | null {
+function numericValue(audit: { numericValue?: number | null } | null | undefined): number | null {
   if (!audit || audit.numericValue == null) return null;
   return Math.round(audit.numericValue * 100) / 100;
 }

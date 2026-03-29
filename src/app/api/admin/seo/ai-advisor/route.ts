@@ -11,6 +11,33 @@ import { getTrackedKeywords, getTrackedKeywordStrings, getSearchConsoleIntegrati
 import { getAIOAdvisorContext } from "@/lib/seo-aio";
 import { getAIVisibilityAdvisorContext } from "@/lib/ai-visibility";
 
+type SearchConsoleKeywordRow = {
+  keyword: string;
+  position: number;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+};
+
+type SearchConsolePageRow = {
+  page: string;
+  clicks: number;
+  impressions: number;
+  position: number;
+};
+
+type SearchConsolePayload = {
+  summary: {
+    totalClicks: number;
+    totalImpressions: number;
+    avgCtr: number;
+    avgPosition: number;
+    topKeywords: SearchConsoleKeywordRow[];
+    topPages: SearchConsolePageRow[];
+  };
+  trackedPositions: Record<string, number | null>;
+};
+
 /**
  * POST /api/admin/seo/ai-advisor
  *
@@ -103,7 +130,7 @@ ${JSON.stringify(strategyData, null, 2)}
 \`\`\``;
 
   if (searchConsoleData && !searchConsoleData.error) {
-    const sc = searchConsoleData as Record<string, any>;
+    const sc = searchConsoleData as SearchConsolePayload;
     dataBlock += `
 
 ## Live Search Console Data (last 28 days)
@@ -116,7 +143,7 @@ Average Position: ${sc.summary.avgPosition}
 ${sc.summary.topKeywords
   .slice(0, 15)
   .map(
-    (k: any) =>
+    (k) =>
       `- "${k.keyword}" — Position: ${k.position}, Clicks: ${k.clicks}, Impressions: ${k.impressions}, CTR: ${(k.ctr * 100).toFixed(1)}%`
   )
   .join("\n")}
@@ -130,7 +157,7 @@ ${Object.entries(sc.trackedPositions)
 ${sc.summary.topPages
   .slice(0, 10)
   .map(
-    (p: any) =>
+    (p) =>
       `- ${p.page} — Clicks: ${p.clicks}, Impressions: ${p.impressions}, Position: ${p.position}`
   )
   .join("\n")}`;
@@ -202,9 +229,10 @@ Be specific and actionable. Reference real data. Lead every section with AI-firs
       },
       generatedAt: new Date().toISOString(),
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: `Failed to generate analysis: ${err.message}` },
+      { error: `Failed to generate analysis: ${message}` },
       { status: 500 }
     );
   }

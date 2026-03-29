@@ -354,9 +354,10 @@ Return JSON:
     }
 
     return NextResponse.json({ result: contentResult });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: `Failed to generate content: ${err.message}` },
+      { error: `Failed to generate content: ${message}` },
       { status: 500 }
     );
   }

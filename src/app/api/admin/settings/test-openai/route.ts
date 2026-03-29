@@ -78,10 +78,11 @@ export async function POST(_req: NextRequest) {
       maskedKey,
       latencyMs: latency,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({
       status: "error",
-      message: `Connection failed: ${err.message}`,
+      message: `Connection failed: ${message}`,
       maskedKey,
       latencyMs: Date.now() - start,
     });

@@ -71,9 +71,10 @@ export async function GET(req: NextRequest) {
         });
       }
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to fetch data";
     return NextResponse.json(
-      { configured: true, error: err.message || "Failed to fetch data" },
+      { configured: true, error: message },
       { status: 500 }
     );
   }

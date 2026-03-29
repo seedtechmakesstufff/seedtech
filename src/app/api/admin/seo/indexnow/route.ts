@@ -39,9 +39,10 @@ export async function POST(req: NextRequest) {
       { error: "Provide { url } or { urls }" },
       { status: 400 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "IndexNow submission failed";
     return NextResponse.json(
-      { error: err.message || "IndexNow submission failed" },
+      { error: message },
       { status: 500 }
     );
   }

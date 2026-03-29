@@ -236,11 +236,12 @@ export async function testConnection(
       siteUrl,
       message: `Connected. Permission level: ${res.data.permissionLevel}`,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Connection failed";
     return {
       connected: false,
       siteUrl: integration?.property || process.env.GOOGLE_SEARCH_CONSOLE_SITE || "",
-      message: err.message || "Connection failed",
+      message,
     };
   }
 }
@@ -255,7 +256,8 @@ export async function listSites(
   try {
     const { searchconsole } = getClient(integration);
     const res = await searchconsole.sites.list();
-    return (res.data.siteEntry || []).map((s: any) => s.siteUrl || "");
+    const entries = (res.data.siteEntry || []) as Array<{ siteUrl?: string }>;
+    return entries.map((s) => s.siteUrl || "");
   } catch {
     return [];
   }

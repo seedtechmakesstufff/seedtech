@@ -40,9 +40,10 @@ export async function GET(req: NextRequest) {
       { error: "Provide ?url=... or ?audit=true" },
       { status: 400 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "PageSpeed analysis failed";
     return NextResponse.json(
-      { error: err.message || "PageSpeed analysis failed" },
+      { error: message },
       { status: 500 }
     );
   }
