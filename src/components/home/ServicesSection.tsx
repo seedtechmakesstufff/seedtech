@@ -9,14 +9,14 @@ const solutions = [
     icon: Globe,
     pill: "Web Development",
     pillVariant: "seed" as const,
-    title: "Websites That Drive Business",
+    title: "Websites That Support the Business",
     description:
-      "Custom-built websites engineered for performance, SEO, and conversion — built on a custom development pipeline.",
+      "Websites, ecommerce builds, and custom functionality designed to make your business easier to find, easier to understand, and easier to work with.",
     features: [
       "Custom websites & web applications",
-      "Conversion optimization",
-      "SEO foundation built in",
-      "Industry-specific designs",
+      "Ecommerce and quote flow improvements",
+      "Content systems your team can manage",
+      "Built around day-to-day business needs",
     ],
     cta: "Launch Your Website",
     href: "/services/web-development",
@@ -25,13 +25,13 @@ const solutions = [
     icon: Shield,
     pill: "Managed IT",
     pillVariant: "default" as const,
-    title: "Proactive Support + Protective Solutions",
+    title: "Reliable IT Support for Growing Businesses",
     description:
-      "Proactive IT management that keeps your infrastructure secure, compliant, and reducing downtime.",
+      "Proactive support, system monitoring, and day-to-day help for teams that need technology to stay dependable.",
     features: [
       "24/7 monitoring & help desk",
       "Data protection & backups",
-      "Cloud docs, email & computer backup",
+      "Clear per-user support model",
     ],
     cta: "Protect Your Business",
     href: "/services/managed-it",
@@ -43,9 +43,9 @@ export function ServicesSection() {
     <Section theme="light">
       <SectionHeader
         eyebrow="Services"
-        title="Two Services."
-        titleHighlight="One Solution."
-        description="Most businesses juggle separate vendors for their website and IT. We handle both — so your technology works together seamlessly."
+        title="One Team for"
+        titleHighlight="IT and Web Support"
+        description="Most small businesses end up juggling separate vendors for IT, website work, and ongoing support. SeedTech brings those pieces together so you have one reliable partner instead of constant handoffs."
         align="center"
         theme="light"
       />

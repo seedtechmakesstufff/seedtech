@@ -34,7 +34,7 @@ import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 export const metadata = {
   title: "Websites & Managed IT for Construction & Rigging Companies — SeedTech",
   description:
-    "SeedTech helps construction, rigging, and specialty trade companies win more trust, recruit faster, and keep operations running with high-performance websites and managed IT.",
+    "SeedTech helps construction companies improve website clarity, manage inbound requests more cleanly, and keep office-side technology more reliable.",
 };
 
 const stats = [
@@ -93,7 +93,7 @@ const faqs = [
   },
   {
     q: "How long does it take to launch?",
-    a: "Our AI-accelerated development pipeline lets us move significantly faster than traditional agencies. Most construction industry builds launch in 4–8 weeks depending on scope.",
+    a: "Timelines depend on scope, approvals, and how much content has to be organized, but our goal is to keep the project moving in a clear and practical way.",
   },
   {
     q: "Do you handle IT support for field teams?",
@@ -139,11 +139,11 @@ export default function ConstructionPage() {
                 <HardHat className="w-3.5 h-3.5 inline mr-1.5" />
                 Construction & Rigging
               </LiquidGlassPill>
-              <AnimatedH1 highlightWords={["Win More Trust"]} delay={0.15} className="text-left">
-                Construction Companies That Win More Trust — Before the First Meeting
+              <AnimatedH1 highlightWords={["Need Things to Work"]} delay={0.15} className="text-left">
+                Technology and Website Support for Construction Companies That Need Things to Work
               </AnimatedH1>
               <p className="mt-6 text-body-lg text-light-base/55 max-w-xl leading-relaxed">
-                Your website is the first thing serious buyers check before calling. SeedTech helps construction, rigging, and specialty trade companies build digital infrastructure that proves capability, attracts qualified labor, and keeps operations running — backed by proactive IT support and tech management.
+                Construction businesses do not need polished marketing talk. They need a website that shows capability clearly, a better way to handle inbound requests, and dependable technology support for the office side of the business. SeedTech helps small and mid-size construction companies keep things organized, credible, and easier to manage.
               </p>
             </div>
             {/* CTA block — pinned bottom-right on desktop */}
@@ -242,13 +242,13 @@ export default function ConstructionPage() {
           <div>
             <p className="text-body-sm font-medium text-seed-600 mb-3 uppercase tracking-widest">The Problem</p>
             <h2 className="font-display text-h2 text-dark-base leading-tight mb-6">
-              Most construction websites undersell the company behind them.
+              A lot of construction sites look fine but do not do much for the business.
             </h2>
             <p className="text-body text-dark-base/60 leading-relaxed mb-6">
-              Commercial buyers, GCs, and project owners are evaluating your company online before they ever call. They&apos;re looking for project proof, certifications, service area clarity, and signals that your operation is serious and reliable.
+              They bury proof of work, make quote requests harder than they should be, and leave office teams working around outdated systems.
             </p>
             <p className="text-body text-dark-base/60 leading-relaxed">
-              A generic website — one with stock images, a contact form, and a list of services — isn&apos;t doing that job. Your digital presence should work as hard as your crew does.
+              We help simplify that. The goal is to make the company easier to trust, easier to contact, and easier to run.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-5">
@@ -269,31 +269,31 @@ export default function ConstructionPage() {
       <Section>
         <SectionHeader
           eyebrow="Why Digital Infrastructure Matters"
-          title="Buyers validate"
-          titleHighlight="before they contact."
-          description="Modern commercial buyers don't call the first result they find. They cross-check multiple sources, watch video proof, look for certifications, and form a trust impression before anyone picks up the phone."
+          title="What Your Website and Support"
+          titleHighlight="Should Actually Do"
+          description="The goal is not more vendor talk. It is clearer proof, cleaner inbound requests, and support that helps the office side of the business run better."
           align="center"
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <GlassCard className="flex flex-col gap-4 p-8">
             <IconBox icon={Shield} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Trust System</h3>
+            <h3 className="font-display text-card-title text-white">Show Your Work Clearly</h3>
             <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Your website must communicate credibility, scale, safety, certifications, and proof before any conversation begins. 74% of buyers use multiple sources to validate a company.
+              Project pages, certifications, service areas, and company information should help buyers understand what you do without having to dig.
             </p>
           </GlassCard>
           <GlassCard className="flex flex-col gap-4 p-8">
             <IconBox icon={Users} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Recruiting System</h3>
+            <h3 className="font-display text-card-title text-white">Make Inquiries Easier to Manage</h3>
             <p className="text-body-sm text-light-base/55 leading-relaxed">
-              With 55% of construction leaders citing labor shortages as a growth barrier, your careers page is not optional. It needs to convert — with clear comp, culture signals, and a fast application flow.
+              Quote and estimate requests should capture the information your team actually needs, not just generate another vague contact form submission.
             </p>
           </GlassCard>
           <GlassCard className="flex flex-col gap-4 p-8">
             <IconBox icon={ClipboardList} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Intake System</h3>
+            <h3 className="font-display text-card-title text-white">Support the Office Behind the Field Work</h3>
             <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Bid requests, estimate inquiries, and RFQs should land in a structured flow — not a bare contact form. The right intake system qualifies prospects before you spend time on them.
+              We help keep the communication, devices, backups, and day-to-day support side of the business more reliable.
             </p>
           </GlassCard>
         </div>

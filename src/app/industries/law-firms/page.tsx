@@ -40,7 +40,7 @@ import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 export const metadata = {
   title: "Websites & Managed IT for Law Firms — SeedTech",
   description:
-    "SeedTech helps law firms convert more consultations, reduce intake friction, and secure daily operations with high-performance websites and managed IT.",
+    "SeedTech helps law firms improve follow-through with clearer websites, better intake flow, and more dependable day-to-day technology support.",
 };
 
 /* ── Data ───────────────────────────────────────────────────────────────────── */
@@ -78,8 +78,8 @@ const benefits = [
   },
   {
     icon: HeartHandshake,
-    title: "One Partner. Less Vendor Chaos.",
-    body: "Website, intake systems, IT support, email security, and backup — all managed by one team.",
+    title: "One Team, Fewer Handoffs",
+    body: "Website support, day-to-day technology help, and operational improvements are easier when one team understands the full picture.",
   },
   {
     icon: Lock,
@@ -161,7 +161,7 @@ const faqs = [
   },
   {
     q: "How long does it take to launch a new site?",
-    a: "Our AI-accelerated development pipeline moves significantly faster than traditional agencies. Most law firm website builds launch in 4–8 weeks depending on scope, number of practice areas, and integration complexity.",
+    a: "We scope projects clearly and keep them moving. Timelines depend on the number of pages, integrations, and approvals, but our goal is always to keep the process organized and practical.",
   },
   {
     q: "Do you work with firms that already have an IT provider?",
@@ -216,11 +216,11 @@ export default function LawFirmsPage() {
                 <Scale className="w-3.5 h-3.5 inline mr-1.5" />
                 Law Firms
               </LiquidGlassPill>
-              <AnimatedH1 highlightWords={["Intake System"]} delay={0.15} className="text-left">
-                Your Website Is Your Firm&apos;s Intake System — Not a Brochure
+              <AnimatedH1 highlightWords={["Better Follow-Through"]} delay={0.15} className="text-left">
+                Websites and Technology Support for Law Firms That Need Better Follow-Through
               </AnimatedH1>
               <p className="mt-6 text-body-lg text-light-base/55 max-w-xl leading-relaxed">
-                Most law firms don&apos;t have a traffic problem — they have an intake-friction problem. SeedTech builds the websites, intake systems, and technology infrastructure law firms need to convert more visitors into consultations, respond faster, and keep operations running securely.
+                Law firms do not need more vendor noise. They need a website that is clear and credible, better intake flow, and technology support they can rely on day to day. SeedTech helps small and mid-size firms reduce friction for new matters while keeping internal operations more dependable.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row lg:flex-col items-start gap-4 lg:items-end lg:shrink-0">
@@ -298,13 +298,13 @@ export default function LawFirmsPage() {
           <div>
             <p className="text-body-sm font-medium text-seed-600 mb-3 uppercase tracking-widest">The Problem</p>
             <h2 className="font-display text-h2 text-dark-base leading-tight mb-6">
-              Most law firm websites don&apos;t convert — they just exist.
+              Better follow-through matters more than more marketing language.
             </h2>
             <p className="text-body text-dark-base/60 leading-relaxed mb-6">
-              Prospective clients are evaluating your firm online before they ever call. They&apos;re looking for practice-area clarity, attorney credentials, client reviews, and a clear path to schedule a consultation — not a generic brochure with a stock photo of a gavel.
+              Most firms already know referrals and reputation matter. The issue is what happens after a potential client lands on the site or tries to reach the office. If the site is unclear, if intake is clunky, or if staff has to fight technology during the day, that friction adds up fast.
             </p>
             <p className="text-body text-dark-base/60 leading-relaxed">
-              Clio&apos;s 2025 data shows firms using digital intake tools — online forms, e-signatures, schedulers, and text messaging — report up to 53% higher revenue and 48% more leads. The issue isn&apos;t visibility. It&apos;s friction.
+              We help firms tighten the basics: clearer practice-area structure, easier contact paths, better follow-up flow, and more reliable support behind the scenes.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-5">

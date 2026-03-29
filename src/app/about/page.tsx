@@ -19,18 +19,18 @@ import {
 const values = [
   {
     icon: Heart,
-    title: "We Give a Damn",
-    body: "We're personally invested in every client's success. Your wins are our wins — and we treat every business like it's our own.",
+    title: "Straight Answers",
+    body: "We try to be clear about scope, timelines, and what will actually help. That matters more than overselling.",
   },
   {
     icon: Zap,
-    title: "Speed Without Shortcuts",
-    body: "Fast response times and quick turnarounds, but never at the expense of quality. We do things right the first time.",
+    title: "Responsive Support",
+    body: "When something needs attention, businesses need a team that responds and follows through.",
   },
   {
     icon: Users,
-    title: "Long-Term Partnerships",
-    body: "We don't disappear after launch. Our clients stay with us for years because we're always showing up and leveling up their tech.",
+    title: "Long-Term Reliability",
+    body: "Our goal is not to win a project and disappear. It is to become a dependable part of how your business runs.",
   },
 ];
 
@@ -60,11 +60,10 @@ export default function AboutPage() {
         <div className="relative z-10 mx-auto max-w-5xl px-6">
           <LiquidGlassPill variant="seed" className="mb-6">About SeedTech</LiquidGlassPill>
           <AnimatedH1 highlightWords={["SeedTech"]} className="mb-6 max-w-3xl">
-            The Team Behind SeedTech
+            A Reliable Technology Partner for Small and Mid-Size Businesses
           </AnimatedH1>
           <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed">
-            We&apos;re a tight-knit crew of engineers, designers, and strategists based in New Jersey —
-            passionate about helping businesses grow through technology done right.
+            SeedTech works with businesses that want fewer technology headaches, clearer communication, and a partner that stays involved. We support the systems companies rely on every day and build websites that are meant to help the business, not just decorate it.
           </p>
         </div>
       </section>
@@ -90,16 +89,13 @@ export default function AboutPage() {
               className="font-display text-heading md:text-title text-white mb-6"
               highlightWords={["Mean", "It"]}
             >
-              Built for Businesses That Mean It
+              Built to Be a Dependable Partner
             </AnimatedH2>
             <p className="text-body text-light-base/60 leading-relaxed mb-5">
-              SeedTech was founded with a simple idea: small and mid-sized businesses deserve the same
-              quality of technology support that enterprise companies get — without the enterprise price tag.
+              SeedTech was built around a simple idea: small and mid-size businesses should be able to get reliable support without juggling multiple vendors or chasing people down for answers.
             </p>
             <p className="text-body text-light-base/60 leading-relaxed mb-8">
-              We started by solving one problem at a time for local businesses in New Jersey. Now we support
-              over 200 companies across the country with managed IT and custom web development
-              that actually move the needle.
+              We work best when we can stay involved, understand how the business operates, and help make technology less disruptive day to day. That applies to both ongoing IT support and the websites and systems companies rely on to communicate and work.
             </p>
             <CheckList theme="dark" items={whatWeDo} />
           </div>
@@ -110,8 +106,7 @@ export default function AboutPage() {
                 <div>
                   <CardTitle className="mb-1">Proactive, Not Reactive</CardTitle>
                   <Body className="text-light-base/55">
-                    We monitor, patch, and protect your systems before problems reach you. Most issues
-                    are resolved before you ever know they existed.
+                    We want to catch issues early, keep systems maintained, and reduce the number of things your team has to react to during the workday.
                   </Body>
                 </div>
               </div>
@@ -122,8 +117,7 @@ export default function AboutPage() {
                 <div>
                   <CardTitle className="mb-1">Built to Convert</CardTitle>
                   <Body className="text-light-base/55">
-                    Every website we build is engineered for performance, SEO, and conversion —
-                    not just aesthetics. We measure success in leads and revenue, not page views.
+                    We build websites to support the business: clearer messaging, better next steps, and fewer gaps between the site and the way your team actually works.
                   </Body>
                 </div>
               </div>
@@ -155,7 +149,7 @@ export default function AboutPage() {
       <Section>
         <CTABanner
           title="Ready to Work With Us?"
-          description="Let's talk about your technology goals. No hard sell — just an honest conversation."
+          description="Let&apos;s talk about what your business needs and whether we&apos;re the right long-term fit."
           primaryLabel="Get a Free Quote"
           primaryHref="/contact"
           secondaryLabel="See Our Work"

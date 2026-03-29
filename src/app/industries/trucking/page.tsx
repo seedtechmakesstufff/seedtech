@@ -32,7 +32,7 @@ import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 export const metadata = {
   title: "Websites & Managed IT for Trucking & Logistics Companies — SeedTech",
   description:
-    "SeedTech helps trucking, freight, bulk hauling, and logistics companies build trust faster, recruit drivers more effectively, and streamline operations with high-performance websites and proactive IT support.",
+    "SeedTech helps trucking companies improve service-line clarity, clean up hiring and quote flows, and keep office technology more reliable.",
 };
 
 const stats = [
@@ -146,11 +146,11 @@ export default function TruckingPage() {
                 <Truck className="w-3.5 h-3.5 inline mr-1.5" />
                 Trucking & Logistics
               </LiquidGlassPill>
-              <AnimatedH1 highlightWords={["Trust Faster"]} delay={0.15} className="text-left">
-                Trucking & Logistics Companies That Build Trust Faster
+              <AnimatedH1 highlightWords={["Clarity and Reliability"]} delay={0.15} className="text-left">
+                Websites and IT Support for Trucking Companies That Need Clarity and Reliability
               </AnimatedH1>
               <p className="mt-6 text-body-lg text-light-base/55 max-w-xl leading-relaxed">
-                Shippers, brokers, and drivers evaluate your company online before they ever call. SeedTech helps trucking, freight, and logistics companies build websites that communicate capability clearly, recruit more effectively, and keep the technology running behind the scenes — from proactive IT support to secure communications and cloud backups.
+                Trucking companies need to communicate clearly with shippers, brokers, drivers, and internal staff. SeedTech helps small and mid-size operations improve the way they present services online, handle inquiries and recruiting, and keep office technology running reliably behind the scenes.
               </p>
             </div>
             {/* CTA block — pinned bottom-right on desktop */}
@@ -249,13 +249,13 @@ export default function TruckingPage() {
           <div>
             <p className="text-body-sm font-medium text-seed-600 mb-3 uppercase tracking-widest">The Problem</p>
             <h2 className="font-display text-h2 text-dark-base leading-tight mb-6">
-              Most trucking companies do specialized work but present themselves too generically online.
+              Many trucking companies do specialized work but present themselves too generally online.
             </h2>
             <p className="text-body text-dark-base/60 leading-relaxed mb-6">
-              If your website doesn&apos;t clearly communicate your lanes, equipment, load types, compliance record, and service lines — shippers and brokers move on to the next option. Generic &ldquo;we haul everything&rdquo; websites don&apos;t convert.
+              That creates confusion for the people you want to reach and extra work for the people already running the business.
             </p>
             <p className="text-body text-dark-base/60 leading-relaxed">
-              And with driver shortages impacting operations across every freight segment, your careers page is as important as your quote flow. SeedTech builds both.
+              We help make the operation easier to understand and easier to support, from service-line clarity on the website to dependable day-to-day technology help.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-5">
@@ -276,31 +276,31 @@ export default function TruckingPage() {
       <Section>
         <SectionHeader
           eyebrow="Why Digital Infrastructure Matters"
-          title="Your website needs to do"
-          titleHighlight="three things well."
-          description="Trucking and logistics buyers don't just browse — they validate. Build trust, generate load requests, and reduce recruiting friction all from the same digital presence."
+          title="What Your Website and Support"
+          titleHighlight="Should Actually Handle"
+          description="The goal is to communicate clearly, make inbound requests easier to manage, and reduce disruption on the office side of the business."
           align="center"
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <GlassCard className="flex flex-col gap-4 p-8">
             <IconBox icon={Shield} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Build Trust</h3>
+            <h3 className="font-display text-card-title text-white">Explain What You Actually Do</h3>
             <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Authority number, safety rating, permits, insurance, testimonials — organized and visible before anyone has to ask. Over 74% of buyers validate across multiple sources.
+              Your site should make service lines, equipment, locations, and capabilities clear quickly.
             </p>
           </GlassCard>
           <GlassCard className="flex flex-col gap-4 p-8">
             <IconBox icon={ClipboardList} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Generate Inquiries</h3>
+            <h3 className="font-display text-card-title text-white">Make Quote and Hiring Flows Easier</h3>
             <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Load requests, quote forms, and brokerage intake flows that capture the right information upfront — so your ops team can respond fast and qualify quickly.
+              Load requests and driver applications should be practical, mobile-friendly, and easier for your team to follow up on.
             </p>
           </GlassCard>
           <GlassCard className="flex flex-col gap-4 p-8">
             <IconBox icon={Users} variant="gradient" size="lg" />
-            <h3 className="font-display text-card-title text-white">Recruit Drivers</h3>
+            <h3 className="font-display text-card-title text-white">Keep the Office Side Dependable</h3>
             <p className="text-body-sm text-light-base/55 leading-relaxed">
-              Mobile-first driver applications, clear comp and home-time details, and careers pages built to convert — not just to exist. Driver recruiting is a business problem, not just an HR task.
+              Dispatch, accounting, email, files, and user support all matter. Reliable IT support helps reduce disruption where it actually hurts.
             </p>
           </GlassCard>
         </div>

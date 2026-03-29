@@ -6,9 +6,9 @@ import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill, CTABanner, Liqui
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata = {
-  title: "Technology & Websites for Medical Practices — SeedTech",
+  title: "Technology Support for Medical Practices — SeedTech",
   description:
-    "SeedTech builds patient-friendly websites, appointment integrations, and HIPAA-aware IT infrastructure for medical clinics and healthcare providers.",
+    "SeedTech helps medical practices improve reliability across email, devices, backups, websites, and day-to-day support with one accountable partner.",
 };
 
 export default function MedicalPage() {
@@ -16,7 +16,7 @@ export default function MedicalPage() {
     <div>
       <ServiceJsonLd
         name="IT Services for Medical Practices"
-        description="HIPAA-compliant managed IT, EHR integrations, telemedicine support, cybersecurity, and custom websites for medical practices and healthcare providers."
+        description="Reliable technology support, secure email, backups, website improvements, and day-to-day operational help for medical practices."
         url="https://seedtechllc.com/industries/medical"
       />
       <BreadcrumbJsonLd
@@ -36,12 +36,11 @@ export default function MedicalPage() {
             <Stethoscope className="w-3.5 h-3.5 inline mr-1.5" />
             Medical Practices
           </LiquidGlassPill>
-          <AnimatedH1 highlightWords={["Medical", "Practices"]} delay={0.15}>
-            Technology & Websites for Medical Practices
+          <AnimatedH1 highlightWords={["Reliability"]} delay={0.15}>
+            Technology Support for Medical Practices That Need Reliability
           </AnimatedH1>
           <p className="mt-6 text-body-lg text-light-base/55 max-w-2xl mx-auto leading-relaxed">
-            Healthcare providers need reliable technology to manage patient communications, protect sensitive data, and maintain a professional online presence.
-            SeedTech helps clinics and practices build secure digital infrastructure.
+            Medical practices depend on technology that works every day. Scheduling, email, devices, staff access, backups, and patient communication all have to stay dependable. SeedTech helps small and mid-size practices build a more reliable setup and maintain a professional online presence without juggling multiple vendors.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -65,17 +64,17 @@ export default function MedicalPage() {
       <Section>
         <SectionHeader
           eyebrow="What We Build"
-          title="Technology for Healthcare Providers"
-          description="Secure, reliable technology built around the unique compliance and operational needs of medical practices."
+          title="Practical Support for Daily Operations"
+          description="We focus on the systems medical practices rely on every day: communication, access, devices, website usability, and the basics that keep work moving."
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {[
-            { title: "Patient-Friendly Websites", body: "Clean, accessible websites that make it easy for patients to learn about your practice, find locations, and book appointments." },
-            { title: "Appointment Integrations", body: "Connect your website with scheduling platforms like Zocdoc, SimplePractice, or custom booking systems." },
-            { title: "HIPAA-Aware Infrastructure", body: "IT systems configured with patient data protection in mind — access controls, encrypted storage, and audit logging." },
-            { title: "Secure Email Systems", body: "Secure business email — through Microsoft 365 or Google Workspace — with encryption and access controls that keep patient communications protected." },
-            { title: "IT Support for Clinics", body: "Proactive monitoring and responsive help desk support for medical offices — so your team stays focused on patients, not technology." },
-            { title: "Cybersecurity & Compliance", body: "Security policies and technical controls that support your practice in meeting data protection and compliance requirements." },
+            { title: "Secure Business Email and User Access", body: "Reliable email, account access, and day-to-day user support for the people who keep the practice moving." },
+            { title: "Device Support for Office Staff", body: "Support for front desk and office devices so technology problems do not keep slowing down the team." },
+            { title: "Backup and Recovery Planning", body: "A more dependable backup approach so important information is protected and easier to recover if something goes wrong." },
+            { title: "Website Updates and Usability Improvements", body: "Clearer, simpler websites that make it easier for patients to find information and take the next step." },
+            { title: "Scheduling and Contact Path Improvements", body: "Cleaner inquiry and scheduling paths so patients are not guessing how to reach the practice." },
+            { title: "Ongoing Support From One Accountable Team", body: "One partner who stays involved instead of handing work off across multiple vendors." },
           ].map((item) => (
             <LiquidGlassCard key={item.title} className="p-6 flex flex-col gap-3">
               <CheckCircle2 className="w-5 h-5 text-seed-400" />
@@ -89,10 +88,10 @@ export default function MedicalPage() {
       {/* SEO Autopilot */}
       <Section theme="light">
         <SectionHeader
-          eyebrow="Built-In SEO"
-          title="Your website comes with an"
-          titleHighlight="SEO command center."
-          description="Every SeedTech site includes our proprietary SEO Autopilot system — live keyword rankings, AI-powered content generation, and automated search engine optimization. No agency retainer. No third-party subscriptions."
+          eyebrow="Website Fundamentals"
+          title="A Website Patients Can"
+          titleHighlight="Actually Use"
+          description="For most practices, the website does not need to be flashy. It needs to be clear, fast, mobile-friendly, and easy for patients to use."
           align="center"
           theme="light"
         />
@@ -100,33 +99,33 @@ export default function MedicalPage() {
           {[
             {
               icon: Search,
-              title: "Live Keyword Rankings",
-              body: "See where your practice ranks on Google for terms like \"dermatologist near me\" or \"primary care doctor Hopatcong NJ\" — updated in real time from Search Console.",
+              title: "Clear Provider and Service Information",
+              body: "Patients should be able to understand what you offer, who they are seeing, and where to go without digging.",
             },
             {
               icon: Brain,
-              title: "AI SEO Advisor",
-              body: "Ask any question — \"How do I rank for pediatric urgent care?\" — and get specific, data-backed recommendations using your actual traffic and ranking data.",
+              title: "Accurate Location and Contact Details",
+              body: "Address, hours, phone numbers, and location details need to be easy to find and kept current.",
             },
             {
               icon: FileText,
-              title: "AI Blog Writer",
-              body: "Generate SEO-optimized patient education content — procedure explainers, health tips, provider spotlights. Publish in minutes, not weeks.",
+              title: "Better Mobile Usability",
+              body: "A large share of patients will first interact with the site on a phone, so the basics need to work well there first.",
             },
             {
               icon: BarChart3,
-              title: "Performance Audits",
-              body: "One-click Core Web Vitals and PageSpeed audits. Know exactly what Google sees when it evaluates your site — and what to fix first.",
+              title: "Cleaner Appointment and Inquiry Paths",
+              body: "The next step should be obvious whether someone needs to call, request information, or use a scheduling workflow.",
             },
             {
               icon: Zap,
-              title: "Instant Indexing",
-              body: "New provider profile or service page? One click notifies search engines instantly via IndexNow — no waiting for crawlers to discover it.",
+              title: "Content Structure That Supports Visibility",
+              body: "Good search visibility starts with a site that is organized clearly and easy for both people and search engines to understand.",
             },
             {
               icon: Sparkles,
-              title: "Your Practice, Your Voice",
-              body: "The AI knows your specialties, providers, patient demographics, and compliance requirements. You control the business context that drives every recommendation.",
+              title: "Support That Stays Practical",
+              body: "We focus on the fundamentals first instead of layering on tools and marketing language that do not help the practice run better.",
             },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-black/[0.06] bg-white shadow-cardLight p-6 flex flex-col gap-3">
@@ -140,7 +139,7 @@ export default function MedicalPage() {
         </div>
         <div className="mt-10 max-w-3xl mx-auto text-center">
           <p className="text-body-sm text-dark-base/45 leading-relaxed">
-            Most medical practice websites are static brochures. Yours comes with a full SEO engine — keyword tracking that replaces $300/mo tools, an AI strategist that replaces agency retainers, and a content system that turns one keyword into a published article in minutes.
+            We focus on the fundamentals first. For medical practices, that usually matters more than adding another layer of marketing language or unnecessary features.
           </p>
         </div>
       </Section>
