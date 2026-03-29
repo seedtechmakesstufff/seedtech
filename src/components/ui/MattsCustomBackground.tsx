@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 interface MattsCustomBackgroundProps {
   className?: string;
+  blobCount?: number;
 }
 
 const TARGET_INTERVAL_MS = 1000 / 30;
