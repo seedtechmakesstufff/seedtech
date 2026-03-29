@@ -47,12 +47,28 @@ function rgba(r: number, g: number, b: number, a: number) {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-function wander(time: number, a: number, b: number, c: number, phase: number) {
-  return (
-    Math.sin(time * a + phase) * 0.58 +
-    Math.sin(time * b + phase * 1.7) * 0.28 +
-    Math.sin(time * c + phase * 2.3) * 0.14
-  );
+function smoothstep(t: number) {
+  return t * t * (3 - 2 * t);
+}
+
+function hash(n: number) {
+  const x = Math.sin(n * 127.1) * 43758.5453123;
+  return x - Math.floor(x);
+}
+
+function noise1D(time: number, seed: number) {
+  const i = Math.floor(time);
+  const f = time - i;
+  const a = hash(i + seed * 11.17);
+  const b = hash(i + 1 + seed * 11.17);
+  return a + (b - a) * smoothstep(f);
+}
+
+function drift(time: number, seed: number) {
+  const a = noise1D(time * 0.16, seed) * 2 - 1;
+  const b = noise1D(time * 0.071, seed + 13.2) * 2 - 1;
+  const c = noise1D(time * 0.031, seed + 29.4) * 2 - 1;
+  return a * 0.58 + b * 0.29 + c * 0.13;
 }
 
 function drawWavePath(
@@ -121,8 +137,6 @@ export default function MattsCustomBackground({
     let lowerMist: CanvasGradient | null = null;
     let rightBloom: CanvasGradient | null = null;
     let rightBloomSoft: CanvasGradient | null = null;
-    let leftEdgeFeather: CanvasGradient | null = null;
-    let rightEdgeFeather: CanvasGradient | null = null;
     let lowerShadow: CanvasGradient | null = null;
     let vignette: CanvasGradient | null = null;
 
@@ -193,16 +207,6 @@ export default function MattsCustomBackground({
       lowerMist.addColorStop(0, rgba(184, 210, 192, 0.11));
       lowerMist.addColorStop(0.38, rgba(127, 167, 140, 0.07));
       lowerMist.addColorStop(1, rgba(0, 0, 0, 0));
-
-      leftEdgeFeather = ctx.createLinearGradient(0, 0, width * 0.18, 0);
-      leftEdgeFeather.addColorStop(0, rgba(0, 0, 0, 0.16));
-      leftEdgeFeather.addColorStop(0.35, rgba(0, 0, 0, 0.05));
-      leftEdgeFeather.addColorStop(1, rgba(0, 0, 0, 0));
-
-      rightEdgeFeather = ctx.createLinearGradient(width * 0.82, 0, width, 0);
-      rightEdgeFeather.addColorStop(0, rgba(0, 0, 0, 0));
-      rightEdgeFeather.addColorStop(0.65, rgba(0, 0, 0, 0.05));
-      rightEdgeFeather.addColorStop(1, rgba(0, 0, 0, 0.15));
 
       rightBloom = ctx.createRadialGradient(
         width * 0.93,
@@ -292,9 +296,10 @@ export default function MattsCustomBackground({
       ctx.fillStyle = centerHaze!;
       ctx.fillRect(0, 0, width, height);
 
-      const seamGlide = wander(time, 0.23, 0.11, 0.051, 1.6) * width * 0.018;
-      const seamLift = wander(time, 0.17, 0.07, 0.031, 0.8) * height * 0.008;
-      const bloomScale = 1 + wander(time, 0.16, 0.06, 0.027, 2.4) * 0.026;
+      const seamGlide = drift(time, 1.6) * width * 0.016;
+      const seamLift = drift(time, 3.8) * height * 0.006;
+      const bloomOffsetX = drift(time, 5.3) * width * 0.018;
+      const bloomOffsetY = drift(time, 7.1) * height * 0.014;
 
       const waveColors = [
         [7, 17, 11],
@@ -305,39 +310,27 @@ export default function MattsCustomBackground({
       ];
 
       layers.forEach((layer, index) => {
-        const offsetX = wander(
-          time,
-          0.09 + layer.driftX,
-          0.043 + layer.driftX * 0.5,
-          0.019 + layer.driftX * 0.2,
-          layer.phase
-        ) * width * layer.driftX;
-        const offsetY = wander(
-          time,
-          0.07 + layer.driftY,
-          0.031 + layer.driftY * 0.4,
-          0.015 + layer.driftY * 0.2,
-          layer.phase * 1.2
-        ) * layer.driftY;
+        const offsetX = drift(time + index * 0.9, layer.phase) * width * layer.driftX;
+        const offsetY = drift(time + index * 1.4, layer.phase * 1.2) * layer.driftY;
         ctx.save();
         ctx.translate(offsetX, offsetY * height);
         drawWavePath(ctx, width, height, {
           ...layer,
           phase:
             layer.phase +
-            time * 0.028 * (index % 2 === 0 ? 1 : -0.62) +
-            Math.sin(time * 0.06 + index) * 0.12,
+            drift(time + index, layer.phase + 9.4) * 0.24 +
+            time * 0.01 * (index % 2 === 0 ? 1 : -0.4),
           baseY:
             layer.baseY -
-            Math.sin(time * (0.08 + index * 0.026)) * 0.008 -
-            Math.sin(time * 0.034 + index * 1.7) * 0.005,
+            drift(time + index * 1.1, layer.phase + 4.7) * 0.01 -
+            drift(time * 0.7 + index * 0.6, layer.phase + 12.8) * 0.004,
         }, time);
 
         const color = waveColors[Math.min(index, waveColors.length - 1)];
         ctx.clip();
 
         const softFill = ctx.createRadialGradient(
-          width * (0.34 + index * 0.09) + wander(time, 0.11, 0.047, 0.019, index + 0.5) * width * 0.035,
+          width * (0.34 + index * 0.09) + drift(time + index * 0.8, index + 0.5) * width * 0.03,
           height * (0.66 + index * 0.04),
           width * 0.04,
           width * (0.34 + index * 0.09),
@@ -396,8 +389,8 @@ export default function MattsCustomBackground({
       ctx.restore();
 
       const lowerBulge = ctx.createRadialGradient(
-        width * 0.28 + wander(time, 0.21, 0.09, 0.041, 0.7) * width * 0.018,
-        height * 0.86,
+        width * 0.28 + drift(time, 0.7) * width * 0.016,
+        height * 0.86 + drift(time, 2.9) * height * 0.01,
         width * 0.04,
         width * 0.28,
         height * 0.86,
@@ -451,18 +444,12 @@ export default function MattsCustomBackground({
       ctx.restore();
 
       ctx.save();
-      ctx.translate(-width * 0.012, height * 0.008);
-      ctx.scale(bloomScale, bloomScale);
+      ctx.translate(-width * 0.012 + bloomOffsetX, height * 0.008 + bloomOffsetY);
       ctx.fillStyle = rightBloom!;
       ctx.fillRect(0, 0, width, height);
       ctx.fillStyle = rightBloomSoft!;
       ctx.fillRect(0, 0, width, height);
       ctx.restore();
-
-      ctx.fillStyle = leftEdgeFeather!;
-      ctx.fillRect(0, 0, width * 0.18, height);
-      ctx.fillStyle = rightEdgeFeather!;
-      ctx.fillRect(width * 0.82, 0, width * 0.18, height);
 
       ctx.fillStyle = lowerShadow!;
       ctx.fillRect(0, 0, width, height);
