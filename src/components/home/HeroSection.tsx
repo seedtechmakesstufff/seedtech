@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, type Transition } from "framer-motion";
-import { BodyLg } from "@/components/kit";
+import { BodyLg, GradientText } from "@/components/kit";
 import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
 import MattsCustomBackground from "@/components/ui/MattsCustomBackground";
@@ -65,10 +65,21 @@ export function HeroSection() {
         />
 
         {/* Subline */}
-        <motion.div {...fadeUp(0.7)}>
-          <BodyLg className="mt-6 max-w-2xl mx-auto">
-            SeedTech builds and manages technology
-          </BodyLg>
+        <motion.div {...fadeUp(0.7)} className="mt-8 flex items-center justify-center gap-0 flex-wrap">
+          {[
+            { label: "Proactive Support" },
+            { label: "Better Websites" },
+            { label: "Less Stress" },
+          ].map(({ label }, i) => (
+            <span key={label} className="flex items-center">
+              <span className="px-5 py-1 text-body-lg md:text-subheading font-body font-semibold text-white tracking-tight">
+                {label}
+              </span>
+              {i < 2 && (
+                <span className="w-px h-5 bg-white/20 mx-1 shrink-0" />
+              )}
+            </span>
+          ))}
         </motion.div>
       </div>
 
