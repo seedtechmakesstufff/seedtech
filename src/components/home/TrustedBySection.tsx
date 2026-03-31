@@ -234,9 +234,9 @@ export function TrustedBySection() {
         <div className="mx-auto max-w-3xl px-6 text-center mb-16">
           <AnimatedH2
             className="font-display text-heading md:text-heading-lg text-white leading-[1.1]"
-            highlightWords={["Small", "Medium"]}
+            highlightWords={["Brands"]}
           >
-            Trusted by Small and Medium Businesses
+            Trusted by Brands
           </AnimatedH2>
           <p className="mt-5 text-body-lg text-white/50 leading-relaxed">
             We specialize in prioritizing and customizing what works best for your business

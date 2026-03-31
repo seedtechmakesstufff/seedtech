@@ -168,6 +168,14 @@ export default function SEODashboardPage() {
   const [contentIdeas, setContentIdeas] = useState<ContentIdeaData[]>([]);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
 
+  // Content calendar generation
+  const [calendarGenerating, setCalendarGenerating] = useState(false);
+  const [calendarResult, setCalendarResult] = useState<{ saved: number; skipped: number; total: number } | null>(null);
+
+  // Batch blog writer
+  const [batchWriting, setBatchWriting] = useState(false);
+  const [batchResult, setBatchResult] = useState<{ written: number; failed: number; total: number; posts: { title: string; slug: string; keyword: string }[] } | null>(null);
+
   // Setup status checklist
   const [setupSteps, setSetupSteps] = useState<{
     id: string; label: string; description: string;
@@ -205,6 +213,49 @@ export default function SEODashboardPage() {
       if (d.site) setSiteInfo(d.site);
     } catch {}
   }, []);
+
+  const generateCalendar = useCallback(async () => {
+    setCalendarGenerating(true);
+    setCalendarResult(null);
+    try {
+      const r = await fetch("/api/admin/seo/content-calendar/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ideaCount: 12 }),
+      });
+      const d = await r.json();
+      if (d.error) throw new Error(d.error);
+      setCalendarResult({ saved: d.saved, skipped: d.skipped, total: d.total });
+      // Refresh strategy data to show new ideas
+      fetchStrategy();
+    } catch (err) {
+      console.error("Calendar generation failed:", err);
+      setCalendarResult({ saved: 0, skipped: 0, total: 0 });
+    } finally {
+      setCalendarGenerating(false);
+    }
+  }, [fetchStrategy]);
+
+  const batchWritePosts = useCallback(async () => {
+    setBatchWriting(true);
+    setBatchResult(null);
+    try {
+      const r = await fetch("/api/admin/seo/blog-batch/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: 5, status: "draft" }),
+      });
+      const d = await r.json();
+      if (d.error) throw new Error(d.error);
+      setBatchResult({ written: d.written, failed: d.failed, total: d.total, posts: d.posts || [] });
+      fetchStrategy();
+    } catch (err) {
+      console.error("Batch blog write failed:", err);
+      setBatchResult({ written: 0, failed: 0, total: 0, posts: [] });
+    } finally {
+      setBatchWriting(false);
+    }
+  }, [fetchStrategy]);
 
   const fetchGscData = useCallback(async () => {
     setGscLoading(true);
@@ -1569,12 +1620,58 @@ export default function SEODashboardPage() {
               </div>
             </div>
 
-            {/* Content Calendar (keep as-is) */}
+            {/* Content Calendar */}
             <div className="bg-dark-elevated border border-white/[0.06] rounded-xl">
               <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-white flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" />Content Calendar</h2>
-                <Link href="/admin/blog/new" className="text-xs text-seed-400 hover:text-seed-300 flex items-center gap-1">New post <ArrowRight className="w-3 h-3" /></Link>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={generateCalendar}
+                    disabled={calendarGenerating || batchWriting}
+                    className="flex items-center gap-1.5 text-xs bg-seed-500/10 hover:bg-seed-500/20 text-seed-400 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {calendarGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    {calendarGenerating ? "Generating…" : "Generate 90-Day Plan"}
+                  </button>
+                  <button
+                    onClick={batchWritePosts}
+                    disabled={batchWriting || calendarGenerating || contentIdeas.filter(i => i.status === "idea").length === 0}
+                    className="flex items-center gap-1.5 text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                    title={contentIdeas.filter(i => i.status === "idea").length === 0 ? "No unpublished ideas to write" : `Write ${Math.min(5, contentIdeas.filter(i => i.status === "idea").length)} blog posts from ideas`}
+                  >
+                    {batchWriting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Pencil className="w-3.5 h-3.5" />}
+                    {batchWriting ? "Writing…" : "Write 5 Posts"}
+                  </button>
+                  <Link href="/admin/blog/new" className="text-xs text-seed-400 hover:text-seed-300 flex items-center gap-1">New post <ArrowRight className="w-3 h-3" /></Link>
+                </div>
               </div>
+              {calendarResult && (
+                <div className="px-5 py-2.5 bg-seed-500/5 border-b border-white/[0.04] flex items-center justify-between">
+                  <span className="text-xs text-seed-400">
+                    ✓ Generated {calendarResult.total} ideas — {calendarResult.saved} saved, {calendarResult.skipped} skipped (already existed)
+                  </span>
+                  <button onClick={() => setCalendarResult(null)} className="text-white/30 hover:text-white/50"><X className="w-3.5 h-3.5" /></button>
+                </div>
+              )}
+              {batchResult && (
+                <div className="px-5 py-2.5 bg-blue-500/5 border-b border-white/[0.04]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-blue-400">
+                      ✓ Wrote {batchResult.written}/{batchResult.total} blog posts as drafts{batchResult.failed > 0 ? ` (${batchResult.failed} failed)` : ""}
+                    </span>
+                    <button onClick={() => setBatchResult(null)} className="text-white/30 hover:text-white/50"><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                  {batchResult.posts.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {batchResult.posts.map((p) => (
+                        <Link key={p.slug} href={`/admin/blog`} className="text-[11px] bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded hover:bg-blue-500/20 transition-colors">
+                          {p.keyword}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="divide-y divide-white/[0.04] max-h-[32rem] overflow-y-auto">
                 {contentIdeas.map((item) => (
                   <div key={item.id} className="px-5 py-3">
