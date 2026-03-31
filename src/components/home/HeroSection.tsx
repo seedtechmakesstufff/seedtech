@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion, type Transition } from "framer-motion";
 import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
-import MattsCustomBackground from "@/components/ui/MattsCustomBackground";
+import LiquidEther from "@/components/ui/LiquidEther";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -24,9 +24,25 @@ const heroCards = [
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-black">
-      {/* Ambient satin-wave canvas background */}
-      <div className="absolute inset-0 z-[1]">
-        <MattsCustomBackground />
+      {/* Liquid Ether fluid background */}
+      <div className="absolute inset-0 z-[1] pointer-events-auto">
+        <LiquidEther
+          colors={['#5227FF', '#FF9FFC', '#B19EEF']}
+          mouseForce={20}
+          cursorSize={100}
+          isViscous
+          viscous={30}
+          iterationsViscous={32}
+          iterationsPoisson={32}
+          resolution={0.5}
+          isBounce={false}
+          autoDemo
+          autoSpeed={0.5}
+          autoIntensity={2.2}
+          takeoverDuration={0.25}
+          autoResumeDelay={3000}
+          autoRampDuration={0.6}
+        />
       </div>
 
       {/* Content layer */}
