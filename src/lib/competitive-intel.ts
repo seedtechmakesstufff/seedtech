@@ -389,3 +389,121 @@ export async function getCompetitorOverviews(siteId: string): Promise<Competitor
     };
   });
 }
+
+/* ── Keyword Gap Analysis ── */
+
+export interface KeywordGap {
+  keyword: string;
+  competitorDomain: string;
+  competitorUrl: string;
+  competitorHasCoverage: boolean;
+  weHaveCoverage: boolean;
+  gapType: "they-have-we-dont" | "we-have-they-dont" | "both-have";
+  opportunity: string;
+}
+
+/**
+ * Analyze keyword gaps between our site and competitors.
+ * Compares competitor page titles/headings against our tracked keywords and blog posts.
+ */
+export async function findKeywordGaps(siteId: string): Promise<KeywordGap[]> {
+  // Load our tracked keywords and published content
+  const [trackedKeywords, blogPosts, competitorAnalyses] = await Promise.all([
+    prisma.trackedKeyword.findMany({
+      where: { siteId, isActive: true },
+      select: { keyword: true, targetPage: true, tier: true },
+    }),
+    prisma.blogPost.findMany({
+      where: { siteId, status: "published" },
+      select: { title: true, slug: true, targetKeyword: true },
+    }),
+    prisma.competitorAnalysis.findMany({
+      where: { siteId },
+      include: { competitor: { select: { domain: true, name: true } } },
+      orderBy: { analyzedAt: "desc" },
+    }),
+  ]);
+
+  if (competitorAnalyses.length === 0) return [];
+
+  // Build a set of our covered topics (from tracked keywords + blog target keywords)
+  const ourKeywords = new Set(
+    [
+      ...trackedKeywords.map((k) => k.keyword.toLowerCase()),
+      ...blogPosts.map((p) => p.targetKeyword.toLowerCase()),
+    ].filter(Boolean)
+  );
+
+  const gaps: KeywordGap[] = [];
+  const seenTopics = new Set<string>();
+
+  // For each competitor page, extract topic signals and compare to our coverage
+  for (const analysis of competitorAnalyses) {
+    const competitorDomain = analysis.competitor?.domain || "unknown";
+
+    for (const topic of analysis.topicsDetected) {
+      const normalizedTopic = topic.toLowerCase().trim();
+      if (normalizedTopic.length < 3) continue;
+
+      const topicKey = `${competitorDomain}::${normalizedTopic}`;
+      if (seenTopics.has(topicKey)) continue;
+      seenTopics.add(topicKey);
+
+      // Check if any of our keywords are related to this topic
+      const weHaveIt = Array.from(ourKeywords).some((kw) =>
+        normalizedTopic.includes(kw) || kw.includes(normalizedTopic) ||
+        // Word overlap check (at least 2 shared words for longer phrases)
+        (() => {
+          const topicWords = normalizedTopic.split(/\s+/).filter((w) => w.length > 2);
+          const kwWords = kw.split(/\s+/).filter((w) => w.length > 2);
+          const overlap = topicWords.filter((w) => kwWords.includes(w));
+          return topicWords.length >= 2 && overlap.length >= 2;
+        })()
+      );
+
+      if (!weHaveIt) {
+        gaps.push({
+          keyword: topic,
+          competitorDomain,
+          competitorUrl: analysis.pageUrl,
+          competitorHasCoverage: true,
+          weHaveCoverage: false,
+          gapType: "they-have-we-dont",
+          opportunity: `${competitorDomain} covers "${topic}" (AI Vis: ${analysis.aiVisScore}) — we have no content on this topic`,
+        });
+      }
+    }
+  }
+
+  // Also find topics we cover that competitors don't (our advantages)
+  for (const kw of trackedKeywords) {
+    const competitorCovers = competitorAnalyses.some((a) =>
+      a.topicsDetected.some((t) => {
+        const tLower = t.toLowerCase();
+        const kwLower = kw.keyword.toLowerCase();
+        return tLower.includes(kwLower) || kwLower.includes(tLower);
+      })
+    );
+    if (!competitorCovers) {
+      gaps.push({
+        keyword: kw.keyword,
+        competitorDomain: "—",
+        competitorUrl: kw.targetPage,
+        competitorHasCoverage: false,
+        weHaveCoverage: true,
+        gapType: "we-have-they-dont",
+        opportunity: `We target "${kw.keyword}" (${kw.tier}) — no competitor coverage found. This is our advantage.`,
+      });
+    }
+  }
+
+  // Sort: their gaps first (opportunities), then our advantages
+  return gaps
+    .sort((a, b) => {
+      if (a.gapType !== b.gapType) {
+        return a.gapType === "they-have-we-dont" ? -1 : 1;
+      }
+      return 0;
+    })
+    .slice(0, 75);
+}

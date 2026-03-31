@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSiteContext, requireRole } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
-import { analyzeCompetitor, findContentGaps, getCompetitorOverviews } from "@/lib/competitive-intel";
+import { analyzeCompetitor, findContentGaps, findKeywordGaps, getCompetitorOverviews } from "@/lib/competitive-intel";
 
 /**
- * GET  /api/admin/seo/competitors/analysis — Get competitor overviews + content gaps
+ * GET  /api/admin/seo/competitors/analysis — Get competitor overviews + content gaps + keyword gaps
  * POST /api/admin/seo/competitors/analysis — Trigger analysis for a specific competitor
  */
 
@@ -13,12 +13,13 @@ export async function GET() {
   if (ctx instanceof NextResponse) return ctx;
   const { siteId } = ctx as SiteContext;
 
-  const [overviews, gaps] = await Promise.all([
+  const [overviews, gaps, keywordGaps] = await Promise.all([
     getCompetitorOverviews(siteId),
     findContentGaps(siteId),
+    findKeywordGaps(siteId),
   ]);
 
-  return NextResponse.json({ overviews, gaps });
+  return NextResponse.json({ overviews, gaps, keywordGaps });
 }
 
 export async function POST(req: NextRequest) {

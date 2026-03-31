@@ -49,6 +49,16 @@ interface CompetitorDomain {
   lastAnalyzed: string | null;
 }
 
+interface KeywordGap {
+  keyword: string;
+  competitorDomain: string;
+  competitorUrl: string;
+  competitorHasCoverage: boolean;
+  weHaveCoverage: boolean;
+  gapType: "they-have-we-dont" | "we-have-they-dont" | "both-have";
+  opportunity: string;
+}
+
 /* ── Grade Helpers ── */
 
 function scoreGrade(score: number): { grade: string; color: string } {
@@ -64,6 +74,7 @@ function scoreGrade(score: number): { grade: string; color: string } {
 export default function CompetitorsTab() {
   const [overviews, setOverviews] = useState<CompetitorOverview[]>([]);
   const [gaps, setGaps] = useState<ContentGap[]>([]);
+  const [keywordGaps, setKeywordGaps] = useState<KeywordGap[]>([]);
   const [competitors, setCompetitors] = useState<CompetitorDomain[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
@@ -71,6 +82,7 @@ export default function CompetitorsTab() {
   const [newDomain, setNewDomain] = useState("");
   const [newName, setNewName] = useState("");
   const [expandedGaps, setExpandedGaps] = useState(false);
+  const [expandedKeywordGaps, setExpandedKeywordGaps] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -83,6 +95,7 @@ export default function CompetitorsTab() {
       setCompetitors(compData.competitors || []);
       setOverviews(analysisData.overviews || []);
       setGaps(analysisData.gaps || []);
+      setKeywordGaps(analysisData.keywordGaps || []);
     } catch {
       /* silent */
     } finally {
@@ -404,6 +417,81 @@ export default function CompetitorsTab() {
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Keyword Gaps */}
+      {keywordGaps.length > 0 && (
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+          <button
+            onClick={() => setExpandedKeywordGaps(!expandedKeywordGaps)}
+            className="w-full px-5 py-4 border-b border-white/[0.06] flex items-center justify-between hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Swords className="w-5 h-5 text-seed-400" />
+              <div className="text-left">
+                <h2 className="text-sm font-semibold text-white">
+                  Keyword Gaps
+                  <span className="text-white/40 font-normal ml-2">({keywordGaps.length})</span>
+                </h2>
+                <p className="text-[10px] text-white/30 mt-0.5">
+                  Keywords where competitors have content and you don&apos;t — plus your advantages
+                </p>
+              </div>
+            </div>
+            {expandedKeywordGaps ? (
+              <ChevronUp className="w-4 h-4 text-white/30" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-white/30" />
+            )}
+          </button>
+
+          {expandedKeywordGaps && (
+            <div className="divide-y divide-white/[0.04] max-h-96 overflow-y-auto">
+              {keywordGaps.slice(0, 30).map((gap, i) => (
+                <div
+                  key={i}
+                  className="px-5 py-3 flex items-center gap-4 hover:bg-white/[0.02] transition-colors"
+                >
+                  <div
+                    className={cn(
+                      "w-2 h-2 rounded-full flex-shrink-0",
+                      gap.gapType === "they-have-we-dont"
+                        ? "bg-red-400"
+                        : gap.gapType === "we-have-they-dont"
+                        ? "bg-green-400"
+                        : "bg-blue-400"
+                    )}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white truncate">{gap.keyword}</p>
+                    <p className="text-xs text-white/30 truncate">{gap.opportunity}</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs flex-shrink-0">
+                    {gap.gapType === "they-have-we-dont" && (
+                      <span className="bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full">They have it</span>
+                    )}
+                    {gap.gapType === "we-have-they-dont" && (
+                      <span className="bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">Our advantage</span>
+                    )}
+                    {gap.competitorDomain !== "—" && (
+                      <span className="text-white/20">{gap.competitorDomain}</span>
+                    )}
+                  </div>
+                  {gap.competitorUrl && gap.competitorUrl.startsWith("http") && (
+                    <a
+                      href={gap.competitorUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/20 hover:text-seed-400 flex-shrink-0"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
                 </div>
               ))}
             </div>

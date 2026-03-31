@@ -17,8 +17,8 @@ import {
   getKeywordPerformance,
   getPagePerformance,
 } from "@/lib/google-search-console";
-import { getTrackedKeywords, getTrackedKeywordStrings, getSitePages } from "@/lib/site-data";
-import { buildStrategyPrompt } from "@/lib/business-context";
+import { getTrackedKeywords, getTrackedKeywordStrings, getSitePages, getSearchConsoleIntegration } from "@/lib/site-data";
+import { buildStrategyPrompt, getBusinessContextForSite } from "@/lib/business-context";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 
 /* ── Types ── */
@@ -80,18 +80,19 @@ export async function detectStalContent(siteId: string = DEFAULT_SITE_ID): Promi
 
 /* ── Keyword Cannibalization Detection ── */
 
-export async function detectCannibalization(_siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
+export async function detectCannibalization(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
-  if (!isSearchConsoleConfigured()) return insights;
+  const integration = await getSearchConsoleIntegration(siteId);
+  if (!isSearchConsoleConfigured(integration)) return insights;
 
   try {
     // Get page-level performance
-    const pages = await getPagePerformance(28, 50);
-    const keywords = await getKeywordPerformance(28, 200);
+    const pages = await getPagePerformance(28, 50, integration);
+    const keywords = await getKeywordPerformance(28, 200, integration);
 
     // Load tracked keywords from DB
-    const trackedKeywords = await getTrackedKeywords();
+    const trackedKeywords = await getTrackedKeywords(siteId);
 
     // Group: which keywords bring traffic to which pages?
     // If two pages rank for the same tracked keyword, that's cannibalization
@@ -234,8 +235,9 @@ export async function detectLinkingOpportunities(siteId: string = DEFAULT_SITE_I
     }
 
     // Check if high-value pages link to blog content
-    if (isSearchConsoleConfigured()) {
-      const pages = await getPagePerformance(28, 20);
+    const integration = await getSearchConsoleIntegration(siteId);
+    if (isSearchConsoleConfigured(integration)) {
+      const pages = await getPagePerformance(28, 20, integration);
       const topPages = pages.filter((p) => p.clicks > 5).slice(0, 5);
 
       if (topPages.length > 0 && posts.length > 0) {
@@ -337,13 +339,14 @@ export async function detectEEATIssues(siteId: string = DEFAULT_SITE_ID): Promis
 
 /* ── CTR Optimization Insights ── */
 
-export async function detectCTROpportunities(_siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
+export async function detectCTROpportunities(siteId: string = DEFAULT_SITE_ID): Promise<InsightData[]> {
   const insights: InsightData[] = [];
 
-  if (!isSearchConsoleConfigured()) return insights;
+  const integration = await getSearchConsoleIntegration(siteId);
+  if (!isSearchConsoleConfigured(integration)) return insights;
 
   try {
-    const keywords = await getKeywordPerformance(28, 100);
+    const keywords = await getKeywordPerformance(28, 100, integration);
 
     // High impressions + low CTR = opportunity to improve title/description
     const lowCTR = keywords.filter(
@@ -393,22 +396,24 @@ export async function detectCTROpportunities(_siteId: string = DEFAULT_SITE_ID):
 
 /* ── AI Keyword Discovery ── */
 
-export async function discoverKeywords(_siteId: string = DEFAULT_SITE_ID): Promise<{
+export async function discoverKeywords(siteId: string = DEFAULT_SITE_ID): Promise<{
   suggestions: string;
   keywords: { keyword: string; rationale: string; estimatedVolume: string; difficulty: string }[];
 }> {
   const apiKey = process.env.CLAUDE_API_KEY;
   if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
 
-  const businessContext = buildStrategyPrompt();
-  const kwStrings = await getTrackedKeywordStrings();
+  const businessCtx = await getBusinessContextForSite(siteId);
+  const businessContext = buildStrategyPrompt(businessCtx);
+  const kwStrings = await getTrackedKeywordStrings(siteId);
   const existingKeywords = kwStrings.join(", ");
 
   // Get current GSC data for context
   let gscContext = "";
-  if (isSearchConsoleConfigured()) {
+  const integration = await getSearchConsoleIntegration(siteId);
+  if (isSearchConsoleConfigured(integration)) {
     try {
-      const keywords = await getKeywordPerformance(28, 50);
+      const keywords = await getKeywordPerformance(28, 50, integration);
       gscContext = `\n\nCurrent top-performing keywords from Google Search Console:\n${keywords.slice(0, 20).map((k) => `- "${k.keyword}" (pos: ${k.position}, clicks: ${k.clicks}, impressions: ${k.impressions})`).join("\n")}`;
     } catch {
       // ignore
