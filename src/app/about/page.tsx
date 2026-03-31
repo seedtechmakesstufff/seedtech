@@ -2,20 +2,15 @@ import { buildMetadata } from "@/lib/page-metadata";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
-import { Shield, Globe, Zap, Heart, Users, Rocket, ShoppingCart, SquareTerminal, MonitorSmartphone, ArrowRight } from "lucide-react";
+import { Zap, Heart, Users, Rocket, ShoppingCart, SquareTerminal, MonitorSmartphone, ArrowRight } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
-  GradientOrb,
-  GridPattern,
   GlassCard,
   CardTitle,
   Body,
-  LiquidGlassPill,
   LiquidGlassCard,
   IconBox,
-  CheckList,
-  AnimatedH1,
   AnimatedH2,
 } from "@/components/kit";
 import { VideoLocationPill } from "@/components/about/VideoLocationPill";
@@ -50,14 +45,6 @@ const stats = [
   { value: "99.9%", label: "Uptime Delivered" },
   { value: "15+", label: "Years of Experience" },
   { value: "48hr", label: "Avg. Issue Resolution" },
-];
-
-const whatWeDo = [
-  "Managed IT support & monitoring",
-  "Custom web development",
-  "Cloud infrastructure & backups",
-  "Cybersecurity & endpoint protection",
-  "vCIO strategy consulting",
 ];
 
 export default function AboutPage() {

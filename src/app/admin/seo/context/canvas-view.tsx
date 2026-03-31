@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   ReactFlow,
   Background,
@@ -11,7 +11,6 @@ import {
   type Node,
   type Edge,
   type NodeChange,
-  type OnConnect,
   type NodeProps,
   Handle,
   Position,
@@ -430,7 +429,7 @@ function autoLayout(
 
 export default function CanvasView({
   nodes: contextNodes,
-  allPages,
+  allPages: _allPages,
   onEditNode,
   onLinkNode,
   onPositionsChange,

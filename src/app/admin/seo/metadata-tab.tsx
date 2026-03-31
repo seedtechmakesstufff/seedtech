@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Globe, Check, AlertTriangle, X, ChevronRight, Save, Loader2,
-  Eye, EyeOff, FileText, Image as ImageIcon, Link2, Tag, Search,
+  EyeOff, FileText, Image as ImageIcon, Link2, Tag, Search,
   Upload, Trash2, Sparkles, RotateCcw, Bug,
 } from "lucide-react";
 import Lottie from "lottie-react";

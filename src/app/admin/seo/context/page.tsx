@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Brain, Building2, Target, FileText, Save, Loader2, Check,
-  ChevronRight, Search, Globe, Pencil, X, Sparkles, Info,
-  Plus, Trash2, Tag, AlertTriangle, Wand2, Upload, Filter,
-  TrendingUp, TrendingDown, Minus, ArrowRight, Download,
+  Search, Globe, Pencil, X, Sparkles, Info,
+  Plus, Trash2, Tag, AlertTriangle, Wand2, Upload,
+  TrendingUp, TrendingDown, Minus, Download,
   BarChart3, MessageSquare, Crosshair, Compass, HelpCircle,
-  ChevronDown, ChevronUp, ExternalLink, Copy, Zap,
+  Copy, Zap,
   Boxes, Link2, Shield, Briefcase,
-  LayoutGrid, Network, Maximize2, Minimize2,
+  LayoutGrid, Network,
 } from "lucide-react";
 import Lottie from "lottie-react";
 import progressAnimation from "@/../public/lotties/progress.json";
@@ -3100,43 +3100,6 @@ function PreviewSection() {
           <p className="text-sm text-white/30">Select a page and click &quot;Generate Preview&quot; to see the full AI prompt</p>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   Shared Form Components
-   ═══════════════════════════════════════════════════════════════ */
-
-function FieldInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
-  return (
-    <div>
-      <label className="text-xs font-medium text-white/50 mb-1.5 block">{label}</label>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white focus:outline-none focus:border-seed-500/50"
-        placeholder={placeholder}
-      />
-    </div>
-  );
-}
-
-function FieldTextarea({ label, value, onChange, hint, rows = 3, placeholder }: { label: string; value: string; onChange: (v: string) => void; hint?: string; rows?: number; placeholder?: string }) {
-  return (
-    <div>
-      <label className="text-xs font-medium text-white/50 mb-1.5 flex items-center gap-2">
-        {label}
-        {hint && <span className="text-white/25 font-normal">{hint}</span>}
-      </label>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white focus:outline-none focus:border-seed-500/50 resize-none"
-        placeholder={placeholder}
-      />
     </div>
   );
 }
