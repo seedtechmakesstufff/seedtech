@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireSiteContext } from "@/lib/site-context";
 
@@ -227,6 +228,9 @@ export async function POST(req: NextRequest) {
         lastEditedBy: ctx.userId,
       },
     });
+
+    // Bust the static cache so the page regenerates with new metadata
+    revalidatePath(path);
 
     return NextResponse.json({ success: true, record });
   } catch (e: unknown) {

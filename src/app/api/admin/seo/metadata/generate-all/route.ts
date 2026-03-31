@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireSiteContext } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
 import { buildSeoContext } from "@/lib/seo-context";
@@ -232,6 +233,9 @@ export async function POST(req: NextRequest) {
             },
           });
           saved++;
+
+          // Bust static cache so page regenerates with new metadata
+          revalidatePath(page.path);
 
           // Track for differentiation
           if (parsed.title) {

@@ -3,7 +3,7 @@
 **Project:** SeedTech SEO Autopilot (bundled with web builds for local businesses)  
 **Stack:** Next.js 14.2 (App Router) · Prisma 7.5 · PostgreSQL (Neon) · Claude API · NextAuth · Tailwind  
 **Repo:** github.com/seedtechmakesstufff/seedtech (main branch)  
-**Last updated:** March 31, 2026
+**Last updated:** March 30, 2026
 
 ---
 
@@ -171,6 +171,7 @@ Built the full multi-tenant foundation:
 | `src/lib/ai-visibility.ts` | AI Visibility scoring engine (5 dimensions, 20+ checks) |
 | `src/lib/gsc-sync.ts` | GSC data sync engine (staleness-based, DB storage, TrackedKeyword updates) |
 | `src/lib/crawl-to-tasks.ts` | Crawl issue → SeoTask pipeline (30 templates, dedup, auto-resolve) |
+| `src/lib/page-metadata.ts` | Dynamic metadata bridge: DB → live page rendering (buildMetadata, resolveMetadata) |
 | `src/lib/citation-checker.ts` | Multi-platform automated citation checking |
 | `src/lib/citation-analytics.ts` | Citation trend analysis + score correlation |
 | `src/lib/seo-eeat.ts` | E-E-A-T auditing and scoring |
@@ -196,7 +197,7 @@ Built the full multi-tenant foundation:
 9. **Strategy** — Implementation roadmap tasks + content ideas calendar
 
 ### Prisma Models (key SEO ones)
-`Site` · `BusinessProfile` · `IndustryConfig` · `Author` · `ExperienceEvidence` · `BlogPost` · `SitePage` · `ContentScore` · `AIVisibilityScore` · `AICitation` · `CitationCheckRun` · `TrackedKeyword` · `KeywordCluster` · `ClusterSubtopic` · `InternalLinkSuggestion` · `ContentIdea` · `SeoTask` · `SeoSnapshot` · `SeoCrawlRun` · `SeoPageAudit` · `SeoInsight` · `CompetitorDomain` · `CompetitorAnalysis` · `SeoLeadEvent` · `CronJobRun` · `UserInvite` · `GscSyncLog` · `GscDailyKeyword` · `GscDailyPage`
+`Site` · `BusinessProfile` · `IndustryConfig` · `Author` · `ExperienceEvidence` · `BlogPost` · `SitePage` · `PageMetadata` · `PageContext` · `ContextNode` · `ContentScore` · `AIVisibilityScore` · `AICitation` · `CitationCheckRun` · `TrackedKeyword` · `KeywordCluster` · `ClusterSubtopic` · `InternalLinkSuggestion` · `ContentIdea` · `SeoTask` · `SeoSnapshot` · `SeoCrawlRun` · `SeoPageAudit` · `SeoInsight` · `CompetitorDomain` · `CompetitorAnalysis` · `SeoLeadEvent` · `CronJobRun` · `UserInvite` · `GscSyncLog` · `GscDailyKeyword` · `GscDailyPage`
 
 ### Week 1 Data Loop — GSC Sync + Crawl-to-Tasks + Dashboard Polish
 **Date:** March 31, 2026
@@ -298,6 +299,95 @@ Built the full multi-tenant foundation:
 | `seo_tasks` | 30 | Generated from crawl issues |
 | `tracked_keywords` | 18 | Aspirational targets (not yet matching GSC) |
 | `competitor_domains` | 3 | Dataprise ✓, Ntiva ✓, HIBU ✗ (deactivated) |
+
+---
+
+### UX Overhaul + Dynamic Metadata System
+**Date:** March 30, 2026  
+**Commit:** b8b7a39 (96 files, +14,067 / −869 lines)
+
+> User tested the SEO dashboard and found 4 critical UX problems. Fixed all 4, then discovered and fixed the root cause: admin metadata was never reaching live pages.
+
+#### Problem 1: Strategy Tab — Display-Only Tasks
+**Before:** Task list was read-only. No way to change status, navigate to fix, or mark complete.  
+**After:**
+- `toggleTaskStatus(taskId, currentStatus)` — cycles not-started → in-progress → done via API
+- Priority badges (critical/high/medium/low) with color coding
+- Source page links (click to see the page with the issue)
+- "Edit Metadata" fix buttons (navigates to metadata editor for the right page)
+- Filter tabs: All / Not Started / In Progress / Done
+- Progress bar: visual completion tracker
+- Auto-resolve indicator for tasks fixed by subsequent crawls
+
+#### Problem 2: Keywords Tab — Duplicated AI Context Keywords
+**Before:** Keywords tab showed a static table duplicating the AI Context page.  
+**After:** Replaced with summary cards:
+- Tier distribution (T1/T2/T3 counts)
+- GSC performance stats (avg position, total clicks/impressions)
+- "Manage Keywords" link to `/admin/seo/context?section=keywords`
+- Kept AI Keyword Discovery section for quick research
+
+#### Problem 3: Audit Tab — No Actions
+**Before:** Audit results were informational only — no way to act on findings.  
+**After:** Added "Action" column:
+- "Fix" button → navigates to metadata tab and opens the slide-out editor for that page
+- "Task" link → navigates to strategy tab filtered to that page's tasks
+- Cross-tab navigation via `open-metadata-editor` custom event
+
+#### Problem 4: Metadata Tab — Crawl Issue Disconnect
+**Before:** Metadata tab showed pages as "complete" while audit tab flagged issues on the same page.  
+**After:**
+- Fetches crawl issues on mount, builds per-path issue map
+- Bug icon with count badge on table rows that have crawl issues
+- Crawl issues warning panel inside slide-out editor (severity-coded: red/yellow/blue)
+- `open-metadata-editor` event listener for cross-tab navigation from audit/strategy tabs
+
+#### Root Cause Discovery: Metadata Never Rendered on Live Pages
+**The problem:** `PageMetadata` DB records stored what the admin wanted, but every page had hardcoded `export const metadata = {...}` in its source file. The DB was disconnected from rendering — the crawler saw hardcoded values, not admin values.
+
+**Solution — Dynamic Metadata System (`src/lib/page-metadata.ts`):**
+- `buildMetadata(path, defaults)` — Returns an async `generateMetadata()` function for Next.js
+  1. Reads `PageMetadata` from DB via `prisma.pageMetadata.findUnique()`
+  2. DB values override hardcoded defaults
+  3. Handles: title, description, ogTitle, ogDescription, ogImage, canonical, noIndex, noFollow, twitterCard
+- `resolveMetadata(path)` — Convenience for composing with other dynamic metadata
+- `getPageMetadataRecord(path)` — Raw DB record access for custom `generateMetadata` (used by `blog/[slug]`)
+
+**All 28 pages/layouts converted:**
+- Replaced `export const metadata: Metadata = {...}` → `export const generateMetadata = buildMetadata("/path", { fallbacks })`
+- `blog/[slug]` — Special case: merges DB overrides with blog post metadata via `getPageMetadataRecord()`
+- `terms-conditions` — Passes `noIndex: true` as fallback (DB can override)
+- Root `layout.tsx` and `admin/layout.tsx` kept static (site-wide defaults + admin area)
+
+**On-demand revalidation:**
+- `revalidatePath(path)` added to metadata save API (`POST /api/admin/seo/metadata`)
+- `revalidatePath(page.path)` added to bulk generate API (`POST /api/admin/seo/metadata/generate-all`)
+- Pages stay static (fast TTFB, good for SEO) but cache busts instantly when admin saves metadata
+
+#### The Full Loop Now Works:
+```
+Admin saves metadata → DB updated → revalidatePath() fired
+→ Next.js regenerates static page with new metadata
+→ Crawler sees updated metadata → Audit matches reality
+→ Strategy tasks auto-resolve when issues are fixed
+```
+
+#### Files Created/Modified
+| File | Action |
+|------|--------|
+| `src/lib/page-metadata.ts` | **NEW** — Dynamic metadata system (buildMetadata, resolveMetadata, getPageMetadataRecord) |
+| `src/app/api/admin/seo/metadata/route.ts` | Modified — added `revalidatePath()` after metadata save |
+| `src/app/api/admin/seo/metadata/generate-all/route.ts` | Modified — added `revalidatePath()` after each page's metadata generation |
+| `src/app/api/admin/seo/strategy/route.ts` | Modified — GET returns sourceType, sourceUrl, sourceCheckType, autoResolved |
+| `src/app/admin/seo/page.tsx` | **Heavily modified** — rebuilt Strategy, Audit, Keywords tabs; added toggleTaskStatus, getFixUrl |
+| `src/app/admin/seo/metadata-tab.tsx` | Modified — crawl issue integration, bug badges, cross-tab event listener |
+| 19 page files + 4 layout files | Converted from static `export const metadata` to dynamic `buildMetadata()` |
+
+#### Merge Resolution
+Merged 14 remote commits (hero WebGL, PublicShell refactor, industry/about copy updates, case studies, new UI components). Resolved 6 conflicts:
+- `about/page.tsx` — kept local redesign (hero image, statement, video, owner photos, service-link CTA) + remote's updated values copy
+- `industries/construction|law-firms|medical|trucking` — kept `buildMetadata()` wrapper + remote's refined descriptions
+- `globals.css` — kept ReactFlow canvas overrides + remote's trailing whitespace
 
 ---
 
