@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion, type Transition } from "framer-motion";
 import { LiquidGlassPill } from "@/components/kit";
 import { SplitTextReveal } from "@/components/kit";
-import LiquidEther from "@/components/ui/LiquidEther";
+import MattsCustomBackground from "@/components/ui/MattsCustomBackground";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -24,26 +24,13 @@ const heroCards = [
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-black">
-      {/* Liquid Ether fluid background */}
-      <div className="absolute inset-0 z-[1] pointer-events-auto">
-        <LiquidEther
-          colors={['#5227FF', '#FF9FFC', '#B19EEF']}
-          mouseForce={20}
-          cursorSize={100}
-          isViscous
-          viscous={30}
-          iterationsViscous={32}
-          iterationsPoisson={32}
-          resolution={0.5}
-          isBounce={false}
-          autoDemo
-          autoSpeed={0.5}
-          autoIntensity={2.2}
-          takeoverDuration={0.25}
-          autoResumeDelay={3000}
-          autoRampDuration={0.6}
-        />
+      {/* WebGL mesh gradient background */}
+      <div className="absolute inset-0 z-[1] pointer-events-none">
+        <MattsCustomBackground />
       </div>
+
+      {/* Subtle dark gradient scrim to keep text readable over the moving background */}
+      <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-b from-black/85 via-black/60 to-black/25" />
 
       {/* Content layer */}
       <div className="relative z-10 mx-auto max-w-6xl px-6 pt-36 pb-8 text-center w-full pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto">
@@ -66,12 +53,13 @@ export function HeroSection() {
 
         {/* Hero headline — word-by-word reveal */}
         <SplitTextReveal
-          text="Technology Infrastructure & Websites Built for High-Performance Businesses"
+          text="Tech Support & Websites Built for Small and Medium Businesses"
           as="h1"
           delay={0.25}
           stagger={0.06}
           duration={0.7}
-          highlightWords={["High-Performance"]}
+          highlightWords={["Small", "Medium"]}
+          highlightClass="bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-500 bg-clip-text text-transparent"
           className="font-display text-display leading-[1.05] text-white"
         />
 

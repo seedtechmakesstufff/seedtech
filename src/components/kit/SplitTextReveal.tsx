@@ -9,6 +9,8 @@ interface SplitTextRevealProps {
   className?: string;
   /** Words (exact match) that should be rendered with GradientText */
   highlightWords?: string[];
+  /** Optional Tailwind classes to apply to highlighted words instead of GradientText */
+  highlightClass?: string;
   /** Delay before the whole block starts (seconds). Default 0. */
   delay?: number;
   /** Per-word stagger (seconds). Default 0.06. */
@@ -43,6 +45,7 @@ export function SplitTextReveal({
   text,
   className,
   highlightWords = [],
+  highlightClass,
   delay = 0,
   stagger = 0.06,
   duration = 0.65,
@@ -64,7 +67,9 @@ export function SplitTextReveal({
       {words.map((word, i) => {
         const isHighlighted = highlightWords.includes(word);
         const inner = isHighlighted ? (
-          <GradientText>{word}</GradientText>
+          highlightClass
+            ? <span className={highlightClass}>{word}</span>
+            : <GradientText>{word}</GradientText>
         ) : (
           <>{word}</>
         );

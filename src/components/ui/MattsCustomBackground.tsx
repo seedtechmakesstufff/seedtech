@@ -9,79 +9,91 @@ const fragmentShaderSource = `
   uniform vec2 u_resolution;
   uniform float u_time;
 
-  // SeedTech Color Palette
-  vec3 c_trueBlack = vec3(0.0, 0.0, 0.0);
-  vec3 c_nearBlack = vec3(0.027, 0.067, 0.043);  // #07110B
-  vec3 c_darkForest = vec3(0.071, 0.192, 0.118); // #12311E
-  vec3 c_emerald = vec3(0.122, 0.310, 0.188);    // #1F4F30
-  vec3 c_brand = vec3(0.227, 0.565, 0.329);      // #3A9054
-  vec3 c_highlight = vec3(0.373, 0.659, 0.455);  // #5FA874
-  vec3 c_seam = vec3(0.788, 0.886, 0.820);       // #C9E2D1
+  // Exact color sampling adapted to SeedTech green palette
+  vec3 c_skyTop = vec3(0.027, 0.067, 0.043);  // Near Black
+  vec3 c_skyBot = vec3(0.071, 0.192, 0.118);  // Dark Forest
+  
+  // The Mesh Gradient Colors
+  vec3 c_light  = vec3(0.529, 0.667, 0.576);   // Soft haze green (Bottom Right)
+  vec3 c_main   = vec3(0.227, 0.565, 0.329);   // Brand Green (Center/Right)
+  vec3 c_dark   = vec3(0.000, 0.000, 0.000);   // True Black for deep fold shadow (Bottom Left)
+  vec3 c_accent = vec3(0.122, 0.310, 0.188);   // Deep Emerald (Mid Left)
+
+  vec3 c_seamTint = vec3(0.788, 0.886, 0.820); // Pale reflective tint
+
+  // The sweeping S-Curve
+  float getWave(float x, float t) {
+      return sin(x * 2.1 - t * 0.6) * 0.16 + cos(x * 1.2 + t * 0.4) * 0.14 + 0.55;
+  }
 
   void main() {
-    // Normalize coordinates
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    float aspect = u_resolution.x / u_resolution.y;
+    vec2 st = vec2(uv.x * aspect, uv.y);
     
-    // Fluid, oceanic animation time
-    float t = u_time * 0.4;
+    // Slow, drifting animation time
+    float t = u_time * 0.3;
 
-    // --- 1. THE SKY (Flat, clean background) ---
-    // Smooth gradient from highlight green to deep forest
-    vec3 sky = mix(c_highlight * 0.5, c_darkForest, uv.y + 0.1);
+    // --- 1. THE SKY ---
+    vec3 sky = mix(c_skyBot, c_skyTop, uv.y);
 
-    // --- 2. THE MAIN CREST LINE ---
-    // The sweeping S-curve that separates the background from the volumetric foreground
-    float w_main = sin(uv.x * 2.2 - t * 0.7) * 0.18 
-                 + cos(uv.x * 1.1 + t * 0.5) * 0.12 
-                 + 0.6;
-    float d_main = uv.y - w_main;
+    // --- 2. THE WAVE LINE ---
+    float wave_y = getWave(st.x, t);
+    float d = uv.y - wave_y; // Distance to the crest line
 
-    // --- 3. THE VOLUMETRIC OCEAN MASS (Color Meshing) ---
-    // Instead of stacking shapes, we create a base fluid and sweep massive gradients across it
-    vec3 ocean = c_brand * 0.8;
+    // --- 3. THE FLUID MESH GRADIENT (The "Beautiful Mess") ---
+    
+    // Drift paths for the massive color nodes
+    vec2 p_light = vec2(1.1 + sin(t*0.5)*0.2, -0.1 + cos(t*0.4)*0.15); // Anchored bottom-right
+    vec2 p_dark  = vec2(-0.1 + cos(t*0.3)*0.2, -0.2 + sin(t*0.5)*0.15); // Anchored bottom-left
+    vec2 p_main  = vec2(0.6 + sin(t*0.6)*0.3, 0.3 + cos(t*0.5)*0.2);    // Drifting center
+    vec2 p_accent= vec2(0.1 + cos(t*0.4)*0.2, 0.2 + sin(t*0.3)*0.1);    // Mid left
 
-    // Core shadow: Deepest right under the crest, fading smoothly downward
-    float core_shadow = smoothstep(0.02, -0.4, d_main);
-    ocean = mix(ocean, c_nearBlack, core_shadow * 0.9);
+    // Base weight/pull of each color node based on distance
+    float w_light = 1.0 / pow(distance(st, p_light) + 0.05, 2.5);
+    float w_dark  = 1.0 / pow(distance(st, p_dark) + 0.05, 2.5);
+    float w_main  = 1.0 / pow(distance(st, p_main) + 0.05, 2.2);
+    float w_accent= 1.0 / pow(distance(st, p_accent) + 0.05, 2.5);
 
-    // Bottom-Right Light Sweep (Mimicking the massive bright blur in the screenshot)
-    // uv.x - uv.y creates a diagonal gradient from bottom-left to top-right
-    float light_sweep = smoothstep(-0.2, 1.2, uv.x - uv.y * 1.2);
-    ocean = mix(ocean, c_highlight * 1.1, light_sweep * 0.65);
+    // --- THE MAGIC FIX: Volumetric Fold Injection ---
+    
+    // On the LEFT side, we inject a massive amount of True Black directly under the crest.
+    // Because it's injected into the mesh weights, it perfectly and organically bleeds out.
+    float left_fold = smoothstep(-0.4, 0.0, d) * smoothstep(0.8, 0.0, uv.x);
+    w_dark += left_fold * 25.0; // Overpower the left edge with deep shadow
 
-    // Bottom-Left Dark Sweep (Mimicking the massive dark blur in the screenshot)
-    // uv.x + uv.y creates a diagonal gradient from bottom-right to top-left
-    float dark_sweep = smoothstep(0.8, -0.2, uv.x + uv.y * 0.8);
-    ocean = mix(ocean, c_trueBlack, dark_sweep * 0.9);
+    // On the RIGHT side, we inject the Light green directly under the crest.
+    // This makes the right side flush with light and eliminates any "cutout" feeling entirely.
+    float right_glow = smoothstep(-0.4, 0.0, d) * smoothstep(0.2, 1.0, uv.x);
+    w_light += right_glow * 15.0;
 
-    // Fluid Meshing: Adds subtle organic ripples through the massive sweeps so it feels like liquid
-    float fluid_mesh = sin(uv.x * 3.0 - uv.y * 2.0 - t * 0.6) * 0.5 + 0.5;
-    ocean = mix(ocean, c_emerald, fluid_mesh * 0.4);
+    // Calculate the final bleeding liquid color
+    float total_w = w_light + w_dark + w_main + w_accent;
+    vec3 ocean = (c_light * w_light + c_dark * w_dark + c_main * w_main + c_accent * w_accent) / total_w;
 
     // --- 4. COMPOSITING ---
-    // A very slightly softened edge (0.005) prevents the harsh "vector" look 
-    // and makes it feel more like a 3D depth-of-field transition
-    float wave_mask = smoothstep(0.005, -0.005, d_main);
-    vec3 color = mix(sky, ocean, wave_mask);
+    // Smooth, razor-sharp cut between the sky and the messy fluid body
+    float mask = smoothstep(0.003, -0.003, d);
+    vec3 final_color = mix(sky, ocean, mask);
 
-    // --- 5. THE REFLECTIVE SEAM ---
-    // Focus the brightest part of the reflection on the right side
-    float seam_taper = smoothstep(0.1, 1.0, uv.x); 
+    // --- 5. THE RAZOR SEAM ---
+    // The crisp line sweeping across the wave
+    float seam_core = smoothstep(0.004, 0.0, abs(d));
+    float seam_glow = smoothstep(0.03, 0.0, abs(d)); // Soft bloom bleeding off the line
     
-    // Core bright line (slightly thicker to feel like glass rather than a laser)
-    float seam_core = smoothstep(0.006, 0.0, abs(d_main));
-    color += c_seam * seam_core * seam_taper * wave_mask * 0.9;
+    // Fade the line out gently as it goes left, so the shadow left side stays thick
+    float seam_taper = smoothstep(0.1, 0.9, uv.x);
     
-    // The downward cast/glow of the seam into the fluid body
-    float seam_cast = smoothstep(0.0, -0.15, d_main) * smoothstep(-0.2, 0.0, d_main);
-    color += c_highlight * seam_cast * seam_taper * wave_mask * 0.7;
+    // Add the glowing line over everything
+    final_color += c_seamTint * seam_core * seam_taper * mask;
+    final_color += c_light * seam_glow * seam_taper * mask * 0.7;
 
-    // --- FINISHING TOUCHES ---
-    // Subtle noise/dither to entirely eliminate color banding in smooth gradients
+    // --- 6. DITHERING ---
+    // Erases ugly banding to keep the colors perfectly smooth
     float noise = fract(sin(dot(uv.xy, vec2(12.9898, 78.233))) * 43758.5453);
-    color += (noise - 0.5) * 0.015;
+    final_color += (noise - 0.5) * 0.015;
 
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(final_color, 1.0);
   }
 `;
 
@@ -160,7 +172,7 @@ export default function MattsCustomBackground() {
     const startTime = performance.now();
 
     const render = (now: number) => {
-      const elapsedTime = (now - startTime) * 0.00025;
+      const elapsedTime = (now - startTime) * 0.001;
       gl.uniform1f(timeLocation, elapsedTime);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       animationFrameId = requestAnimationFrame(render);
