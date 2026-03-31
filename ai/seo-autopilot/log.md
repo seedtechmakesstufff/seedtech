@@ -464,6 +464,76 @@ Merged 14 remote commits (hero WebGL, PublicShell refactor, industry/about copy 
 
 ---
 
+### Week 3 — Analysis Depth
+**Commit:** c8cd5f9 (4 files, +233/−21 lines)
+
+> Fix insights to use site-scoped GSC credentials + add keyword gap analysis.
+
+#### W3-A — Insight Detector GSC Fixes (`src/lib/seo-insights.ts`)
+**Critical bug found and fixed:** All 4 GSC-dependent insight detectors were calling GSC functions without site-scoped integration credentials. They used the env-only `isSearchConsoleConfigured()` check and called `getKeywordPerformance()` / `getPagePerformance()` without passing the integration object.
+
+**Functions fixed:**
+- `detectCannibalization(siteId)` — Now loads integration via `getSearchConsoleIntegration(siteId)`, passes it to `getKeywordPerformance()`
+- `detectCTROpportunities(siteId)` — Same fix: loads integration, passes to `getKeywordPerformance()`
+- `discoverKeywords(siteId)` — Loads integration + business context, passes to `getKeywordPerformance()`. Also fixed missing `siteId` param for `getTrackedKeywordStrings()`
+- `detectLinkingOpportunities(siteId)` — GSC section now loads integration, passes to `getPagePerformance()`. Fixed missing `siteId` for `getTrackedKeywords()`
+
+**Import changes:** Added `getSearchConsoleIntegration`, `getBusinessContextForSite`; removed unused `SearchConsoleIntegration` type
+
+#### W3-B — Keyword Gap Analysis (`src/lib/competitive-intel.ts`)
+**New function:** `findKeywordGaps(siteId)` — Compares competitor analysis topics against our tracked keywords + published blog posts.
+
+**Logic:**
+1. Loads all competitor analyses, tracked keywords, and published blog posts
+2. For each competitor topic: checks substring match and word-overlap (≥2 shared words) against our keywords
+3. Topics we don't cover → `gapType: "they-have-we-dont"` with competitor URL and AI Vis score
+4. Keywords we track but no competitor covers → `gapType: "we-have-they-dont"` (our advantage)
+5. Returns capped at 75 gaps, sorted with opportunities first
+
+**New interface:** `KeywordGap { keyword, competitorDomain, competitorUrl, competitorHasCoverage, weHaveCoverage, gapType, opportunity }`
+
+#### W3-C — API Update (`/api/admin/seo/competitors/analysis`)
+- GET handler now calls `findKeywordGaps(siteId)` alongside existing `getCompetitorOverviews` + `getCompetitorGaps`
+- Returns `{ overviews, gaps, keywordGaps }`
+
+#### W3-D — Competitors Tab UI (`competitors-tab.tsx`)
+- Added `KeywordGap` interface + state + expandable panel
+- Color-coded dots: 🔴 `they-have-we-dont`, 🟢 `we-have-they-dont`, 🔵 `both-have`
+- Badges: "They have it" / "Our advantage"
+- Opportunity descriptions with competitor domain labels
+- External links to competitor pages
+
+#### W3-E — Build Fix
+- `[...ourKeywords]` → `Array.from(ourKeywords)` for Set iteration (tsconfig compat)
+
+---
+
+### Testing Results (March 30, 2026)
+
+Automated test suite: `scripts/test-week2-3.py` — 5/5 PASS
+
+#### Week 2 Results
+| Test | Status | Details |
+|------|--------|---------|
+| **2A Content Calendar** | ✅ PASS | 12 ideas generated, 5 saved, 7 skipped (from prior test run) |
+| **2B Calendar Dedup** | ✅ PASS | 6 ideas generated, 6/6 skipped — dedup working perfectly |
+| **2C Batch Blog Writer** | ✅ PASS | 2 posts written, 0 failed. 1,811 + 1,913 words |
+
+Sample posts:
+- "Break-Fix vs Managed IT: Why Northern NJ Businesses Are Making the Switch in 2025" (1,811 words)
+- "How to Choose an MSP: The Complete Guide for NJ Business Owners (2025)" (1,913 words)
+
+#### Week 3 Results
+| Test | Status | Details |
+|------|--------|---------|
+| **3A SEO Insights** | ✅ PASS | 4 insights: ctr_optimization, eeat_issue, internal_linking, keyword_opportunity |
+| **3B Competitor Gaps** | ✅ PASS | 2 overviews, 50 content gaps, 75 keyword gaps (all they-have-we-dont) |
+
+Sample insight: "[eeat_issue] /blog has 4 E-E-A-T issue(s) (1 critical) — No outbound links to authoritative sources"
+Sample gap: "[they-have-we-dont] 'SEO vs GEO vs AEO vs AIO: How They Differ' — hibu.com covers this topic (AI Vis: 15)"
+
+---
+
 ## What's Next
 
 ### Phase 8: Content Pipeline Maturity
