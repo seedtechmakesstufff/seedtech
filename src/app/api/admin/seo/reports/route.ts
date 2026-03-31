@@ -4,7 +4,7 @@ import type { SiteContext } from "@/lib/site-context";
 import { previewReport, sendReport, buildReportData } from "@/lib/seo-reports";
 import type { ReportPeriod } from "@/lib/seo-reports";
 
-const VALID_PERIODS = ["weekly", "monthly", "quarterly", "yearly"] as const;
+const VALID_PERIODS = ["weekly", "monthly"] as const;
 
 export async function GET(req: Request) {
   const ctx = await requireSiteContext();

@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 
 /* ── Types ── */
 
-type Period = "weekly" | "monthly" | "quarterly" | "yearly";
+type Period = "weekly" | "monthly";
 
 interface ReportData {
   period: string;
@@ -57,6 +57,7 @@ interface ReportPref {
   email: string;
   dayOfWeek: number;
   dayOfMonth: number;
+  hourOfDay: number;
   enabled: boolean;
   lastSentAt: string | null;
 }
@@ -66,8 +67,6 @@ interface ReportPref {
 const PERIODS: { value: Period; label: string; icon: typeof Calendar }[] = [
   { value: "weekly", label: "Weekly", icon: Calendar },
   { value: "monthly", label: "Monthly", icon: Calendar },
-  { value: "quarterly", label: "Quarterly", icon: Calendar },
-  { value: "yearly", label: "Yearly", icon: Calendar },
 ];
 
 function healthColor(score: number) {
@@ -115,6 +114,9 @@ export default function SEOReportsPage() {
   const [prefFreq, setPrefFreq] = useState<Period>("monthly");
   const [prefEmail, setPrefEmail] = useState("");
   const [prefEnabled, setPrefEnabled] = useState(true);
+  const [prefDayOfWeek, setPrefDayOfWeek] = useState(1);   // 0=Sun..6=Sat
+  const [prefDayOfMonth, setPrefDayOfMonth] = useState(1); // 1-28
+  const [prefHourOfDay, setPrefHourOfDay] = useState(8);   // 0-23 UTC
   const [prefSaving, setPrefSaving] = useState(false);
 
   const fetchReport = useCallback(async (p: Period) => {
@@ -147,6 +149,9 @@ export default function SEOReportsPage() {
           setPrefFreq(p.frequency);
           setPrefEmail(p.email);
           setPrefEnabled(p.enabled);
+          setPrefDayOfWeek(p.dayOfWeek ?? 1);
+          setPrefDayOfMonth(p.dayOfMonth ?? 1);
+          setPrefHourOfDay(p.hourOfDay ?? 8);
         }
       })
       .catch(() => {});
@@ -180,6 +185,9 @@ export default function SEOReportsPage() {
           frequency: prefFreq,
           email: prefEmail,
           enabled: prefEnabled,
+          dayOfWeek: prefDayOfWeek,
+          dayOfMonth: prefDayOfMonth,
+          hourOfDay: prefHourOfDay,
         }),
       });
       const json = await res.json();
@@ -201,7 +209,7 @@ export default function SEOReportsPage() {
             SEO Reports
           </h1>
           <p className="text-sm text-white/40 mt-1">
-            Performance snapshots across weekly, monthly, quarterly, and yearly periods.
+            Performance snapshots across weekly and monthly periods.
           </p>
         </div>
 
@@ -292,7 +300,8 @@ export default function SEOReportsPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Frequency */}
             <div>
               <label className="block text-xs text-white/40 mb-1">Frequency</label>
               <select
@@ -301,11 +310,11 @@ export default function SEOReportsPage() {
                 className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
               >
                 <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly (default)</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
+                <option value="monthly">Monthly</option>
               </select>
             </div>
+
+            {/* Deliver To */}
             <div>
               <label className="block text-xs text-white/40 mb-1">Deliver To</label>
               <input
@@ -316,23 +325,69 @@ export default function SEOReportsPage() {
                 className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
               />
             </div>
-            <div className="flex items-end">
-              <button
-                onClick={handleSavePrefs}
-                disabled={prefSaving}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium bg-seed-500 hover:bg-seed-600 text-white rounded-lg transition-colors disabled:opacity-50"
+
+            {/* Day picker — conditional on frequency */}
+            {prefFreq === "weekly" ? (
+              <div>
+                <label className="block text-xs text-white/40 mb-1">Day of Week</label>
+                <select
+                  value={prefDayOfWeek}
+                  onChange={(e) => setPrefDayOfWeek(Number(e.target.value))}
+                  className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
+                >
+                  {["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].map((d, i) => (
+                    <option key={i} value={i}>{d}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-xs text-white/40 mb-1">Day of Month</label>
+                <select
+                  value={prefDayOfMonth}
+                  onChange={(e) => setPrefDayOfMonth(Number(e.target.value))}
+                  className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
+                >
+                  {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                    <option key={d} value={d}>{d}{d === 1 ? "st" : d === 2 ? "nd" : d === 3 ? "rd" : "th"}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Time (UTC) */}
+            <div>
+              <label className="block text-xs text-white/40 mb-1">Send Time <span className="text-white/25">(UTC)</span></label>
+              <select
+                value={prefHourOfDay}
+                onChange={(e) => setPrefHourOfDay(Number(e.target.value))}
+                className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
               >
-                {prefSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                Save Preferences
-              </button>
+                {Array.from({ length: 24 }, (_, h) => {
+                  const label = h === 0 ? "12:00 AM" : h < 12 ? `${h}:00 AM` : h === 12 ? "12:00 PM" : `${h - 12}:00 PM`;
+                  return <option key={h} value={h}>{label}</option>;
+                })}
+              </select>
             </div>
           </div>
 
-          {pref?.lastSentAt && (
-            <p className="text-xs text-white/30">
-              Last sent: {new Date(pref.lastSentAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
-            </p>
-          )}
+          <div className="flex items-center justify-between pt-1">
+            {pref?.lastSentAt ? (
+              <p className="text-xs text-white/30">
+                Last sent: {new Date(pref.lastSentAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
+              </p>
+            ) : (
+              <span />
+            )}
+            <button
+              onClick={handleSavePrefs}
+              disabled={prefSaving}
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-seed-500 hover:bg-seed-600 text-white rounded-lg transition-colors disabled:opacity-50"
+            >
+              {prefSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+              Save Preferences
+            </button>
+          </div>
         </div>
       )}
 
@@ -378,7 +433,7 @@ export default function SEOReportsPage() {
               <span className={data.healthDelta >= 0 ? "text-green-400" : "text-red-400"}>
                 {Math.abs(data.healthDelta).toFixed(1)} pts
               </span>
-              <span className="text-white/30 text-sm ml-1">vs previous {data.periodType === "weekly" ? "week" : data.periodType === "monthly" ? "month" : data.periodType === "quarterly" ? "quarter" : "year"}</span>
+              <span className="text-white/30 text-sm ml-1">vs previous {data.periodType === "weekly" ? "week" : "month"}</span>
             </div>
           </div>
 

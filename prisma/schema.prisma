@@ -1043,8 +1043,6 @@ model GscDailyPage {
 enum ReportFrequency {
   weekly
   monthly
-  quarterly
-  yearly
 }
 
 model ReportPreference {
@@ -1054,7 +1052,8 @@ model ReportPreference {
   email     String                              // deliver to this address
   frequency ReportFrequency @default(monthly)
   dayOfWeek Int             @default(1)         // 0=Sun..6=Sat (for weekly)
-  dayOfMonth Int            @default(1)         // 1-28 (for monthly/quarterly)
+  dayOfMonth Int            @default(1)         // 1-28 (for monthly)
+  hourOfDay  Int            @default(8)         // 0-23 UTC hour to send
   enabled   Boolean         @default(true)
   lastSentAt DateTime?
   site      Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)

@@ -1,5 +1,5 @@
 /* ── SEO Email Reports ──
- * Build and send weekly/monthly/quarterly/yearly SEO digest emails.
+ * Build and send weekly/monthly SEO digest emails.
  * Site-aware: loads branding, URLs, and email config from DB.
  * Supports date-range-based report periods for the Reports dashboard.
  */
@@ -15,7 +15,7 @@ import { sendSeoDigest } from "@/lib/email";
 
 /* ── Types ── */
 
-export type ReportPeriod = "weekly" | "monthly" | "quarterly" | "yearly";
+export type ReportPeriod = "weekly" | "monthly";
 
 export interface ReportData {
   period: string;
@@ -55,8 +55,6 @@ function getPeriodDays(period: ReportPeriod): number {
   switch (period) {
     case "weekly": return 7;
     case "monthly": return 30;
-    case "quarterly": return 90;
-    case "yearly": return 365;
   }
 }
 
@@ -78,8 +76,6 @@ function formatPeriodLabel(period: ReportPeriod, start: Date, end: Date): string
   const labels: Record<ReportPeriod, string> = {
     weekly: "Week of " + fmt(start),
     monthly: start.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-    quarterly: "Q" + Math.ceil((start.getMonth() + 1) / 3) + " " + start.getFullYear(),
-    yearly: String(start.getFullYear()),
   };
   return labels[period] + " (" + fmt(start) + " \u2014 " + fmt(end) + ")";
 }
@@ -114,8 +110,7 @@ export async function buildReportData(
 ): Promise<ReportData> {
   const { start, end, prevStart, prevEnd } = getDateRange(period, refDate);
 
-  const snapshotCount =
-    period === "yearly" ? 52 : period === "quarterly" ? 13 : period === "monthly" ? 5 : 2;
+  const snapshotCount = period === "monthly" ? 5 : 2;
 
   const [snapshots, keywords, insights, crawl, gscCurrent, gscPrevious, publishedPosts, trackedKw] =
     await Promise.allSettled([
@@ -327,6 +322,7 @@ export async function processScheduledReports(siteId: string = DEFAULT_SITE_ID):
       now,
       pref.dayOfWeek,
       pref.dayOfMonth,
+      pref.hourOfDay,
     );
     if (!shouldSend) continue;
 
@@ -353,19 +349,17 @@ function checkShouldSend(
   now: Date,
   dayOfWeek: number,
   dayOfMonth: number,
+  hourOfDay: number,
 ): boolean {
+  if (now.getUTCHours() !== hourOfDay) return false;
   if (!lastSentAt) return true;
 
   const daysSinceLast = (now.getTime() - lastSentAt.getTime()) / (1000 * 60 * 60 * 24);
 
   switch (frequency) {
     case "weekly":
-      return daysSinceLast >= 6 && now.getDay() === dayOfWeek;
+      return daysSinceLast >= 6 && now.getUTCDay() === dayOfWeek;
     case "monthly":
-      return daysSinceLast >= 25 && now.getDate() === dayOfMonth;
-    case "quarterly":
-      return daysSinceLast >= 80 && now.getDate() === dayOfMonth && [0, 3, 6, 9].includes(now.getMonth());
-    case "yearly":
-      return daysSinceLast >= 350 && now.getMonth() === 0 && now.getDate() === dayOfMonth;
+      return daysSinceLast >= 25 && now.getUTCDate() === dayOfMonth;
   }
 }

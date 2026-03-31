@@ -38,32 +38,35 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { frequency, email, dayOfWeek, dayOfMonth, enabled } = body as {
+  const { frequency, email, dayOfWeek, dayOfMonth, hourOfDay, enabled } = body as {
     frequency?: string;
     email?: string;
     dayOfWeek?: number;
     dayOfMonth?: number;
+    hourOfDay?: number;
     enabled?: boolean;
   };
 
-  const validFreqs = ["weekly", "monthly", "quarterly", "yearly"];
+  const validFreqs = ["weekly", "monthly"];
 
   const pref = await prisma.reportPreference.upsert({
     where: { siteId_userId: { siteId, userId: user.id } },
     update: {
-      ...(frequency && validFreqs.includes(frequency) && { frequency: frequency as "weekly" | "monthly" | "quarterly" | "yearly" }),
+      ...(frequency && validFreqs.includes(frequency) && { frequency: frequency as "weekly" | "monthly" }),
       ...(email && { email }),
       ...(dayOfWeek !== undefined && { dayOfWeek }),
       ...(dayOfMonth !== undefined && { dayOfMonth }),
+      ...(hourOfDay !== undefined && { hourOfDay }),
       ...(enabled !== undefined && { enabled }),
     },
     create: {
       siteId,
       userId: user.id,
       email: email || session.user.email,
-      frequency: (frequency && validFreqs.includes(frequency) ? frequency : "monthly") as "weekly" | "monthly" | "quarterly" | "yearly",
+      frequency: (frequency && validFreqs.includes(frequency) ? frequency : "monthly") as "weekly" | "monthly",
       dayOfWeek: dayOfWeek ?? 1,
       dayOfMonth: dayOfMonth ?? 1,
+      hourOfDay: hourOfDay ?? 8,
       enabled: enabled ?? true,
     },
   });
