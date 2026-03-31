@@ -48,7 +48,7 @@ const webDevTiers: WebDevTier[] = [
     bestFor: ["Local businesses", "Startups", "Service providers"],
   },
   {
-    name: "Growth Website",
+    name: "Robust Build",
     starting: "$7,800",
     description:
       "For businesses that need a more robust website with custom layouts and deeper content.",

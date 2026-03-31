@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { buildMetadata } from "@/lib/page-metadata";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy & Terms | SeedTech LLC",
+export const generateMetadata = buildMetadata("/terms-conditions", {
+  title: "Privacy Policy & Terms",
   description:
     "SeedTech LLC's privacy policy and terms of service — how we collect, use, and protect your contact information.",
-};
+  noIndex: true,
+});
 
 export default function TermsConditionsPage() {
   return (
@@ -43,12 +44,6 @@ export default function TermsConditionsPage() {
               We collect contact information provided by our consumers voluntarily. This may include but is not limited
               to: name, email address, phone number, and physical address.
             </p>
-            <p className="mt-4">
-              <strong className="text-white/80">Alerts:</strong> Get exclusive access to the latest events,
-              mouth-watering specials, and valuable coupons from your favorite dining spots with DineSavvy Alerts.
-              Enroll now and never miss out on an opportunity to enhance your dining experience and save at the same
-              time. We&apos;re bringing the best of the culinary world directly to your phone.
-            </p>
             <ul className="mt-4 space-y-2 list-disc list-inside marker:text-seed-500">
               <li>
                 You can cancel the SMS service at any time. Just text <strong className="text-white/80">&ldquo;STOP&rdquo;</strong>{" "}
@@ -69,6 +64,9 @@ export default function TermsConditionsPage() {
                 As always, message and data rates may apply for any messages sent to you from us and to us from you.
                 You will receive messages about upcoming events, specials, and coupons. If you have any questions about
                 your text plan or data plan, it is best to contact your wireless provider.
+              </li>
+              <li>
+                If you have any questions regarding privacy, please read our privacy policy below.
               </li>
             </ul>
           </section>

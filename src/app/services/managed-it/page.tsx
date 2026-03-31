@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -31,19 +31,15 @@ import {
   AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
-export const metadata: Metadata = {
+export const generateMetadata = buildMetadata("/services/managed-it", {
   title: "Managed IT Services NJ | Proactive IT Support — SeedTech",
   description:
     "Proactive managed IT services in Northern New Jersey. Unlimited help desk, endpoint monitoring, cybersecurity & cloud backup. Per-user pricing, no contracts. Get a free quote.",
-  openGraph: {
-    title: "Managed IT Services NJ | Proactive IT Support — SeedTech",
-    description:
-      "Proactive managed IT services in Northern New Jersey. Unlimited help desk, endpoint monitoring, cybersecurity & cloud backup. Per-user pricing, no contracts.",
-    url: "https://seedtechllc.com/services/managed-it",
-    type: "website",
-  },
-  alternates: { canonical: "https://seedtechllc.com/services/managed-it" },
-};
+  ogTitle: "Managed IT Services NJ | Proactive IT Support — SeedTech",
+  ogDescription:
+    "Proactive managed IT services in Northern New Jersey. Unlimited help desk, endpoint monitoring, cybersecurity & cloud backup. Per-user pricing, no contracts.",
+  canonical: "/services/managed-it",
+});
 
 /* ─── Data ─────────────────────────────────────────────────────────────────── */
 const features = [

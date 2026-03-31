@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -26,19 +26,15 @@ import {
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
-export const metadata: Metadata = {
+export const generateMetadata = buildMetadata("/services/managed-it/onboarding", {
   title: "30-Day IT Onboarding | Switch IT Providers — SeedTech",
   description:
     "Switch IT providers with zero disruption. SeedTech's 4-week phased onboarding covers discovery, silent deployment, go-live, and optimization. Most teams are fully onboarded in 5-10 days.",
-  openGraph: {
-    title: "30-Day IT Onboarding | Switch Providers with Zero Disruption",
-    description:
-      "Switch IT providers in 30 days with zero disruption. 4-week phased rollout: discovery, silent deployment, go-live, optimization.",
-    url: "https://seedtechllc.com/services/managed-it/onboarding",
-    type: "website",
-  },
-  alternates: { canonical: "https://seedtechllc.com/services/managed-it/onboarding" },
-};
+  ogTitle: "30-Day IT Onboarding | Switch Providers with Zero Disruption",
+  ogDescription:
+    "Switch IT providers in 30 days with zero disruption. 4-week phased rollout: discovery, silent deployment, go-live, optimization.",
+  canonical: "/services/managed-it/onboarding",
+});
 
 const phases = [
   {

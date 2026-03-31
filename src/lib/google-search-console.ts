@@ -41,7 +41,7 @@ function getClient(integration?: SearchConsoleIntegration | null) {
       key = parsed.private_key;
     } catch {
       email = "";
-      key = integration.credentials.replace(/\\n/g, "\n");
+      key = integration.credentials;
     }
   } else {
     email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
@@ -52,8 +52,13 @@ function getClient(integration?: SearchConsoleIntegration | null) {
       if (parsed.private_key) key = parsed.private_key;
       if (parsed.client_email) email = parsed.client_email;
     } catch {
-      key = key.replace(/\\n/g, "\n");
+      // Raw PEM string — just needs newline fix below
     }
+  }
+
+  // Always normalise escaped newlines in the PEM key
+  if (key && !key.includes("\n")) {
+    key = key.replace(/\\n/g, "\n");
   }
 
   const auth = new google.auth.JWT({ email, key, scopes: SCOPES });

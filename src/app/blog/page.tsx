@@ -1,13 +1,13 @@
 import { getPublishedPosts } from "@/lib/blog";
 import Link from "next/link";
 import { format } from "date-fns";
-import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/page-metadata";
 
-export const metadata: Metadata = {
-  title: "Blog — SeedTech | IT Support & Web Development Insights",
+export const generateMetadata = buildMetadata("/blog", {
+  title: "Blog",
   description:
-    "Expert insights on managed IT services, cybersecurity, web development, and technology strategy for New Jersey businesses.",
-};
+    "Expert insights on managed IT services, cybersecurity, web development, and technology strategy for growing businesses.",
+});
 
 export const dynamic = "force-dynamic";
 

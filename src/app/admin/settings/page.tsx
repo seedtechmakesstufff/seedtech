@@ -71,7 +71,7 @@ export default function SettingsPage() {
               SEO Autopilot Settings
             </p>
             <p className="text-xs text-white/35 mt-0.5">
-              API keys, integrations, business context, keywords &amp; automation
+              API keys, integrations, automation &amp; reports
             </p>
           </div>
         </Link>

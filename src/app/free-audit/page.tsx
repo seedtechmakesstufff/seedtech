@@ -3,12 +3,13 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill, LiquidGlassCard } from "@/components/kit";
 import { AuditForm } from "@/components/forms/AuditForm";
+import { buildMetadata } from "@/lib/page-metadata";
 
-export const metadata = {
-  title: "Free Website & Technology Audit — SeedTech",
+export const generateMetadata = buildMetadata("/free-audit", {
+  title: "Free Website & Technology Audit",
   description:
     "Get a free website performance review, security risk scan, and technology improvement recommendations for your business. No commitment required.",
-};
+});
 
 const auditItems = [
   {

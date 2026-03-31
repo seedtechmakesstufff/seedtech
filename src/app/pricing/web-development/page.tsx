@@ -1,13 +1,15 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import { CheckCircle2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, CTABanner, GlassCard, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
-export const metadata = {
-  title: "Web Development Pricing — SeedTech",
+export const generateMetadata = buildMetadata("/pricing/web-development", {
+  title: "Web Development Pricing",
   description:
-    "Transparent pricing for professional website development. Starter, Growth, Ecommerce, and Custom Web Application packages.",
-};
+    "Transparent pricing for professional website development. Starter, Robust Build, Ecommerce, and Custom Web Application packages.",
+  canonical: "/pricing/web-development",
+});
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface PricingTier {
@@ -41,7 +43,7 @@ const tiers: PricingTier[] = [
     bestFor: ["Local businesses", "Startups", "Service providers"],
   },
   {
-    name: "Growth Website",
+    name: "Robust Build",
     starting: "$7,800",
     description:
       "For businesses that need a more robust website with custom layouts and deeper content.",

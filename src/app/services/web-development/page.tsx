@@ -1,17 +1,19 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Rocket, ShoppingCart, SquareTerminal } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
-import { QuoteButton } from "@/components/quote-flow";
+
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { projects } from "@/data/projects";
 
-export const metadata = {
-  title: "Web Development — SeedTech",
+export const generateMetadata = buildMetadata("/services/web-development", {
+  title: "Web Development",
   description:
-    "Custom websites, ecommerce platforms, and web applications. Let the work speak for itself.",
-};
+    "Custom websites, ecommerce platforms, and web applications built for how your business actually operates.",
+  canonical: "/services/web-development",
+});
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -78,6 +80,7 @@ const pricing = [
   {
     name: "Starter Website",
     starting: "$2,500",
+    href: "/services/seedtech-platform",
     description:
       "Perfect for small businesses that need a clean, professional online presence.",
     includes: [
@@ -90,8 +93,9 @@ const pricing = [
     ],
   },
   {
-    name: "Growth Website",
+    name: "Robust Build",
     starting: "$7,800",
+    href: "/services/seedtech-platform",
     description:
       "For businesses that need a more robust website with custom layouts and deeper content.",
     highlighted: true,
@@ -107,6 +111,7 @@ const pricing = [
   {
     name: "Ecommerce Website",
     starting: "$15,000",
+    href: "/services/ecommerce-development",
     description:
       "Full-featured ecommerce platforms designed to convert visitors into customers.",
     includes: [
@@ -121,6 +126,7 @@ const pricing = [
   {
     name: "Custom Web Application",
     starting: "$10,000+",
+    href: "/services/custom-development",
     description:
       "Custom platforms, portals, or specialized functionality for your business.",
     includes: [
@@ -205,7 +211,7 @@ export default function WebDevelopmentPage() {
                   <Rocket className="w-5 h-5 text-seed-400" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-display font-semibold tracking-wide text-white mb-3">
-                  Launch Faster on the SeedTech Platform
+                  Standard Website on the SeedTech Platform
                 </h3>
                 <p className="text-sm text-white/50 leading-relaxed mb-6 flex-1">
                   For service businesses, lead-generation brands, and professional firms, the SeedTech Platform is the fastest way to launch a high-performance site with modern infrastructure and SEO Autopilot already configured from your business context.
@@ -434,6 +440,7 @@ export default function WebDevelopmentPage() {
                     : ""
                 }`}
               >
+                <p className="text-xs text-white/30 uppercase tracking-wider mb-1">Starting at</p>
                 <p className="font-display text-subheading md:text-heading text-seed-400 mb-1">
                   {tier.starting}
                 </p>
@@ -456,17 +463,17 @@ export default function WebDevelopmentPage() {
                 </ul>
 
                 <div className="mt-auto">
-                  <QuoteButton
-                    service="web-development"
+                  <Link
+                    href={tier.href}
                     className={`w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative overflow-hidden ${
                       tier.highlighted
                         ? "liquid-glass-tinted-seed liquid-glass-hover text-white"
                         : "liquid-glass text-white"
                     }`}
                   >
-                    Get a Quote
+                    Learn More
                     <ArrowRight className="w-4 h-4" />
-                  </QuoteButton>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -485,24 +492,61 @@ export default function WebDevelopmentPage() {
       </Section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          CLOSE
+          CHOOSE YOUR PATH — compact secondary nav
           ══════════════════════════════════════════════════════════════════════ */}
-      <section className="bg-dark-base py-28 md:py-36">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <AnimatedH2 className="font-display text-heading md:text-title text-white mb-6">
-            Let&apos;s Build Something Great.
-          </AnimatedH2>
-          <p className="text-body-lg text-light-base/40 mb-10 max-w-lg mx-auto">
-            Tell us about your project and we&apos;ll put together a tailored
-            proposal within 48 hours.
+      <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-6 text-center">
+            Ready to go deeper?
           </p>
-          <QuoteButton
-            service="web-development"
-            className="inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-gradient-brand text-white text-base font-medium hover:shadow-glowSeed transition-all duration-300"
-          >
-            Start a Project
-            <ArrowRight className="w-5 h-5" />
-          </QuoteButton>
+
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/services/seedtech-platform"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <Rocket className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  SeedTech Platform — fast-launch websites for service businesses
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/ecommerce-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-blue-500/30 hover:bg-blue-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-4 h-4 text-blue-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Ecommerce Development — Shopify, BigCommerce, and custom storefronts
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-blue-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/custom-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <SquareTerminal className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Custom Development — SaaS, portals, internal tools, and web apps
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-cyan-400 transition-colors shrink-0" />
+            </Link>
+          </div>
+
+          <p className="text-center text-sm text-white/25 mt-8">
+            Not sure which fits your project?{" "}
+            <Link href="/contact" className="text-seed-400/70 hover:text-seed-400 transition-colors">
+              Contact us and we&apos;ll help you figure it out.
+            </Link>
+          </p>
         </div>
       </section>
     </div>

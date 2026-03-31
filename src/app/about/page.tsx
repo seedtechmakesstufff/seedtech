@@ -1,4 +1,8 @@
-import { Shield, Globe, Zap, Heart, Users } from "lucide-react";
+import { buildMetadata } from "@/lib/page-metadata";
+import Image from "next/image";
+import Link from "next/link";
+import Script from "next/script";
+import { Shield, Globe, Zap, Heart, Users, Rocket, ShoppingCart, SquareTerminal, MonitorSmartphone, ArrowRight } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import {
@@ -9,12 +13,19 @@ import {
   Body,
   LiquidGlassPill,
   LiquidGlassCard,
-  CTABanner,
   IconBox,
   CheckList,
   AnimatedH1,
   AnimatedH2,
 } from "@/components/kit";
+import { VideoLocationPill } from "@/components/about/VideoLocationPill";
+
+export const generateMetadata = buildMetadata("/about", {
+  title: "About Us",
+  description:
+    "SeedTech is a technology company built for businesses that want fewer headaches, clearer communication, and a partner that stays involved. Based in New Jersey & California.",
+  canonical: "/about",
+});
 
 const values = [
   {
@@ -53,18 +64,22 @@ export default function AboutPage() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-dark-base py-28 md:py-36">
-        <GradientOrb color="seed" size="xl" className="-top-40 right-0 opacity-20" />
-        <GradientOrb color="blue" size="lg" className="bottom-0 left-0 opacity-15" />
-        <GridPattern />
-        <div className="relative z-10 mx-auto max-w-5xl px-6">
-          <LiquidGlassPill variant="seed" className="mb-6">About SeedTech</LiquidGlassPill>
-          <AnimatedH1 highlightWords={["SeedTech"]} className="mb-6 max-w-3xl">
-            A Reliable Technology Partner for Small and Mid-Size Businesses
-          </AnimatedH1>
-          <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed">
-            SeedTech works with businesses that want fewer technology headaches, clearer communication, and a partner that stays involved. We support the systems companies rely on every day and build websites that are meant to help the business, not just decorate it.
-          </p>
+      <section className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        {/* Background image */}
+        <Image
+          src="/img/seed graphics/about/about_hero.webp"
+          alt="About SeedTech"
+          fill
+          priority
+          className="object-cover object-center"
+        />
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/55" />
+        {/* Content */}
+        <div className="relative z-10 text-center px-6">
+          <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold tracking-wide text-white">
+            About Us
+          </h1>
         </div>
       </section>
 
@@ -80,51 +95,61 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      {/* Story */}
-      <Section theme="dark">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <LiquidGlassPill variant="default" className="mb-5">Our Story</LiquidGlassPill>
-            <AnimatedH2
-              className="font-display text-heading md:text-title text-white mb-6"
-              highlightWords={["Mean", "It"]}
-            >
-              Built to Be a Dependable Partner
-            </AnimatedH2>
-            <p className="text-body text-light-base/60 leading-relaxed mb-5">
-              SeedTech was built around a simple idea: small and mid-size businesses should be able to get reliable support without juggling multiple vendors or chasing people down for answers.
-            </p>
-            <p className="text-body text-light-base/60 leading-relaxed mb-8">
-              We work best when we can stay involved, understand how the business operates, and help make technology less disruptive day to day. That applies to both ongoing IT support and the websites and systems companies rely on to communicate and work.
-            </p>
-            <CheckList theme="dark" items={whatWeDo} />
-          </div>
-          <div className="space-y-4">
-            <LiquidGlassCard className="p-6">
-              <div className="flex items-start gap-4">
-                <IconBox icon={Shield} variant="gradient" />
-                <div>
-                  <CardTitle className="mb-1">Proactive, Not Reactive</CardTitle>
-                  <Body className="text-light-base/55">
-                    We want to catch issues early, keep systems maintained, and reduce the number of things your team has to react to during the workday.
-                  </Body>
-                </div>
+      {/* Statement */}
+      <section className="bg-dark-base py-24 md:py-36">
+        <div className="mx-auto max-w-5xl px-6">
+          <AnimatedH2
+            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-wide text-white leading-[1.05]"
+          >
+            SeedTech works with businesses that want fewer technology headaches, clearer communication, and a partner that stays involved. We support the systems companies rely on every day and build websites that are meant to help the business, not just decorate it.
+          </AnimatedH2>
+        </div>
+      </section>
+
+      {/* Video */}
+      <section className="bg-dark-base pb-24 md:pb-32">
+        <VideoLocationPill />
+        <Script src="https://player.vimeo.com/api/player.js" strategy="lazyOnload" />
+      </section>
+
+      {/* Owners */}
+      <section className="bg-dark-base py-24 md:py-32">
+        <div className="mx-auto max-w-3xl px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+            {/* Matt */}
+            <div className="flex flex-col gap-4">
+              <div className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl">
+                <Image
+                  src="/img/seed graphics/about/matt_oliva_3x.webp"
+                  alt="Matt Oliva, Co-founder of SeedTech"
+                  fill
+                  className="object-cover object-top"
+                />
               </div>
-            </LiquidGlassCard>
-            <LiquidGlassCard className="p-6">
-              <div className="flex items-start gap-4">
-                <IconBox icon={Globe} variant="gradient" />
-                <div>
-                  <CardTitle className="mb-1">Built to Convert</CardTitle>
-                  <Body className="text-light-base/55">
-                    We build websites to support the business: clearer messaging, better next steps, and fewer gaps between the site and the way your team actually works.
-                  </Body>
-                </div>
+              <div>
+                <p className="font-display text-2xl font-bold text-white tracking-wide">Matt Oliva</p>
+                <p className="text-sm text-white/50 mt-1">CEO &amp; Director of Managed IT</p>
               </div>
-            </LiquidGlassCard>
+            </div>
+
+            {/* Sam */}
+            <div className="flex flex-col gap-4 md:mt-12">
+              <div className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl">
+                <Image
+                  src="/img/seed graphics/about/sam_swaynos_3x.webp"
+                  alt="Sam Swaynos, Co-founder of SeedTech"
+                  fill
+                  className="object-cover object-top"
+                />
+              </div>
+              <div>
+                <p className="font-display text-2xl font-bold text-white tracking-wide">Sam Swaynos</p>
+                <p className="text-sm text-white/50 mt-1">Co-Owner &amp; Product Director</p>
+              </div>
+            </div>
           </div>
         </div>
-      </Section>
+      </section>
 
       {/* Values */}
       <Section theme="light">
@@ -146,16 +171,74 @@ export default function AboutPage() {
       </Section>
 
       {/* CTA */}
-      <Section>
-        <CTABanner
-          title="Ready to Work With Us?"
-          description="Let&apos;s talk about what your business needs and whether we&apos;re the right long-term fit."
-          primaryLabel="Get a Free Quote"
-          primaryHref="/contact"
-          secondaryLabel="See Our Work"
-          secondaryHref="/our-work"
-        />
-      </Section>
+      <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-6 text-center">
+            Ready to go deeper?
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/services/managed-it"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <MonitorSmartphone className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Managed IT Support — proactive monitoring, helpdesk, and infrastructure
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/seedtech-platform"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <Rocket className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  SeedTech Platform — fast-launch websites for service businesses
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/ecommerce-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-blue-500/30 hover:bg-blue-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-4 h-4 text-blue-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Ecommerce — Shopify, BigCommerce, and custom storefronts
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-blue-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/custom-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <SquareTerminal className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Custom Development — SaaS, portals, internal tools, and web apps
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-cyan-400 transition-colors shrink-0" />
+            </Link>
+          </div>
+
+          <p className="text-center text-sm text-white/25 mt-8">
+            Not sure where to start?{" "}
+            <Link href="/contact" className="text-seed-400/70 hover:text-seed-400 transition-colors">
+              Contact us and we&apos;ll point you in the right direction.
+            </Link>
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

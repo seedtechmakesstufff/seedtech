@@ -5,7 +5,6 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { FormInput, FormTextarea, FormSelect, Button, LiquidGlassCard } from "@/components/kit";
 import { CheckCircle2 } from "lucide-react";
-import { validateEmail } from "@/lib/validation";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -17,50 +16,17 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [emailSuggestion, setEmailSuggestion] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (name === "email") {
-      setEmailError("");
-      setEmailSuggestion("");
-    }
-  };
-
-  const handleEmailBlur = () => {
-    if (!form.email) return;
-    const result = validateEmail(form.email);
-    if (!result.valid) {
-      setEmailError(result.error || "Invalid email.");
-      setEmailSuggestion(result.suggestion || "");
-    }
-  };
-
-  const acceptSuggestion = () => {
-    if (emailSuggestion) {
-      setForm((prev) => ({ ...prev, email: emailSuggestion }));
-      setEmailError("");
-      setEmailSuggestion("");
-    }
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
-
-    // Client-side email validation before submit
-    const emailCheck = validateEmail(form.email);
-    if (!emailCheck.valid) {
-      setEmailError(emailCheck.error || "Invalid email.");
-      setEmailSuggestion(emailCheck.suggestion || "");
-      return;
-    }
-
     setStatus("submitting");
+    setErrorMsg("");
 
     try {
       const res = await fetch("/api/contact", {
@@ -134,23 +100,8 @@ export default function ContactPage() {
               type="email"
               value={form.email}
               onChange={handleChange}
-              onBlur={handleEmailBlur}
               required
             />
-            {emailError && (
-              <div className="md:col-span-2 -mt-4">
-                <p className="text-red-400 text-xs">{emailError}</p>
-                {emailSuggestion && (
-                  <button
-                    type="button"
-                    onClick={acceptSuggestion}
-                    className="text-seed-400 hover:text-seed-300 text-xs underline underline-offset-2 mt-1"
-                  >
-                    Did you mean {emailSuggestion}?
-                  </button>
-                )}
-              </div>
-            )}
             <FormInput
               label="Company"
               name="company"
@@ -166,8 +117,9 @@ export default function ContactPage() {
               options={[
                 { label: "Managed IT Support", value: "it" },
                 { label: "Web Development", value: "web" },
-                { label: "Digital Marketing", value: "marketing" },
-                { label: "Not sure yet", value: "unsure" },
+                { label: "SEO", value: "seo" },
+                { label: "Managed IT + Web Development", value: "it-web" },
+                { label: "All the above", value: "all" },
               ]}
             />
           </div>

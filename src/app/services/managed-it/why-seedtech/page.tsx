@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -26,19 +26,15 @@ import {
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
-export const metadata: Metadata = {
+export const generateMetadata = buildMetadata("/services/managed-it/why-seedtech", {
   title: "Why SeedTech | Accountability, Not Volume — Small MSP Advantage",
   description:
     "Tired of ticket black holes and revolving-door technicians? SeedTech is built for accountability, not volume. Learn why small MSPs outperform large IT firms for growing businesses.",
-  openGraph: {
-    title: "Why SeedTech | Accountability, Not Volume",
-    description:
-      "Tired of ticket black holes and revolving-door technicians? Learn why small MSPs outperform large IT firms.",
-    url: "https://seedtechllc.com/services/managed-it/why-seedtech",
-    type: "website",
-  },
-  alternates: { canonical: "https://seedtechllc.com/services/managed-it/why-seedtech" },
-};
+  ogTitle: "Why SeedTech | Accountability, Not Volume",
+  ogDescription:
+    "Tired of ticket black holes and revolving-door technicians? Learn why small MSPs outperform large IT firms.",
+  canonical: "/services/managed-it/why-seedtech",
+});
 
 const largeFirmPains = [
   { icon: AlertTriangle, title: "Hidden Costs", body: "Nickel-and-dimed for every on-site visit, after-hours call, or anything classified as a \"project.\" Your monthly invoice is never what you expected." },

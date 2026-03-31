@@ -1,3 +1,4 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -12,25 +13,56 @@ import {
   Zap,
   Package,
   ShoppingCart,
+  Rocket,
 } from "lucide-react";
 import {
   GradientOrb,
   GridPattern,
   AnimatedH1,
   AnimatedH2,
-  CTABanner,
   ProcessStep,
+  FAQAccordion,
 } from "@/components/kit";
+import type { FAQItem } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
-export const metadata = {
-  title: "Custom Development — SaaS, Portals, Apps & Business Systems | SeedTech",
+export const generateMetadata = buildMetadata("/services/custom-development", {
+  title: "Custom Development — SaaS, Portals, Apps & Business Systems",
   description:
-    "Custom software, platforms, and applications built around real workflows. SaaS products, internal tools, portals, PWAs, and business systems designed around how your business actually operates.",
-};
+    "Custom software, platforms, and applications built around real workflows. SaaS products, internal tools, portals, and business systems designed for how your business actually operates.",
+  canonical: "/services/custom-development",
+});
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
+
+const faqs: FAQItem[] = [
+  {
+    question: "Are we locked into your systems?",
+    answer:
+      "No — all code, files, servers, and assets are owned by you. We don't believe in locking customers into a system or holding them hostage to a singular platform, even SeedTech. Once a project is finished, we send over the full details and transfer complete ownership to you.",
+  },
+  {
+    question: "How does pricing work for custom projects?",
+    answer:
+      "Custom development is scoped and quoted project-by-project. We don't use fixed price lists because the work varies significantly — a lightweight internal dashboard has a very different scope than a multi-tenant SaaS platform or a customer-facing portal with complex business logic.\n\nAfter an initial conversation, we put together a detailed requirements breakdown and a fixed-scope proposal so you know exactly what's included and what it costs before any work begins. No hourly billing surprises.",
+  },
+  {
+    question: "How long do custom builds take?",
+    answer:
+      "It depends heavily on scope. Focused internal tools and operational dashboards often run 6–10 weeks. Full SaaS platforms, multi-role portals, or systems with significant third-party integrations typically run 12–24 weeks.\n\nWe build realistic timelines into every proposal and don't compress them to win the project. You'll know upfront how long things will take and why.",
+  },
+  {
+    question: "Can you work with our existing codebase or systems?",
+    answer:
+      "Yes. We regularly integrate with existing codebases, internal APIs, third-party services, and legacy systems. Before scoping, we do a technical review of what you have in place so we can build in a way that extends your current infrastructure rather than working around it.\n\nIf the existing system has limitations that would create problems down the line, we'll flag them during scoping — not after we're halfway through the build.",
+  },
+  {
+    question: "What happens after the project launches?",
+    answer:
+      "At launch, we hand over full documentation, credentials, and access. If you have an internal team that will take over, we make sure they're oriented and capable of running the system independently.\n\nFor clients who want continued support — bug fixes, feature iterations, infrastructure monitoring — we offer ongoing retainer arrangements. That's scoped separately and isn't required.",
+  },
+];
 
 const capabilities = [
   { label: "SaaS products", icon: <Globe className="w-4 h-4" /> },
@@ -462,19 +494,63 @@ export default function CustomDevelopmentPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          CTA
+          FAQ
           ══════════════════════════════════════════════════════════════════════ */}
-      <section className="bg-dark-base py-16 px-6">
-        <div className="mx-auto max-w-4xl">
-          <CTABanner
-            theme="light"
-            title="Need a Real System, Not Just a Site?"
-            description="If your business needs custom workflows, product logic, or application-level functionality, let's talk through the right build path."
-            primaryLabel="Start a Custom Project"
-            primaryHref="/contact"
-            secondaryLabel="See All Web Development"
-            secondaryHref="/services/web-development"
-          />
+      <section className="bg-dark-base py-24 md:py-32">
+        <div className="mx-auto max-w-3xl px-6">
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-seed-400 mb-3">FAQ</p>
+            <h2 className="font-display text-heading md:text-heading-lg text-white leading-tight">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <FAQAccordion items={faqs} />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          EXPLORE OTHER PATHS
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-6 text-center">
+            Explore other web development paths
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/services/seedtech-platform"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <Rocket className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  SeedTech Platform — fast-launch websites for service businesses
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/ecommerce-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-blue-500/30 hover:bg-blue-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-4 h-4 text-blue-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Ecommerce Development — Shopify, BigCommerce, and custom storefronts
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-blue-400 transition-colors shrink-0" />
+            </Link>
+          </div>
+
+          <p className="text-center text-sm text-white/25 mt-8">
+            Not sure which fits your project?{" "}
+            <Link href="/contact" className="text-seed-400/70 hover:text-seed-400 transition-colors">
+              Contact us and we&apos;ll help you figure it out.
+            </Link>
+          </p>
         </div>
       </section>
     </div>

@@ -1,3 +1,4 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -10,25 +11,57 @@ import {
   Settings,
   RefreshCw,
   LayoutGrid,
+  Rocket,
+  SquareTerminal,
 } from "lucide-react";
 import {
   GradientOrb,
   GridPattern,
   AnimatedH1,
   AnimatedH2,
-  CTABanner,
   ProcessStep,
+  FAQAccordion,
 } from "@/components/kit";
+import type { FAQItem } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
-export const metadata = {
-  title: "Ecommerce Development — Shopify, BigCommerce & WordPress | SeedTech",
+export const generateMetadata = buildMetadata("/services/ecommerce-development", {
+  title: "Ecommerce Development — Shopify, BigCommerce & WordPress",
   description:
-    "Ecommerce design and development on Shopify, BigCommerce, and WordPress for businesses that need more than a basic storefront. Platform selection, catalog architecture, and custom functionality.",
-};
+    "Ecommerce design and development on Shopify, BigCommerce, and WordPress for businesses that need more than a basic storefront.",
+  canonical: "/services/ecommerce-development",
+});
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
+
+const faqs: FAQItem[] = [
+  {
+    question: "Are we locked into your systems?",
+    answer:
+      "No — all code, files, servers, and assets are owned by you. We don't believe in locking customers into a system or holding them hostage to a singular platform, even SeedTech. Once a project is finished, we send over the full details and transfer complete ownership to you.",
+  },
+  {
+    question: "Which ecommerce platform should I choose — Shopify, BigCommerce, or WordPress?",
+    answer:
+      "It depends on your business model, catalog complexity, and how much flexibility you need.\n\nShopify is our most common recommendation for direct-to-consumer brands — it's fast to launch, reliable at scale, and has a large ecosystem of payment and shipping integrations.\n\nBigCommerce is better suited for B2B or multi-channel sellers who need more native flexibility without heavy app dependencies.\n\nWordPress with WooCommerce makes sense when you're already invested in the WordPress ecosystem, need very custom checkout logic, or want tighter control over the full stack.\n\nWe'll help you evaluate the right fit based on your catalog size, expected traffic, and operational requirements — not just which platform is easiest for us to build on.",
+  },
+  {
+    question: "Can you migrate my existing store?",
+    answer:
+      "Yes. We've handled platform migrations for stores moving between Shopify, BigCommerce, WooCommerce, and custom builds. Migration scope typically includes product data, customer records, order history, URL redirects, and SEO preservation.\n\nThe complexity varies based on catalog size and custom functionality. We assess the full migration requirements before quoting so there are no surprises mid-project.",
+  },
+  {
+    question: "How long does an ecommerce build take?",
+    answer:
+      "Most ecommerce projects run 8–16 weeks from signed contract to launch, depending on catalog size, custom functionality, and integration complexity. A focused Shopify build with a defined catalog can move faster; a BigCommerce build with custom B2B pricing logic, ERP integrations, or a large SKU count will take longer.\n\nWe scope timelines project-by-project after the requirements phase so you have a realistic picture before work begins.",
+  },
+  {
+    question: "Do you handle payment gateway and checkout setup?",
+    answer:
+      "Yes — payment gateway configuration, checkout flow, and tax/shipping setup are all included as part of a standard ecommerce build. We work with Stripe, PayPal, Shop Pay, and platform-native gateways depending on your platform and geography.\n\nIf you have specific compliance requirements (like PCI-DSS level considerations or regional payment methods), we factor those into the architecture from the start.",
+  },
+];
 
 const platforms = [
   {
@@ -379,8 +412,8 @@ export default function EcommerceDevelopmentPage() {
             }}
             className="p-10 flex flex-col items-center gap-6"
           >
-            <p className="font-display text-5xl md:text-6xl text-blue-400 font-bold">$15,000+</p>
             <p className="text-xs text-white/40 uppercase tracking-wider">Starting at</p>
+            <p className="font-display text-5xl md:text-6xl text-blue-400 font-bold">$15,000+</p>
             <p className="text-sm text-white/50 leading-relaxed max-w-md">
               Includes platform setup, storefront design and development, catalog architecture,
               core integrations, and launch support. Larger scopes quoted after requirements gathering.
@@ -398,19 +431,63 @@ export default function EcommerceDevelopmentPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          CTA
+          FAQ
           ══════════════════════════════════════════════════════════════════════ */}
-      <section className="bg-dark-base py-16 px-6">
-        <div className="mx-auto max-w-4xl">
-          <CTABanner
-            theme="light"
-            title="Need Ecommerce That Does More Than Look Good?"
-            description="Tell us what you sell, what platform you're on, and where the friction is. We'll define the right ecommerce path for the business."
-            primaryLabel="Start an Ecommerce Project"
-            primaryHref="/contact"
-            secondaryLabel="See All Web Development"
-            secondaryHref="/services/web-development"
-          />
+      <section className="bg-dark-base py-24 md:py-32">
+        <div className="mx-auto max-w-3xl px-6">
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-seed-400 mb-3">FAQ</p>
+            <h2 className="font-display text-heading md:text-heading-lg text-white leading-tight">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <FAQAccordion items={faqs} />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          EXPLORE OTHER PATHS
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-6 text-center">
+            Explore other web development paths
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/services/seedtech-platform"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <Rocket className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  SeedTech Platform — fast-launch websites for service businesses
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/custom-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <SquareTerminal className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Custom Development — SaaS, portals, internal tools, and web apps
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-cyan-400 transition-colors shrink-0" />
+            </Link>
+          </div>
+
+          <p className="text-center text-sm text-white/25 mt-8">
+            Not sure which fits your project?{" "}
+            <Link href="/contact" className="text-seed-400/70 hover:text-seed-400 transition-colors">
+              Contact us and we&apos;ll help you figure it out.
+            </Link>
+          </p>
         </div>
       </section>
     </div>

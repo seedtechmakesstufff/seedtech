@@ -7,14 +7,16 @@ import {
   ArrowRight, ArrowUpRight, ArrowDownRight, Sparkles, FileText, AlertTriangle,
   Brain, Gauge, RefreshCw, Globe, Loader2, Zap, BarChart3, Send, ShieldAlert,
   Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair, SlidersHorizontal,
-  Bot, XCircle, Award, Activity, Pencil, Swords, Network, MessageSquareQuote,
+  Bot, XCircle, Award, Activity, Pencil, Swords, Network, MessageSquareQuote, Tags,
+  Rocket, Layers,
 } from "lucide-react";
 import Link from "next/link";
 import CompetitorsTab from "./competitors-tab";
 import TopicClustersTab from "./topic-clusters-tab";
 import CitationsTab from "./citations-tab";
+import MetadataTab from "./metadata-tab";
 
-type Tab = "overview" | "ai-visibility" | "keywords" | "audit" | "insights" | "clusters" | "citations" | "strategy" | "competitors";
+type Tab = "overview" | "ai-visibility" | "keywords" | "audit" | "insights" | "clusters" | "citations" | "strategy" | "competitors" | "metadata";
 
 interface AIVisibilityScoreData {
   id: string; pageUrl: string; overallScore: number; grade: string;
@@ -69,6 +71,8 @@ interface TrackedKeywordData {
 
 interface SeoTaskData {
   id: string; phase: number; title: string; status: string; priority: string;
+  sourceType: string | null; sourceUrl: string | null; sourceCheckType: string | null;
+  autoResolved: boolean; createdAt: string;
 }
 
 interface ContentIdeaData {
@@ -163,6 +167,19 @@ export default function SEODashboardPage() {
   const [seoTasks, setSeoTasks] = useState<SeoTaskData[]>([]);
   const [contentIdeas, setContentIdeas] = useState<ContentIdeaData[]>([]);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
+
+  // Setup status checklist
+  const [setupSteps, setSetupSteps] = useState<{
+    id: string; label: string; description: string;
+    complete: boolean; href: string; detail: string | null;
+  }[]>([]);
+  const [setupStats, setSetupStats] = useState<{
+    blogPosts: number; sitePages: number; competitors: number;
+    snapshots: number; metadataCoverage: number; keywordCount: number;
+    nodeCount: number; pageContextCount: number;
+  } | null>(null);
+  const [setupCompletedCount, setSetupCompletedCount] = useState(0);
+  const [setupTotalCount, setSetupTotalCount] = useState(0);
 
   const tier1 = trackedKeywords.filter((k) => tierMap[k.tier] === 1);
   const tier2 = trackedKeywords.filter((k) => tierMap[k.tier] === 2);
@@ -347,11 +364,70 @@ export default function SEODashboardPage() {
     router.push(`/admin/blog/${rewriteResult.postId}`);
   }, [rewriteResult, router]);
 
+  const fetchSetupStatus = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/seo/setup-status");
+      const d = await r.json();
+      if (d.steps) setSetupSteps(d.steps);
+      if (d.stats) setSetupStats(d.stats);
+      setSetupCompletedCount(d.completedCount ?? 0);
+      setSetupTotalCount(d.totalCount ?? 0);
+    } catch {}
+  }, []);
+
+  // ── Task status toggle ──
+  const [taskUpdating, setTaskUpdating] = useState<string | null>(null);
+  const cycleTaskStatus = useCallback(async (taskId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "not-started" ? "in-progress" : currentStatus === "in-progress" ? "done" : "not-started";
+    setTaskUpdating(taskId);
+    try {
+      const r = await fetch("/api/admin/seo/strategy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update-task", id: taskId, status: nextStatus }),
+      });
+      if (r.ok) {
+        setSeoTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: nextStatus } : t));
+      }
+    } catch {} finally { setTaskUpdating(null); }
+  }, []);
+
+  // ── Fix link builder: maps sourceCheckType → metadata tab with pre-selected page ──
+  const METADATA_CHECK_TYPES = new Set([
+    "missing-title", "missing-meta-description", "missing-h1", "missing-og-tags",
+    "missing-canonical", "short-title", "long-title", "short-meta-description",
+    "long-meta-description", "duplicate-title", "duplicate-meta-description",
+    "no-structured-data", "invalid-json-ld", "noindex-detected",
+  ]);
+  const getTaskFixAction = useCallback((task: SeoTaskData): { label: string; action: () => void } | null => {
+    if (!task.sourceCheckType || !task.sourceUrl) return null;
+    if (METADATA_CHECK_TYPES.has(task.sourceCheckType)) {
+      const path = (() => { try { return new URL(task.sourceUrl).pathname || "/"; } catch { return "/"; } })();
+      return { label: "Edit Metadata", action: () => { setActiveTab("metadata"); setTimeout(() => { window.dispatchEvent(new CustomEvent("open-metadata-editor", { detail: { path } })); }, 100); } };
+    }
+    if (task.sourceCheckType === "thin-content" || task.sourceCheckType === "few-internal-links") {
+      return { label: "Edit Content", action: () => router.push("/admin/seo/context?section=pages") };
+    }
+    return null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
   useEffect(() => {
     fetch("/api/admin/seo/search-console?action=test").then((r) => r.json()).then((d) => { setGscConnected(d.connected ?? false); if (d.connected) fetchGscData(); }).catch(() => setGscConnected(false));
     fetchSnapshotHistory(); fetchInsights(); fetchCrawlResults(); fetchAiVisibility(); fetchCitations();
-    fetchKeywords(); fetchStrategy();
-  }, [fetchGscData, fetchSnapshotHistory, fetchInsights, fetchCrawlResults, fetchAiVisibility, fetchCitations, fetchKeywords, fetchStrategy]);
+    fetchKeywords(); fetchStrategy(); fetchSetupStatus();
+
+    // Auto-trigger GSC sync if data is stale (>6 hours)
+    fetch("/api/admin/seo/gsc-sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ force: false }) })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.status === "completed") {
+          // Re-fetch keyword data since sync updated TrackedKeyword records
+          fetchKeywords();
+        }
+      })
+      .catch(() => { /* silent — non-blocking background sync */ });
+  }, [fetchGscData, fetchSnapshotHistory, fetchInsights, fetchCrawlResults, fetchAiVisibility, fetchCitations, fetchKeywords, fetchStrategy, fetchSetupStatus]);
 
   const latestSnapshot = snapshotHistory[snapshotHistory.length - 1];
   const prevSnapshot = snapshotHistory.length > 1 ? snapshotHistory[snapshotHistory.length - 2] : null;
@@ -370,6 +446,7 @@ export default function SEODashboardPage() {
     { id: "citations", label: "Citations", icon: <MessageSquareQuote className="w-4 h-4" /> },
     { id: "competitors", label: "Competitors", icon: <Swords className="w-4 h-4" /> },
     { id: "strategy", label: "Strategy", icon: <Brain className="w-4 h-4" /> },
+    { id: "metadata", label: "Metadata", icon: <Tags className="w-4 h-4" /> },
   ];
 
   return (
@@ -497,6 +574,110 @@ export default function SEODashboardPage() {
                 {warningCount > 0 && <span className="text-yellow-400">{warningCount} warnings</span>}
                 {criticalCount === 0 && warningCount === 0 && "All clear"}
               </p>
+            </div>
+          </div>
+
+          {/* ── Setup Checklist + Quick Stats ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Card 1: Production Checklist (Vercel-style) */}
+            <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <h3 className="text-sm font-semibold text-white">Production Checklist</h3>
+                  <span className="text-xs bg-white/[0.06] text-white/50 px-2 py-0.5 rounded-full font-medium">{setupCompletedCount}/{setupTotalCount}</span>
+                </div>
+                <Link href="/admin/seo/context" className="text-white/30 hover:text-white/60 transition-colors"><ExternalLink className="w-3.5 h-3.5" /></Link>
+              </div>
+              <div className="divide-y divide-white/[0.04]">
+                {setupSteps.map((step) => (
+                  <Link
+                    key={step.id}
+                    href={step.href}
+                    className={`flex items-center gap-3 px-5 py-3 transition-colors group ${step.complete ? "hover:bg-white/[0.02]" : "hover:bg-seed-500/[0.04]"}`}
+                  >
+                    {step.complete ? (
+                      <CheckCircle2 className="w-4 h-4 text-seed-400 shrink-0" />
+                    ) : (
+                      <Circle className="w-4 h-4 text-white/20 group-hover:text-white/40 shrink-0" />
+                    )}
+                    <span className={`text-sm flex-1 ${step.complete ? "text-white/40 line-through decoration-white/10" : "text-white/70 group-hover:text-white"}`}>
+                      {step.label}
+                    </span>
+                    {step.complete && step.detail && (
+                      <span className="text-xs text-white/20">{step.detail}</span>
+                    )}
+                    {!step.complete && (
+                      <ArrowRight className="w-3.5 h-3.5 text-white/0 group-hover:text-seed-400 transition-colors" />
+                    )}
+                  </Link>
+                ))}
+              </div>
+              {setupTotalCount > 0 && (
+                <div className="px-5 py-3 border-t border-white/[0.04]">
+                  <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-seed-500 rounded-full transition-all duration-500"
+                      style={{ width: `${(setupCompletedCount / setupTotalCount) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Card 2: Content Coverage */}
+            <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.06]">
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-blue-400" />Content Coverage
+                </h3>
+              </div>
+              <div className="p-5 space-y-4">
+                {[
+                  { label: "Metadata Coverage", value: `${setupStats?.metadataCoverage ?? 0}%`, sub: "pages with AI titles", color: (setupStats?.metadataCoverage ?? 0) >= 80 ? "text-green-400" : (setupStats?.metadataCoverage ?? 0) >= 40 ? "text-yellow-400" : "text-white/30" },
+                  { label: "Page Contexts", value: `${setupStats?.pageContextCount ?? 0}`, sub: "pages described", color: (setupStats?.pageContextCount ?? 0) >= 10 ? "text-green-400" : (setupStats?.pageContextCount ?? 0) >= 1 ? "text-yellow-400" : "text-white/30" },
+                  { label: "Context Nodes", value: `${setupStats?.nodeCount ?? 0}`, sub: "service nodes", color: (setupStats?.nodeCount ?? 0) >= 3 ? "text-green-400" : (setupStats?.nodeCount ?? 0) >= 1 ? "text-yellow-400" : "text-white/30" },
+                  { label: "Blog Posts", value: `${setupStats?.blogPosts ?? 0}`, sub: "published", color: (setupStats?.blogPosts ?? 0) >= 5 ? "text-green-400" : (setupStats?.blogPosts ?? 0) >= 1 ? "text-yellow-400" : "text-white/30" },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-white/60">{row.label}</p>
+                      <p className="text-xs text-white/25 mt-0.5">{row.sub}</p>
+                    </div>
+                    <p className={`text-lg font-semibold tabular-nums ${row.color}`}>{row.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Card 3: Quick Actions */}
+            <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.06]">
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  <Rocket className="w-4 h-4 text-purple-400" />Quick Actions
+                </h3>
+              </div>
+              <div className="p-5 space-y-2">
+                {[
+                  { label: "Generate All Metadata", description: "AI titles & descriptions for every page", icon: <Sparkles className="w-4 h-4" />, href: "/admin/seo?tab=metadata", color: "text-seed-400" },
+                  { label: "Run Site Crawl", description: "25+ on-page SEO checks", icon: <Bug className="w-4 h-4" />, href: "/admin/seo?tab=audit", color: "text-orange-400" },
+                  { label: "AI SEO Analysis", description: "Full strategy analysis by Claude", icon: <Brain className="w-4 h-4" />, href: "#ai-advisor", color: "text-blue-400", onClick: () => runAiAnalysis() },
+                  { label: "Research Keywords", description: "Discover new keyword opportunities", icon: <Target className="w-4 h-4" />, href: "/admin/seo/context", color: "text-yellow-400" },
+                ].map((action) => (
+                  <Link
+                    key={action.label}
+                    href={action.href}
+                    onClick={action.onClick}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors group"
+                  >
+                    <div className={`${action.color} shrink-0`}>{action.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-white/70 group-hover:text-white transition-colors">{action.label}</p>
+                      <p className="text-xs text-white/25 truncate">{action.description}</p>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-white/0 group-hover:text-white/40 transition-colors shrink-0" />
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -1016,35 +1197,87 @@ export default function SEODashboardPage() {
       {/* KEYWORDS TAB */}
       {activeTab === "keywords" && (
         <div className="space-y-6">
+          {/* Keyword Summary + Manage link */}
           <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2"><Search className="w-4 h-4 text-white/40" />Keyword Tracking</h2>
-              <div className="flex gap-2">{[1, 2, 3].map((t) => <span key={t} className={`text-xs px-2 py-0.5 rounded-full border ${tierColors[t]}`}>Tier {t}</span>)}</div>
+              <h2 className="text-sm font-semibold text-white flex items-center gap-2"><Target className="w-4 h-4 text-seed-400" />Tracked Keywords</h2>
+              <Link href="/admin/seo/context?section=keywords" className="flex items-center gap-1.5 text-xs text-seed-400 hover:text-seed-300 bg-seed-500/10 hover:bg-seed-500/20 px-3 py-1.5 rounded-lg transition-colors">
+                <SlidersHorizontal className="w-3.5 h-3.5" />Manage Keywords <ArrowRight className="w-3 h-3" />
+              </Link>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="text-left text-white/30 text-xs uppercase tracking-wider border-b border-white/[0.04]"><th className="px-5 py-3 font-medium">Keyword</th><th className="px-5 py-3 font-medium">Tier</th><th className="px-5 py-3 font-medium">Volume</th><th className="px-5 py-3 font-medium">Intent</th><th className="px-5 py-3 font-medium">Target Page</th><th className="px-5 py-3 font-medium text-right">Position</th><th className="px-5 py-3 font-medium text-right">Trend</th></tr></thead>
-                <tbody className="divide-y divide-white/[0.04]">
-                  {trackedKeywords.map((kw) => {
-                    const tierNum = tierMap[kw.tier] ?? 2;
-                    const livePos = gscSummary?.trackedPositions?.[kw.keyword];
-                    const prev = kw.currentPosition ?? null;
-                    const delta = livePos && prev ? prev - livePos : null;
-                    return (
-                      <tr key={kw.keyword} className="hover:bg-white/[0.02]">
-                        <td className="px-5 py-3 text-white/80 font-medium">{kw.keyword}</td>
-                        <td className="px-5 py-3"><span className={`text-xs px-2 py-0.5 rounded-full border ${tierColors[tierNum]}`}>T{tierNum}</span></td>
-                        <td className="px-5 py-3 text-white/50 font-mono text-xs">{kw.volume}</td>
-                        <td className="px-5 py-3 text-xs text-white/40">{kw.intent}</td>
-                        <td className="px-5 py-3 text-white/40 font-mono text-xs">{kw.targetPage}</td>
-                        <td className="px-5 py-3 text-right">{livePos ? <span className="text-seed-400 font-mono font-semibold">{livePos.toFixed(1)}</span> : kw.currentPosition ? <span className="text-white/40 font-mono">{kw.currentPosition}</span> : <span className="text-white/20">{"\u2014"}</span>}</td>
-                        <td className="px-5 py-3 text-right">{delta !== null && Math.abs(delta) >= 0.3 ? <span className={`flex items-center justify-end gap-1 text-xs ${delta > 0 ? "text-green-400" : "text-red-400"}`}>{delta > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{Math.abs(delta).toFixed(1)}</span> : <span className="text-white/20 text-xs">{"\u2014"}</span>}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+
+            {trackedKeywords.length > 0 ? (
+              <>
+                {/* Tier summary cards */}
+                <div className="grid grid-cols-3 gap-px bg-white/[0.04]">
+                  {[
+                    { tier: 1, label: "Tier 1 — Primary", keywords: tier1 },
+                    { tier: 2, label: "Tier 2 — Secondary", keywords: tier2 },
+                    { tier: 3, label: "Tier 3 — Long-tail", keywords: tier3 },
+                  ].map(({ tier, label, keywords: kws }) => (
+                    <div key={tier} className="bg-dark-elevated px-4 py-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${tierColors[tier]}`}>T{tier}</span>
+                        <span className="text-xs text-white/40">{label}</span>
+                        <span className="text-xs text-white/20 ml-auto">{kws.length}</span>
+                      </div>
+                      <div className="space-y-1">
+                        {kws.slice(0, 3).map((kw) => {
+                          const livePos = gscSummary?.trackedPositions?.[kw.keyword];
+                          return (
+                            <div key={kw.keyword} className="flex items-center justify-between">
+                              <span className="text-xs text-white/60 truncate max-w-[140px]">{kw.keyword}</span>
+                              {livePos ? <span className="text-xs text-seed-400 font-mono">{livePos.toFixed(1)}</span> : <span className="text-xs text-white/20">—</span>}
+                            </div>
+                          );
+                        })}
+                        {kws.length > 3 && <p className="text-[10px] text-white/20">+{kws.length - 3} more</p>}
+                        {kws.length === 0 && <p className="text-[10px] text-white/20">No keywords in this tier</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Top movers — show keywords with position changes */}
+                {(() => {
+                  const movers = trackedKeywords
+                    .map((kw) => {
+                      const livePos = gscSummary?.trackedPositions?.[kw.keyword];
+                      const prev = kw.currentPosition ?? null;
+                      const delta = livePos && prev ? prev - livePos : null;
+                      return { ...kw, livePos, delta };
+                    })
+                    .filter((kw) => kw.delta !== null && Math.abs(kw.delta!) >= 0.3)
+                    .sort((a, b) => Math.abs(b.delta!) - Math.abs(a.delta!));
+
+                  if (movers.length === 0) return null;
+                  return (
+                    <div className="px-5 py-3 border-t border-white/[0.04]">
+                      <p className="text-xs text-white/30 mb-2 uppercase tracking-wider font-medium">Position Changes</p>
+                      <div className="space-y-1.5">
+                        {movers.slice(0, 5).map((kw) => (
+                          <div key={kw.keyword} className="flex items-center justify-between">
+                            <span className="text-xs text-white/60">{kw.keyword}</span>
+                            <span className={`flex items-center gap-1 text-xs ${kw.delta! > 0 ? "text-green-400" : "text-red-400"}`}>
+                              {kw.delta! > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                              {Math.abs(kw.delta!).toFixed(1)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
+            ) : (
+              <div className="px-5 py-8 text-center">
+                <Target className="w-8 h-8 text-white/10 mx-auto mb-2" />
+                <p className="text-white/30 text-sm">No keywords tracked yet.</p>
+                <Link href="/admin/seo/context?section=keywords" className="text-seed-400 hover:text-seed-300 text-xs mt-1 inline-flex items-center gap-1">
+                  Add keywords on the AI Context page <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* AI Keyword Discovery */}
@@ -1102,16 +1335,44 @@ export default function SEODashboardPage() {
             {crawlIssues && crawlIssues.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="text-left text-white/30 text-xs uppercase tracking-wider border-b border-white/[0.04]"><th className="px-5 py-3 font-medium">Severity</th><th className="px-5 py-3 font-medium">Page</th><th className="px-5 py-3 font-medium">Issue</th><th className="px-5 py-3 font-medium">Check</th></tr></thead>
+                  <thead><tr className="text-left text-white/30 text-xs uppercase tracking-wider border-b border-white/[0.04]"><th className="px-5 py-3 font-medium">Severity</th><th className="px-5 py-3 font-medium">Page</th><th className="px-5 py-3 font-medium">Issue</th><th className="px-5 py-3 font-medium">Check</th><th className="px-5 py-3 font-medium text-right">Action</th></tr></thead>
                   <tbody className="divide-y divide-white/[0.04]">
-                    {crawlIssues.map((issue, idx) => (
-                      <tr key={idx} className="hover:bg-white/[0.02]">
-                        <td className="px-5 py-3"><span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${issue.severity === "critical" ? "bg-red-500/10 text-red-400" : issue.severity === "warning" ? "bg-yellow-500/10 text-yellow-400" : "bg-blue-500/10 text-blue-400"}`}>{issue.severity === "critical" && <AlertTriangle className="w-3 h-3" />}{issue.severity}</span></td>
-                        <td className="px-5 py-3 text-white/50 font-mono text-xs max-w-[200px] truncate">{issue.url}</td>
-                        <td className="px-5 py-3 text-white/70 text-xs">{issue.message}</td>
-                        <td className="px-5 py-3 text-white/30 text-xs">{issue.checkType}</td>
-                      </tr>
-                    ))}
+                    {crawlIssues.map((issue, idx) => {
+                      const issuePath = (() => { try { return new URL(issue.url).pathname || "/"; } catch { return "/"; } })();
+                      const isMetaFix = METADATA_CHECK_TYPES.has(issue.checkType);
+                      const matchingTask = seoTasks.find((t) => t.sourceUrl === issue.url && t.sourceCheckType === issue.checkType);
+                      return (
+                        <tr key={idx} className="hover:bg-white/[0.02]">
+                          <td className="px-5 py-3"><span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${issue.severity === "critical" ? "bg-red-500/10 text-red-400" : issue.severity === "warning" ? "bg-yellow-500/10 text-yellow-400" : "bg-blue-500/10 text-blue-400"}`}>{issue.severity === "critical" && <AlertTriangle className="w-3 h-3" />}{issue.severity}</span></td>
+                          <td className="px-5 py-3 text-white/50 font-mono text-xs max-w-[200px] truncate">{issuePath}</td>
+                          <td className="px-5 py-3 text-white/70 text-xs">{issue.message}</td>
+                          <td className="px-5 py-3 text-white/30 text-xs">{issue.checkType}</td>
+                          <td className="px-5 py-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {isMetaFix && (
+                                <button
+                                  onClick={() => {
+                                    setActiveTab("metadata");
+                                    setTimeout(() => { window.dispatchEvent(new CustomEvent("open-metadata-editor", { detail: { path: issuePath } })); }, 100);
+                                  }}
+                                  className="text-[11px] bg-seed-500/10 hover:bg-seed-500/20 text-seed-400 px-2 py-1 rounded-lg flex items-center gap-1"
+                                >
+                                  <Pencil className="w-3 h-3" />Fix
+                                </button>
+                              )}
+                              {matchingTask && (
+                                <button
+                                  onClick={() => setActiveTab("strategy")}
+                                  className="text-[11px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-2 py-1 rounded-lg flex items-center gap-1"
+                                >
+                                  <CheckCircle2 className="w-3 h-3" />{matchingTask.status === "done" ? "Done" : "Task"}
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1229,29 +1490,92 @@ export default function SEODashboardPage() {
       {/* STRATEGY TAB */}
       {activeTab === "strategy" && (
         <div className="space-y-6">
+          {/* Summary stats */}
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.06] rounded-lg px-4 py-2">
+              <Circle className="w-3 h-3 text-white/20" /><span className="text-sm text-white/50">{seoTasks.filter((t) => t.status === "not-started").length} Not Started</span>
+            </div>
+            <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-4 py-2">
+              <Clock className="w-3 h-3 text-yellow-400" /><span className="text-sm text-yellow-300">{tasksInProgress} In Progress</span>
+            </div>
+            <div className="flex items-center gap-2 bg-seed-500/10 border border-seed-500/20 rounded-lg px-4 py-2">
+              <CheckCircle2 className="w-3 h-3 text-seed-400" /><span className="text-sm text-seed-300">{tasksComplete} Done</span>
+            </div>
+            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">
+              <AlertTriangle className="w-3 h-3 text-red-400" /><span className="text-sm text-red-300">{seoTasks.filter((t) => (t.priority === "critical" || t.priority === "high") && t.status !== "done").length} High Priority</span>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Implementation Roadmap — NOW ACTIONABLE */}
             <div className="bg-dark-elevated border border-white/[0.06] rounded-xl">
-              <div className="px-5 py-4 border-b border-white/[0.06]"><h2 className="text-sm font-semibold text-white">Implementation Roadmap</h2></div>
-              <div className="divide-y divide-white/[0.04] max-h-96 overflow-y-auto">
-                {seoTasks.map((task) => (
-                  <div key={task.id} className="flex items-center gap-3 px-5 py-3">
-                    {statusIcons[task.status]}
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${task.status === "done" ? "text-white/30 line-through" : "text-white/70"}`}>{task.title}</p>
-                      <p className="text-xs text-white/20">Phase {task.phase}</p>
+              <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-white">Implementation Roadmap</h2>
+                <span className="text-xs text-white/30">{tasksComplete}/{tasksTotal} complete</span>
+              </div>
+              <div className="divide-y divide-white/[0.04] max-h-[32rem] overflow-y-auto">
+                {seoTasks.map((task) => {
+                  const fixAction = getTaskFixAction(task);
+                  const priorityBadge = task.priority === "critical"
+                    ? "bg-red-500/10 text-red-400 border-red-500/20"
+                    : task.priority === "high"
+                    ? "bg-orange-500/10 text-orange-400 border-orange-500/20"
+                    : task.priority === "medium"
+                    ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                    : "bg-white/[0.03] text-white/30 border-white/[0.06]";
+                  return (
+                    <div key={task.id} className={`px-5 py-3 hover:bg-white/[0.02] transition-colors ${task.status === "done" ? "opacity-50" : ""}`}>
+                      <div className="flex items-center gap-3">
+                        {/* Clickable status toggle */}
+                        <button
+                          onClick={() => cycleTaskStatus(task.id, task.status)}
+                          disabled={taskUpdating === task.id}
+                          className="shrink-0 hover:scale-110 transition-transform disabled:opacity-50"
+                          title={`Status: ${task.status} — Click to change`}
+                        >
+                          {taskUpdating === task.id
+                            ? <Loader2 className="w-4 h-4 text-white/30 animate-spin" />
+                            : statusIcons[task.status]}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm ${task.status === "done" ? "text-white/30 line-through" : "text-white/70"}`}>{task.title}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] text-white/20">Phase {task.phase}</span>
+                            <span className={`text-[10px] px-1.5 py-0 rounded-full border ${priorityBadge}`}>{task.priority}</span>
+                            {task.sourceType === "crawl" && <span className="text-[10px] text-blue-400/50 bg-blue-500/10 px-1.5 rounded-full">crawl</span>}
+                            {task.autoResolved && <span className="text-[10px] text-seed-400/50 bg-seed-500/10 px-1.5 rounded-full">auto-resolved</span>}
+                          </div>
+                        </div>
+                        {/* Fix action button */}
+                        {fixAction && task.status !== "done" && (
+                          <button
+                            onClick={fixAction.action}
+                            className="shrink-0 flex items-center gap-1 text-[11px] bg-seed-500/10 hover:bg-seed-500/20 text-seed-400 px-2.5 py-1 rounded-lg transition-colors"
+                          >
+                            <Pencil className="w-3 h-3" />{fixAction.label}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    {task.priority === "critical" && <AlertTriangle className="w-3.5 h-3.5 text-red-400/60 shrink-0" />}
+                  );
+                })}
+                {seoTasks.length === 0 && (
+                  <div className="px-5 py-8 text-center">
+                    <Rocket className="w-8 h-8 text-white/10 mx-auto mb-2" />
+                    <p className="text-white/30 text-sm">No tasks yet.</p>
+                    <p className="text-white/20 text-xs mt-1">Run a <button onClick={() => setActiveTab("audit")} className="text-seed-400 hover:underline">Site Audit</button> to auto-generate tasks.</p>
                   </div>
-                ))}
-                {seoTasks.length === 0 && <div className="px-5 py-6 text-center text-white/30 text-sm">No tasks yet. Add tasks in site onboarding.</div>}
+                )}
               </div>
             </div>
+
+            {/* Content Calendar (keep as-is) */}
             <div className="bg-dark-elevated border border-white/[0.06] rounded-xl">
               <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-white flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" />Content Calendar</h2>
                 <Link href="/admin/blog/new" className="text-xs text-seed-400 hover:text-seed-300 flex items-center gap-1">New post <ArrowRight className="w-3 h-3" /></Link>
               </div>
-              <div className="divide-y divide-white/[0.04] max-h-96 overflow-y-auto">
+              <div className="divide-y divide-white/[0.04] max-h-[32rem] overflow-y-auto">
                 {contentIdeas.map((item) => (
                   <div key={item.id} className="px-5 py-3">
                     <div className="flex items-center justify-between">
@@ -1296,6 +1620,11 @@ export default function SEODashboardPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* METADATA TAB */}
+      {activeTab === "metadata" && (
+        <MetadataTab />
       )}
 
     </div>

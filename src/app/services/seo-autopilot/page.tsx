@@ -1,3 +1,4 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -21,11 +22,12 @@ import {
 } from "@/components/kit";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
-export const metadata = {
-  title: "SEO Autopilot — Launch Your Website with SEO Already Operational | SeedTech",
+export const generateMetadata = buildMetadata("/services/seo-autopilot", {
+  title: "SEO Autopilot — Launch Your Website with SEO Already Operational",
   description:
-    "SeedTech websites are scaffolded from your business context and launched with SEO Autopilot already configured — ready to monitor visibility, plan content, and improve search performance from day one.",
-};
+    "SeedTech websites launch with SEO Autopilot already configured — monitoring visibility, planning content, and improving search performance from day one.",
+  canonical: "/services/seo-autopilot",
+});
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 

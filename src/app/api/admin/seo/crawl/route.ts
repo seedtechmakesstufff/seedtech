@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireSiteContext } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
 import { runCrawl, getLatestCrawlResults } from "@/lib/seo-crawler";
+import { generateTasksFromCrawl } from "@/lib/crawl-to-tasks";
 
 export async function GET() {
   const ctx = await requireSiteContext();
@@ -32,7 +33,16 @@ export async function POST(req: Request) {
     const baseUrl = (body as { baseUrl?: string }).baseUrl;
     const paths = (body as { paths?: string[] }).paths;
     const result = await runCrawl(siteId, baseUrl, paths);
-    return NextResponse.json(result);
+
+    // Auto-generate tasks from crawl issues
+    let taskResult = null;
+    try {
+      taskResult = await generateTasksFromCrawl(result.runId, siteId);
+    } catch {
+      // Non-blocking — task generation failure shouldn't fail the crawl response
+    }
+
+    return NextResponse.json({ ...result, tasks: taskResult });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Unknown error" },

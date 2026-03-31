@@ -1,3 +1,4 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { ArrowRight, Shield, Globe } from "lucide-react";
 import { Section } from "@/components/layout/Section";
@@ -12,6 +13,13 @@ import {
   AnimatedH1,
   AnimatedH2,
 } from "@/components/kit";
+
+export const generateMetadata = buildMetadata("/services", {
+  title: "Services",
+  description:
+    "Managed IT support, web development, ecommerce, custom software, and SEO — all from one technology partner. See what SeedTech can do for your business.",
+  canonical: "/services",
+});
 
 const services = [
   {

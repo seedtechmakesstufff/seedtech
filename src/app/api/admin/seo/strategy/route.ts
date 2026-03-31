@@ -17,6 +17,18 @@ export async function GET(_req: NextRequest) {
     prisma.seoTask.findMany({
       where: { siteId },
       orderBy: [{ phase: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        phase: true,
+        title: true,
+        status: true,
+        priority: true,
+        sourceType: true,
+        sourceUrl: true,
+        sourceCheckType: true,
+        autoResolved: true,
+        createdAt: true,
+      },
     }),
     prisma.contentIdea.findMany({
       where: { siteId },

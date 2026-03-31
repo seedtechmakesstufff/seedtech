@@ -25,6 +25,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/services/managed-it/why-seedtech`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/services/managed-it/mobile-device-management`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/services/web-development`, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/services/seedtech-platform`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/services/ecommerce-development`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/services/custom-development`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/services/seo-autopilot`, changeFrequency: "monthly", priority: 0.9 },
 
     // Pricing
     { url: `${SITE_URL}/pricing/it-support`, changeFrequency: "monthly", priority: 0.8 },
@@ -42,6 +46,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Our Work index
     { url: `${SITE_URL}/our-work`, changeFrequency: "weekly", priority: 0.7 },
+
+    // Reviews
+    { url: `${SITE_URL}/reviews`, changeFrequency: "monthly", priority: 0.7 },
+
+    // Free Audit
+    { url: `${SITE_URL}/free-audit`, changeFrequency: "monthly", priority: 0.8 },
 
     // Legal
     { url: `${SITE_URL}/terms-conditions`, changeFrequency: "yearly", priority: 0.3 },

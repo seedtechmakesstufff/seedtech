@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { SiBehance, SiInstagram, SiTiktok } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa";
@@ -30,6 +31,13 @@ const footerLinks = {
   services: [
     { label: "Managed IT Support", href: "/services/managed-it" },
     { label: "Web Development", href: "/services/web-development" },
+    { label: "SEO Autopilot", href: "/services/seo-autopilot" },
+  ],
+  industries: [
+    { label: "Trucking & Logistics", href: "/industries/trucking" },
+    { label: "Construction & Rigging", href: "/industries/construction" },
+    { label: "Law Firms", href: "/industries/law-firms" },
+    { label: "Medical Practices", href: "/industries/medical" },
   ],
   company: [
     { label: "About Us", href: "/about" },
@@ -42,18 +50,22 @@ export function Footer() {
   return (
     <footer className="border-t border-white/[0.06] bg-dark-base">
       <div className="mx-auto max-w-6xl px-6 py-20">
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+
+        {/* ── Row 1: Brand + Contact ───────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10 mb-16 pb-16 border-b border-white/[0.06]">
           {/* Brand */}
-          <div className="space-y-6">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center">
-                <span className="font-display text-lg font-bold text-white">S</span>
-              </div>
-              <span className="font-display text-xl font-bold text-white">SeedTech</span>
+          <div className="space-y-5 max-w-xs">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/seedtechlogo_white-scaled.webp"
+                alt="SeedTech"
+                width={140}
+                height={36}
+                className="h-9 w-auto object-contain"
+              />
             </Link>
-            <p className="text-body-sm text-white/50 leading-relaxed max-w-[250px]">
-              Premium IT support and web development solutions that help businesses grow.
+            <p className="text-sm text-white/45 leading-relaxed">
+              Premium IT support, web development, and SEO for businesses that take their digital presence seriously.
             </p>
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
@@ -63,7 +75,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="w-10 h-10 rounded-lg liquid-glass liquid-glass-hover flex items-center justify-center text-white/50 hover:text-white transition-all relative overflow-hidden"
+                  className="w-9 h-9 rounded-lg liquid-glass liquid-glass-hover flex items-center justify-center text-white/50 hover:text-white transition-all relative overflow-hidden"
                 >
                   {social.icon}
                 </a>
@@ -71,13 +83,47 @@ export function Footer() {
             </div>
           </div>
 
+          {/* Contact info */}
+          <div className="flex flex-col gap-4">
+            <h4 className="text-sm font-semibold text-white">Get in Touch</h4>
+            <a href="mailto:info@seedtechllc.com" className="flex items-center gap-3 text-sm text-white/50 hover:text-white transition-colors">
+              <Mail className="w-4 h-4 text-seed-500 shrink-0" />
+              info@seedtechllc.com
+            </a>
+            <a href="tel:+15551234567" className="flex items-center gap-3 text-sm text-white/50 hover:text-white transition-colors">
+              <Phone className="w-4 h-4 text-seed-500 shrink-0" />
+              (555) 123-4567
+            </a>
+            <span className="flex items-center gap-3 text-sm text-white/50">
+              <MapPin className="w-4 h-4 text-seed-500 shrink-0" />
+              Northern NJ
+            </span>
+          </div>
+        </div>
+
+        {/* ── Row 2: Nav columns ───────────────────────────────────────── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
           {/* Services */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-5">Services</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Services</h4>
             <ul className="space-y-3">
               {footerLinks.services.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Industries */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Industries</h4>
+            <ul className="space-y-3">
+              {footerLinks.industries.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -87,11 +133,11 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-5">Company</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Company</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-white/50 hover:text-white transition-colors">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -99,43 +145,24 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Helpful Resources */}
+          {/* Resources */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-5">Helpful Resources</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Resources</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/pricing/it-support" className="text-sm text-white/50 hover:text-white transition-colors">
+                <Link href="/pricing/it-support" className="text-sm text-white/60 hover:text-white transition-colors">
                   IT Support Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/pricing/web-development" className="text-sm text-white/50 hover:text-white transition-colors">
-                  Website Development Pricing
+                <Link href="/pricing/web-development" className="text-sm text-white/60 hover:text-white transition-colors">
+                  Website Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">
+                <Link href="/blog" className="text-sm text-white/60 hover:text-white transition-colors">
                   Blog
                 </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-5">Get in Touch</h4>
-            <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-sm text-white/50">
-                <Mail className="w-4 h-4 text-seed-500 shrink-0" />
-                info@seedtechllc.com
-              </li>
-              <li className="flex items-center gap-3 text-sm text-white/50">
-                <Phone className="w-4 h-4 text-seed-500 shrink-0" />
-                (555) 123-4567
-              </li>
-              <li className="flex items-center gap-3 text-sm text-white/50">
-                <MapPin className="w-4 h-4 text-seed-500 shrink-0" />
-                Northern NJ
               </li>
             </ul>
           </div>
@@ -143,7 +170,7 @@ export function Footer() {
 
         {/* Privacy Fine Print */}
         <div className="gradient-divider mb-8" />
-        <p className="text-[11px] leading-relaxed text-white/25 mb-8 max-w-4xl">
+        <p className="text-[11px] leading-relaxed text-white/25 mb-8 w-full">
           SeedTech LLC prioritizes user privacy and outlines how consumer contact information is handled. Contact
           details are voluntarily provided and used for service updates, inquiries, promotions, and service
           improvement. Information is never sold, leased, or traded, but may be shared when required by law or

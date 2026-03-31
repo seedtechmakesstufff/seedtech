@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { AnimatedH1 } from "@/components/kit";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
+import { getPageMetadataRecord } from "@/lib/page-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -19,15 +20,26 @@ export async function generateMetadata({
   const post = await getPostBySlug(params.slug);
   if (!post) return { title: "Post Not Found" };
 
+  // Check for admin overrides in PageMetadata DB
+  const dbMeta = await getPageMetadataRecord(`/blog/${params.slug}`);
+
+  const title = dbMeta?.title || post.metaTitle || post.title;
+  const description = dbMeta?.description || post.metaDescription || post.excerpt;
+
   return {
-    title: post.metaTitle || post.title,
-    description: post.metaDescription || post.excerpt,
+    title,
+    description,
+    alternates: { canonical: `/blog/${params.slug}` },
     openGraph: {
-      title: post.metaTitle || post.title,
-      description: post.metaDescription || post.excerpt,
+      title: dbMeta?.ogTitle || title,
+      description: dbMeta?.ogDescription || description,
       type: "article",
       publishedTime: post.publishedAt || undefined,
+      ...(dbMeta?.ogImageUrl ? { images: [{ url: dbMeta.ogImageUrl }] } : {}),
     },
+    ...(dbMeta?.noIndex || dbMeta?.noFollow
+      ? { robots: { index: !dbMeta.noIndex, follow: !dbMeta.noFollow } }
+      : {}),
   };
 }
 

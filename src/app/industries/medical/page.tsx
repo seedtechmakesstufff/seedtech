@@ -4,12 +4,13 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill, CTABanner, LiquidGlassCard } from "@/components/kit";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
+import { buildMetadata } from "@/lib/page-metadata";
 
-export const metadata = {
-  title: "Technology Support for Medical Practices — SeedTech",
+export const generateMetadata = buildMetadata("/industries/medical", {
+  title: "Technology Support for Medical Practices",
   description:
     "SeedTech helps medical practices improve reliability across email, devices, backups, websites, and day-to-day support with one accountable partner.",
-};
+});
 
 export default function MedicalPage() {
   return (

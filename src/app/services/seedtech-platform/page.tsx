@@ -1,46 +1,69 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
-  Code2,
   Zap,
-  Shield,
+  ShoppingCart,
+  SquareTerminal,
 } from "lucide-react";
 import {
   GradientOrb,
   GridPattern,
   AnimatedH1,
   AnimatedH2,
-  CTABanner,
   ProcessStep,
+  FAQAccordion,
+  LiquidGlassPill,
 } from "@/components/kit";
+import type { FAQItem } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { AutopilotCards } from "@/components/home/AutopilotCards";
+import { WebBuildCards } from "@/components/services/WebBuildCards";
+import Image from "next/image";
 
-export const metadata = {
-  title: "SeedTech Platform — Launch a Custom Website Faster With SEO Built In | SeedTech",
+export const generateMetadata = buildMetadata("/services/seedtech-platform", {
+  title: "SeedTech Platform — Launch a Custom Website Faster With SEO Built In",
   description:
-    "The SeedTech Platform is our fast-launch website infrastructure for service businesses and lead-generation brands. Built on Next.js, you own your code, and SEO Autopilot is configured from day one.",
-};
+    "The SeedTech Platform is our fast-launch website infrastructure for service businesses. Built on Next.js, you own your code, and SEO Autopilot is configured from day one.",
+  canonical: "/services/seedtech-platform",
+});
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
-const included = [
-  "Custom website implementation on the SeedTech Platform",
-  "Core page architecture based on your business and services",
-  "Mobile-responsive frontend implementation",
-  "Contact and lead-capture forms",
-  "Performance-focused website setup",
-  "Modern deployment workflow",
-  "Business-context-driven content structure",
-  "SEO Autopilot configuration",
-  "Launch support",
+const faqs: FAQItem[] = [
+  {
+    question: "Are we locked into your systems?",
+    answer:
+      "No — all code, files, servers, and assets are owned by you. We don't believe in locking customers into a system or holding them hostage to a singular platform, even SeedTech. Once a project is finished, we send over the full details and transfer complete ownership to you.",
+  },
+  {
+    question: "How long does a typical website build take?",
+    answer:
+      "Most SeedTech Platform builds are completed in 4–8 weeks from kickoff, depending on the number of pages, content readiness, and revision cycles. The Starter Build tends to move faster; the Robust Build includes more custom layout work, so we build in extra time for design refinement.\n\nThe biggest factor on our side is how quickly we receive content, brand assets, and feedback. We provide a clear onboarding checklist at the start so nothing stalls mid-build.",
+  },
+  {
+    question: "What is SEO Autopilot and is it really included in every build?",
+    answer:
+      "Yes — SEO Autopilot is our in-house SEO intelligence platform, and it's configured for your site as part of every SeedTech Platform build. It covers keyword tracking, weekly site health audits, AI search visibility scoring across ChatGPT, Perplexity, Gemini, and Google, internal link recommendations, and a strategy dashboard.\n\nYou don't have to set it up or integrate anything — it's live from day one because the platform is built around it.",
+  },
+  {
+    question: "Do I need to provide content before we start?",
+    answer:
+      "You don't need everything ready on day one, but having your core messaging, services list, and any existing brand assets prepared will speed things up significantly. We provide a content brief during onboarding that makes it straightforward to gather what we need.\n\nIf you need help with copy or content direction, we can fold that into the project scope — just let us know upfront.",
+  },
+  {
+    question: "Can I update the site myself after launch?",
+    answer:
+      "Yes. Because the site is built on standard Next.js infrastructure (not a locked CMS), your team can make direct edits to the codebase with a developer, or we can configure a headless CMS like Contentful or Sanity for non-technical editing. We walk through the handoff in detail at launch so you know exactly how to manage the site going forward.",
+  },
 ];
 
 const bestFor = [
   "Service businesses",
   "Local and regional businesses",
+  "Restaurants and hospitality brands",
   "Professional firms",
   "Lead-generation websites",
   "Businesses that need a modern launch path",
@@ -79,14 +102,6 @@ const pricing = [
   },
 ];
 
-const glassStyle: React.CSSProperties = {
-  borderRadius: 20,
-  border: "1px solid rgba(255, 255, 255, 0.10)",
-  background:
-    "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
-  backdropFilter: "blur(16px)",
-  WebkitBackdropFilter: "blur(16px)",
-};
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
@@ -109,27 +124,29 @@ export default function SeedTechPlatformPage() {
       {/* ══════════════════════════════════════════════════════════════════════
           HERO
           ══════════════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-dark-base py-32 md:py-44">
+      <section className="relative overflow-hidden bg-dark-base pt-32 md:pt-44 pb-32 md:pb-48">
         <GradientOrb color="seed" size="xl" className="-top-32 left-1/3 -translate-x-1/2 opacity-20" />
         <GradientOrb color="blue" size="lg" className="top-1/2 right-0 opacity-10" />
         <GridPattern />
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-seed-400 mb-6">
-            SeedTech Platform
-          </p>
+          {/* Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+            <LiquidGlassPill variant="default" size="sm" dot>
+              Web Development
+            </LiquidGlassPill>
+            <LiquidGlassPill variant="seed" size="sm" dot>
+              SeedTech Platform
+            </LiquidGlassPill>
+          </div>
+
           <AnimatedH1
             highlightWords={["Faster", "SEO"]}
             className="mb-8 text-center leading-[1.05]"
           >
             Launch a Custom Website Faster — With SEO Already Built In
           </AnimatedH1>
-          <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
-            The SeedTech Platform is our fast-launch website infrastructure for service businesses,
-            professional firms, and lead-generation brands. We use your business context to scaffold
-            the site, shape the page structure, and configure SEO Autopilot from day one — so you
-            launch faster with a site that is ready to work.
-          </p>
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <QuoteButton
               service="web-development"
@@ -139,7 +156,7 @@ export default function SeedTechPlatformPage() {
               <ArrowRight className="w-5 h-5" />
             </QuoteButton>
             <Link
-              href="#how-it-works"
+              href="#the-platform"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-white/10 text-white/60 text-base font-medium hover:text-white hover:border-white/20 transition-all duration-300"
             >
               See How It Works
@@ -152,60 +169,74 @@ export default function SeedTechPlatformPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          WHAT IT IS
+          WHAT IT IS + WEB BUILD FEATURE CARDS
           ══════════════════════════════════════════════════════════════════════ */}
-      <section className="bg-dark-raised py-24 md:py-32">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+      <section id="the-platform" className="bg-dark-base -mt-20 md:-mt-28 pb-24 md:pb-32 relative z-10">
+        <div className="mx-auto max-w-6xl px-6">
+          <div
+            style={{
+              borderRadius: 20,
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              background:
+                "linear-gradient(95deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.00) 70%), rgba(255,255,255,0.07)",
+              boxShadow:
+                "0 1.5px 0 1px rgba(255,255,255,0.14) inset, 0 -1px 0 1px rgba(0,0,0,0.10) inset, 0 8px 32px 0 rgba(0,0,0,0.18), 0 2px 8px 0 rgba(0,0,0,0.12)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+            }}
+            className="overflow-hidden"
+          >
+            {/* Text — centered, top */}
+            <div className="px-8 pt-10 pb-8 md:px-14 md:pt-14 md:pb-10 text-center max-w-2xl mx-auto">
               <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-4">
                 The Platform
               </p>
               <AnimatedH2
-                highlightWords={["Serious"]}
+                highlightWords={["Website"]}
                 className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-6"
               >
-                A Faster Path to a Serious Website
+                A Faster Path to Website Development
               </AnimatedH2>
-              <p className="text-sm md:text-[15px] text-white/50 leading-relaxed mb-4">
-                The SeedTech Platform gives you the speed of a proven system without forcing your
-                business into a generic template. We use structured onboarding, modern infrastructure,
-                and a repeatable build process to launch websites faster — then tailor the
-                implementation around your business, services, and goals.
-              </p>
               <p className="text-sm md:text-[15px] text-white/50 leading-relaxed">
-                This is the middle ground between cheap templates and slow, expensive custom builds:
-                a better foundation, a faster launch, and a more strategic result.
+                The SeedTech Platform is our fast-launch website infrastructure for service
+                businesses, professional firms, and lead-generation brands. We use your business
+                context to scaffold the site, shape the page structure, and configure SEO Autopilot
+                from day one — so you launch faster with a site that is ready to work.
               </p>
             </div>
-            <div className="flex flex-col gap-4">
-              {[
-                {
-                  icon: <Code2 className="w-5 h-5" />,
-                  title: "Built on open infrastructure",
-                  note: "Powered by Next.js and modern open-source technology. No proprietary lock-in.",
-                },
-                {
-                  icon: <Shield className="w-5 h-5" />,
-                  title: "You own your code",
-                  note: "Every line of code and every asset belongs to you. We build it, you keep it.",
-                },
-                {
-                  icon: <Zap className="w-5 h-5" />,
-                  title: "SEO from day one",
-                  note: "SEO Autopilot is configured during the build, not bolted on later.",
-                },
-              ].map((item) => (
-                <div key={item.title} style={glassStyle} className="p-5 flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-seed-500/10 border border-seed-500/20 flex items-center justify-center text-seed-400 shrink-0">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">{item.title}</p>
-                    <p className="text-xs text-white/40 leading-relaxed mt-1">{item.note}</p>
-                  </div>
-                </div>
-              ))}
+
+            {/* Image — padded, natural height */}
+            <div className="px-6 pb-8 md:px-10 md:pb-10">
+              <Image
+                src="/img/seed graphics/seedtech_platform_website_build.webp"
+                alt="SeedTech Platform website build preview"
+                width={1600}
+                height={900}
+                className="w-full h-auto block rounded-xl"
+                sizes="(max-width: 768px) calc(100vw - 3rem), calc(100vw - 5rem)"
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-white/[0.06]" />
+
+            {/* What's Included header — centered */}
+            <div className="px-8 pt-10 pb-6 md:px-14 md:pt-12 md:pb-8 text-center max-w-2xl mx-auto">
+              <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-3">
+                What&apos;s Included
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-white leading-tight mb-4">
+                What Comes with the Platform
+              </h2>
+              <p className="text-sm md:text-[15px] text-white/45 leading-relaxed">
+                Every SeedTech Platform build gives you the core website infrastructure you need
+                to launch cleanly, operate confidently, and improve over time.
+              </p>
+            </div>
+
+            {/* Feature Cards */}
+            <div className="px-6 pb-8 md:px-10 md:pb-10">
+              <WebBuildCards />
             </div>
           </div>
         </div>
@@ -260,37 +291,6 @@ export default function SeedTechPlatformPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          WHAT'S INCLUDED
-          ══════════════════════════════════════════════════════════════════════ */}
-      <section className="bg-dark-raised py-24 md:py-32">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-widest text-seed-400 mb-4">
-              What&apos;s Included
-            </p>
-            <AnimatedH2
-              highlightWords={["Platform"]}
-              className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-5"
-            >
-              What Comes with the Platform
-            </AnimatedH2>
-            <p className="text-sm md:text-base text-white/45 max-w-2xl mx-auto leading-relaxed">
-              Every SeedTech Platform build gives you the core website infrastructure you need
-              to launch cleanly, operate confidently, and improve over time.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {included.map((item) => (
-              <div key={item} style={glassStyle} className="p-5 flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-seed-400 shrink-0 mt-0.5" />
-                <span className="text-sm text-white/60">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
           WHY IT'S DIFFERENT
@@ -440,10 +440,10 @@ export default function SeedTechPlatformPage() {
                   tier.highlighted ? "liquid-glass-tinted-seed" : ""
                 }`}
               >
-                <p className="font-display text-3xl md:text-4xl text-seed-400 mb-1">
+                <p className="text-xs text-white/40 uppercase tracking-wider mb-1">Starting at</p>
+                <p className="font-display text-3xl md:text-4xl text-seed-400 mb-3">
                   {tier.starting}
                 </p>
-                <p className="text-xs text-white/40 uppercase tracking-wider mb-3">Starting at</p>
                 <h3 className="font-display text-xl md:text-2xl text-white mb-3">
                   {tier.name}
                 </h3>
@@ -479,19 +479,63 @@ export default function SeedTechPlatformPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          CTA
+          FAQ
           ══════════════════════════════════════════════════════════════════════ */}
-      <section className="bg-dark-base py-16 px-6">
-        <div className="mx-auto max-w-4xl">
-          <CTABanner
-            theme="light"
-            title="Start with the Platform Built to Launch Better"
-            description="Tell us about your business, your services, and what the website needs to do — and we'll turn that into a launch-ready site with SEO already operational."
-            primaryLabel="Start Your Website Build"
-            primaryHref="/contact"
-            secondaryLabel="See All Web Development"
-            secondaryHref="/services/web-development"
-          />
+      <section className="bg-dark-base py-24 md:py-32">
+        <div className="mx-auto max-w-3xl px-6">
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-seed-400 mb-3">FAQ</p>
+            <h2 className="font-display text-heading md:text-heading-lg text-white leading-tight">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <FAQAccordion items={faqs} />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          EXPLORE OTHER PATHS
+          ══════════════════════════════════════════════════════════════════════ */}
+      <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-6 text-center">
+            Explore other web development paths
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/services/ecommerce-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-blue-500/30 hover:bg-blue-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-4 h-4 text-blue-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Ecommerce Development — Shopify, BigCommerce, and custom storefronts
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-blue-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/custom-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <SquareTerminal className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Custom Development — SaaS, portals, internal tools, and web apps
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-cyan-400 transition-colors shrink-0" />
+            </Link>
+          </div>
+
+          <p className="text-center text-sm text-white/25 mt-8">
+            Not sure which fits your project?{" "}
+            <Link href="/contact" className="text-seed-400/70 hover:text-seed-400 transition-colors">
+              Contact us and we&apos;ll help you figure it out.
+            </Link>
+          </p>
         </div>
       </section>
     </div>

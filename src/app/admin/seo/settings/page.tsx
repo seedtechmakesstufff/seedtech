@@ -16,21 +16,19 @@ import {
   Gauge,
   Send,
   ExternalLink,
-  Save,
-  Target,
   CalendarClock,
   Mail,
   Clock,
-  Building2,
   Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 /* ═══════════════════════════════════════════════════════════════
    Types
    ═══════════════════════════════════════════════════════════════ */
 
-type Section = "connections" | "business" | "keywords" | "automation";
+type Section = "connections" | "automation";
 
 interface ConnectionStatus {
   status: "connected" | "invalid" | "rate_limited" | "missing" | "disconnected" | "error" | "untested";
@@ -39,20 +37,6 @@ interface ConnectionStatus {
   model?: string;
   latencyMs?: number;
   siteUrl?: string;
-}
-
-interface BusinessContext {
-  companyName: string;
-  tagline: string;
-  location: string;
-  domain: string;
-  primaryService: string;
-  secondaryServices: string[];
-  targetAudience: string;
-  uniqueSellingPoints: string[];
-  toneOfVoice: string;
-  customInstructions: string;
-  updatedAt: string;
 }
 
 const STATUS_CONFIG = {
@@ -67,8 +51,6 @@ const STATUS_CONFIG = {
 
 const NAV_SECTIONS: { key: Section; label: string; icon: React.ComponentType<{ className?: string }>; desc: string }[] = [
   { key: "connections", label: "Connections", icon: Globe, desc: "API keys & integrations" },
-  { key: "business", label: "Business Context", icon: Building2, desc: "Company profile & AI voice" },
-  { key: "keywords", label: "Keywords & Strategy", icon: Target, desc: "Tracked keywords & calendar" },
   { key: "automation", label: "Automation & Reports", icon: CalendarClock, desc: "Cron, email & IndexNow" },
 ];
 
@@ -143,13 +125,24 @@ export default function SeoSettingsPage() {
               </div>
             </div>
           )}
+          {/* AI Context link */}
+          <div className="mt-6 px-3.5">
+            <Link
+              href="/admin/seo/context"
+              className="flex items-start gap-3 px-3.5 py-3 rounded-xl bg-purple-500/[0.04] border border-purple-500/15 hover:bg-purple-500/[0.08] hover:border-purple-500/25 transition-all"
+            >
+              <Brain className="w-5 h-5 text-purple-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-purple-400">AI Context</p>
+                <p className="text-[11px] text-white/30 mt-0.5">Business profile, page context, keywords & AI preview</p>
+              </div>
+            </Link>
+          </div>
         </nav>
 
         {/* Content area */}
         <div className="flex-1 min-w-0">
           {section === "connections" && <ConnectionsSection envVars={envVars} envLoaded={envLoaded} />}
-          {section === "business" && <BusinessSection />}
-          {section === "keywords" && <KeywordsSection />}
           {section === "automation" && <AutomationSection envVars={envVars} />}
         </div>
       </div>
@@ -367,289 +360,6 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://yourdomain.com`}</pre>
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SECTION: Business Context
-   ═══════════════════════════════════════════════════════════════ */
-
-function BusinessSection() {
-  const [context, setContext] = useState<BusinessContext | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/admin/settings/business-context")
-      .then((r) => r.json())
-      .then((data) => { setContext(data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
-
-  const save = useCallback(async () => {
-    if (!context) return;
-    setSaving(true); setSaved(false);
-    try {
-      const res = await fetch("/api/admin/settings/business-context", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(context),
-      });
-      const data = await res.json();
-      setContext(data);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch { /* silent */ }
-    setSaving(false);
-  }, [context]);
-
-  const updateField = (field: keyof BusinessContext, value: string) => {
-    if (!context) return;
-    setContext({ ...context, [field]: value });
-  };
-
-  const updateArrayField = (field: keyof BusinessContext, value: string) => {
-    if (!context) return;
-    setContext({ ...context, [field]: value.split("\n").filter(Boolean) });
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-white/30" />
-      </div>
-    );
-  }
-
-  if (!context) {
-    return (
-      <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-8 text-center">
-        <p className="text-white/40">Failed to load business context.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-seed-400" />
-            Business Context
-          </h2>
-          <p className="text-xs text-white/40 mt-0.5">
-            This profile feeds into every AI-generated output — advisor analysis, blog posts, keyword discovery, and insights.
-          </p>
-        </div>
-        <button
-          onClick={save}
-          disabled={saving}
-          className={cn(
-            "flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-lg transition-all",
-            saved
-              ? "bg-green-500/10 text-green-400 border border-green-500/20"
-              : "bg-seed-500 hover:bg-seed-600 text-white"
-          )}
-        >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-          {saving ? "Saving…" : saved ? "Saved!" : "Save Changes"}
-        </button>
-      </div>
-
-      {/* Company Info */}
-      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl p-6 space-y-5">
-        <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Company Info</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FieldInput label="Company Name" value={context.companyName} onChange={(v) => updateField("companyName", v)} />
-          <FieldInput label="Tagline" value={context.tagline} onChange={(v) => updateField("tagline", v)} />
-          <FieldInput label="Location" value={context.location} onChange={(v) => updateField("location", v)} />
-          <FieldInput label="Domain" value={context.domain} onChange={(v) => updateField("domain", v)} />
-        </div>
-      </section>
-
-      {/* Services */}
-      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl p-6 space-y-5">
-        <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Services & Audience</h3>
-        <FieldInput label="Primary Service" value={context.primaryService} onChange={(v) => updateField("primaryService", v)} />
-        <FieldTextarea
-          label="Secondary Services"
-          value={context.secondaryServices.join("\n")}
-          onChange={(v) => updateArrayField("secondaryServices", v)}
-          hint="One per line"
-          rows={3}
-        />
-        <FieldInput label="Target Audience" value={context.targetAudience} onChange={(v) => updateField("targetAudience", v)} />
-        <FieldTextarea
-          label="Unique Selling Points"
-          value={context.uniqueSellingPoints.join("\n")}
-          onChange={(v) => updateArrayField("uniqueSellingPoints", v)}
-          hint="One per line"
-          rows={4}
-        />
-      </section>
-
-      {/* Voice & Instructions */}
-      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl p-6 space-y-5">
-        <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">AI Voice & Instructions</h3>
-        <FieldInput label="Tone of Voice" value={context.toneOfVoice} onChange={(v) => updateField("toneOfVoice", v)} placeholder="e.g., Professional yet approachable, technical but clear" />
-        <FieldTextarea
-          label="Custom Instructions"
-          value={context.customInstructions}
-          onChange={(v) => updateField("customInstructions", v)}
-          hint="Extra rules for AI outputs — e.g., 'always link back to /pricing', 'never mention competitor X'"
-          rows={5}
-        />
-      </section>
-
-      {context.updatedAt && (
-        <p className="text-xs text-white/25">
-          Last updated: {new Date(context.updatedAt).toLocaleString()}
-        </p>
-      )}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SECTION: Keywords & Strategy
-   ═══════════════════════════════════════════════════════════════ */
-
-function KeywordsSection() {
-  // Load from DB API
-  const [keywords, setKeywords] = useState<{ keyword: string; tier: string; volume: string; competition: string; intent: string; targetPage: string }[]>([]);
-  const [calendar, setCalendar] = useState<{ title: string; targetKeyword: string; status: string; wordCount: number }[]>([]);
-
-  useEffect(() => {
-    fetch("/api/admin/seo/keywords").then((r) => r.json()).then((d) => {
-      if (d.keywords) setKeywords(d.keywords.map((k: { keyword: string; tier: string; volume: string; competition: string; intent: string; targetPage: string }) => ({
-        keyword: k.keyword,
-        tier: k.tier,
-        volume: k.volume,
-        competition: k.competition,
-        intent: k.intent,
-        targetPage: k.targetPage,
-      })));
-    }).catch(() => {});
-    fetch("/api/admin/seo/strategy").then((r) => r.json()).then((d) => {
-      if (d.contentIdeas) setCalendar(d.contentIdeas.map((c: { title: string; targetKeyword: string; status: string; wordCount: number }) => ({
-        title: c.title,
-        targetKeyword: c.targetKeyword,
-        status: c.status,
-        wordCount: c.wordCount,
-      })));
-    }).catch(() => {});
-  }, []);
-
-  const tierMap: Record<string, number> = { tier1: 1, tier2: 2, tier3: 3 };
-
-  const tierColors: Record<number, string> = {
-    1: "bg-seed-500/20 text-seed-400 border-seed-500/30",
-    2: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    3: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  };
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Target className="w-5 h-5 text-seed-400" />
-          Tracked Keywords
-        </h2>
-        <p className="text-xs text-white/40 mt-0.5">
-          {keywords.length} keywords tracked across 3 tiers. Loaded from database.
-        </p>
-      </div>
-
-      {/* Keywords table */}
-      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Keyword</th>
-                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Tier</th>
-                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Volume</th>
-                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Competition</th>
-                <th className="text-left px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Intent</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Target Page</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {keywords.map((kw) => (
-                <tr key={kw.keyword} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="px-4 py-2.5 text-white/70 font-medium">{kw.keyword}</td>
-                  <td className="px-3 py-2.5 text-center">
-                    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", tierColors[tierMap[kw.tier] ?? 2] || "")}>
-                      T{tierMap[kw.tier] ?? 2}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2.5 text-center text-white/40">{kw.volume}</td>
-                  <td className="px-3 py-2.5 text-center text-white/40">{kw.competition}</td>
-                  <td className="px-3 py-2.5 text-white/40 capitalize">{kw.intent}</td>
-                  <td className="px-4 py-2.5 text-white/30 text-xs font-mono">{kw.targetPage}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Content Calendar */}
-      <div>
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <CalendarClock className="w-5 h-5 text-seed-400" />
-          Content Calendar
-        </h2>
-        <p className="text-xs text-white/40 mt-0.5">{calendar.length} planned blog posts.</p>
-      </div>
-
-      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Topic</th>
-                <th className="text-left px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Target Keyword</th>
-                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Words</th>
-                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {calendar.map((c) => (
-                <tr key={c.title} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="px-4 py-2.5 text-white/70">{c.title}</td>
-                  <td className="px-3 py-2.5 text-white/40">{c.targetKeyword}</td>
-                  <td className="px-3 py-2.5 text-center text-white/40">{c.wordCount.toLocaleString()}</td>
-                  <td className="px-3 py-2.5 text-center">
-                    <span className={cn(
-                      "text-[10px] font-semibold px-2 py-0.5 rounded-full border",
-                      c.status === "published" ? "bg-green-500/20 text-green-400 border-green-500/30" :
-                      c.status === "draft" ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
-                      "bg-white/[0.06] text-white/30 border-white/[0.06]"
-                    )}>
-                      {c.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5">
-        <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-white/30 mt-0.5 shrink-0" />
-          <div>
-            <p className="text-sm text-white/50 font-medium">Roadmap: DB-driven strategy</p>
-            <p className="text-xs text-white/30 mt-1">
-              Keywords and the content calendar are currently stored in <code className="bg-white/[0.06] px-1 py-0.5 rounded">src/data/seo-strategy.ts</code>. A future update will move these to the database with full CRUD from this settings page.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
    SECTION: Automation & Reports
    ═══════════════════════════════════════════════════════════════ */
 
@@ -658,6 +368,56 @@ function AutomationSection({ envVars }: { envVars: Record<string, boolean> }) {
   const [cronResult, setCronResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [reportPreview, setReportPreview] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+
+  /* ── GSC Sync State ── */
+  const [gscSync, setGscSync] = useState<{
+    configured: boolean;
+    lastSyncAt: string | null;
+    lastSyncStatus: string | null;
+    isStale: boolean;
+    isSyncing: boolean;
+    totalSyncs: number;
+    lastKeywordsFetched: number;
+    lastPagesFetched: number;
+  } | null>(null);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  const fetchSyncStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/seo/gsc-sync");
+      const data = await res.json();
+      setGscSync(data);
+    } catch { /* silent */ }
+  }, []);
+
+  useEffect(() => {
+    fetchSyncStatus();
+  }, [fetchSyncStatus]);
+
+  const triggerSync = useCallback(async (force = false) => {
+    setSyncLoading(true);
+    setSyncResult(null);
+    try {
+      const res = await fetch("/api/admin/seo/gsc-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ force }),
+      });
+      const data = await res.json();
+      if (data.status === "completed") {
+        setSyncResult({ ok: true, message: data.message });
+      } else if (data.status === "skipped") {
+        setSyncResult({ ok: true, message: data.message });
+      } else {
+        setSyncResult({ ok: false, message: data.message || data.error || "Sync failed" });
+      }
+      fetchSyncStatus();
+    } catch {
+      setSyncResult({ ok: false, message: "Failed to reach the server." });
+    }
+    setSyncLoading(false);
+  }, [fetchSyncStatus]);
 
   const testCron = useCallback(async () => {
     setCronTesting(true); setCronResult(null);
@@ -681,6 +441,95 @@ function AutomationSection({ envVars }: { envVars: Record<string, boolean> }) {
 
   return (
     <div className="space-y-6">
+      {/* GSC Data Sync */}
+      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+            <Search className="w-4 h-4 text-blue-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-white">GSC Data Sync</h3>
+            <p className="text-xs text-white/40 mt-0.5">Pull keyword rankings &amp; page metrics from Google Search Console.</p>
+          </div>
+          {gscSync?.configured ? (
+            gscSync.isStale ? (
+              <span className="text-xs bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/20">Stale</span>
+            ) : (
+              <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">Fresh</span>
+            )
+          ) : (
+            <span className="text-xs bg-white/[0.04] text-white/30 px-2 py-0.5 rounded-full border border-white/[0.06]">Not configured</span>
+          )}
+        </div>
+        <div className="p-6 space-y-4">
+          {/* Stats grid */}
+          {gscSync && (
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06]">
+                <p className="text-xs text-white/40 mb-1">Last Sync</p>
+                <p className="text-sm text-white">
+                  {gscSync.lastSyncAt
+                    ? new Date(gscSync.lastSyncAt).toLocaleString()
+                    : "Never"}
+                </p>
+              </div>
+              <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06]">
+                <p className="text-xs text-white/40 mb-1">Status</p>
+                <p className={cn("text-sm font-medium", {
+                  "text-green-400": gscSync.lastSyncStatus === "completed",
+                  "text-red-400": gscSync.lastSyncStatus === "failed",
+                  "text-yellow-400": gscSync.lastSyncStatus === "running",
+                  "text-white/30": !gscSync.lastSyncStatus,
+                })}>
+                  {gscSync.lastSyncStatus ? gscSync.lastSyncStatus.charAt(0).toUpperCase() + gscSync.lastSyncStatus.slice(1) : "—"}
+                </p>
+              </div>
+              <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06]">
+                <p className="text-xs text-white/40 mb-1">Keywords Pulled</p>
+                <p className="text-sm text-white">{gscSync.lastKeywordsFetched}</p>
+              </div>
+              <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06]">
+                <p className="text-xs text-white/40 mb-1">Total Syncs</p>
+                <p className="text-sm text-white">{gscSync.totalSyncs}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Schedule info */}
+          <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06]">
+            <p className="text-xs text-white/40 mb-1">Sync Schedule</p>
+            <p className="text-sm text-white">Staleness-based — auto-syncs when data is &gt;6 hours old on dashboard visit</p>
+            <p className="text-[11px] text-white/25 mt-0.5">Uses ~4 GSC API calls per sync (1,200/day limit). Manual sync always available below.</p>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => triggerSync(true)}
+              disabled={syncLoading || !gscSync?.configured}
+              className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 disabled:opacity-50 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
+            >
+              {syncLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              {syncLoading ? "Syncing…" : "Sync Now"}
+            </button>
+            {syncResult && (
+              <div className={cn("flex items-center gap-2 text-xs", syncResult.ok ? "text-green-400" : "text-red-400")}>
+                {syncResult.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                <span className="max-w-md truncate">{syncResult.message}</span>
+              </div>
+            )}
+          </div>
+
+          {!gscSync?.configured && (
+            <p className="text-xs text-white/25">
+              Configure Google Search Console in the{" "}
+              <button onClick={() => {}} className="text-seed-400 hover:underline">Connections</button>{" "}
+              tab to enable data sync.
+            </p>
+          )}
+        </div>
+      </section>
+
       {/* Weekly Cron */}
       <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3">
@@ -927,42 +776,6 @@ function ConnectionCard({
         )}
       </div>
     </section>
-  );
-}
-
-function FieldInput({ label, value, onChange, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="text-xs text-white/40 font-medium mb-1.5 block">{label}</span>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-dark-base border border-white/[0.08] rounded-lg px-3.5 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-seed-500/40 focus:ring-1 focus:ring-seed-500/20 transition-colors"
-      />
-    </label>
-  );
-}
-
-function FieldTextarea({ label, value, onChange, hint, rows = 3 }: {
-  label: string; value: string; onChange: (v: string) => void; hint?: string; rows?: number;
-}) {
-  return (
-    <label className="block">
-      <span className="text-xs text-white/40 font-medium mb-1.5 block">
-        {label}
-        {hint && <span className="text-white/20 ml-2">— {hint}</span>}
-      </span>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        className="w-full bg-dark-base border border-white/[0.08] rounded-lg px-3.5 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-seed-500/40 focus:ring-1 focus:ring-seed-500/20 transition-colors resize-none"
-      />
-    </label>
   );
 }
 

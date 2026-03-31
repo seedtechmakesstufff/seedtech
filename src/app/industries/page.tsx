@@ -1,14 +1,16 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { ArrowRight, Truck, HardHat, Scale, Stethoscope } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill } from "@/components/kit";
 import { CTABanner } from "@/components/kit";
 
-export const metadata = {
-  title: "Industry Solutions — SeedTech",
+export const generateMetadata = buildMetadata("/industries", {
+  title: "Industry Solutions",
   description:
     "SeedTech specializes in technology solutions for trucking, construction, law firms, and medical practices. Websites, IT support, and cybersecurity built for your industry.",
-};
+  canonical: "/industries",
+});
 
 const industries = [
   {

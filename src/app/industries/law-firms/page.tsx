@@ -36,12 +36,13 @@ import {
   LiquidGlassCard,
 } from "@/components/kit";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
+import { buildMetadata } from "@/lib/page-metadata";
 
-export const metadata = {
-  title: "Websites & Managed IT for Law Firms — SeedTech",
+export const generateMetadata = buildMetadata("/industries/law-firms", {
+  title: "Websites & Managed IT for Law Firms",
   description:
     "SeedTech helps law firms improve follow-through with clearer websites, better intake flow, and more dependable day-to-day technology support.",
-};
+});
 
 /* ── Data ───────────────────────────────────────────────────────────────────── */
 

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -25,19 +25,15 @@ import {
 import { QuoteButton } from "@/components/quote-flow";
 import { newPlans, mdmAddon } from "@/lib/plans";
 
-export const metadata: Metadata = {
+export const generateMetadata = buildMetadata("/services/managed-it/plans", {
   title: "SeedCare Plans & Pricing | Managed IT Services — SeedTech",
   description:
     "Transparent per-user managed IT pricing. SeedCare Essentials ($110), Plus ($130), and Pro ($160) per user/month. No hidden fees, no long-term contracts.",
-  openGraph: {
-    title: "SeedCare Plans & Pricing | Managed IT Services",
-    description:
-      "Transparent per-user managed IT pricing starting at $110/user/month. No hidden fees, no long-term contracts.",
-    url: "https://seedtechllc.com/services/managed-it/plans",
-    type: "website",
-  },
-  alternates: { canonical: "https://seedtechllc.com/services/managed-it/plans" },
-};
+  ogTitle: "SeedCare Plans & Pricing | Managed IT Services",
+  ogDescription:
+    "Transparent per-user managed IT pricing starting at $110/user/month. No hidden fees, no long-term contracts.",
+  canonical: "/services/managed-it/plans",
+});
 
 const featureKeys = [
   "Remote Help Desk",

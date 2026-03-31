@@ -86,6 +86,12 @@ model Site {
   evidence         ExperienceEvidence[]
   cronRuns         CronJobRun[]
   linkSuggestions  InternalLinkSuggestion[]
+  pageMetadata     PageMetadata[]
+  pageContexts     PageContext[]
+  contextNodes     ContextNode[]
+  gscSyncLogs      GscSyncLog[]
+  gscDailyKeywords GscDailyKeyword[]
+  gscDailyPages    GscDailyPage[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -685,11 +691,18 @@ model SeoTask {
   title     String
   status    String   @default("not-started") // "done", "in-progress", "not-started"
   priority  String   @default("medium")      // "critical", "high", "medium", "low"
+  // Source tracking for crawl-generated tasks (dedup + auto-resolve)
+  sourceType     String?                     // "crawl", "insight", "manual"
+  sourceUrl      String?                     // page URL the issue was found on
+  sourceCheckType String?                    // crawl checkType (e.g. "missing-title")
+  sourceRunId    String?                     // crawl runId that generated this task
+  autoResolved   Boolean  @default(false)    // true if auto-closed when issue disappeared
   site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([siteId, status])
+  @@index([siteId, sourceUrl, sourceCheckType])
   @@map("seo_tasks")
 }
 
@@ -842,3 +855,177 @@ model UserInvite {
   @@map("user_invites")
 }
 
+// ── Page Metadata Management (SEO Autopilot — Metadata Tab) ──
+
+model PageMetadata {
+  id              String   @id @default(cuid())
+  siteId          String
+  path            String                          // e.g. "/about", "/services/managed-it"
+  title           String?                         // <title> tag
+  description     String?                         // <meta name="description">
+  ogTitle         String?                         // og:title override (falls back to title)
+  ogDescription   String?                         // og:description override (falls back to description)
+  ogImageUrl      String?                         // og:image URL
+  twitterCard     String   @default("summary_large_image")
+  canonical       String?                         // <link rel="canonical">
+  noIndex         Boolean  @default(false)        // robots noindex
+  noFollow        Boolean  @default(false)        // robots nofollow
+  jsonLdType      String?                         // "Service", "Article", "LocalBusiness", etc.
+  jsonLdData      Json?                           // full JSON-LD payload
+  lastCrawledAt   DateTime?                       // last time crawler verified this page
+  crawlStatus     String?                         // "complete", "missing-og", "missing-desc", etc.
+  lastEditedBy    String?                         // userId who last edited
+  site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([siteId, path])
+  @@index([siteId])
+  @@map("page_metadata")
+}
+
+// ── Page Context (AI-facing descriptions for each page) ──
+// These are human-written descriptions of what each page covers,
+// used as the PRIMARY signal when AI generates metadata, blog intros, etc.
+model PageContext {
+  id          String   @id @default(cuid())
+  siteId      String
+  path        String                          // e.g. "/services/seedtech-platform"
+  description String   @db.Text              // 2-4 sentence description of what this page covers
+  keywords    String[] @default([])           // keywords specifically relevant to this page
+  pageType    String   @default("page")       // page, service, industry, blog, landing
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  linkedNodes PageContextNode[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([siteId, path])
+  @@index([siteId])
+  @@map("page_contexts")
+}
+
+// ── Context Nodes (service/offering/product context for AI) ──
+// Each node represents a distinct service, product, or offering with rich structured context.
+// Linked to pages via PageContextNode junction with relevance levels.
+model ContextNode {
+  id              String            @id @default(cuid())
+  siteId          String
+  name            String                            // "Managed IT Support", "Cloud Migration"
+  slug            String                            // auto-generated from name, used for fallback matching
+  nodeType        String            @default("service") // service, offering, division, product
+  color           String            @default("#a855f7")  // hex color for UI cards
+  icon            String            @default("Briefcase") // lucide icon name
+
+  // ── Structured context fields ──
+  summary         String            @db.Text         // 2-3 sentence elevator pitch
+  audience        String?           @db.Text         // who this is for
+  pricing         String?           @db.Text         // pricing model / range
+  usps            String[]          @default([])     // unique selling points
+  messaging       String?           @db.Text         // key messaging guidelines
+  doSay           String[]          @default([])     // phrases/terms to use
+  dontSay         String[]          @default([])     // phrases/terms to avoid
+  competitors     String[]          @default([])     // competitor names for differentiation
+  detailedContext String?           @db.Text         // freeform rich context (markdown)
+
+  // ── Canvas position (persisted for visual layout) ──
+  posX            Float             @default(0)
+  posY            Float             @default(0)
+
+  site            Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  linkedPages     PageContextNode[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@unique([siteId, slug])
+  @@index([siteId])
+  @@map("context_nodes")
+}
+
+// ── Junction: which context nodes are relevant to which pages ──
+model PageContextNode {
+  id              String       @id @default(cuid())
+  pageContextId   String
+  contextNodeId   String
+  relevance       String       @default("primary")  // primary (full context), secondary (summary only), mention (name only)
+
+  pageContext     PageContext   @relation(fields: [pageContextId], references: [id], onDelete: Cascade)
+  contextNode     ContextNode  @relation(fields: [contextNodeId], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+
+  @@unique([pageContextId, contextNodeId])
+  @@index([pageContextId])
+  @@index([contextNodeId])
+  @@map("page_context_nodes")
+}
+
+// ── GSC Sync Logs (tracks each sync execution) ──
+// One row per sync run — shows when data was last pulled and what was fetched.
+
+model GscSyncLog {
+  id              String    @id @default(cuid())
+  siteId          String
+  status          String    @default("running") // running, completed, failed
+  syncType        String    @default("full")    // full, keywords-only, pages-only
+  keywordsFetched Int       @default(0)
+  pagesFetched    Int       @default(0)
+  keywordsUpdated Int       @default(0)         // TrackedKeyword records updated
+  daysRange       Int       @default(28)        // how many days of data pulled
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  durationMs      Int?
+  errorMessage    String?
+  site            Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+
+  @@index([siteId, createdAt])
+  @@index([siteId, status])
+  @@map("gsc_sync_logs")
+}
+
+// ── GSC Daily Keyword Data ──
+// Historical keyword performance from GSC. One row per keyword per date.
+// Enables trend charts and position tracking over time.
+
+model GscDailyKeyword {
+  id          String   @id @default(cuid())
+  siteId      String
+  date        DateTime @db.Date              // the day this data is for
+  query       String                         // the search query / keyword
+  clicks      Int      @default(0)
+  impressions Int      @default(0)
+  ctr         Float    @default(0)
+  position    Float    @default(0)           // avg position for this day
+  device      String   @default("all")       // all, mobile, desktop, tablet
+  country     String   @default("all")       // all, or ISO 3166-1 alpha-3
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([siteId, date, query, device, country])
+  @@index([siteId, query, date])
+  @@index([siteId, date])
+  @@map("gsc_daily_keywords")
+}
+
+// ── GSC Daily Page Data ──
+// Historical page performance from GSC. One row per page per date.
+// Enables per-page trend charts.
+
+model GscDailyPage {
+  id          String   @id @default(cuid())
+  siteId      String
+  date        DateTime @db.Date
+  pageUrl     String                         // full URL from GSC
+  clicks      Int      @default(0)
+  impressions Int      @default(0)
+  ctr         Float    @default(0)
+  position    Float    @default(0)
+  device      String   @default("all")
+  country     String   @default("all")
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([siteId, date, pageUrl, device, country])
+  @@index([siteId, pageUrl, date])
+  @@index([siteId, date])
+  @@map("gsc_daily_pages")
+}

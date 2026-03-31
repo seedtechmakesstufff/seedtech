@@ -1,3 +1,4 @@
+import { buildMetadata } from "@/lib/page-metadata";
 import { CTABanner } from "@/components/kit";
 import { FAQJsonLd, LocalBusinessJsonLd } from "@/components/JsonLd";
 import { HeroSection } from "@/components/home/HeroSection";
@@ -7,6 +8,13 @@ import { AutopilotSection } from "@/components/home/AutopilotSection";
 import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { FAQSection } from "@/components/home/FAQSection";
 import { homepageFAQs } from "@/data/faqs";
+
+export const generateMetadata = buildMetadata("/", {
+  title: "SeedTech | Premium IT Support, Web Development & SEO",
+  description:
+    "Managed IT support, custom web development, and SEO that works from day one. Serving businesses in New Jersey, California, and nationwide.",
+  canonical: "/",
+});
 
 export default function HomePage() {
   return (

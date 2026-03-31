@@ -13,6 +13,7 @@ import {
   Inbox,
   SlidersHorizontal,
   Mail,
+  Brain,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiteSwitcher } from "./SiteSwitcher";
@@ -40,6 +41,11 @@ const NAV_ITEMS: NavItem[] = [
     href: "/admin/seo",
     icon: Search,
     children: [
+      {
+        label: "AI Context",
+        href: "/admin/seo/context",
+        icon: Brain,
+      },
       {
         label: "Blog Manager",
         href: "/admin/blog",
