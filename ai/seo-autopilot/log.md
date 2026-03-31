@@ -391,6 +391,79 @@ Merged 14 remote commits (hero WebGL, PublicShell refactor, industry/about copy 
 
 ---
 
+### Week 2 — Content Engine
+**Date:** March 30, 2026  
+**Commit:** 1919172 (7 files, +802 lines)
+
+> Build the AI content pipeline: generate a data-driven content calendar from GSC + tracked keywords, then batch-write blog posts from the ideas.
+
+#### W2-A — Content Calendar Generator (`src/lib/content-calendar-generator.ts`)
+- `generateContentCalendar(siteId, { ideaCount?, save? })` — Full AI content calendar pipeline:
+  1. Gathers business context, tracked keywords (with GSC performance), existing blog posts, existing content ideas, keyword clusters
+  2. Identifies **content gaps** — keywords with no content targeting them
+  3. Identifies **strike-distance keywords** — positions 8-20 (close to page 1)
+  4. Identifies **high-impression/low-CTR keywords** — content improvement opportunities
+  5. Builds a rich Claude prompt with all data + strategic rules (funnel mix, sequencing, dedup)
+  6. Parses Claude's JSON response into `GeneratedIdea[]`
+  7. Matches ideas to existing `KeywordCluster` records by seed keyword overlap
+  8. Deduplicates against existing `ContentIdea` records (case-insensitive keyword match)
+  9. Saves new ideas to DB as `ContentIdea` (status: "idea")
+- **Output:** `CalendarGenerationResult { ideas, saved, skipped, prompt }`
+- **Rules baked into prompt:** 40% Top / 35% Middle / 25% Bottom funnel mix, foundational → authority → niche sequencing, one primary keyword per article, question-format titles preferred
+
+#### W2-B — Content Calendar API (`/api/admin/seo/content-calendar/generate`)
+- `POST` — Triggers calendar generation for the current site
+- Body: `{ ideaCount?: number, preview?: boolean }`
+- Returns: `{ success, ideas[], saved, skipped, total }`
+
+#### W2-C — Batch Blog Writer (`src/lib/batch-blog-writer.ts`)
+- `batchWriteBlogPosts(siteId, { count?, status?, ideaIds? })` — Writes N blog posts from unpublished ContentIdeas:
+  1. Picks next N ideas with `status: "idea"` (or specific IDs)
+  2. Loads shared context once (business, author, tracked keywords, AI-first instructions)
+  3. For each idea, runs 3-step Claude pipeline:
+     - **Outline** — Structured JSON (title, slug, sections, FAQ, meta, tags, category)
+     - **Draft** — Full markdown, AI-citation-optimized (citeable opening, entity definition, question H2s, comparison table, numbered steps, definitions, FAQ section, CTA)
+     - **Meta** — metaTitle, metaDescription, excerpt
+  4. Saves as `BlogPost` via `createPost()` (with word count calculation)
+  5. Updates `ContentIdea` status → "draft" and sets slug
+  6. Duplicate slug detection with skip + error reporting
+- **Output:** `BatchResult { total, written, failed, posts[], errors[] }`
+- Sequential execution (avoids Claude rate limits), max 10 per batch
+
+#### W2-D — Batch Blog API (`/api/admin/seo/blog-batch/generate`)
+- `POST` — Triggers batch blog writing
+- Body: `{ count?: number (max 10), status?: "draft"|"published", ideaIds?: string[] }`
+- Returns: `{ success, total, written, failed, posts[], errors[] }`
+
+#### W2-E — Strategy Tab UI Enhancements
+- **"Generate 90-Day Plan" button** — Purple sparkle button in Content Calendar header
+  - Loading spinner during generation
+  - Result banner: "✓ Generated 12 ideas — 10 saved, 2 skipped (already existed)"
+  - Dismissible with X button
+- **"Write 5 Posts" button** — Blue pencil button next to calendar generator
+  - Disabled when no `status: "idea"` content ideas exist
+  - Tooltip shows count of available ideas
+  - Loading spinner during batch writing
+  - Result banner: "✓ Wrote 5/5 blog posts as drafts" with keyword tag links
+  - Auto-refreshes strategy data after completion
+- Both buttons disable each other during execution (prevent concurrent long-running jobs)
+
+#### W2-F — Copy Updates
+- "Trusted by Brands" heading in `TrustedBySection.tsx` and `services/web-development/page.tsx`
+
+#### Files Created/Modified
+| File | Action |
+|------|--------|
+| `src/lib/content-calendar-generator.ts` | **NEW** — AI content calendar generator (318 lines) |
+| `src/lib/batch-blog-writer.ts` | **NEW** — Batch blog writer pipeline (301 lines) |
+| `src/app/api/admin/seo/content-calendar/generate/route.ts` | **NEW** — Calendar generation endpoint |
+| `src/app/api/admin/seo/blog-batch/generate/route.ts` | **NEW** — Batch blog writing endpoint |
+| `src/app/admin/seo/page.tsx` | Modified — added calendar + batch writer buttons, state, result banners |
+| `src/components/home/TrustedBySection.tsx` | Modified — "Trusted by Brands" copy |
+| `src/app/services/web-development/page.tsx` | Modified — "Trusted by Brands" copy |
+
+---
+
 ## What's Next
 
 ### Phase 8: Content Pipeline Maturity
