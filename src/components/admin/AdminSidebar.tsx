@@ -53,14 +53,14 @@ const NAV_ITEMS: NavItem[] = [
         icon: FileEdit,
       },
       {
-        label: "SEO Settings",
-        href: "/admin/seo/settings",
-        icon: SlidersHorizontal,
-      },
-      {
         label: "Reports",
         href: "/admin/seo/reports",
         icon: LineChart,
+      },
+      {
+        label: "SEO Settings",
+        href: "/admin/seo/settings",
+        icon: SlidersHorizontal,
       },
     ],
   },

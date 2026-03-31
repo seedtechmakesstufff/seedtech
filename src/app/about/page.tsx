@@ -185,7 +185,7 @@ export default function AboutPage() {
               <div className="flex items-center gap-3">
                 <Rocket className="w-4 h-4 text-seed-400 shrink-0" />
                 <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
-                  SeedTech Platform — fast-launch websites for service businesses
+                  Basic Website — deploy your website with modern design and functionality
                 </span>
               </div>
               <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />

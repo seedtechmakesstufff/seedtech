@@ -1,10 +1,9 @@
 import { buildMetadata } from "@/lib/page-metadata";
-import { CTABanner } from "@/components/kit";
 import { FAQJsonLd, LocalBusinessJsonLd } from "@/components/JsonLd";
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustedBySection } from "@/components/home/TrustedBySection";
 import { SelectedWorkSection } from "@/components/home/SelectedWorkSection";
-import { AutopilotSection } from "@/components/home/AutopilotSection";
+import { ReadyDeeperSection } from "@/components/home/ReadyDeeperSection";
 import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { FAQSection } from "@/components/home/FAQSection";
 import { homepageFAQs } from "@/data/faqs";
@@ -28,17 +27,9 @@ export default function HomePage() {
       <HeroSection />
       <TrustedBySection />
       <SelectedWorkSection />
-      <AutopilotSection />
+      <ReadyDeeperSection />
       <BlogPreviewSection />
       <FAQSection />
-      <CTABanner
-        title="Ready to Grow Your Business?"
-        description="Get a free consultation and custom quote — no commitment, no jargon."
-        primaryLabel="Get a Free Technology Audit"
-        primaryHref="/free-audit"
-        secondaryLabel="View Industry Solutions"
-        secondaryHref="/industries"
-      />
     </>
   );
 }

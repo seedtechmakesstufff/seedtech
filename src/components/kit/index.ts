@@ -17,4 +17,5 @@ export * from "./CTABanner";
 export * from "./LiquidGlass";
 export * from "./SplitTextReveal";
 export * from "./AnimatedH1";
+export * from "./HoverPreview";
 export * from "./FAQAccordion";
