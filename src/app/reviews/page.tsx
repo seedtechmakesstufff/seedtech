@@ -2,14 +2,14 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Quote, X } from "lucide-react";
+import { Star, Quote, X, MonitorSmartphone, Rocket, ShoppingCart, SquareTerminal, ArrowRight } from "lucide-react";
 import {
   GradientOrb,
   GridPattern,
-  CTABanner,
   LiquidGlassPill,
   AnimatedH1,
 } from "@/components/kit";
+import Link from "next/link";
 import { Section } from "@/components/layout/Section";
 import { reviews, type Review } from "@/data/reviews";
 import { cn } from "@/lib/utils";
@@ -181,14 +181,74 @@ export default function ReviewsPage() {
       </Section>
 
       {/* CTA */}
-      <CTABanner
-        title="Ready to Work With Us?"
-        description="Join the growing list of businesses we've helped succeed."
-        primaryLabel="Get a Free Consultation"
-        primaryHref="/free-audit"
-        secondaryLabel="View Our Work"
-        secondaryHref="/our-work"
-      />
+      <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-6 text-center">
+            Ready to go deeper?
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/services/managed-it"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <MonitorSmartphone className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Managed IT Support — proactive monitoring, helpdesk, and infrastructure
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/seedtech-platform"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <Rocket className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Basic Website — deploy your website with modern design and functionality
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/ecommerce-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-blue-500/30 hover:bg-blue-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingCart className="w-4 h-4 text-blue-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Ecommerce — Shopify, BigCommerce, and custom storefronts
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-blue-400 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href="/services/custom-development"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <SquareTerminal className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Custom Development — SaaS, portals, internal tools, and web apps
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-cyan-400 transition-colors shrink-0" />
+            </Link>
+          </div>
+
+          <p className="text-center text-sm text-white/25 mt-8">
+            Not sure where to start?{" "}
+            <Link href="/contact" className="text-seed-400/70 hover:text-seed-400 transition-colors">
+              Contact us and we&apos;ll point you in the right direction.
+            </Link>
+          </p>
+        </div>
+      </section>
 
       {/* Modal */}
       <AnimatePresence>
