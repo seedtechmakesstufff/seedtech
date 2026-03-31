@@ -92,6 +92,20 @@ export default function NewBlogPostPage() {
   const [publishAction, setPublishAction] = useState<"draft" | "publish" | "schedule">("draft");
   const [scheduleDate, setScheduleDate] = useState("");
 
+  // Author
+  const [authors, setAuthors] = useState<{ id: string; name: string; jobTitle: string; isDefault: boolean }[]>([]);
+  const [selectedAuthorId, setSelectedAuthorId] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/api/admin/authors").then((r) => r.json()).then((d) => {
+      if (d.authors) {
+        setAuthors(d.authors);
+        const defaultAuthor = d.authors.find((a: { isDefault: boolean }) => a.isDefault);
+        if (defaultAuthor) setSelectedAuthorId(defaultAuthor.id);
+      }
+    }).catch(() => {});
+  }, []);
+
   // Content Scoring
   const [scoringLoading, setScoringLoading] = useState(false);
   const [contentScore, setContentScore] = useState<{
@@ -264,7 +278,8 @@ export default function NewBlogPostPage() {
           slug,
           excerpt,
           body: draft,
-          author: "SeedTech",
+          author: authors.find((a) => a.id === selectedAuthorId)?.name || "Unknown",
+          authorId: selectedAuthorId || undefined,
           category,
           tags,
           targetKeyword: keyword,
@@ -986,6 +1001,30 @@ export default function NewBlogPostPage() {
               </div>
             )}
 
+            {/* Author */}
+            <div>
+              <label className="block text-sm font-medium text-white/60 mb-2">Author</label>
+              {authors.length > 0 ? (
+                <select
+                  value={selectedAuthorId}
+                  onChange={(e) => setSelectedAuthorId(e.target.value)}
+                  className="w-full rounded-lg bg-dark-base border border-white/[0.08] px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-seed-500/50 transition-colors"
+                >
+                  <option value="">Select author…</option>
+                  {authors.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}{a.jobTitle ? ` — ${a.jobTitle}` : ""}{a.isDefault ? " (default)" : ""}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-xs text-white/30">
+                  No authors configured.{" "}
+                  <a href="/admin/seo" className="text-seed-400 hover:underline">Add authors in SEO Settings →</a>
+                </p>
+              )}
+            </div>
+
             {/* Summary */}
             <div className="solid-divider" />
 
@@ -1007,6 +1046,12 @@ export default function NewBlogPostPage() {
               <p className="text-white/50">
                 <strong className="text-white/70">Category:</strong> {category}
               </p>
+              {selectedAuthorId && (
+                <p className="text-white/50">
+                  <strong className="text-white/70">Author:</strong>{" "}
+                  {authors.find((a) => a.id === selectedAuthorId)?.name || "—"}
+                </p>
+              )}
             </div>
           </div>
 

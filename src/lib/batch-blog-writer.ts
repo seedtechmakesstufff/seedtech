@@ -14,6 +14,7 @@ import { getAIFirstWritingInstructions } from "@/lib/ai-visibility";
 import { getAuthorEntity } from "@/lib/seo-eeat";
 import { loadSiteScoringConfig } from "@/lib/site-scoring-config";
 import { createPost } from "@/lib/blog";
+import { generateStructuredDataPayload, countWords } from "@/lib/structured-data";
 
 interface BatchResult {
   total: number;
@@ -77,6 +78,15 @@ export async function batchWriteBlogPosts(
   const dbKeywords = await getTrackedKeywords(siteId);
   const keywordContext = dbKeywords.slice(0, 10).map((k) => `- "${k.keyword}" (${k.tier}, ${k.intent})`).join("\n");
 
+  // ── Load experience evidence for E-E-A-T enrichment ──
+  const evidence = siteConfig?.evidence || [];
+  const evidenceContext = evidence.length > 0
+    ? `\nREAL EXPERIENCE EVIDENCE — weave these naturally into the content:\n${evidence.map((e) => {
+        const sourceNote = e.source ? ` (Source: ${e.source})` : "";
+        return `- [${e.type.toUpperCase()}] ${e.title}: ${e.content}${sourceNote}`;
+      }).join("\n")}\n\nIMPORTANT: Use these real data points, metrics, and testimonials to demonstrate first-hand experience. AI systems heavily weight content with specific, verifiable evidence.`
+    : "";
+
   // ── 3. Process each idea sequentially (to avoid rate limits) ──
 
   const result: BatchResult = { total: ideas.length, written: 0, failed: 0, posts: [], errors: [] };
@@ -104,6 +114,7 @@ ${author.bio}
 Current SEO keywords being targeted:
 ${keywordContext}
 ${internalLinkContext}
+${evidenceContext}
 `;
 
       // ── Step 1: Generate outline ──
@@ -123,6 +134,7 @@ CRITICAL — Structure for AI CITATION:
 6. Definition Blocks — at least 2 "X is Y" definitions
 7. FAQ Section — 4-6 questions with 2-3 sentence answers
 8. CTA Closing — referencing ${companyName} and ${location}
+${evidence.length > 0 ? `9. Experience Evidence — incorporate real metrics, case studies, or testimonials from the evidence provided in the context. Reference specific numbers and outcomes.` : ""}
 
 Return ONLY valid JSON:
 {
@@ -161,6 +173,7 @@ MANDATORY STRUCTURE:
 6. DEFINITION BLOCKS — at least 2 "X is Y" sentences
 7. FAQ SECTION — 4-6 ### question headings with 20-60 word answers
 8. CTA CLOSING — mention ${companyName} and ${location}
+${evidence.length > 0 ? `9. EXPERIENCE EVIDENCE — naturally weave in the real metrics, case studies, and testimonials from the context. Use specific numbers ("reduced downtime by 47%", "saved $120K annually") rather than vague claims. This is critical for E-E-A-T scoring.` : ""}
 
 Use proper Markdown. Keep paragraphs 2-4 sentences. Include ${new Date().getFullYear()} references.
 Return the full Markdown blog post content only.`;
@@ -201,17 +214,37 @@ Return JSON:
         continue;
       }
 
+      // ── Generate structured data (JSON-LD) ──
+      const postWordCount = countWords(draftContent);
+      const structuredData = generateStructuredDataPayload({
+        title: String(outlineJson.title),
+        slug,
+        excerpt,
+        body: draftContent,
+        author: author.name,
+        authorEntity: author,
+        category: String(outlineJson.category || "Technology"),
+        tags: Array.isArray(outlineJson.tags) ? outlineJson.tags.map(String) : [],
+        targetKeyword: idea.targetKeyword,
+        metaTitle,
+        metaDescription,
+        publishedAt: status === "published" ? new Date().toISOString() : null,
+        wordCount: postWordCount,
+      });
+
       const post = await createPost({
         title: String(outlineJson.title),
         slug,
         excerpt,
         body: draftContent,
         author: author.name,
+        authorId: author.id || null,
         category: String(outlineJson.category || "Technology"),
         tags: Array.isArray(outlineJson.tags) ? outlineJson.tags.map(String) : [],
         targetKeyword: idea.targetKeyword,
         metaTitle,
         metaDescription,
+        structuredData: JSON.parse(JSON.stringify({ schemas: structuredData })),
         status,
         publishedAt: status === "published" ? new Date().toISOString() : null,
         scheduledAt: null,

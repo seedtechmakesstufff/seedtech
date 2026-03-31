@@ -25,13 +25,14 @@ model Tenant {
 }
 
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
+  id           String             @id @default(cuid())
+  email        String             @unique
   passwordHash String
   name         String?
   memberships  Membership[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  reportPrefs  ReportPreference[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
   @@map("users")
 }
@@ -92,6 +93,7 @@ model Site {
   gscSyncLogs      GscSyncLog[]
   gscDailyKeywords GscDailyKeyword[]
   gscDailyPages    GscDailyPage[]
+  reportPrefs      ReportPreference[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -219,11 +221,14 @@ model BlogPost {
   excerpt         String
   body            String     // Markdown content
   author          String     @default("")
+  authorId        String?                            // FK to Author (optional for backwards compat)
+  authorRef       Author?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   category        String
   tags            String[]   @default([])
   targetKeyword   String     @default("")
   metaTitle       String     @default("")
   metaDescription String     @default("")
+  structuredData  Json?                              // JSON-LD (Article, FAQPage, etc.)
   status          PostStatus @default(draft)
   wordCount       Int        @default(0)
   publishedAt     DateTime?
@@ -235,6 +240,7 @@ model BlogPost {
   @@unique([siteId, slug])
   @@index([siteId, status])
   @@index([createdAt])
+  @@index([authorId])
   @@map("blog_posts")
 }
 
@@ -731,22 +737,23 @@ model ContentIdea {
 // ── Authors (per-site expert entities for E-E-A-T) ──
 
 model Author {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   siteId       String
   name         String
   slug         String
-  jobTitle     String   @default("")
-  bio          String   @default("") @db.Text
+  jobTitle     String     @default("")
+  bio          String     @default("") @db.Text
   imageUrl     String?
-  canonicalUrl String   @default("")  // /about#sam or /team/sam
-  sameAs       String[] @default([])  // LinkedIn, GitHub, etc.
-  expertise    String[] @default([])  // topics qualified to write about
-  credentials  String[] @default([])  // CompTIA A+, CISSP, etc.
-  experience   String   @default("")  // "15+ years in cybersecurity"
-  isDefault    Boolean  @default(false)
-  site         Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  canonicalUrl String     @default("")  // /about#sam or /team/sam
+  sameAs       String[]   @default([])  // LinkedIn, GitHub, etc.
+  expertise    String[]   @default([])  // topics qualified to write about
+  credentials  String[]   @default([])  // CompTIA A+, CISSP, etc.
+  experience   String     @default("")  // "15+ years in cybersecurity"
+  isDefault    Boolean    @default(false)
+  site         Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  blogPosts    BlogPost[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@unique([siteId, slug])
   @@index([siteId, isDefault])
@@ -1028,4 +1035,34 @@ model GscDailyPage {
   @@index([siteId, pageUrl, date])
   @@index([siteId, date])
   @@map("gsc_daily_pages")
+}
+
+// ── Report Preferences (per-user SEO report delivery settings) ──
+// Controls when and how often each user receives emailed SEO reports.
+
+enum ReportFrequency {
+  weekly
+  monthly
+  quarterly
+  yearly
+}
+
+model ReportPreference {
+  id        String          @id @default(cuid())
+  siteId    String
+  userId    String
+  email     String                              // deliver to this address
+  frequency ReportFrequency @default(monthly)
+  dayOfWeek Int             @default(1)         // 0=Sun..6=Sat (for weekly)
+  dayOfMonth Int            @default(1)         // 1-28 (for monthly/quarterly)
+  enabled   Boolean         @default(true)
+  lastSentAt DateTime?
+  site      Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([siteId, userId])
+  @@index([frequency, enabled])
+  @@map("report_preferences")
 }

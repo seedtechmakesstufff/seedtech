@@ -31,6 +31,7 @@ export interface EEATScore {
 }
 
 export interface AuthorEntity {
+  id?: string;         // Prisma Author id (present when loaded from DB)
   name: string;
   slug: string;
   jobTitle: string;
@@ -42,23 +43,28 @@ export interface AuthorEntity {
   experience: string; // years / background description
 }
 
-/* ── Default Authors (fallback when no DB authors exist) ── */
+/* ── Minimal Fallback (used only when no DB authors exist at all) ── */
 
-export const DEFAULT_AUTHORS: Record<string, AuthorEntity> = {
-  default: {
-    name: "Company",
-    slug: "company",
-    jobTitle: "",
-    bio: "",
-    url: "/about",
-    sameAs: [],
-    expertise: [],
-    experience: "",
-  },
+const UNCONFIGURED_AUTHOR: AuthorEntity = {
+  name: "Team",
+  slug: "team",
+  jobTitle: "",
+  bio: "",
+  url: "/about",
+  sameAs: [],
+  expertise: [],
+  experience: "",
 };
 
 /**
- * Get an author entity by name. Falls back to the default entity.
+ * @deprecated Use DEFAULT_AUTHORS only for backwards compat. New code should configure authors in DB.
+ */
+export const DEFAULT_AUTHORS: Record<string, AuthorEntity> = {
+  default: UNCONFIGURED_AUTHOR,
+};
+
+/**
+ * Get an author entity by name. Falls back to a minimal placeholder.
  * When siteConfig is provided, looks up authors from the database first.
  */
 export function getAuthorEntity(authorName?: string, siteConfig?: SiteScoringConfig): AuthorEntity {
@@ -77,11 +83,11 @@ export function getAuthorEntity(authorName?: string, siteConfig?: SiteScoringCon
     }
   }
 
-  // Fallback to static defaults
-  if (!authorName) return DEFAULT_AUTHORS.default;
+  // Minimal fallback — no hardcoded company-specific data
+  if (!authorName) return UNCONFIGURED_AUTHOR;
   const slug = authorName.toLowerCase().replace(/\s+/g, "-");
-  return DEFAULT_AUTHORS[slug] || {
-    ...DEFAULT_AUTHORS.default,
+  return {
+    ...UNCONFIGURED_AUTHOR,
     name: authorName,
     slug,
   };
@@ -90,6 +96,7 @@ export function getAuthorEntity(authorName?: string, siteConfig?: SiteScoringCon
 /** Convert a SiteAuthor to AuthorEntity */
 function siteAuthorToEntity(a: SiteAuthor, siteUrl: string): AuthorEntity {
   return {
+    id: a.id,
     name: a.name,
     slug: a.slug,
     jobTitle: a.jobTitle,

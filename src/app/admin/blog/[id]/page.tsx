@@ -20,6 +20,7 @@ interface BlogPost {
   excerpt: string;
   body: string;
   author: string;
+  authorId: string | null;
   category: string;
   tags: string[];
   targetKeyword: string;
@@ -53,6 +54,16 @@ export default function EditBlogPostPage() {
   const [category, setCategory] = useState("IT Support");
   const [status, setStatus] = useState<"draft" | "published" | "scheduled">("draft");
 
+  // Author
+  const [authors, setAuthors] = useState<{ id: string; name: string; jobTitle: string; isDefault: boolean }[]>([]);
+  const [selectedAuthorId, setSelectedAuthorId] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/api/admin/authors").then((r) => r.json()).then((d) => {
+      if (d.authors) setAuthors(d.authors);
+    }).catch(() => {});
+  }, []);
+
   // AI Visibility rewrite state
   const [rewriteApplied, setRewriteApplied] = useState(false);
   const [rewriteMeta, setRewriteMeta] = useState<{
@@ -74,6 +85,7 @@ export default function EditBlogPostPage() {
         setMetaDescription(data.metaDescription);
         setCategory(data.category);
         setStatus(data.status);
+        setSelectedAuthorId(data.authorId || "");
 
         // Check for pending AI Visibility rewrite
         const raw = sessionStorage.getItem("ai-rewrite");
@@ -128,6 +140,8 @@ export default function EditBlogPostPage() {
           metaDescription,
           category,
           status,
+          author: authors.find((a) => a.id === selectedAuthorId)?.name || post?.author || "",
+          authorId: selectedAuthorId || null,
           publishedAt: status === "published" ? (post?.publishedAt || new Date().toISOString()) : null,
         }),
       });
@@ -273,6 +287,30 @@ export default function EditBlogPostPage() {
               <option value="published">Published</option>
               <option value="scheduled">Scheduled</option>
             </select>
+          </div>
+
+          {/* Author */}
+          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-white">Author</h3>
+            {authors.length > 0 ? (
+              <select
+                value={selectedAuthorId}
+                onChange={(e) => setSelectedAuthorId(e.target.value)}
+                className="w-full rounded bg-dark-base border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-seed-500/50"
+              >
+                <option value="">No author</option>
+                {authors.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}{a.jobTitle ? ` — ${a.jobTitle}` : ""}{a.isDefault ? " ★" : ""}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-xs text-white/30">
+                No authors configured.{" "}
+                <a href="/admin/seo" className="text-seed-400 hover:underline">Add in SEO Settings →</a>
+              </p>
+            )}
           </div>
 
           {/* SEO */}

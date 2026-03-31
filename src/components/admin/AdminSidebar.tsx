@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
   Mail,
   Brain,
+  LineChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiteSwitcher } from "./SiteSwitcher";
@@ -55,6 +56,11 @@ const NAV_ITEMS: NavItem[] = [
         label: "SEO Settings",
         href: "/admin/seo/settings",
         icon: SlidersHorizontal,
+      },
+      {
+        label: "Reports",
+        href: "/admin/seo/reports",
+        icon: LineChart,
       },
     ],
   },

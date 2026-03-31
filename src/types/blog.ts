@@ -11,11 +11,13 @@ export interface BlogPost {
   body: string; // Markdown content
   coverImage?: string;
   author: string;
+  authorId: string | null;
   category: string;
   tags: string[];
   targetKeyword: string;
   metaTitle: string;
   metaDescription: string;
+  structuredData: Record<string, unknown> | null;
   status: "draft" | "published" | "scheduled";
   publishedAt: string | null; // ISO date string
   scheduledAt: string | null; // ISO date string

@@ -18,6 +18,22 @@ import { scoreAIVisibility } from "@/lib/ai-visibility";
 import { auditEEAT } from "@/lib/seo-eeat";
 import { loadSiteScoringConfig } from "@/lib/site-scoring-config";
 import type { SiteScoringConfig } from "@/lib/site-scoring-config";
+import { computeSimilarityMatrix } from "@/lib/semantic-embeddings";
+
+/* ── Optional Playwright (headless browser fallback) ── */
+
+let playwrightAvailable = false;
+let chromium: typeof import("playwright-core").chromium | null = null;
+
+try {
+  // Dynamic import so the module still works when playwright isn't installed
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const pw = require("playwright-core");
+  chromium = pw.chromium;
+  playwrightAvailable = true;
+} catch {
+  // Playwright not available — fetch-only mode
+}
 
 /* ── Types ── */
 
@@ -55,15 +71,60 @@ export interface CompetitorOverview {
 /* ── Page Fetching & Analysis ── */
 
 const USER_AGENT = "Mozilla/5.0 (compatible; SEO-Bot/1.0)";
+const BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const FETCH_TIMEOUT_MS = 15000;
+const HEADLESS_TIMEOUT_MS = 30000;
 
 /**
- * Fetch and analyze a single competitor page.
+ * Fetch HTML using a headless browser (Playwright).
+ * Used as fallback when plain fetch fails (403, JS-rendered content, bot detection).
  */
-async function analyzeCompetitorPage(
-  url: string,
-  siteConfig?: SiteScoringConfig
-): Promise<CompetitorPageResult | null> {
+async function fetchWithHeadless(url: string): Promise<string | null> {
+  if (!playwrightAvailable || !chromium) return null;
+
+  let browser;
+  try {
+    browser = await chromium.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const context = await browser.newContext({
+      userAgent: BROWSER_USER_AGENT,
+      viewport: { width: 1280, height: 800 },
+    });
+    const page = await context.newPage();
+
+    // Block heavy resources to speed up loading
+    await page.route("**/*.{png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf,eot}", (route) =>
+      route.abort()
+    );
+    await page.route("**/{analytics,gtm,tracking,ads,pixel}*", (route) =>
+      route.abort()
+    );
+
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: HEADLESS_TIMEOUT_MS,
+    });
+
+    // Wait briefly for JS-rendered content
+    await page.waitForTimeout(2000);
+
+    const html = await page.content();
+    await browser.close();
+    return html;
+  } catch (err) {
+    console.warn(`[competitive-intel] Headless fetch failed for ${url}:`, err instanceof Error ? err.message : err);
+    if (browser) await browser.close().catch(() => {});
+    return null;
+  }
+}
+
+/**
+ * Fetch page HTML — tries plain fetch first, falls back to headless browser.
+ */
+async function fetchPageHtml(url: string): Promise<string | null> {
+  // ── Attempt 1: Plain fetch ──
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -75,9 +136,40 @@ async function analyzeCompetitorPage(
     });
     clearTimeout(timeout);
 
-    if (!response.ok) return null;
+    if (response.ok) {
+      const html = await response.text();
+      // Check if the page is JS-rendered (very little content in initial HTML)
+      const textLength = html.replace(/<[^>]*>/g, "").trim().length;
+      if (textLength > 500) {
+        return html; // Has enough content — no need for headless
+      }
+      // Might be JS-rendered — fall through to headless
+      console.log(`[competitive-intel] ${url} appears JS-rendered (${textLength} chars), trying headless`);
+    } else if (response.status === 403 || response.status === 429) {
+      // Bot detection — try headless
+      console.log(`[competitive-intel] ${url} returned ${response.status}, trying headless`);
+    } else {
+      return null; // 4xx/5xx that headless won't fix
+    }
+  } catch {
+    // Network error or timeout — try headless
+    console.log(`[competitive-intel] Plain fetch failed for ${url}, trying headless`);
+  }
 
-    const html = await response.text();
+  // ── Attempt 2: Headless browser ──
+  return fetchWithHeadless(url);
+}
+
+/**
+ * Fetch and analyze a single competitor page.
+ */
+async function analyzeCompetitorPage(
+  url: string,
+  siteConfig?: SiteScoringConfig
+): Promise<CompetitorPageResult | null> {
+  try {
+    const html = await fetchPageHtml(url);
+    if (!html) return null;
     const dom = new JSDOM(html, { url });
     const doc = dom.window.document;
 
@@ -404,7 +496,8 @@ export interface KeywordGap {
 
 /**
  * Analyze keyword gaps between our site and competitors.
- * Compares competitor page titles/headings against our tracked keywords and blog posts.
+ * Uses semantic embeddings (OpenAI or TF-IDF fallback) for smarter matching
+ * instead of simple string matching.
  */
 export async function findKeywordGaps(siteId: string): Promise<KeywordGap[]> {
   // Load our tracked keywords and published content
@@ -426,73 +519,85 @@ export async function findKeywordGaps(siteId: string): Promise<KeywordGap[]> {
 
   if (competitorAnalyses.length === 0) return [];
 
-  // Build a set of our covered topics (from tracked keywords + blog target keywords)
-  const ourKeywords = new Set(
-    [
-      ...trackedKeywords.map((k) => k.keyword.toLowerCase()),
-      ...blogPosts.map((p) => p.targetKeyword.toLowerCase()),
-    ].filter(Boolean)
-  );
+  // Build lists of our keywords and competitor topics
+  const ourKeywordTexts = [
+    ...trackedKeywords.map((k) => k.keyword),
+    ...blogPosts.map((p) => p.targetKeyword),
+  ].filter(Boolean);
 
-  const gaps: KeywordGap[] = [];
-  const seenTopics = new Set<string>();
-
-  // For each competitor page, extract topic signals and compare to our coverage
+  // Deduplicate competitor topics
+  const competitorTopicMap = new Map<string, { topic: string; domain: string; url: string; score: number }>();
   for (const analysis of competitorAnalyses) {
-    const competitorDomain = analysis.competitor?.domain || "unknown";
-
+    const domain = analysis.competitor?.domain || "unknown";
     for (const topic of analysis.topicsDetected) {
-      const normalizedTopic = topic.toLowerCase().trim();
-      if (normalizedTopic.length < 3) continue;
-
-      const topicKey = `${competitorDomain}::${normalizedTopic}`;
-      if (seenTopics.has(topicKey)) continue;
-      seenTopics.add(topicKey);
-
-      // Check if any of our keywords are related to this topic
-      const weHaveIt = Array.from(ourKeywords).some((kw) =>
-        normalizedTopic.includes(kw) || kw.includes(normalizedTopic) ||
-        // Word overlap check (at least 2 shared words for longer phrases)
-        (() => {
-          const topicWords = normalizedTopic.split(/\s+/).filter((w) => w.length > 2);
-          const kwWords = kw.split(/\s+/).filter((w) => w.length > 2);
-          const overlap = topicWords.filter((w) => kwWords.includes(w));
-          return topicWords.length >= 2 && overlap.length >= 2;
-        })()
-      );
-
-      if (!weHaveIt) {
-        gaps.push({
-          keyword: topic,
-          competitorDomain,
-          competitorUrl: analysis.pageUrl,
-          competitorHasCoverage: true,
-          weHaveCoverage: false,
-          gapType: "they-have-we-dont",
-          opportunity: `${competitorDomain} covers "${topic}" (AI Vis: ${analysis.aiVisScore}) — we have no content on this topic`,
+      const key = topic.toLowerCase().trim();
+      if (key.length < 3) continue;
+      if (!competitorTopicMap.has(key)) {
+        competitorTopicMap.set(key, {
+          topic,
+          domain,
+          url: analysis.pageUrl,
+          score: analysis.aiVisScore,
         });
       }
     }
   }
+  const competitorTopics = Array.from(competitorTopicMap.values());
 
-  // Also find topics we cover that competitors don't (our advantages)
-  for (const kw of trackedKeywords) {
-    const competitorCovers = competitorAnalyses.some((a) =>
-      a.topicsDetected.some((t) => {
-        const tLower = t.toLowerCase();
-        const kwLower = kw.keyword.toLowerCase();
-        return tLower.includes(kwLower) || kwLower.includes(tLower);
-      })
-    );
-    if (!competitorCovers) {
+  if (ourKeywordTexts.length === 0 || competitorTopics.length === 0) return [];
+
+  // ── Compute semantic similarity matrix ──
+  const SEMANTIC_MATCH_THRESHOLD = 0.6;
+  const { matrix, method } = await computeSimilarityMatrix(
+    competitorTopics.map((t) => t.topic),
+    ourKeywordTexts
+  );
+  console.log(`[competitive-intel] Gap analysis using ${method} embeddings (${competitorTopics.length} competitor topics × ${ourKeywordTexts.length} our keywords)`);
+
+  const gaps: KeywordGap[] = [];
+
+  // For each competitor topic, check if we have semantically similar coverage
+  for (let i = 0; i < competitorTopics.length; i++) {
+    const comp = competitorTopics[i];
+    const similarities = matrix[i];
+
+    // Find the best match in our keywords
+    const bestMatchIdx = similarities.indexOf(Math.max(...similarities));
+    const bestSimilarity = similarities[bestMatchIdx];
+
+    if (bestSimilarity < SEMANTIC_MATCH_THRESHOLD) {
+      // No match — this is a gap
       gaps.push({
-        keyword: kw.keyword,
+        keyword: comp.topic,
+        competitorDomain: comp.domain,
+        competitorUrl: comp.url,
+        competitorHasCoverage: true,
+        weHaveCoverage: false,
+        gapType: "they-have-we-dont",
+        opportunity: `${comp.domain} covers "${comp.topic}" (AI Vis: ${comp.score}) — we have no similar content (best match: ${Math.round(bestSimilarity * 100)}% to "${ourKeywordTexts[bestMatchIdx]}")`,
+      });
+    }
+  }
+
+  // Also find topics we cover that competitors don't
+  // Build reverse similarity: for each of our keywords, check max match to competitor topics
+  for (let j = 0; j < ourKeywordTexts.length; j++) {
+    const kw = ourKeywordTexts[j];
+    let maxSim = 0;
+    for (let i = 0; i < competitorTopics.length; i++) {
+      if (matrix[i][j] > maxSim) maxSim = matrix[i][j];
+    }
+
+    if (maxSim < SEMANTIC_MATCH_THRESHOLD) {
+      const trackedKw = trackedKeywords.find((tk) => tk.keyword === kw);
+      gaps.push({
+        keyword: kw,
         competitorDomain: "—",
-        competitorUrl: kw.targetPage,
+        competitorUrl: trackedKw?.targetPage || "",
         competitorHasCoverage: false,
         weHaveCoverage: true,
         gapType: "we-have-they-dont",
-        opportunity: `We target "${kw.keyword}" (${kw.tier}) — no competitor coverage found. This is our advantage.`,
+        opportunity: `We target "${kw}"${trackedKw?.tier ? ` (${trackedKw.tier})` : ""} — no competitor coverage found. This is our advantage.`,
       });
     }
   }

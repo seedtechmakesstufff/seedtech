@@ -34,6 +34,7 @@ export interface SiteScoringConfig {
 }
 
 export interface SiteAuthor {
+  id: string;
   name: string;
   slug: string;
   jobTitle: string;
@@ -141,6 +142,7 @@ export async function loadSiteScoringConfig(siteId: string): Promise<SiteScoring
     : DEFAULT_AUTHORITY_DOMAINS;
 
   const siteAuthors: SiteAuthor[] = authors.map((a) => ({
+    id: a.id,
     name: a.name,
     slug: a.slug,
     jobTitle: a.jobTitle,
