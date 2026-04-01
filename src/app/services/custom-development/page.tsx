@@ -27,12 +27,7 @@ import type { FAQItem } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
-export const generateMetadata = buildMetadata("/services/custom-development", {
-  title: "Custom Development — SaaS, Portals, Apps & Business Systems",
-  description:
-    "Custom software, platforms, and applications built around real workflows. SaaS products, internal tools, portals, and business systems designed for how your business actually operates.",
-  canonical: "/services/custom-development",
-});
+export const generateMetadata = buildMetadata("/services/custom-development");
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 

@@ -10,6 +10,7 @@ import {
   Copy, Zap,
   Boxes, Link2, Shield, Briefcase,
   LayoutGrid, Network,
+  ScrollText, Eye, EyeOff,
 } from "lucide-react";
 import Lottie from "lottie-react";
 import progressAnimation from "@/../public/lotties/progress.json";
@@ -22,7 +23,7 @@ const CanvasView = dynamic(() => import("./canvas-view"), { ssr: false });
    Types
    ═══════════════════════════════════════════════════════════════ */
 
-type Section = "nodes" | "pages" | "keywords" | "preview";
+type Section = "nodes" | "pages" | "keywords" | "strategy" | "preview";
 
 interface PageContextItem {
   path: string;
@@ -62,6 +63,7 @@ const NAV_SECTIONS: { key: Section; label: string; icon: React.ComponentType<{ c
   { key: "nodes", label: "Service Nodes", icon: Boxes, desc: "Business & service AI context" },
   { key: "pages", label: "Page Context", icon: FileText, desc: "What each page is about" },
   { key: "keywords", label: "Keywords", icon: Target, desc: "Tracked keywords & targeting" },
+  { key: "strategy", label: "Strategy", icon: ScrollText, desc: "SEO strategy documents" },
   { key: "preview", label: "AI Preview", icon: Brain, desc: "Preview what AI sees" },
 ];
 
@@ -125,6 +127,7 @@ export default function ContextPage() {
           {section === "nodes" && <ServiceNodesSection />}
           {section === "pages" && <PageContextSection />}
           {section === "keywords" && <KeywordsSection />}
+          {section === "strategy" && <StrategyDocsSection />}
           {section === "preview" && <PreviewSection />}
         </div>
       </div>
@@ -3011,6 +3014,358 @@ function formatInline(text: string): React.ReactNode {
   }
 
   return parts.length === 1 ? parts[0] : <>{parts}</>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION: Strategy Documents
+   ═══════════════════════════════════════════════════════════════ */
+
+interface StrategyDoc {
+  id: string;
+  title: string;
+  category: string;
+  content: string;
+  isActive: boolean;
+  version: number;
+  source: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const STRATEGY_CATEGORIES = [
+  { key: "keyword_strategy", label: "Keyword Strategy", icon: Target, color: "text-seed-400" },
+  { key: "content_roadmap", label: "Content Roadmap", icon: FileText, color: "text-blue-400" },
+  { key: "audit_findings", label: "Audit Findings", icon: BarChart3, color: "text-amber-400" },
+  { key: "competitive_analysis", label: "Competitive Analysis", icon: Crosshair, color: "text-red-400" },
+  { key: "general", label: "General", icon: ScrollText, color: "text-purple-400" },
+];
+
+function StrategyDocsSection() {
+  const [docs, setDocs] = useState<StrategyDoc[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<StrategyDoc | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Form state
+  const [formTitle, setFormTitle] = useState("");
+  const [formCategory, setFormCategory] = useState("general");
+  const [formContent, setFormContent] = useState("");
+  const [formActive, setFormActive] = useState(true);
+
+  const fetchDocs = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/seo/strategy-docs?active=false");
+      if (res.ok) {
+        const data = await res.json();
+        setDocs(data);
+      }
+    } catch { /* skip */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchDocs(); }, [fetchDocs]);
+
+  const resetForm = () => {
+    setFormTitle("");
+    setFormCategory("general");
+    setFormContent("");
+    setFormActive(true);
+    setEditing(null);
+    setCreating(false);
+  };
+
+  const startEdit = (doc: StrategyDoc) => {
+    setFormTitle(doc.title);
+    setFormCategory(doc.category);
+    setFormContent(doc.content);
+    setFormActive(doc.isActive);
+    setEditing(doc);
+    setCreating(false);
+  };
+
+  const startCreate = () => {
+    resetForm();
+    setCreating(true);
+  };
+
+  const handleSave = async () => {
+    if (!formTitle.trim() || !formContent.trim()) return;
+    setSaving(true);
+
+    try {
+      if (editing) {
+        await fetch(`/api/admin/seo/strategy-docs/${editing.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: formTitle,
+            category: formCategory,
+            content: formContent,
+            isActive: formActive,
+          }),
+        });
+      } else {
+        await fetch("/api/admin/seo/strategy-docs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: formTitle,
+            category: formCategory,
+            content: formContent,
+            isActive: formActive,
+            source: "manual",
+          }),
+        });
+      }
+      resetForm();
+      await fetchDocs();
+    } catch { /* skip */ }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this strategy document?")) return;
+    try {
+      await fetch(`/api/admin/seo/strategy-docs/${id}`, { method: "DELETE" });
+      await fetchDocs();
+    } catch { /* skip */ }
+  };
+
+  const toggleActive = async (doc: StrategyDoc) => {
+    try {
+      await fetch(`/api/admin/seo/strategy-docs/${doc.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !doc.isActive }),
+      });
+      await fetchDocs();
+    } catch { /* skip */ }
+  };
+
+  const getCategoryMeta = (cat: string) =>
+    STRATEGY_CATEGORIES.find((c) => c.key === cat) || STRATEGY_CATEGORIES[4];
+
+  const isFormOpen = creating || editing;
+  const activeDocs = docs.filter((d) => d.isActive);
+  const inactiveDocs = docs.filter((d) => !d.isActive);
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-white">SEO Strategy Documents</h2>
+          <p className="text-sm text-white/40 mt-0.5">
+            Persistent strategy context that feeds into every AI prompt — blog writer, metadata, keyword research, and advisor.
+          </p>
+        </div>
+        {!isFormOpen && (
+          <button
+            onClick={startCreate}
+            className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            New Strategy Doc
+          </button>
+        )}
+      </div>
+
+      {/* Active indicator */}
+      <div className="flex items-center gap-3 text-[11px] text-white/30">
+        <span className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-emerald-400/60" />
+          <span>{activeDocs.length} active {activeDocs.length === 1 ? "doc" : "docs"} feeding AI prompts</span>
+        </span>
+        {inactiveDocs.length > 0 && (
+          <span className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-white/20" />
+            <span>{inactiveDocs.length} inactive</span>
+          </span>
+        )}
+      </div>
+
+      {/* Create / Edit Form */}
+      {isFormOpen && (
+        <div className="bg-dark-elevated border border-white/[0.08] rounded-xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-white">
+              {editing ? `Editing: ${editing.title}` : "New Strategy Document"}
+            </h3>
+            <button onClick={resetForm} className="text-white/30 hover:text-white/60 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="text-xs font-medium text-white/50 mb-1.5 block">Title</label>
+            <input
+              type="text"
+              value={formTitle}
+              onChange={(e) => setFormTitle(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-seed-500/50"
+              placeholder="e.g., Reactive Keyword Strategy — Managed IT"
+            />
+          </div>
+
+          {/* Category + Active */}
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="text-xs font-medium text-white/50 mb-1.5 block">Category</label>
+              <select
+                value={formCategory}
+                onChange={(e) => setFormCategory(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white focus:outline-none focus:border-seed-500/50"
+              >
+                {STRATEGY_CATEGORIES.map((c) => (
+                  <option key={c.key} value={c.key}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end gap-2 pb-0.5">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formActive}
+                  onChange={(e) => setFormActive(e.target.checked)}
+                  className="rounded border-white/20 bg-transparent text-seed-500 focus:ring-seed-500/30 w-4 h-4"
+                />
+                <span className="text-xs text-white/50">Active (feeds AI prompts)</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div>
+            <label className="text-xs font-medium text-white/50 mb-1.5 block">
+              Content <span className="text-white/25 font-normal">(Markdown supported)</span>
+            </label>
+            <textarea
+              value={formContent}
+              onChange={(e) => setFormContent(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-seed-500/50 font-mono leading-relaxed min-h-[300px] resize-y"
+              placeholder="Write the strategy narrative in Markdown. This will be injected into every AI prompt across the platform — metadata generation, blog writing, keyword research, etc."
+            />
+          </div>
+
+          {/* Save */}
+          <div className="flex items-center justify-between pt-2">
+            <button
+              onClick={resetForm}
+              className="text-sm text-white/40 hover:text-white/60 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving || !formTitle.trim() || !formContent.trim()}
+              className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-40"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {editing ? "Update" : "Create"} Document
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Documents list */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-5 h-5 text-white/20 animate-spin" />
+        </div>
+      ) : docs.length === 0 && !isFormOpen ? (
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-12 text-center">
+          <ScrollText className="w-8 h-8 text-purple-400/20 mx-auto mb-3" />
+          <p className="text-sm text-white/30 mb-1">No strategy documents yet</p>
+          <p className="text-xs text-white/20 max-w-md mx-auto">
+            Strategy documents persist your SEO thinking — keyword rationale, audit findings, content roadmaps, competitive analysis.
+            Every active document feeds into all AI-generated content.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {docs.map((doc) => {
+            const catMeta = getCategoryMeta(doc.category);
+            const CatIcon = catMeta.icon;
+            const isExpanded = expandedId === doc.id;
+
+            return (
+              <div
+                key={doc.id}
+                className={cn(
+                  "bg-dark-elevated border rounded-xl overflow-hidden transition-all",
+                  doc.isActive ? "border-white/[0.08]" : "border-white/[0.04] opacity-60",
+                )}
+              >
+                {/* Header row */}
+                <div
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-colors"
+                  onClick={() => setExpandedId(isExpanded ? null : doc.id)}
+                >
+                  <CatIcon className={cn("w-4 h-4 shrink-0", catMeta.color)} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-white truncate">{doc.title}</span>
+                      <span className={cn(
+                        "text-[10px] font-medium px-2 py-0.5 rounded-full border",
+                        doc.isActive
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                          : "bg-white/[0.03] text-white/30 border-white/[0.06]",
+                      )}>
+                        {doc.isActive ? "Active" : "Inactive"}
+                      </span>
+                      <span className="text-[10px] text-white/20">v{doc.version}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      <span className="text-[11px] text-white/25">{catMeta.label}</span>
+                      <span className="text-[11px] text-white/15">
+                        Updated {new Date(doc.updatedAt).toLocaleDateString()}
+                      </span>
+                      {doc.source && (
+                        <span className="text-[11px] text-white/15">via {doc.source}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleActive(doc); }}
+                      className="p-1.5 rounded-lg text-white/25 hover:text-white/50 hover:bg-white/[0.05] transition-colors"
+                      title={doc.isActive ? "Deactivate" : "Activate"}
+                    >
+                      {doc.isActive ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); startEdit(doc); }}
+                      className="p-1.5 rounded-lg text-white/25 hover:text-white/50 hover:bg-white/[0.05] transition-colors"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(doc.id); }}
+                      className="p-1.5 rounded-lg text-white/25 hover:text-red-400/70 hover:bg-red-500/[0.05] transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Expanded content */}
+                {isExpanded && (
+                  <div className="px-5 pb-4 border-t border-white/[0.04]">
+                    <pre className="text-sm text-white/50 leading-relaxed whitespace-pre-wrap font-sans mt-3 max-h-[500px] overflow-y-auto">
+                      {doc.content}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ═══════════════════════════════════════════════════════════════

@@ -26,15 +26,7 @@ import {
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
-export const generateMetadata = buildMetadata("/services/managed-it/why-seedtech", {
-  title: "Why SeedTech | Accountability, Not Volume — Small MSP Advantage",
-  description:
-    "Tired of ticket black holes and revolving-door technicians? SeedTech is built for accountability, not volume. Learn why small MSPs outperform large IT firms for growing businesses.",
-  ogTitle: "Why SeedTech | Accountability, Not Volume",
-  ogDescription:
-    "Tired of ticket black holes and revolving-door technicians? Learn why small MSPs outperform large IT firms.",
-  canonical: "/services/managed-it/why-seedtech",
-});
+export const generateMetadata = buildMetadata("/services/managed-it/why-seedtech");
 
 const largeFirmPains = [
   { icon: AlertTriangle, title: "Hidden Costs", body: "Nickel-and-dimed for every on-site visit, after-hours call, or anything classified as a \"project.\" Your monthly invoice is never what you expected." },

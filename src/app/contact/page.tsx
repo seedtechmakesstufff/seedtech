@@ -79,6 +79,7 @@ export default function ContactPage() {
           eyebrow="Contact"
           title="Let's"
           titleHighlight="Talk"
+          titleAs="h1"
           description="Tell us about your project or IT challenge, and we'll get back to you within one business day."
         />
 

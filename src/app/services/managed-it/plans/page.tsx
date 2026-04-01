@@ -25,15 +25,7 @@ import {
 import { QuoteButton } from "@/components/quote-flow";
 import { newPlans, mdmAddon } from "@/lib/plans";
 
-export const generateMetadata = buildMetadata("/services/managed-it/plans", {
-  title: "SeedCare Plans & Pricing | Managed IT Services — SeedTech",
-  description:
-    "Transparent per-user managed IT pricing. SeedCare Essentials ($110), Plus ($130), and Pro ($160) per user/month. No hidden fees, no long-term contracts.",
-  ogTitle: "SeedCare Plans & Pricing | Managed IT Services",
-  ogDescription:
-    "Transparent per-user managed IT pricing starting at $110/user/month. No hidden fees, no long-term contracts.",
-  canonical: "/services/managed-it/plans",
-});
+export const generateMetadata = buildMetadata("/services/managed-it/plans");
 
 const featureKeys = [
   "Remote Help Desk",

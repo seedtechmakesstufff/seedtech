@@ -50,9 +50,9 @@ export function Subheading({ children, className }: TypographyProps) {
 
 export function CardTitle({ children, className }: TypographyProps) {
   return (
-    <h4 className={cn("font-display text-card-title", className)}>
+    <h3 className={cn("font-display text-card-title", className)}>
       {children}
-    </h4>
+    </h3>
   );
 }
 

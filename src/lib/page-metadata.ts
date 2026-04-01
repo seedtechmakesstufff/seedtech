@@ -1,36 +1,19 @@
 /* ── Dynamic Page Metadata ──
  *
- * Bridges the admin Metadata tab (PageMetadata DB records) → live page rendering.
+ * Single source of truth: the PageMetadata DB table (managed via admin dashboard).
+ * No code-level fallbacks. If a DB record is missing, the page renders with a
+ * visible "[MISSING METADATA]" title so it gets caught immediately.
  *
  * Usage in any page.tsx:
  *
  *   import { buildMetadata } from "@/lib/page-metadata";
  *
- *   export const generateMetadata = buildMetadata("/about", {
- *     // static fallbacks (used when no DB record exists)
- *     title: "About SeedTech",
- *     description: "Learn about SeedTech...",
- *   });
- *
- * This ensures:
- *   1. If the admin has saved metadata in the Metadata tab → that's used
- *   2. If not → the static fallback you provide is used
- *   3. The SEO crawler sees the SAME metadata the admin manages
+ *   export const generateMetadata = buildMetadata("/about");
  */
 
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 import type { Metadata } from "next";
-
-interface MetadataFallback {
-  title?: string;
-  description?: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogImage?: string;
-  canonical?: string;
-  noIndex?: boolean;
-}
 
 /**
  * Fetch PageMetadata record for a given path.
@@ -48,23 +31,31 @@ async function getPageMetadataFromDB(path: string, siteId: string = DEFAULT_SITE
 
 /**
  * Build a Next.js `generateMetadata` function for a page.
+ * DB is the single source of truth — no inline fallbacks.
  *
  * @param path  The page path (e.g. "/about", "/services/managed-it")
- * @param fallback  Static fallback metadata used when no DB record exists
  */
-export function buildMetadata(path: string, fallback: MetadataFallback = {}) {
+export function buildMetadata(path: string) {
   return async function generateMetadata(): Promise<Metadata> {
     const record = await getPageMetadataFromDB(path);
 
-    // DB record takes priority, then fallback, then empty
-    const title = record?.title || fallback.title || undefined;
-    const description = record?.description || fallback.description || undefined;
-    const ogTitle = record?.ogTitle || fallback.ogTitle || title;
-    const ogDescription = record?.ogDescription || fallback.ogDescription || description;
-    const ogImage = record?.ogImageUrl || fallback.ogImage || undefined;
-    const canonical = record?.canonical || fallback.canonical || path;
-    const noIndex = record?.noIndex ?? fallback.noIndex ?? false;
-    const noFollow = record?.noFollow ?? false;
+    if (!record) {
+      console.warn(`[metadata] No PageMetadata record for "${path}" — add it in the admin dashboard.`);
+      return {
+        title: `[MISSING METADATA] ${path}`,
+        description: undefined,
+        alternates: { canonical: path },
+      };
+    }
+
+    const title = record.title || undefined;
+    const description = record.description || undefined;
+    const ogTitle = record.ogTitle || title;
+    const ogDescription = record.ogDescription || description;
+    const ogImage = record.ogImageUrl || undefined;
+    const canonical = record.canonical || path;
+    const noIndex = record.noIndex ?? false;
+    const noFollow = record.noFollow ?? false;
 
     const robots: Metadata["robots"] = {};
     if (noIndex) robots.index = false;
@@ -82,7 +73,7 @@ export function buildMetadata(path: string, fallback: MetadataFallback = {}) {
         ...(ogImage ? { images: [{ url: ogImage }] } : {}),
       },
       twitter: {
-        card: (record?.twitterCard as "summary_large_image" | "summary") || "summary_large_image",
+        card: (record.twitterCard as "summary_large_image" | "summary") || "summary_large_image",
         title: ogTitle,
         description: ogDescription,
         ...(ogImage ? { images: [ogImage] } : {}),
@@ -94,15 +85,12 @@ export function buildMetadata(path: string, fallback: MetadataFallback = {}) {
 
 /**
  * For dynamic routes (e.g. blog posts), call this directly inside generateMetadata.
+ * DB is the single source of truth.
  *
  * @param path  The full path (e.g. "/blog/my-post")
- * @param fallback  Fallback metadata
  */
-export async function resolveMetadata(
-  path: string,
-  fallback: MetadataFallback = {}
-): Promise<Metadata> {
-  return buildMetadata(path, fallback)();
+export async function resolveMetadata(path: string): Promise<Metadata> {
+  return buildMetadata(path)();
 }
 
 /**

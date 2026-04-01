@@ -8,12 +8,7 @@ import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { FAQSection } from "@/components/home/FAQSection";
 import { homepageFAQs } from "@/data/faqs";
 
-export const generateMetadata = buildMetadata("/", {
-  title: "SeedTech | Premium IT Support, Web Development & SEO",
-  description:
-    "Managed IT support, custom web development, and SEO that works from day one. Serving businesses in New Jersey, California, and nationwide.",
-  canonical: "/",
-});
+export const generateMetadata = buildMetadata("/");
 
 export default function HomePage() {
   return (

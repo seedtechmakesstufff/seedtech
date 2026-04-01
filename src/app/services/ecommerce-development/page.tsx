@@ -26,12 +26,7 @@ import type { FAQItem } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
-export const generateMetadata = buildMetadata("/services/ecommerce-development", {
-  title: "Ecommerce Development — Shopify, BigCommerce & WordPress",
-  description:
-    "Ecommerce design and development on Shopify, BigCommerce, and WordPress for businesses that need more than a basic storefront.",
-  canonical: "/services/ecommerce-development",
-});
+export const generateMetadata = buildMetadata("/services/ecommerce-development");
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 

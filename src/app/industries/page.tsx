@@ -5,12 +5,7 @@ import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill } from "@/components/kit";
 import { CTABanner } from "@/components/kit";
 
-export const generateMetadata = buildMetadata("/industries", {
-  title: "Industry Solutions",
-  description:
-    "SeedTech specializes in technology solutions for trucking, construction, law firms, and medical practices. Websites, IT support, and cybersecurity built for your industry.",
-  canonical: "/industries",
-});
+export const generateMetadata = buildMetadata("/industries");
 
 const industries = [
   {

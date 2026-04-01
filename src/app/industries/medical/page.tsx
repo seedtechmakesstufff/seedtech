@@ -6,11 +6,7 @@ import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill, CTABanner, Liqui
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { buildMetadata } from "@/lib/page-metadata";
 
-export const generateMetadata = buildMetadata("/industries/medical", {
-  title: "Technology Support for Medical Practices",
-  description:
-    "SeedTech helps medical practices improve reliability across email, devices, backups, websites, and day-to-day support with one accountable partner.",
-});
+export const generateMetadata = buildMetadata("/industries/medical");
 
 export default function MedicalPage() {
   return (

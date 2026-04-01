@@ -30,11 +30,7 @@ import {
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { buildMetadata } from "@/lib/page-metadata";
 
-export const generateMetadata = buildMetadata("/industries/trucking", {
-  title: "Websites & Managed IT for Trucking & Logistics Companies",
-  description:
-    "SeedTech helps trucking companies improve service-line clarity, clean up hiring and quote flows, and keep office technology more reliable.",
-});
+export const generateMetadata = buildMetadata("/industries/trucking");
 
 const stats = [
   { value: "1.46M+", label: "employees in U.S. truck transportation" },

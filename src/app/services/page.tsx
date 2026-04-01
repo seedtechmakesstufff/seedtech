@@ -14,12 +14,7 @@ import {
   AnimatedH2,
 } from "@/components/kit";
 
-export const generateMetadata = buildMetadata("/services", {
-  title: "Services",
-  description:
-    "Managed IT support, web development, ecommerce, custom software, and SEO — all from one technology partner. See what SeedTech can do for your business.",
-  canonical: "/services",
-});
+export const generateMetadata = buildMetadata("/services");
 
 const services = [
   {

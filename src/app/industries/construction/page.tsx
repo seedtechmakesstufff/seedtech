@@ -32,11 +32,7 @@ import {
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { buildMetadata } from "@/lib/page-metadata";
 
-export const generateMetadata = buildMetadata("/industries/construction", {
-  title: "Websites & Managed IT for Construction & Rigging Companies",
-  description:
-    "SeedTech helps construction companies improve website clarity, manage inbound requests more cleanly, and keep office-side technology more reliable.",
-});
+export const generateMetadata = buildMetadata("/industries/construction");
 
 const stats = [
   { value: "919K+", label: "U.S. construction establishments" },

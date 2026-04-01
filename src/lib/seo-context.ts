@@ -34,6 +34,7 @@ export interface SeoContextResult {
   keywordsContext: string;
   pageContext: string;
   serviceContext: string;
+  strategyContext: string;
   existingTitlesContext: string;
   /** The full prompt ready to send to Claude */
   fullPrompt: string;
@@ -239,7 +240,25 @@ export async function buildSeoContext(
     /* skip service context on error */
   }
 
-  // ── 5. Existing titles for differentiation ──
+  // ── 5. Strategy Documents (persistent strategy context) ──
+  let strategyContext = "";
+  try {
+    const strategyDocs = await prisma.seoStrategyDoc.findMany({
+      where: { siteId, isActive: true },
+      orderBy: [{ category: "asc" }, { updatedAt: "desc" }],
+      select: { title: true, category: true, content: true },
+    });
+
+    if (strategyDocs.length > 0) {
+      strategyContext = strategyDocs
+        .map((doc) => `### ${doc.title} (${doc.category.replace(/_/g, " ")})\n${doc.content}`)
+        .join("\n\n---\n\n");
+    }
+  } catch {
+    /* skip strategy context on error */
+  }
+
+  // ── 6. Existing titles for differentiation ──
   const existingTitlesContext =
     existingTitles.length > 0
       ? existingTitles.map((t) => `• ${t}`).join("\n")
@@ -284,7 +303,10 @@ ${serviceContext}
 ` : ""}═══ KEYWORDS ═══
 ${keywordsContext || "No keywords tracked yet. Use general SEO best practices."}
 
-═══ BUSINESS CONTEXT (brand voice & positioning — secondary) ═══
+${strategyContext ? `═══ SEO STRATEGY CONTEXT (overarching strategy decisions — inform your approach) ═══
+${strategyContext}
+
+` : ""}═══ BUSINESS CONTEXT (brand voice & positioning — secondary) ═══
 ${businessContext}
 
 ═══ DIFFERENTIATION — titles already used on other pages ═══
@@ -309,6 +331,7 @@ Return ONLY valid JSON, no markdown fences:
     keywordsContext,
     pageContext,
     serviceContext,
+    strategyContext,
     existingTitlesContext,
     fullPrompt,
   };

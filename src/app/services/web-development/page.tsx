@@ -8,12 +8,7 @@ import { GradientOrb, GridPattern, LiquidGlassPill, AnimatedH1, AnimatedH2 } fro
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 import { projects } from "@/data/projects";
 
-export const generateMetadata = buildMetadata("/services/web-development", {
-  title: "Web Development",
-  description:
-    "Custom websites, ecommerce platforms, and web applications built for how your business actually operates.",
-  canonical: "/services/web-development",
-});
+export const generateMetadata = buildMetadata("/services/web-development");
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 

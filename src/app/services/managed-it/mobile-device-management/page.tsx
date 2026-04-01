@@ -30,15 +30,7 @@ import {
 import { QuoteButton } from "@/components/quote-flow";
 import { mdmAddon } from "@/lib/plans";
 
-export const generateMetadata = buildMetadata("/services/managed-it/mobile-device-management", {
-  title: "Mobile Device Management (MDM) | $12/Device/Month — SeedTech",
-  description:
-    "Secure and manage every mobile device in your fleet. SeedTech MDM covers iOS, iPadOS, and Android with remote lock/wipe, app deployment, compliance policies, and reporting — $12/device/month.",
-  ogTitle: "Mobile Device Management (MDM) for Small Business — SeedTech",
-  ogDescription:
-    "Secure every mobile device. Remote lock/wipe, app deployment, compliance policies. $12/device/month. No contracts.",
-  canonical: "/services/managed-it/mobile-device-management",
-});
+export const generateMetadata = buildMetadata("/services/managed-it/mobile-device-management");
 
 const capabilities = [
   { icon: Lock, title: "Remote Lock & Wipe", body: "Lost or stolen device? Lock it instantly or wipe all company data remotely. Protect sensitive information even when hardware is compromised." },

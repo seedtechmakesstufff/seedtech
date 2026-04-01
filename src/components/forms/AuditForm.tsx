@@ -2,33 +2,18 @@
 
 import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { validateEmail } from "@/lib/validation";
 
 export function AuditForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [emailSuggestion, setEmailSuggestion] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = e.currentTarget;
-    const emailVal = (form.elements.namedItem("email") as HTMLInputElement).value;
-
-    // Validate email before submitting
-    const emailCheck = validateEmail(emailVal);
-    if (!emailCheck.valid) {
-      setEmailError(emailCheck.error || "Invalid email.");
-      setEmailSuggestion(emailCheck.suggestion || "");
-      return;
-    }
-    setEmailError("");
-    setEmailSuggestion("");
-
     setLoading(true);
+    const form = e.currentTarget;
     const data = {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
-      email: emailVal,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       website: (form.elements.namedItem("website") as HTMLInputElement).value,
       industry: (form.elements.namedItem("industry") as HTMLSelectElement).value,
@@ -77,41 +62,7 @@ export function AuditForm() {
         </div>
         <div>
           <label className="block text-body-sm text-white/50 mb-2">Business Email *</label>
-          <input
-            name="email"
-            type="email"
-            required
-            placeholder="jane@company.com"
-            className={`${inputClass} ${emailError ? "border-red-500/50" : ""}`}
-            onChange={() => { setEmailError(""); setEmailSuggestion(""); }}
-            onBlur={(e) => {
-              if (!e.target.value) return;
-              const r = validateEmail(e.target.value);
-              if (!r.valid) {
-                setEmailError(r.error || "Invalid email.");
-                setEmailSuggestion(r.suggestion || "");
-              }
-            }}
-          />
-          {emailError && (
-            <div className="mt-1.5">
-              <p className="text-red-400 text-xs">{emailError}</p>
-              {emailSuggestion && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const emailInput = document.querySelector<HTMLInputElement>('input[name="email"]');
-                    if (emailInput) emailInput.value = emailSuggestion;
-                    setEmailError("");
-                    setEmailSuggestion("");
-                  }}
-                  className="text-seed-400 hover:text-seed-300 text-xs underline underline-offset-2 mt-0.5"
-                >
-                  Did you mean {emailSuggestion}?
-                </button>
-              )}
-            </div>
-          )}
+          <input name="email" type="email" required placeholder="jane@company.com" className={inputClass} />
         </div>
       </div>
 

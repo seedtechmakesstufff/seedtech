@@ -3,11 +3,12 @@ import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { AnimatedH1 } from "@/components/kit";
-import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
+import { ArticleJsonLd, BreadcrumbJsonLd, PersonJsonLd } from "@/components/JsonLd";
 import { getPageMetadataRecord } from "@/lib/page-metadata";
 
 export const dynamic = "force-dynamic";
@@ -89,6 +90,8 @@ export default async function BlogPostPage({
   const post = await getPostBySlug(params.slug);
   if (!post || post.status !== "published") return notFound();
 
+  const author = post.authorRef;
+
   return (
     <article className="min-h-screen bg-dark-base pt-32 pb-20 px-4">
       <ArticleJsonLd
@@ -98,9 +101,39 @@ export default async function BlogPostPage({
           (post.publishedAt || post.createdAt).toString()
         }
         dateModified={post.updatedAt?.toString()}
-        author={post.author}
+        {...(author
+          ? {
+              authorEntity: {
+                name: author.name,
+                url: `https://seedtechllc.com${author.canonicalUrl}`,
+                jobTitle: author.jobTitle,
+                image: author.imageUrl
+                  ? `https://seedtechllc.com${author.imageUrl}`
+                  : undefined,
+                description: author.bio,
+                sameAs: author.sameAs,
+              },
+            }
+          : { author: post.author })}
         url={`https://seedtechllc.com/blog/${post.slug}`}
+        wordCount={post.wordCount}
       />
+      {author && (
+        <PersonJsonLd
+          name={author.name}
+          jobTitle={author.jobTitle}
+          url={`https://seedtechllc.com${author.canonicalUrl}`}
+          image={
+            author.imageUrl
+              ? `https://seedtechllc.com${author.imageUrl}`
+              : undefined
+          }
+          description={author.bio}
+          sameAs={author.sameAs}
+          worksFor="SeedTech"
+          knowsAbout={author.expertise}
+        />
+      )}
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "/" },
@@ -131,7 +164,22 @@ export default async function BlogPostPage({
             {post.title}
           </AnimatedH1>
           <div className="flex items-center gap-4 mt-4 text-sm text-white/40">
-            <span>By {post.author}</span>
+            {author?.imageUrl ? (
+              <Image
+                src={author.imageUrl}
+                alt={author.name}
+                width={36}
+                height={36}
+                className="rounded-full object-cover"
+              />
+            ) : null}
+            <span>By {author?.name || post.author}</span>
+            {author?.jobTitle && (
+              <>
+                <span>·</span>
+                <span>{author.jobTitle}</span>
+              </>
+            )}
             <span>·</span>
             <span>
               {format(new Date(post.publishedAt || post.createdAt), "MMMM d, yyyy")}
@@ -180,6 +228,67 @@ export default async function BlogPostPage({
             {post.body}
           </ReactMarkdown>
         </div>
+
+        {/* Author Bio Card — E-E-A-T */}
+        {author && (
+          <div className="mt-14 p-6 bg-dark-elevated border border-white/[0.06] rounded-xl flex gap-5 items-start">
+            {author.imageUrl && (
+              <Image
+                src={author.imageUrl}
+                alt={author.name}
+                width={64}
+                height={64}
+                className="rounded-full object-cover shrink-0"
+              />
+            )}
+            <div>
+              <p className="text-white font-semibold text-base">
+                {author.name}
+              </p>
+              {author.jobTitle && (
+                <p className="text-seed-400 text-sm mt-0.5">
+                  {author.jobTitle}, SeedTech
+                </p>
+              )}
+              <p className="text-white/40 text-sm mt-2 leading-relaxed">
+                {author.bio}
+              </p>
+              {author.credentials.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {author.credentials.map((c) => (
+                    <span
+                      key={c}
+                      className="text-xs px-2 py-0.5 rounded-full border border-seed-500/20 text-seed-400/80"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {author.sameAs.length > 0 && (
+                <div className="flex gap-3 mt-3">
+                  {author.sameAs.map((url) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-white/30 hover:text-white/60 transition-colors"
+                    >
+                      {url.includes("linkedin")
+                        ? "LinkedIn"
+                        : url.includes("github")
+                          ? "GitHub"
+                          : url.includes("twitter") || url.includes("x.com")
+                            ? "X / Twitter"
+                            : "Profile"}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="mt-16 p-8 bg-dark-elevated border border-white/[0.06] rounded-xl text-center">

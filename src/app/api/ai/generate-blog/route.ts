@@ -75,6 +75,19 @@ export async function POST(req: NextRequest) {
   const dbKeywords = await getTrackedKeywords(siteId);
   const keywordContext = dbKeywords.slice(0, 10).map((k) => `- "${k.keyword}" (${k.tier}, ${k.intent})`).join("\n");
 
+  // Load active strategy documents
+  let strategyDocsContext = "";
+  try {
+    const strategyDocs = await prisma.seoStrategyDoc.findMany({
+      where: { siteId, isActive: true },
+      orderBy: [{ category: "asc" }, { updatedAt: "desc" }],
+      select: { title: true, category: true, content: true },
+    });
+    if (strategyDocs.length > 0) {
+      strategyDocsContext = `\nSEO Strategy Context:\n${strategyDocs.map((d) => `### ${d.title}\n${d.content}`).join("\n\n")}`;
+    }
+  } catch { /* skip */ }
+
   const strategyContext = `
 ${businessContext}
 
@@ -84,6 +97,7 @@ ${author.bio}
 Current SEO keywords being targeted:
 ${keywordContext}
 ${internalLinkContext}
+${strategyDocsContext}
 `;
 
   let systemPrompt = "";

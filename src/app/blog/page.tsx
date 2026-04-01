@@ -3,11 +3,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { buildMetadata } from "@/lib/page-metadata";
 
-export const generateMetadata = buildMetadata("/blog", {
-  title: "Blog",
-  description:
-    "Expert insights on managed IT services, cybersecurity, web development, and technology strategy for growing businesses.",
-});
+export const generateMetadata = buildMetadata("/blog");
 
 export const dynamic = "force-dynamic";
 

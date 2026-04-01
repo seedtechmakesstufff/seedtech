@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/page-metadata";
 
-export const generateMetadata = buildMetadata("/terms-conditions", {
-  title: "Privacy Policy & Terms",
-  description:
-    "SeedTech LLC's privacy policy and terms of service — how we collect, use, and protect your contact information.",
-  noIndex: true,
-});
+export const generateMetadata = buildMetadata("/terms-conditions");
 
 export default function TermsConditionsPage() {
   return (

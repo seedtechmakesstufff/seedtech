@@ -24,15 +24,7 @@ import {
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
-export const generateMetadata = buildMetadata("/services/managed-it/assessment", {
-  title: "Free IT Assessment | Network & Security Audit — SeedTech",
-  description:
-    "Get a free 45-60 minute IT assessment for your business. We evaluate your network, security, backup, and compliance posture — then deliver a clear action plan. Northern NJ.",
-  ogTitle: "Free IT Assessment | SeedTech",
-  ogDescription:
-    "Free 45-60 minute IT assessment. We audit your network, security, and backups — then deliver a clear action plan.",
-  canonical: "/services/managed-it/assessment",
-});
+export const generateMetadata = buildMetadata("/services/managed-it/assessment");
 
 const auditAreas = [
   { icon: Server, title: "Infrastructure Review", body: "Full inventory of workstations, servers, network devices, and cloud services. We document what you have and flag what is outdated." },

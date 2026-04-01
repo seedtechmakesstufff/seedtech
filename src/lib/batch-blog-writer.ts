@@ -78,6 +78,19 @@ export async function batchWriteBlogPosts(
   const dbKeywords = await getTrackedKeywords(siteId);
   const keywordContext = dbKeywords.slice(0, 10).map((k) => `- "${k.keyword}" (${k.tier}, ${k.intent})`).join("\n");
 
+  // ── Load strategy documents ──
+  let strategyDocsContext = "";
+  try {
+    const strategyDocs = await prisma.seoStrategyDoc.findMany({
+      where: { siteId, isActive: true },
+      orderBy: [{ category: "asc" }, { updatedAt: "desc" }],
+      select: { title: true, category: true, content: true },
+    });
+    if (strategyDocs.length > 0) {
+      strategyDocsContext = `\nSEO Strategy Context:\n${strategyDocs.map((d) => `### ${d.title}\n${d.content}`).join("\n\n")}`;
+    }
+  } catch { /* skip */ }
+
   // ── Load experience evidence for E-E-A-T enrichment ──
   const evidence = siteConfig?.evidence || [];
   const evidenceContext = evidence.length > 0
@@ -115,6 +128,7 @@ Current SEO keywords being targeted:
 ${keywordContext}
 ${internalLinkContext}
 ${evidenceContext}
+${strategyDocsContext}
 `;
 
       // ── Step 1: Generate outline ──

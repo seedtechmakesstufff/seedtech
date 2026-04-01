@@ -5,11 +5,7 @@ import { GradientOrb, GridPattern, AnimatedH1, LiquidGlassPill, LiquidGlassCard 
 import { AuditForm } from "@/components/forms/AuditForm";
 import { buildMetadata } from "@/lib/page-metadata";
 
-export const generateMetadata = buildMetadata("/free-audit", {
-  title: "Free Website & Technology Audit",
-  description:
-    "Get a free website performance review, security risk scan, and technology improvement recommendations for your business. No commitment required.",
-});
+export const generateMetadata = buildMetadata("/free-audit");
 
 const auditItems = [
   {

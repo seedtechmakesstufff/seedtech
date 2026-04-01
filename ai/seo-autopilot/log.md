@@ -3,7 +3,7 @@
 **Project:** SeedTech SEO Autopilot (bundled with web builds for local businesses)  
 **Stack:** Next.js 14.2 (App Router) · Prisma 7.5 · PostgreSQL (Neon) · Claude API · NextAuth · Tailwind  
 **Repo:** github.com/seedtechmakesstufff/seedtech (main branch)  
-**Last updated:** March 30, 2026
+**Last updated:** March 31, 2026
 
 ---
 
@@ -167,7 +167,7 @@ Built the full multi-tenant foundation:
 ### Key Files
 | File | Purpose |
 |------|---------|
-| `prisma/schema.prisma` | ~960 lines, 33+ models |
+| `prisma/schema.prisma` | ~1100 lines, 35+ models |
 | `src/lib/ai-visibility.ts` | AI Visibility scoring engine (5 dimensions, 20+ checks) |
 | `src/lib/gsc-sync.ts` | GSC data sync engine (staleness-based, DB storage, TrackedKeyword updates) |
 | `src/lib/crawl-to-tasks.ts` | Crawl issue → SeoTask pipeline (30 templates, dedup, auto-resolve) |
@@ -180,6 +180,7 @@ Built the full multi-tenant foundation:
 | `src/lib/competitive-intel.ts` | Competitor analysis and gap detection |
 | `src/lib/site-scoring-config.ts` | DB-driven per-site scoring config loader |
 | `src/lib/cron-runner.ts` | Cron job tracking and multi-site execution |
+| `src/lib/seo-context.ts` | Central AI context builder (business + keywords + pages + strategy docs → prompt) |
 | `src/lib/business-context.ts` | Per-site business profile for prompts |
 | `src/lib/seo-crawler.ts` | 25+ check type site crawler (v2) |
 | `src/lib/seo-insights.ts` | Freshness, cannibalization, linking, CTR insights |
@@ -197,7 +198,7 @@ Built the full multi-tenant foundation:
 9. **Strategy** — Implementation roadmap tasks + content ideas calendar
 
 ### Prisma Models (key SEO ones)
-`Site` · `BusinessProfile` · `IndustryConfig` · `Author` · `ExperienceEvidence` · `BlogPost` · `SitePage` · `PageMetadata` · `PageContext` · `ContextNode` · `ContentScore` · `AIVisibilityScore` · `AICitation` · `CitationCheckRun` · `TrackedKeyword` · `KeywordCluster` · `ClusterSubtopic` · `InternalLinkSuggestion` · `ContentIdea` · `SeoTask` · `SeoSnapshot` · `SeoCrawlRun` · `SeoPageAudit` · `SeoInsight` · `CompetitorDomain` · `CompetitorAnalysis` · `SeoLeadEvent` · `CronJobRun` · `UserInvite` · `GscSyncLog` · `GscDailyKeyword` · `GscDailyPage`
+`Site` · `BusinessProfile` · `IndustryConfig` · `Author` · `ExperienceEvidence` · `BlogPost` · `SitePage` · `PageMetadata` · `PageContext` · `ContextNode` · `ContentScore` · `AIVisibilityScore` · `AICitation` · `CitationCheckRun` · `TrackedKeyword` · `KeywordCluster` · `ClusterSubtopic` · `InternalLinkSuggestion` · `ContentIdea` · `SeoTask` · `SeoSnapshot` · `SeoCrawlRun` · `SeoPageAudit` · `SeoInsight` · `CompetitorDomain` · `CompetitorAnalysis` · `SeoLeadEvent` · `CronJobRun` · `UserInvite` · `GscSyncLog` · `GscDailyKeyword` · `GscDailyPage` · `SeoStrategyDoc` · `ReportPreference`
 
 ### Week 1 Data Loop — GSC Sync + Crawl-to-Tasks + Dashboard Polish
 **Date:** March 31, 2026
@@ -299,6 +300,135 @@ Built the full multi-tenant foundation:
 | `seo_tasks` | 30 | Generated from crawl issues |
 | `tracked_keywords` | 18 | Aspirational targets (not yet matching GSC) |
 | `competitor_domains` | 3 | Dataprise ✓, Ntiva ✓, HIBU ✗ (deactivated) |
+
+---
+
+### SEO Onboarding — Keyword Strategy + Strategy Docs
+**Date:** March 31, 2026
+
+> Full SEO onboarding for site_seedtech: service context nodes, 157-keyword strategy built over 4 iterations, SeoStrategyDoc persistence feature, and 4 strategy documents seeded.
+
+#### OB-A — Service Context Nodes
+Created 2 service nodes via `/admin/seo/context` → Service Nodes:
+- **Managed IT Support** — 25 page links (primary: `/services/managed-it`, secondary: plans, assessment, onboarding, why-seedtech, mobile-device-management, industry pages)
+- **Web Development** — 16 page links (primary: `/services/web-development`, secondary: ecommerce, custom-dev, seedtech-platform, seo-autopilot, industry pages)
+- 41 total page links across both nodes
+
+#### OB-B — Keyword Strategy (157 keywords, 4 rounds)
+
+**Round 1 — v3 Base (92 keywords)**
+Script: `scripts/seed-keywords-v3.ts`
+Methodology: Deep-read every service page, industry page, FAQ, pricing section. Derived keywords from:
+1. Actual page copy (hero sections, feature lists)
+2. FAQ schema content (Google "People Also Ask" match)
+3. Pricing specifics ("$110/user/month", "no contract")
+4. Differentiator language ("unlimited help desk", "no ticket black holes")
+5. Industry page framing ("digital intake tools law firm")
+6. Local geography (Northern NJ, Morris/Sussex/Passaic/Warren County)
+
+**Round 2 — AI Audit Patch (+18 keywords)**
+Script: `scripts/seed-keywords-v3-patch.ts`
+Triggered by GSC Full Audit results: 94% brand traffic, avg position 27.8, only 2/18 non-brand clicks.
+Added: near-me queries, emergency/crisis terms, competitor displacement terms, geo expansion. Re-tiered 3 keywords to tier1, fixed 1 target page.
+
+**Round 3 — Reactive Expansion (+48 keywords)**
+Script: `scripts/seed-keywords-reactive.ts`
+Thesis: Most managed IT searches happen AFTER something breaks. 6 pain categories:
+- Crisis Moment (16kw): email outages, hacked, ransomware, server crashes
+- Frustration (9kw): bad MSP experience, slow response, "how to fire your IT company"
+- Post-Incident (6kw): prevention after breach, "what to do after data breach"
+- Compliance Panic (6kw): insurance denied, HIPAA, failed audit
+- Cost Shock (6kw): too expensive, locked into contract, per-user pricing searches
+- Growth Trigger (5kw): outgrew break-fix, "nephew does our IT"
+
+**Final distribution:**
+| Tier | Count | Intent | Count |
+|------|-------|--------|-------|
+| T1 | 13 | Commercial | 82 |
+| T2 | 81 | Informational | 49 |
+| T3 | 63 | Transactional | 24 |
+| | | Navigational | 2 |
+
+#### OB-C — SeoStrategyDoc Feature (NEW)
+
+**Problem:** AI research output was ephemeral — streaming results that disappeared after the session. No way to persist strategy context for future AI operations.
+
+**Solution:** Full `SeoStrategyDoc` model with CRUD, versioning, and injection into all AI consumers.
+
+**Schema additions** (`prisma/schema.prisma`):
+- `StrategyDocCategory` enum: `keyword_strategy`, `content_roadmap`, `audit_findings`, `competitive_analysis`, `general`
+- `SeoStrategyDoc` model: `siteId`, `title`, `category`, `content` (Text/markdown), `isActive`, `version` (auto-increments on content change), `source`, timestamps
+- `strategyDocs` relation added to `Site` model
+
+**API routes:**
+- `GET/POST /api/admin/seo/strategy-docs` — List (with `?category=` and `?active=` filters) + create/update
+- `GET/PUT/DELETE /api/admin/seo/strategy-docs/[id]` — Single doc operations
+
+**Wired into 4 AI consumers:**
+| Consumer | File | How |
+|----------|------|-----|
+| Metadata generation | `src/lib/seo-context.ts` | New section 5 in `getSeoContext()`, active docs formatted as `### title (category)\ncontent`, injected into `fullPrompt` between KEYWORDS and BUSINESS CONTEXT |
+| Keyword research | `src/app/api/admin/seo/keywords/research/route.ts` | `strategyBlock` variable appended to `dataContext` for all 5 research modes |
+| Blog writer | `src/app/api/ai/generate-blog/route.ts` | `strategyDocsContext` appended to `strategyContext` for outline/draft/meta |
+| Batch blog writer | `src/lib/batch-blog-writer.ts` | `strategyDocsContext` appended to `baseContext` |
+
+**UI** (`src/app/admin/seo/context/page.tsx`):
+- New 5th navigation section "Strategy" with ScrollText icon
+- `StrategyDocsSection` component (~300 lines):
+  - Document list with expand/collapse content view
+  - Create/edit form with title, category dropdown, content textarea, active toggle
+  - Delete with confirmation
+  - Toggle active/inactive from list view
+  - Category icons and color coding
+  - Version display and source tracking
+  - Empty state with description
+
+#### OB-D — Strategy Documents Seeded
+Script: `scripts/seed-strategy-docs.ts`
+4 documents, all active:
+
+| Title | Category | Content |
+|-------|----------|---------|
+| Keyword Architecture — 157 Keywords, 3 Tiers | `keyword_strategy` | Tier structure, intent distribution, derivation methodology, what's excluded |
+| Reactive Keyword Thesis — Pain-Point Targeting | `keyword_strategy` | 6 pain categories, 48 keywords, content implications |
+| GSC Baseline — March 2026 Audit | `audit_findings` | 94% brand traffic, avg position 27.8, quick wins, 90-day targets |
+| Blog Content Roadmap — 31 Articles | `content_roadmap` | 5 priority tiers, specific slugs, content guidelines (citeable paragraphs, entity refs, internal links, CTAs) |
+
+#### OB-E — Miscellaneous Changes
+- `src/lib/page-metadata.ts` — Fixed `buildMetadata()` import pattern for consistency across 28 page files
+- `src/components/forms/AuditForm.tsx` — Form validation cleanup
+- `src/components/quote-generator/quote-price-calculator.tsx` — Minor pricing display fix
+- `ai/security/security-requirements.md` — Added security notes
+
+#### Files Created/Modified
+| File | Action |
+|------|--------|
+| `prisma/schema.prisma` | Added `StrategyDocCategory` enum, `SeoStrategyDoc` model, `strategyDocs` relation on Site |
+| `src/app/api/admin/seo/strategy-docs/route.ts` | **NEW** — Strategy docs list + create/update API |
+| `src/app/api/admin/seo/strategy-docs/[id]/route.ts` | **NEW** — Strategy doc GET/PUT/DELETE API |
+| `src/lib/seo-context.ts` | Added `strategyContext` to interface, section 5 fetch, fullPrompt injection |
+| `src/app/api/admin/seo/keywords/research/route.ts` | Added `strategyBlock` fetch + inject into dataContext |
+| `src/app/api/ai/generate-blog/route.ts` | Added `strategyDocsContext` fetch + inject |
+| `src/lib/batch-blog-writer.ts` | Added `strategyDocsContext` fetch + inject |
+| `src/app/admin/seo/context/page.tsx` | Added Strategy nav section + StrategyDocsSection component (~300 lines) |
+| `src/lib/page-metadata.ts` | buildMetadata import pattern cleanup |
+| `src/components/forms/AuditForm.tsx` | Form validation cleanup |
+| 28 page/layout files | `buildMetadata()` wrapper updates |
+| `scripts/seed-keywords-v3.ts` | **NEW** — 92 base keywords |
+| `scripts/seed-keywords-v3-patch.ts` | **NEW** — 18 AI audit patch keywords |
+| `scripts/seed-keywords-reactive.ts` | **NEW** — 48 reactive/pain-point keywords |
+| `scripts/seed-strategy-docs.ts` | **NEW** — 4 strategy documents |
+
+#### DB State After Onboarding
+| Table | Count | Notes |
+|-------|-------|-------|
+| `context_nodes` | 2+ | Managed IT Support, Web Development (+ business node) |
+| `context_node_pages` | 41 | Page links across both service nodes |
+| `tracked_keywords` | 157 | 13 T1 / 81 T2 / 63 T3 |
+| `seo_strategy_docs` | 4 | All active, feeding all AI prompts |
+| `gsc_sync_logs` | 1+ | Baseline sync completed |
+| `gsc_daily_keywords` | 19+ | From GSC |
+| `seo_tasks` | 30+ | From crawl issues |
 
 ---
 
@@ -547,18 +677,23 @@ Sample gap: "[they-have-we-dont] 'SEO vs GEO vs AEO vs AIO: How They Differ' —
 ### Phase 9: Client Onboarding Polish
 > Smooth experience when spinning up a new client site.
 
-1. **GSC OAuth flow** — In-app consent, token storage, automatic data pulls
-2. **Guided setup checklist** — Connect integrations, first crawl, first blog post
-3. **White-label reports** — PDF exports, branded email reports
-4. **Industry presets** — One-click IndustryConfig for common verticals (MSP, legal, HVAC, dental, etc.)
+1. ~~Strategy document persistence~~ ✅ Done (March 31 — SeoStrategyDoc model + UI)
+2. ~~Keyword seeding methodology~~ ✅ Done (March 31 — documented in ONBOARDING.md)
+3. **GSC OAuth flow** — In-app consent, token storage, automatic data pulls
+4. **Guided setup checklist** — Connect integrations, first crawl, first blog post
+5. **White-label reports** — PDF exports, branded email reports
+6. **Industry presets** — One-click IndustryConfig for common verticals (MSP, legal, HVAC, dental, etc.)
+7. **Strategy doc templates** — Pre-built strategy doc templates per industry vertical
 
 ---
 
 ## Known Issues / Tech Debt
-- TS server occasionally reports stale errors for new Prisma models (tsc validates clean)
+- TS server occasionally reports stale errors for new Prisma models (tsc validates clean — restart TS server to fix)
 - `DEFAULT_AUTHORS` in seo-eeat.ts kept as fallback — should eventually be removed when all sites have DB authors
 - `DEFAULT_CONTEXT` in business-context.ts is SeedTech-specific — OK as ultimate fallback but clearly marked deprecated
 - `DEFAULT_SITE_ID` / `DEFAULT_TENANT_ID` still referenced — needed for backwards compat during migration
 - No email delivery for team invites (TODO: integrate Resend)
 - Competitive intel URL discovery is basic (sitemap parsing) — needs headless browser for JS-rendered sites
 - Content matching in gap analysis uses keyword/slug heuristics — could use embeddings for semantic matching
+- Strategy doc content is plain markdown in a textarea — could benefit from a rich editor in future
+- Keyword seed scripts in `/scripts/` are one-shot and SeedTech-specific — need generalized import/export for other clients

@@ -26,6 +26,21 @@ function toAppPost(p: any): BlogPost {
     body: p.body,
     author: p.author,
     authorId: p.authorId || null,
+    authorRef: p.authorRef
+      ? {
+          id: p.authorRef.id,
+          name: p.authorRef.name,
+          slug: p.authorRef.slug,
+          jobTitle: p.authorRef.jobTitle,
+          bio: p.authorRef.bio,
+          imageUrl: p.authorRef.imageUrl,
+          canonicalUrl: p.authorRef.canonicalUrl,
+          sameAs: p.authorRef.sameAs,
+          expertise: p.authorRef.expertise,
+          credentials: p.authorRef.credentials,
+          experience: p.authorRef.experience,
+        }
+      : null,
     category: p.category,
     tags: p.tags,
     targetKeyword: p.targetKeyword,
@@ -63,6 +78,7 @@ export async function getPublishedPosts(siteId = DEFAULT_SITE_ID): Promise<BlogP
 export async function getPostBySlug(slug: string, siteId = DEFAULT_SITE_ID): Promise<BlogPost | null> {
   const post = await prisma.blogPost.findUnique({
     where: { siteId_slug: { siteId, slug } },
+    include: { authorRef: true },
   });
   return post ? toAppPost(post) : null;
 }

@@ -94,6 +94,7 @@ model Site {
   gscDailyKeywords GscDailyKeyword[]
   gscDailyPages    GscDailyPage[]
   reportPrefs      ReportPreference[]
+  strategyDocs     SeoStrategyDoc[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -1064,4 +1065,36 @@ model ReportPreference {
   @@unique([siteId, userId])
   @@index([frequency, enabled])
   @@map("report_preferences")
+}
+
+// ── SEO Strategy Documents ──
+// Persistent, versioned strategy context that feeds into ALL AI prompts.
+// Stores keyword rationale, audit findings, content roadmaps, etc.
+// Active docs are injected into seo-context.ts alongside business profile,
+// keywords, and page contexts so every AI feature has strategic awareness.
+
+enum StrategyDocCategory {
+  keyword_strategy    // Keyword thesis, tier logic, reactive keyword rationale
+  content_roadmap     // Blog plan, content calendar reasoning, topic clusters
+  audit_findings      // GSC analysis, AI research audit results, competitive intel
+  competitive_analysis // Competitor landscape, differentiation strategy
+  general             // Catch-all for strategy notes that don't fit above
+}
+
+model SeoStrategyDoc {
+  id          String              @id @default(cuid())
+  siteId      String
+  title       String                                  // "Reactive Keyword Strategy" or "Q1 2026 Audit Findings"
+  category    StrategyDocCategory @default(general)
+  content     String              @db.Text             // Markdown — the strategy narrative
+  isActive    Boolean             @default(true)       // Only active docs feed into AI prompts
+  version     Int                 @default(1)          // Bumped on major rewrites
+  source      String?                                  // "manual", "ai-audit", "gsc-sync" — how this doc was created
+  site        Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([siteId, isActive])
+  @@index([siteId, category])
+  @@map("seo_strategy_docs")
 }

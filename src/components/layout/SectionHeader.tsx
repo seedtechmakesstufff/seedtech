@@ -10,6 +10,8 @@ interface SectionHeaderProps {
   description?: string;
   align?: "center" | "left";
   theme?: "dark" | "light";
+  /** Override the heading tag. Default is "h2". Use "h1" for page-level headers. */
+  titleAs?: "h1" | "h2" | "h3";
   className?: string;
 }
 
@@ -20,6 +22,7 @@ export function SectionHeader({
   description,
   align = "center",
   theme = "dark",
+  titleAs = "h2",
   className,
 }: SectionHeaderProps) {
   const isDark = theme === "dark";
@@ -46,7 +49,7 @@ export function SectionHeader({
       )}
       <SplitTextReveal
         text={fullTitle}
-        as="h2"
+        as={titleAs}
         mode="inView"
         delay={0}
         stagger={0.055}

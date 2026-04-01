@@ -27,7 +27,6 @@ import { calculateCommissions, getCommissionRate } from "@/lib/calculators/commi
 import { calculateQuote } from "@/lib/calculators/quote";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { validateEmail } from "@/lib/validation";
 
 import type { ViewMode, PlanName, QuoteCalculatorConfig } from "./types";
 
@@ -195,8 +194,6 @@ export function QuotePriceCalculator({
   const [selectedPlan, setSelectedPlan] = useState<PlanName | null>(null);
   const [includeMdm, setIncludeMdm] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
-  const [itEmailError, setItEmailError] = useState("");
-  const [itEmailSuggestion, setItEmailSuggestion] = useState("");
 
   useEffect(() => {
     if (initialData) {
@@ -240,7 +237,7 @@ export function QuotePriceCalculator({
   };
 
   const isSubmitDisabled =
-    !selectedPlan || !clientName || !fullName || !email || !phone || !validateEmail(email).valid;
+    !selectedPlan || !clientName || !fullName || !email || !phone;
 
   // ── Handlers ──
   const handlePlanSelect = (planName: PlanName) => {
@@ -522,25 +519,9 @@ export function QuotePriceCalculator({
                       label="Email"
                       type="email"
                       value={email}
-                      onChange={(e) => { setEmail(e.target.value); setItEmailError(""); setItEmailSuggestion(""); }}
-                      onBlur={() => {
-                        if (!email) return;
-                        const r = validateEmail(email);
-                        if (!r.valid) { setItEmailError(r.error || "Invalid email."); setItEmailSuggestion(r.suggestion || ""); }
-                      }}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="e.g., jane.doe@example.com"
-                      className={itEmailError ? "border-red-500/50" : ""}
                     />
-                    {itEmailError && (
-                      <div className="-mt-3 px-1 col-span-full">
-                        <p className="text-red-400 text-xs">{itEmailError}</p>
-                        {itEmailSuggestion && (
-                          <button type="button" onClick={() => { setEmail(itEmailSuggestion); setItEmailError(""); setItEmailSuggestion(""); }} className="text-seed-400 hover:text-seed-300 text-xs underline underline-offset-2 mt-0.5">
-                            Did you mean {itEmailSuggestion}?
-                          </button>
-                        )}
-                      </div>
-                    )}
                     <SeedInput
                       id="phone"
                       label="Phone"

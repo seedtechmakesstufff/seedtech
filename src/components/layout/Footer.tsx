@@ -85,7 +85,7 @@ export function Footer() {
 
           {/* Contact info */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-sm font-semibold text-white">Get in Touch</h4>
+            <p className="text-sm font-semibold text-white">Get in Touch</p>
             <a href="mailto:info@seedtechllc.com" className="flex items-center gap-3 text-sm text-white/50 hover:text-white transition-colors">
               <Mail className="w-4 h-4 text-seed-500 shrink-0" />
               info@seedtechllc.com
@@ -105,7 +105,7 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
           {/* Services */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Services</h4>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Services</p>
             <ul className="space-y-3">
               {footerLinks.services.map((link) => (
                 <li key={link.href}>
@@ -119,7 +119,7 @@ export function Footer() {
 
           {/* Industries */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Industries</h4>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Industries</p>
             <ul className="space-y-3">
               {footerLinks.industries.map((link) => (
                 <li key={link.href}>
@@ -133,7 +133,7 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Company</h4>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Company</p>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -147,7 +147,7 @@ export function Footer() {
 
           {/* Resources */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Resources</h4>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Resources</p>
             <ul className="space-y-3">
               <li>
                 <Link href="/pricing/it-support" className="text-sm text-white/60 hover:text-white transition-colors">

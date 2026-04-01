@@ -22,12 +22,7 @@ import {
 } from "@/components/kit";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/components/JsonLd";
 
-export const generateMetadata = buildMetadata("/services/seo-autopilot", {
-  title: "SEO Autopilot — Launch Your Website with SEO Already Operational",
-  description:
-    "SeedTech websites launch with SEO Autopilot already configured — monitoring visibility, planning content, and improving search performance from day one.",
-  canonical: "/services/seo-autopilot",
-});
+export const generateMetadata = buildMetadata("/services/seo-autopilot");
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 

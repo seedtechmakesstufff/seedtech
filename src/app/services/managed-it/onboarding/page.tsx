@@ -26,15 +26,7 @@ import {
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
-export const generateMetadata = buildMetadata("/services/managed-it/onboarding", {
-  title: "30-Day IT Onboarding | Switch IT Providers — SeedTech",
-  description:
-    "Switch IT providers with zero disruption. SeedTech's 4-week phased onboarding covers discovery, silent deployment, go-live, and optimization. Most teams are fully onboarded in 5-10 days.",
-  ogTitle: "30-Day IT Onboarding | Switch Providers with Zero Disruption",
-  ogDescription:
-    "Switch IT providers in 30 days with zero disruption. 4-week phased rollout: discovery, silent deployment, go-live, optimization.",
-  canonical: "/services/managed-it/onboarding",
-});
+export const generateMetadata = buildMetadata("/services/managed-it/onboarding");
 
 const phases = [
   {

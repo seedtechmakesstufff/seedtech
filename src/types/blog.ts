@@ -3,6 +3,21 @@
  * Body content is Markdown.
  */
 
+/** Resolved author entity for EEAT attribution */
+export interface AuthorEntity {
+  id: string;
+  name: string;
+  slug: string;
+  jobTitle: string;
+  bio: string;
+  imageUrl: string | null;
+  canonicalUrl: string;
+  sameAs: string[];
+  expertise: string[];
+  credentials: string[];
+  experience: string;
+}
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -12,6 +27,8 @@ export interface BlogPost {
   coverImage?: string;
   author: string;
   authorId: string | null;
+  /** Resolved author entity (included when fetched with relation) */
+  authorRef?: AuthorEntity | null;
   category: string;
   tags: string[];
   targetKeyword: string;

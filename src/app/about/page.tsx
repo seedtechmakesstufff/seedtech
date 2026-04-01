@@ -15,12 +15,7 @@ import {
 } from "@/components/kit";
 import { VideoLocationPill } from "@/components/about/VideoLocationPill";
 
-export const generateMetadata = buildMetadata("/about", {
-  title: "About Us",
-  description:
-    "SeedTech is a technology company built for businesses that want fewer headaches, clearer communication, and a partner that stays involved. Based in New Jersey & California.",
-  canonical: "/about",
-});
+export const generateMetadata = buildMetadata("/about");
 
 const values = [
   {

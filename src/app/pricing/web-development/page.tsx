@@ -4,12 +4,7 @@ import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, CTABanner, GlassCard, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
 
-export const generateMetadata = buildMetadata("/pricing/web-development", {
-  title: "Web Development Pricing",
-  description:
-    "Transparent pricing for professional website development. Starter, Robust Build, Ecommerce, and Custom Web Application packages.",
-  canonical: "/pricing/web-development",
-});
+export const generateMetadata = buildMetadata("/pricing/web-development");
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface PricingTier {

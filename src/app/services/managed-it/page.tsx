@@ -31,15 +31,7 @@ import {
   AnimatedH1,
 } from "@/components/kit";
 import { QuoteButton } from "@/components/quote-flow";
-export const generateMetadata = buildMetadata("/services/managed-it", {
-  title: "Managed IT Services NJ | Proactive IT Support — SeedTech",
-  description:
-    "Proactive managed IT services in Northern New Jersey. Unlimited help desk, endpoint monitoring, cybersecurity & cloud backup. Per-user pricing, no contracts. Get a free quote.",
-  ogTitle: "Managed IT Services NJ | Proactive IT Support — SeedTech",
-  ogDescription:
-    "Proactive managed IT services in Northern New Jersey. Unlimited help desk, endpoint monitoring, cybersecurity & cloud backup. Per-user pricing, no contracts.",
-  canonical: "/services/managed-it",
-});
+export const generateMetadata = buildMetadata("/services/managed-it");
 
 /* ─── Data ─────────────────────────────────────────────────────────────────── */
 const features = [

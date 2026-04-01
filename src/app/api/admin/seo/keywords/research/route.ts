@@ -177,6 +177,19 @@ ${summary.topPages.map((p) => `• ${p.page} — clicks: ${p.clicks}, impression
     }
   }
 
+  // Strategy documents
+  let strategyBlock = "";
+  try {
+    const strategyDocs = await prisma.seoStrategyDoc.findMany({
+      where: { siteId, isActive: true },
+      orderBy: [{ category: "asc" }, { updatedAt: "desc" }],
+      select: { title: true, category: true, content: true },
+    });
+    if (strategyDocs.length > 0) {
+      strategyBlock = `## SEO Strategy Documents (active strategy context)\n${strategyDocs.map((d) => `### ${d.title} (${d.category.replace(/_/g, " ")})\n${d.content}`).join("\n\n---\n\n")}`;
+    }
+  } catch { /* skip */ }
+
   // ── 2. Build prompts per mode ──
 
   const systemPrompt = `You are an elite SEO keyword strategist and research analyst. You have deep expertise in:
@@ -211,7 +224,9 @@ ${existingKwBlock}
 
 ${pageContextBlock ? `## Site Pages & Their Context:\n${pageContextBlock}` : ""}
 
-${gscBlock}`;
+${gscBlock}
+
+${strategyBlock}`;
 
   switch (mode) {
     case "discover":

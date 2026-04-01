@@ -23,12 +23,7 @@ import { AutopilotCards } from "@/components/home/AutopilotCards";
 import { WebBuildCards } from "@/components/services/WebBuildCards";
 import Image from "next/image";
 
-export const generateMetadata = buildMetadata("/services/seedtech-platform", {
-  title: "SeedTech Platform — Launch a Custom Website Faster With SEO Built In",
-  description:
-    "The SeedTech Platform is our fast-launch website infrastructure for service businesses. Built on Next.js, you own your code, and SEO Autopilot is configured from day one.",
-  canonical: "/services/seedtech-platform",
-});
+export const generateMetadata = buildMetadata("/services/seedtech-platform");
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
