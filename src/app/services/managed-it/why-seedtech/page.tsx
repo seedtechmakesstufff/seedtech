@@ -9,7 +9,6 @@ import {
   MessageSquare,
   Radar,
   Repeat,
-  Search,
   ShieldCheck,
   UserCheck,
   Users,

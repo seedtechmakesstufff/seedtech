@@ -11,7 +11,6 @@ import {
   MessageSquare,
   Radar,
   Repeat,
-  Zap,
   Monitor,
   Server,
   PhoneCall,

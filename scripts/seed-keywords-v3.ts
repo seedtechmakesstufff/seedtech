@@ -255,7 +255,9 @@ async function main() {
   console.log(`\n📄 Unique target pages: ${pages.size}`);
 
   // Blog articles needed
-  const blogTargets = [...new Set(kws.filter((k) => k.targetPage.startsWith("/blog/")).map((k) => k.targetPage))];
+  const blogTargets = Array.from(
+    new Set(kws.filter((k) => k.targetPage.startsWith("/blog/")).map((k) => k.targetPage))
+  );
   console.log(`\n📝 Blog articles to write (${blogTargets.length}):`);
   blogTargets.forEach((b) => console.log(`   ${b}`));
 

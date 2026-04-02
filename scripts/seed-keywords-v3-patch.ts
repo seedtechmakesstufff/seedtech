@@ -182,7 +182,7 @@ async function main() {
     where: { siteId: SITE_ID, targetPage: { startsWith: "/blog/" } },
     select: { targetPage: true },
   });
-  const blogArticles = [...new Set(blogKeywords.map((k) => k.targetPage))];
+  const blogArticles = Array.from(new Set(blogKeywords.map((k) => k.targetPage)));
   console.log(`\n📝 Blog articles to write: ${blogArticles.length}`);
   blogArticles.forEach((b) => console.log(`   ${b}`));
 

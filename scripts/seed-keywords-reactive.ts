@@ -163,7 +163,9 @@ async function main() {
   Object.entries(categories).forEach(([cat, count]) => console.log(`   ${count} → ${cat}`));
 
   // New blog articles this creates
-  const newBlogSlugs = [...new Set(keywords.filter((k) => k.targetPage.startsWith("/blog/")).map((k) => k.targetPage))];
+  const newBlogSlugs = Array.from(
+    new Set(keywords.filter((k) => k.targetPage.startsWith("/blog/")).map((k) => k.targetPage))
+  );
   console.log(`\n📝 NEW blog articles needed (${newBlogSlugs.length}):`);
   newBlogSlugs.forEach((s) => console.log(`   ${s}`));
 
