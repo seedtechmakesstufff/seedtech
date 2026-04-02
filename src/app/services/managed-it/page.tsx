@@ -2,19 +2,20 @@ import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
+  CheckCircle2,
+  ClipboardList,
   Shield,
   ShieldCheck,
   ShieldPlus,
   Headphones,
-  Clock,
-  Lock,
-  Users,
-  BarChart3,
+  MessageSquare,
+  Radar,
+  Repeat,
   Zap,
   Monitor,
-  Smartphone,
   Server,
   PhoneCall,
+  Workflow,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -30,26 +31,73 @@ import {
   CheckList,
   AnimatedH1,
 } from "@/components/kit";
-import { QuoteButton } from "@/components/quote-flow";
 export const generateMetadata = buildMetadata("/services/managed-it");
 
 /* ─── Data ─────────────────────────────────────────────────────────────────── */
-const features = [
-  { icon: Headphones, title: "Unlimited Help Desk", body: "Remote support for every user on your team — no hourly billing. Call, email, or text." },
-  { icon: Clock, title: "30-Minute Triage", body: "Critical issues triaged within 30 minutes. Most requests resolved same-day by someone who knows your environment." },
-  { icon: Lock, title: "Cybersecurity Built In", body: "SentinelOne AI-driven endpoint security, antivirus management, patch management, and ransomware protection on every plan — always." },
-  { icon: Users, title: "Per-User Pricing", body: "One flat rate per person covers one laptop and one desktop. Simple, predictable, no surprises." },
-  { icon: BarChart3, title: "Transparent Reporting", body: "Monthly health reports covering tickets, response times, system status, and security posture. No black boxes." },
-  { icon: Zap, title: "No Long-Term Contracts", body: "Month-to-month. We earn your business every billing cycle, not through lock-in or cancellation fees." },
+const sectionOneCards = [
+  {
+    icon: Headphones,
+    title: "Help your team get back to work quickly",
+    body: "When something goes wrong, your team needs a clear path back to productivity.",
+  },
+  {
+    icon: Radar,
+    title: "Catch issues early when possible",
+    body: "Monitoring and maintenance help identify many problems before they become bigger disruptions.",
+  },
+  {
+    icon: Repeat,
+    title: "Reduce repeat issues",
+    body: "A recurring issue usually means the real cause was never fully addressed.",
+  },
+  {
+    icon: Shield,
+    title: "Keep systems secure and supported",
+    body: "Ongoing updates, protection, and oversight help reduce risk and keep things running more reliably.",
+  },
+  {
+    icon: MessageSquare,
+    title: "Make support feel easier",
+    body: "Your team should know who to contact, what to expect, and what happens next.",
+  },
+  {
+    icon: Workflow,
+    title: "Improve the environment over time",
+    body: "Good IT support should not just maintain the status quo. It should help your systems become more stable and better organized.",
+  },
 ];
 
-const stackLayers = [
-  { icon: Monitor, title: "NinjaOne RMM", body: "Central command — monitors device health and patches systems automatically, 24/7." },
-  { icon: Shield, title: "SentinelOne", body: "AI-driven endpoint security that identifies and stops ransomware and zero-day threats instantly." },
-  { icon: Server, title: "Cloud Backup", body: "Fast restore of individual files or entire system images. Your time machine when things go wrong." },
-  { icon: Zap, title: "Custom Automation", body: "Advanced PowerShell scripts built for your specific environment to handle complex workflows and auto-remediation." },
-  { icon: Smartphone, title: "Real-Time Alerting", body: "Critical alerts go straight to our technicians mobile devices — we often know about issues before you do." },
-  { icon: PhoneCall, title: "Vendor Coordination", body: "We handle your ISPs, carriers, and software vendors so you never have to play phone tag again." },
+const sectionFourCards = [
+  {
+    icon: Headphones,
+    title: "Help desk support",
+    body: "Responsive support for your users during business hours when they need help.",
+  },
+  {
+    icon: Monitor,
+    title: "Monitoring and maintenance",
+    body: "Ongoing oversight of systems to catch issues early and keep devices running more reliably.",
+  },
+  {
+    icon: Shield,
+    title: "Cybersecurity protection",
+    body: "Endpoint protection, patching, and best-practice safeguards to help reduce risk.",
+  },
+  {
+    icon: Server,
+    title: "Backup and recovery support",
+    body: "Protection for important data and support for recovery planning when something goes wrong.",
+  },
+  {
+    icon: PhoneCall,
+    title: "Vendor coordination",
+    body: "Help working with internet providers, software vendors, phone providers, and other third parties when needed.",
+  },
+  {
+    icon: ClipboardList,
+    title: "Guidance and recommendations",
+    body: "Practical advice to help improve your environment over time, not just keep it running day to day.",
+  },
 ];
 
 const tiers = [
@@ -71,20 +119,56 @@ const tiers = [
 ];
 
 const processSteps = [
-  { step: "01", title: "Free Assessment", body: "We start with a 45-60 minute technical deep dive — users, devices, security posture, network, vendors. No commitment." },
-  { step: "02", title: "Silent Deployment", body: "We push monitoring and security agents in the background during week 2. Zero disruption to your team." },
-  { step: "03", title: "Go Live & Optimize", body: "Automations turn on, our techs get real-time alerts, and we fine-tune the experience with your team over 30 days." },
+  {
+    step: "01",
+    title: "Assessment",
+    body: "We review your current environment, identify immediate concerns, and learn how your business operates.",
+  },
+  {
+    step: "02",
+    title: "Setup and Stabilization",
+    body: "We put the right tools, protections, and visibility in place so support starts from a stronger foundation.",
+  },
+  {
+    step: "03",
+    title: "Ongoing Support",
+    body: "Once everything is in place, we continue supporting your team, monitoring systems, and improving the environment over time.",
+  },
 ];
 
 const faqs = [
-  { q: "What does managed IT services include?", a: "Every SeedCare plan includes unlimited remote help desk, endpoint monitoring, patch management, antivirus management with SentinelOne, and cloud backup. Higher tiers add on-site support, network monitoring, vendor coordination, and strategic vCIO sessions." },
-  { q: "How much does managed IT cost in New Jersey?", a: "SeedTech SeedCare plans start at $110 per user per month for Essentials, $130 for Plus, and $160 for Pro. Every plan is month-to-month with no long-term contracts. Use our pricing calculator for an instant quote." },
-  { q: "What counts as a user or seat?", a: "One seat equals one person on your team. It covers all their devices — laptop, phone, monitors, peripherals. No device-counting headaches." },
-  { q: "Do you require a long-term contract?", a: "No. Every SeedCare plan is month-to-month. We earn your business every billing cycle instead of locking you in. There are no cancellation fees." },
-  { q: "How is SeedTech different from larger MSPs?", a: "You get people who know your environment — not whoever is free. We do not use L1/L2/L3 escalation tiers. The person who picks up your alert owns it through resolution. No ticket black holes, no revolving-door technicians." },
-  { q: "How quickly can we get started?", a: "Most teams are fully onboarded within 5-10 business days. We follow a 4-week phased rollout — discovery, silent deployment, go-live, and optimization — designed to minimize disruption." },
-  { q: "Do you support field workers and remote teams?", a: "Yes. Field crews get the same support as office staff, plus optional Mobile Device Management (MDM) for iOS, Android, and iPadOS devices at $12 per device per month." },
-  { q: "What areas in New Jersey do you serve?", a: "SeedTech is based in Hopatcong, NJ and serves businesses throughout Northern New Jersey and the NYC metro area. Remote support is available nationwide." },
+  {
+    q: "What is included in managed IT support?",
+    a: "Managed IT support typically includes help desk support, monitoring, maintenance, cybersecurity protection, backup support, and practical guidance to help keep your business running smoothly.",
+  },
+  {
+    q: "Do you only fix problems after they happen?",
+    a: "No. We use monitoring, maintenance, patching, and security tools to help identify many issues early. Not everything can be prevented, but proactive support helps reduce downtime and improve response.",
+  },
+  {
+    q: "What if the same issue keeps happening?",
+    a: "Recurring issues are usually a sign that the real problem has not been fully addressed. We work to identify the cause and recommend or implement a better long-term fix whenever possible.",
+  },
+  {
+    q: "Can you support a growing business?",
+    a: "Yes. Our support model is built around monitoring, documentation, automation, and clear ownership so we can stay organized and responsive as clients grow.",
+  },
+  {
+    q: "How quickly can we get started?",
+    a: "We begin with an assessment, then build a rollout plan based on your environment, priorities, and business needs. The goal is to make the transition clear and low-disruption.",
+  },
+  {
+    q: "Do you offer after-hours support?",
+    a: "We provide 24/7 monitoring, while live help desk support is during business hours. After-hours requests are handled based on urgency, project scope, special arrangement, or emergency need.",
+  },
+  {
+    q: "Do you offer on-site support?",
+    a: "Yes, when needed. Some issues can be handled remotely, while others are better addressed in person depending on the problem, location, and scope.",
+  },
+  {
+    q: "Do you require long-term contracts?",
+    a: "We believe in earning trust through service and consistency. Plan structure and billing terms can be clearly outlined up front so expectations are simple.",
+  },
 ];
 
 /* ─── JSON-LD ──────────────────────────────────────────────────────────────── */
@@ -95,7 +179,7 @@ const serviceSchema = {
   provider: { "@type": "LocalBusiness", name: "SeedTech", url: "https://seedtechllc.com", telephone: "+19143628889", email: "moliva@seedtechllc.com", address: { "@type": "PostalAddress", addressLocality: "Hopatcong", addressRegion: "NJ", addressCountry: "US" } },
   serviceType: "Managed IT Support",
   areaServed: { "@type": "State", name: "New Jersey" },
-  description: "Proactive managed IT services including unlimited help desk, endpoint monitoring, cybersecurity, cloud backup, and vendor coordination. Per-user pricing, no contracts.",
+  description: "Proactive IT support designed to keep teams productive, systems secure, and day-to-day operations moving while reducing repeat problems over time.",
   offers: { "@type": "AggregateOffer", lowPrice: "110", highPrice: "160", priceCurrency: "USD", offerCount: "3" },
 };
 
@@ -142,94 +226,163 @@ export default function ManagedITPage() {
         <GradientOrb color="blue" size="lg" className="bottom-0 -left-20 opacity-15" />
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6">
-          <LiquidGlassPill variant="seed" className="mb-6">Managed IT Services in Northern NJ</LiquidGlassPill>
-          <AnimatedH1 highlightWords={["Services"]} className="mb-6 max-w-4xl">
-            Proactive Managed IT Services for Growing Businesses
+          <LiquidGlassPill variant="seed" className="mb-6">Managed IT Services</LiquidGlassPill>
+          <AnimatedH1 className="mb-6 max-w-4xl">
+            Proactive IT Support for Growing Businesses
           </AnimatedH1>
-          <p className="text-body-lg text-light-base/60 max-w-2xl leading-relaxed mb-10">
-            24/7 monitoring, unlimited help desk, and rapid on-site response — all for one flat
-            monthly rate per user. No contracts, no hidden fees, no ticket limits.
-            Trusted by small and mid-size businesses across New Jersey.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <QuoteButton service="it-support" className="inline-flex items-center gap-3 px-8 py-3.5 rounded-xl liquid-glass-tinted-seed liquid-glass-hover text-white text-sm font-medium transition-all duration-300 relative overflow-hidden">
-              Get a Free Quote <ArrowRight className="w-4 h-4" />
-            </QuoteButton>
-            <Link href="/services/managed-it/assessment" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl liquid-glass text-white text-sm font-medium transition-all duration-200">
-              Free IT Assessment
+          <div className="mb-10 max-w-3xl space-y-4 text-body-lg leading-relaxed text-light-base/60">
+            <p>
+              Technology should help your business run smoothly — not create more interruptions,
+              confusion, or repeat problems.
+            </p>
+            <p>
+              At SeedTech, we provide proactive IT support designed to keep your team productive,
+              your systems secure, and your day-to-day operations moving. We focus on catching
+              issues early when we can, responding quickly when something goes wrong, and working
+              to prevent the same problems from happening again.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Link href="/services/managed-it/assessment" className="inline-flex items-center gap-2 rounded-xl liquid-glass-tinted-seed liquid-glass-hover px-8 py-3.5 text-sm font-medium text-white transition-all duration-300">
+              Free IT Assessment <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/services/managed-it/plans" className="inline-flex items-center gap-2 rounded-xl liquid-glass px-8 py-3.5 text-sm font-medium text-white transition-all duration-200">
+              See Plans & Pricing
             </Link>
           </div>
         </div>
       </section>
 
-      {/* What's Included */}
-      <Section>
-        <SectionHeader eyebrow="What's Included" title="Everything You Need, Nothing You Don't" description="Every SeedCare plan ships with the core protections your business needs — no nickel-and-diming, no surprise invoices." />
+      {/* Section 1 */}
+      <Section theme="light">
+        <SectionHeader eyebrow="What Managed IT Should Actually Do" title="Support Should Do More Than Just Respond to Problems" description="Good IT support is not just about fixing something after it breaks. It is about helping your business stay productive, reducing unnecessary downtime, and making technology easier to manage over time." theme="light" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((f) => (
-            <LiquidGlassCard key={f.title} className="p-7">
-              <IconBox icon={f.icon} variant="gradient" className="mb-4" />
-              <CardTitle className="mb-2">{f.title}</CardTitle>
-              <Body className="text-light-base/55 leading-relaxed">{f.body}</Body>
+          {sectionOneCards.map((card) => (
+            <div key={card.title} className="rounded-2xl border border-emerald-100 bg-emerald-50/30 p-7">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                <card.icon className="h-5 w-5 text-emerald-600" />
+              </div>
+              <h3 className="mb-2 font-display text-card-title text-dark-base">{card.title}</h3>
+              <p className="text-body-sm leading-relaxed text-dark-base/60">{card.body}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* Section 2 */}
+      <Section>
+        <SectionHeader
+          eyebrow="How SeedTech Works"
+          title="We Focus on Fixing It Right"
+          description="When something breaks, we do not want to just patch it and move on. We want to help resolve the issue, understand what caused it, and reduce the chances of it happening again."
+        />
+        <div className="mx-auto max-w-3xl space-y-4 text-center">
+          <p className="text-body-lg leading-relaxed text-light-base/60">
+            We start by helping your team get moving again as quickly as possible.
+          </p>
+          <p className="text-body-lg leading-relaxed text-light-base/60">
+            Then we look deeper. That could mean reviewing device health, configuration,
+            documentation, user setup, security settings, vendor issues, or bigger gaps in
+            process.
+          </p>
+          <p className="text-body-lg leading-relaxed text-light-base/60">
+            Whenever possible, we recommend or implement a more reliable long-term solution — not
+            just a temporary fix.
+          </p>
+        </div>
+        <div className="mx-auto mt-10 max-w-3xl">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {[
+              "Faster recovery when issues happen",
+              "Fewer recurring problems",
+              "Better stability over time",
+              "More confidence in your IT environment",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3 rounded-2xl border border-seed-500/15 bg-white/[0.03] p-5 text-body-sm text-light-base/70">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-seed-400" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      {/* Section 3 */}
+      <Section theme="light">
+        <SectionHeader
+          eyebrow="Proactive by Design"
+          title="We Do Our Best to Catch Problems Before They Disrupt the Workday"
+          description="The best support issue is the one your team never has to notice."
+          theme="light"
+        />
+        <div className="mx-auto max-w-3xl space-y-4 text-center">
+          <p className="text-body-lg leading-relaxed text-dark-base/60">
+            SeedTech uses monitoring, maintenance, patching, security tools, and automation to
+            help keep systems healthy in the background.
+          </p>
+          <p className="text-body-lg leading-relaxed text-dark-base/60">
+            Not every issue can be prevented. Hardware fails. Vendors have outages. People make
+            mistakes. But proactive support helps us catch many issues earlier, respond faster,
+            and reduce unnecessary disruption.
+          </p>
+          <p className="text-body-lg leading-relaxed text-dark-base/60">
+            And when something cannot be prevented, we work to understand what happened and what
+            should change so it is less likely to happen again.
+          </p>
+        </div>
+      </Section>
+
+      {/* Section 4 */}
+      <Section>
+        <SectionHeader
+          eyebrow="What’s Included"
+          title="Managed IT Support Built Around the Day-to-Day Needs of Your Business"
+          description="Our managed IT services are designed to cover the core pieces most businesses need to stay supported, secure, and productive."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sectionFourCards.map((card) => (
+            <LiquidGlassCard key={card.title} className="p-7">
+              <IconBox icon={card.icon} variant="gradient" className="mb-4" />
+              <CardTitle className="mb-2">{card.title}</CardTitle>
+              <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
             </LiquidGlassCard>
           ))}
         </div>
       </Section>
 
-      {/* Why SeedTech */}
+      {/* Section 5 */}
       <Section theme="light">
-        <SectionHeader eyebrow="Why SeedTech" title="Built for Accountability, Not Volume" description="Most IT vendors wait for employees to report problems. At SeedTech, we monitor proactively — often resolving issues before your team ever notices." theme="light" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="rounded-2xl border border-red-200 bg-red-50/50 p-8">
-            <h3 className="font-display text-card-title text-red-700 mb-5">Large Firms Operate in Tiers</h3>
-            <ul className="space-y-3">
-              {["No proactive monitoring — employees must report issues", "Submit a request and wait for a response", "Issue assigned to next available technician", "Fix applied after downtime already occurs"].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-body-sm text-red-600/80">
-                  <ArrowRight className="w-4 h-4 mt-0.5 shrink-0 text-red-400" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-8">
-            <h3 className="font-display text-card-title text-emerald-700 mb-5">Our Structure is Simpler</h3>
-            <ul className="space-y-3">
-              {["Proactive monitoring — we often catch it before you do", "Fast response — no ticket queue, no waiting", "Handled by someone who knows your environment", "Downtime prevented, not just repaired"].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-body-sm text-emerald-700/80">
-                  <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-emerald-500" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+        <SectionHeader eyebrow="Built for Growing Businesses" title="Structured to Support You as You Grow" description="Good IT support is not about being the loudest or most complicated provider. It is about having the right systems, the right process, and clear ownership." theme="light" />
+        <div className="mx-auto max-w-3xl space-y-4 text-center">
+          <p className="text-body-lg leading-relaxed text-dark-base/60">
+            SeedTech is built around proactive monitoring, automation, documentation, and direct
+            accountability.
+          </p>
+          <p className="text-body-lg leading-relaxed text-dark-base/60">
+            That helps us stay responsive, reduce unnecessary handoffs, and support clients in a
+            way that feels organized, steady, and easy to work with.
+          </p>
         </div>
-        <p className="text-center text-body-lg text-dark-base/60 italic max-w-2xl mx-auto mb-6">
-          &ldquo;You don&apos;t get &lsquo;whoever is free.&rsquo; You get people who know your environment.&rdquo;
-        </p>
-        <div className="text-center">
-          <Link href="/services/managed-it/why-seedtech" className="inline-flex items-center gap-2 text-seed-600 font-medium text-sm hover:text-seed-700 transition-colors">
-            Learn why our model works <ArrowRight className="w-4 h-4" />
-          </Link>
+        <div className="mx-auto mt-10 max-w-3xl">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {[
+              "Quicker response",
+              "Less confusion",
+              "Better follow-through",
+              "A support experience that feels personal and consistent",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3 rounded-2xl border border-black/[0.05] bg-white p-5 text-body-sm text-dark-base/70 shadow-cardLight">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-seed-500" />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       </Section>
 
-      {/* Support Stack */}
-      <Section>
-        <SectionHeader eyebrow="The Stack" title="How We Keep You Running" description="Enterprise-grade tools, managed by people who know your environment. Every layer works together to detect, defend, and resolve — automatically." />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {stackLayers.map((layer) => (
-            <LiquidGlassCard key={layer.title} className="p-7">
-              <IconBox icon={layer.icon} variant="gradient" className="mb-4" />
-              <CardTitle className="mb-2">{layer.title}</CardTitle>
-              <Body className="text-light-base/55 leading-relaxed">{layer.body}</Body>
-            </LiquidGlassCard>
-          ))}
-        </div>
-      </Section>
-
-      {/* How It Works */}
+      {/* Section 6 */}
       <Section theme="light">
-        <SectionHeader eyebrow="How It Works" title="From Assessment to Fully Managed in 30 Days" description="A phased transition designed for zero disruption. We do the heavy lifting in the background." theme="light" />
+        <SectionHeader eyebrow="How We Get Started" title="A Clear Process from Assessment to Ongoing Support" description="We want onboarding to feel organized, not disruptive." theme="light" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {processSteps.map((s) => (
             <div key={s.step} className="relative">
@@ -241,16 +394,33 @@ export default function ManagedITPage() {
             </div>
           ))}
         </div>
-        <div className="text-center mt-12">
-          <Link href="/services/managed-it/onboarding" className="inline-flex items-center gap-2 text-seed-600 font-medium text-sm hover:text-seed-700 transition-colors">
-            See the full onboarding timeline <ArrowRight className="w-4 h-4" />
-          </Link>
+      </Section>
+
+      {/* Additional Section */}
+      <Section>
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="mb-6 font-display text-heading text-white md:text-heading-lg">
+            When We Can Prevent It, We Do. When We Can’t, We Work to Keep It From Happening Again.
+          </h2>
+          <div className="space-y-4 text-body-lg leading-relaxed text-light-base/60">
+            <p>
+              Not every issue can be caught ahead of time. Hardware fails. Vendors have outages.
+              People click things they should not click.
+            </p>
+            <p>What matters is how your IT partner responds.</p>
+            <p>
+              At SeedTech, we focus on resolving the issue, understanding what caused it, and
+              putting better safeguards, processes, or recommendations in place where it makes
+              sense. That way support is not just reactive — it becomes part of making your
+              business more stable over time.
+            </p>
+          </div>
         </div>
       </Section>
 
       {/* Pricing Tiers */}
       <Section>
-        <SectionHeader eyebrow="SeedCare Plans" title="Choose Your Coverage" description="Three tiers to match your team size and support needs. All include unlimited remote help desk. Plans are month-to-month and can be mixed and matched." />
+        <SectionHeader title="Simple Managed IT Plans" description="Choose the level of support that fits your business today, with room to grow as your needs evolve." />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {tiers.map((tier) => (
             <LiquidGlassCard key={tier.name} className={`p-6 flex flex-col ${tier.highlight ? "liquid-glass-tinted-seed" : ""}`}>
@@ -281,7 +451,7 @@ export default function ManagedITPage() {
 
       {/* FAQ */}
       <Section theme="light">
-        <SectionHeader eyebrow="FAQ" title="Common Questions About Managed IT" description="Everything you need to know before getting started with SeedCare." align="left" theme="light" />
+        <SectionHeader title="Frequently Asked Questions" align="left" theme="light" />
         <div className="max-w-3xl space-y-4">
           {faqs.map((faq) => (
             <div key={faq.q} className="rounded-2xl bg-white border border-black/[0.05] shadow-cardLight p-6">
@@ -294,7 +464,7 @@ export default function ManagedITPage() {
 
       {/* CTA */}
       <Section>
-        <CTABanner title="Ready to Simplify Your IT?" description="Get a custom quote in under 60 seconds — or schedule a free IT assessment with our team." primaryLabel="Get Instant Quote" primaryHref="/services/managed-it/plans" secondaryLabel="Free IT Assessment" secondaryHref="/services/managed-it/assessment" />
+        <CTABanner title="Proactive IT Support for Growing Businesses" description="Technology should help your business run smoothly — not create more interruptions, confusion, or repeat problems." primaryLabel="Free IT Assessment" primaryHref="/services/managed-it/assessment" secondaryLabel="See Plans & Pricing" secondaryHref="/services/managed-it/plans" />
       </Section>
     </div>
   );
