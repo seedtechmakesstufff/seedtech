@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion, type Transition } from "framer-motion";
 import { LiquidGlassPill } from "@/components/kit";
 import MattsCustomBackground from "@/components/ui/MattsCustomBackground";
@@ -35,14 +34,6 @@ export function HeroSection() {
       {/* Content layer */}
       <div className="relative z-10 mx-auto max-w-6xl px-6 pt-36 pb-8 text-center w-full pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto">
 
-        {/* Eyebrow */}
-        <motion.p
-          className="text-seed-400 text-eyebrow uppercase tracking-widest mb-6"
-          {...fadeUp(0.1)}
-        >
-          Northern New Jersey IT Support, Websites, and SEO
-        </motion.p>
-
         {/* Pills */}
         <motion.div
           className="flex flex-wrap items-center justify-center gap-2 mb-8"
@@ -52,28 +43,26 @@ export function HeroSection() {
             Proactive IT Support
           </LiquidGlassPill>
           <LiquidGlassPill variant="seed" size="sm" dot>
-            Custom Websites
+            Web Development
           </LiquidGlassPill>
           <LiquidGlassPill variant="blue" size="sm" dot>
-            SEO Support
+            SEO
           </LiquidGlassPill>
         </motion.div>
 
         {/* Hero headline — word-by-word reveal with per-word gradient */}
         <h1
           className="font-display text-display leading-[1.05] text-white"
-          aria-label="Tech Support & Websites Built for Small and Medium Businesses"
+          aria-label="Technology Infrastructure & Websites Built for High-Performance Businesses"
         >
           {[
-            { word: "Tech", cls: "" },
-            { word: "Support", cls: "" },
+            { word: "Technology", cls: "" },
+            { word: "Infrastructure", cls: "" },
             { word: "&", cls: "" },
             { word: "Websites", cls: "" },
             { word: "Built", cls: "" },
             { word: "for", cls: "" },
-            { word: "Small", cls: "text-gradient-purple-blue" },
-            { word: "and", cls: "" },
-            { word: "Medium", cls: "text-gradient-web" },
+            { word: "High-Performance", cls: "text-gradient-purple-blue" },
             { word: "Businesses", cls: "" },
           ].map(({ word, cls }, i) => (
             <span key={i} className="inline-block overflow-hidden align-bottom">
@@ -83,7 +72,7 @@ export function HeroSection() {
                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                 transition={{ duration: 0.7, delay: 0.25 + i * 0.06, ease: EXPO_OUT }}
               >
-                {word}{i < 9 ? "\u00A0" : ""}
+                {word}{i < 7 ? "\u00A0" : ""}
               </motion.span>
             </span>
           ))}
@@ -92,28 +81,10 @@ export function HeroSection() {
         {/* Body */}
         <motion.div {...fadeUp(0.7)} className="mt-6 max-w-2xl mx-auto space-y-4 text-white/85 text-body-lg font-[450] leading-relaxed">
           <p>
-            SeedTech helps small and medium businesses bring their technology, support, and online presence together in a way that feels clear, connected, and easier to manage.
-          </p>
-          <p>
             From proactive IT support to custom websites and SEO, our goal is to make the tools your business depends on work better together.
           </p>
         </motion.div>
 
-        {/* CTAs */}
-        <motion.div {...fadeUp(0.9)} className="mt-10 flex items-center justify-center gap-4 flex-wrap">
-          <Link
-            href="/free-audit"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-seed-600 to-seed-500 text-white hover:shadow-glowSeed transition-all duration-200"
-          >
-            Get a Free IT Assessment
-          </Link>
-          <Link
-            href="/services"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-medium border border-white/20 text-white/80 hover:bg-white/[0.06] hover:border-white/30 transition-all duration-200"
-          >
-            See Our Services
-          </Link>
-        </motion.div>
       </div>
 
       {/* Hero showcase cards */}
@@ -154,6 +125,18 @@ export function HeroSection() {
         {/* Subtle fade-out at the bottom of cards */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-dark-base to-transparent pointer-events-none z-20" />
       </div>
+
+      {/* Bottom bleed — masks the WebGL animation edge and creates a
+          seamless visual transition into the next section's dark-base bg.
+          z-[5] puts it IN FRONT of the WebGL canvas (z-[1]) but BEHIND
+          the content layer (z-10) so cards render crisp on top. */}
+      <div
+        className="absolute bottom-0 left-0 right-0 z-[5] pointer-events-none h-[60%]"
+        style={{
+          background:
+            "linear-gradient(to top, rgb(10 10 15) 0%, rgb(10 10 15) 12%, rgb(10 10 15 / 0.92) 25%, rgb(10 10 15 / 0.65) 45%, rgb(10 10 15 / 0.3) 65%, rgb(10 10 15 / 0.08) 82%, transparent 100%)",
+        }}
+      />
     </section>
   );
 }

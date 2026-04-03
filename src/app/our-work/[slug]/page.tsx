@@ -143,7 +143,8 @@ export default function ProjectPage({ params }: Props) {
               </GlassCard>
             </div>
 
-            {/* Screenshot / visual */}
+            {/* Screenshot / visual — web-dev projects only */}
+            {isWeb && (
             <div>
               <p className="text-eyebrow uppercase tracking-widest text-seed-400 mb-4 text-xs">Screenshots</p>
               <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-dark-elevated">
@@ -196,6 +197,7 @@ export default function ProjectPage({ params }: Props) {
                 </div>
               )}
             </div>
+            )}
           </div>
 
           {/* Right: project meta sidebar */}
@@ -375,7 +377,7 @@ export default function ProjectPage({ params }: Props) {
                 </div>
                 <div>
                   <p className="text-white font-medium text-body-sm">{cs?.testimonial?.name ?? "Contact Name"}</p>
-                  <p className="text-light-base/40 text-xs">{cs?.testimonial?.role ?? "Role"} · {project.client}</p>
+                  <p className="text-light-base/40 text-xs">{project.client}</p>
                 </div>
               </div>
             </div>

@@ -2,12 +2,8 @@ import { buildMetadata } from "@/lib/page-metadata";
 import { FAQJsonLd, LocalBusinessJsonLd } from "@/components/JsonLd";
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustedBySection } from "@/components/home/TrustedBySection";
-import { ServicesSection } from "@/components/home/ServicesSection";
-import { WhyChooseSection } from "@/components/home/WhyChooseSection";
-import { ManagedITFeatureSection } from "@/components/home/ManagedITFeatureSection";
-import { WebsitesSEOSection } from "@/components/home/WebsitesSEOSection";
-import { FitSection } from "@/components/home/FitSection";
-import { LocalNJSection } from "@/components/home/LocalNJSection";
+import { ShowcaseCarousel } from "@/components/home/ShowcaseCarousel";
+import { ManagedITShowcaseSection } from "@/components/home/ManagedITShowcaseSection";
 import { ReadyDeeperSection } from "@/components/home/ReadyDeeperSection";
 import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { FAQSection } from "@/components/home/FAQSection";
@@ -26,15 +22,11 @@ export default function HomePage() {
       <FAQJsonLd questions={homepageFAQs} />
       <HeroSection />
       <TrustedBySection />
-      <ServicesSection />
-      <WhyChooseSection />
-      <ManagedITFeatureSection />
-      <WebsitesSEOSection />
-      <FitSection />
-      <LocalNJSection />
-      <ReadyDeeperSection />
+      <ShowcaseCarousel />
+      <ManagedITShowcaseSection />
       <BlogPreviewSection />
       <FAQSection />
+      <ReadyDeeperSection />
     </>
   );
 }

@@ -93,6 +93,5 @@ export const paddlersCoveData = {
     quote:
       "SeedTech didn't just build us a website — they built the system we needed to actually run our business without the constant fear of overselling or mismatched prices. The inventory console alone has saved us hours every week.",
     name: "PaddlersCove Team",
-    role: "Owner",
   },
 };

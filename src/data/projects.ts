@@ -61,6 +61,28 @@ export const projects: Project[] = [
     featured: true,
   },
   {
+    slug: "carla-marie-and-anthony-show",
+    department: "web-development",
+    client: "Carla Marie & Anthony Show",
+    title: "Custom WordPress Platform for a Multi-Channel Media Brand",
+    tagline: "A fully custom-designed and built WordPress platform for the Carla Marie & Anthony Show, with custom plugins and integrations across every content channel.",
+    description:
+      "The Carla Marie & Anthony Show is a nationally recognized media brand spanning radio, podcast, YouTube, Twitch, Discord, and more. Their platform needed to be the hub that tied every content channel together — and the existing site simply wasn't built for that. We designed and built a fully custom WordPress platform from scratch, featuring a bespoke design, custom-built plugins for content generation and management, and deep integrations with Twitch, Discord, podcast distribution channels, and YouTube. The result is a seamless content destination that reflects the show's brand and keeps their audience connected across every platform they're on.",
+    url: "https://www.carlamarieandanthonyshow.com",
+    image: "/img/use_case_card_carla-marie-and-anthony-show_1x.webp",
+    techStack: ["WordPress", "Custom Theme", "Custom Plugins", "PHP", "JavaScript", "Twitch API", "YouTube API", "Discord Integration"],
+    tags: ["WordPress", "Media & Entertainment", "Custom Plugins", "Multi-Channel Integration"],
+    highlights: [
+      "Fully custom WordPress design and build from scratch",
+      "Custom-built plugins for content generation and media management",
+      "Twitch, Discord, and YouTube integrations for live and on-demand content",
+      "Podcast channel integration surfacing episodes directly on the platform",
+      "Built to serve as the central content hub across all the show's channels",
+      "Brand-consistent design that matches the show's high-energy identity",
+    ],
+    featured: true,
+  },
+  {
     slug: "bright-imaginations",
     department: "web-development",
     client: "Bright Imaginations Prep",
@@ -69,7 +91,7 @@ export const projects: Project[] = [
     description:
       "Bright Imaginations Prep was on an older platform that couldn't keep pace with their growing enrollment and evolving needs. The UI felt dated and wasn't competitive with other institutions in the space. We delivered a fully custom WordPress site with a modern, admin-friendly design that the team can manage day-to-day without developer involvement. A standout feature is the custom-built calendar system, giving parents and staff a clear, interactive view of school events, enrollment deadlines, and schedules.",
     url: "https://brightimaginationsprep.com",
-    image: "/img/use_case_card_bright_imaginations_1x.webp",
+    image: "/img/use_case_card_bright_imaginations.webp",
     techStack: ["WordPress", "Custom Theme", "PHP", "JavaScript", "Custom Calendar"],
     tags: ["WordPress", "Education", "Custom Features", "UI Overhaul"],
     highlights: [
@@ -217,6 +239,7 @@ export const projects: Project[] = [
     slug: "eastside-bulk",
     department: "it-support",
     client: "Eastside Bulk",
+    image: "/img/use_case_it_support.webp",
     title: "Managed IT & Infrastructure for a Growing Trucking Operation",
     tagline: "From zero IT infrastructure to fully managed endpoints, server, and cloud — SeedTech built the foundation Eastside Bulk runs on.",
     description:
@@ -238,6 +261,7 @@ export const projects: Project[] = [
     slug: "south-shore-marine",
     department: "it-support",
     client: "South Shore Marine",
+    image: "/img/use_case_it_support.webp",
     title: "Managed IT for a Lake Hopatcong Boat Repair Shop",
     tagline: "SeedTech gave a growing marine service business the technology foundation to run lean, stay connected, and focus on what they do best — fixing boats.",
     description:
@@ -259,6 +283,7 @@ export const projects: Project[] = [
     slug: "west-shore-marine",
     department: "it-support",
     client: "West Shore Marine",
+    image: "/img/use_case_it_support.webp",
     title: "IT Buildout for a Marina Expansion on Lake Hopatcong",
     tagline: "When the owners of South Shore Marine acquired a second location on the water, SeedTech handled everything — new infrastructure, phones, internet, and a seamless transition from day one.",
     description:
@@ -280,6 +305,7 @@ export const projects: Project[] = [
     slug: "bagels-on-the-hill",
     department: "it-support",
     client: "Bagels on the Hill",
+    image: "/img/use_case_it_support.webp",
     title: "A Full Technology Partnership for a Local Bagel Institution",
     tagline: "From a custom website and Square POS integration to in-store digital signage and managed IT — SeedTech handles the technology so Bagels on the Hill can focus on the bagels.",
     description:
@@ -301,6 +327,7 @@ export const projects: Project[] = [
     slug: "megasafe-it",
     department: "it-support",
     client: "Megasafe",
+    image: "/img/use_case_it_support.webp",
     title: "Managed IT & Microsoft 365 for a High-Security Safe & Vault Company",
     tagline: "Megasafe protects what matters most for jewelers, banks, and businesses across the country. SeedTech makes sure their own technology is held to the same standard.",
     description:
@@ -322,6 +349,7 @@ export const projects: Project[] = [
     slug: "kelly-plumbing-heating",
     department: "it-support",
     client: "Kelly Plumbing & Heating",
+    image: "/img/use_case_it_support.webp",
     title: "Managed IT for a Morris County Plumbing & HVAC Business Since 1988",
     tagline: "Kelly Plumbing & Heating has been showing up for their customers for over 35 years. They needed an IT partner that shows up the same way.",
     description:
@@ -343,6 +371,7 @@ export const projects: Project[] = [
     slug: "hiler-contracting",
     department: "it-support",
     client: "Hiler Contracting",
+    image: "/img/use_case_it_support.webp",
     title: "From Break-Fix to Proactive IT for a New Jersey Contracting Operation",
     tagline: "Hiler Contracting runs a demanding operation — heavy schedules, physical work, and an office that needs to keep up with all of it. SeedTech replaced their informal tech arrangement with IT support that's actually built for that.",
     description:

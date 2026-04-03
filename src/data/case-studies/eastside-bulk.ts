@@ -91,4 +91,11 @@ export const eastsideBulkData = {
         "SeedTech has remained Eastside Bulk's IT partner for nearly a decade — handling helpdesk requests, responding to incidents, performing recoveries, and continuously maintaining the environment as the business grows.",
     },
   ],
+
+  /* ── Testimonial ────────────────────────────────────────── */
+  testimonial: {
+    quote:
+      "SeedTech's entire staff is so great and easy to deal with. I usually contact them with the most random issues and they always resolve them quickly and easily. I am not the most computer savvy and they walk me through everything quickly and easily.",
+    name: "Melissa",
+  },
 };

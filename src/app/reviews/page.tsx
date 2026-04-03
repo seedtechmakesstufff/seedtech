@@ -35,7 +35,7 @@ function Stars({ count, size = "sm" }: { count: number; size?: "sm" | "md" }) {
                                             )}
                               />
                   ))}
-          </div>div>
+          </div>
         );
 }
 
@@ -66,14 +66,14 @@ function FullReviewCard({
                         <Stars count={review.rating} />
                         <div className="flex items-center gap-2">
                           {review.relativeTime && (
-                              <span className="text-[10px] text-white/20">{review.relativeTime}</span>span>
+                              <span className="text-[10px] text-white/20">{review.relativeTime}</span>
                                   )}
                                   <Quote className="w-5 h-5 text-seed-400/30 group-hover:text-seed-400/50 transition-colors" />
-                        </div>div>
-                </div>div>
+                        </div>
+                </div>
                 <p className="text-[15px] text-white/70 leading-relaxed group-hover:text-white/80 transition-colors">
                         &ldquo;{review.text}&rdquo;
-                </p>p>
+                </p>
                 <div className="mt-5 pt-4 border-t border-white/[0.06] flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {review.profilePhoto && (
@@ -84,19 +84,19 @@ function FullReviewCard({
                                             />
                             )}
                                   <div>
-                                              <p className="text-sm font-medium text-white/80">{review.author}</p>p>
+                                              <p className="text-sm font-medium text-white/80">{review.author}</p>
                                     {review.role && (
-                                <p className="text-xs text-white/30 mt-0.5">{review.role}</p>p>
+                                <p className="text-xs text-white/30 mt-0.5">{review.role}</p>
                                               )}
-                                  </div>div>
-                        </div>div>
+                                  </div>
+                        </div>
                   {review.source && (
                             <span className="text-[10px] uppercase tracking-widest text-white/20 font-medium">
                               {review.source}
-                            </span>span>
+                            </span>
                         )}
-                </div>div>
-          </motion.div>motion.div>
+                </div>
+          </motion.div>
         );
 }
 
@@ -128,12 +128,12 @@ function ReviewModal({
                                     className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/40 hover:text-white transition-colors"
                                   >
                                   <X className="w-4 h-4" />
-                        </button>button>
+                        </button>
                         <Quote className="w-8 h-8 text-seed-400/40 mb-4" />
                         <Stars count={review.rating} size="md" />
                         <p className="mt-4 text-white/80 leading-relaxed text-[15px]">
                                   &ldquo;{review.text}&rdquo;
-                        </p>p>
+                        </p>
                         <div className="mt-6 pt-4 border-t border-white/[0.06]">
                                   <div className="flex items-center gap-3">
                                     {review.profilePhoto && (
@@ -144,20 +144,20 @@ function ReviewModal({
                                                         />
                                       )}
                                               <div>
-                                                            <p className="text-sm font-medium text-white/80">{review.author}</p>p>
+                                                            <p className="text-sm font-medium text-white/80">{review.author}</p>
                                                 {review.role && (
-                                          <p className="text-xs text-white/40 mt-0.5">{review.role}</p>p>
+                                          <p className="text-xs text-white/40 mt-0.5">{review.role}</p>
                                                             )}
                                                 {review.relativeTime && (
-                                          <p className="text-xs text-white/20 mt-0.5">{review.relativeTime}</p>p>
+                                          <p className="text-xs text-white/20 mt-0.5">{review.relativeTime}</p>
                                                             )}
-                                              </div>div>
-                                  </div>div>
+                                              </div>
+                                  </div>
                           {review.source && (
                                       <div className="flex items-center justify-between mt-3">
                                                     <p className="text-xs text-white/20 capitalize">
                                                                     via {review.source}
-                                                    </p>p>
+                                                    </p>
                                         {review.profileUrl && (
                                                         <a
                                                                             href={review.profileUrl}
@@ -167,13 +167,13 @@ function ReviewModal({
                                                                             onClick={(e) => e.stopPropagation()}
                                                                           >
                                                                           View on Google <ExternalLink className="w-3 h-3" />
-                                                        </a>a>
+                                                        </a>
                                                     )}
-                                      </div>div>
+                                      </div>
                                   )}
-                        </div>div>
-                </motion.div>motion.div>
-          </motion.div>motion.div>
+                        </div>
+                </motion.div>
+          </motion.div>
         );
 }
 
@@ -191,19 +191,19 @@ function ReviewSkeleton({ index }: { index: number }) {
                           {Array.from({ length: 5 }).map((_, i) => (
                               <div key={i} className="w-3.5 h-3.5 rounded bg-white/10" />
                             ))}
-                        </div>div>
+                        </div>
                         <div className="w-5 h-5 rounded bg-white/5" />
-                </div>div>
+                </div>
                 <div className="space-y-2 mb-5">
                         <div className="h-3 bg-white/10 rounded w-full" />
                         <div className="h-3 bg-white/10 rounded w-5/6" />
                         <div className="h-3 bg-white/10 rounded w-4/6" />
-                </div>div>
+                </div>
                 <div className="pt-4 border-t border-white/[0.05] flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-white/10" />
                         <div className="h-3 bg-white/10 rounded w-24" />
-                </div>div>
-          </motion.div>motion.div>
+                </div>
+          </motion.div>
         );
 }
 
@@ -215,18 +215,18 @@ function StatsBar({ totalRating, totalReviews }: { totalRating?: number; totalRe
             {totalRating && (
                     <div className="flex items-center gap-2">
                               <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                              <span className="text-xl font-semibold text-white">{totalRating.toFixed(1)}</span>span>
-                              <span className="text-sm text-white/40">average</span>span>
-                    </div>div>
+                              <span className="text-xl font-semibold text-white">{totalRating.toFixed(1)}</span>
+                              <span className="text-sm text-white/40">average</span>
+                    </div>
                 )}
             {totalRating && totalReviews && <div className="w-px h-6 bg-white/10" />}
             {totalReviews && (
                     <div className="flex items-center gap-2">
-                              <span className="text-xl font-semibold text-white">{totalReviews}</span>span>
-                              <span className="text-sm text-white/40">Google reviews</span>span>
-                    </div>div>
+                              <span className="text-xl font-semibold text-white">{totalReviews}</span>
+                              <span className="text-sm text-white/40">Google reviews</span>
+                    </div>
                 )}
-          </div>div>
+          </div>
         );
 }
 
@@ -284,15 +284,15 @@ export default function ReviewsPage() {
                         <div className="relative z-10 mx-auto max-w-4xl px-6">
                                   <LiquidGlassPill variant="seed" className="mb-4">
                                               Client Reviews
-                                  </LiquidGlassPill>LiquidGlassPill>
+                                  </LiquidGlassPill>
                                   <AnimatedH1 highlightWords={["Say"]}>
                                               What Our Clients Say
-                                  </AnimatedH1>AnimatedH1>
+                                  </AnimatedH1>
                                   <p className="mt-6 text-body-lg text-light-base/60 max-w-2xl mx-auto">
                                               Real feedback from real businesses we&apos;ve helped grow with custom web development, managed IT, and digital infrastructure.
-                                  </p>p>
-                        </div>div>
-                </section>section>
+                                  </p>
+                        </div>
+                </section>
           
             {/* Stats + Grid */}
                 <Section>
@@ -301,7 +301,7 @@ export default function ReviewsPage() {
                     )}
                 
                   {error && (
-                      <p className="text-center text-xs text-white/20 mb-6">{error} — showing recent reviews</p>p>
+                      <p className="text-center text-xs text-white/20 mb-6">{error} — showing recent reviews</p>
                         )}
                 
                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -317,15 +317,15 @@ export default function ReviewsPage() {
                                                                               onSelect={setSelectedReview}
                                                                             />
                                                         ))}
-                        </div>div>
-                </Section>Section>
+                        </div>
+                </Section>
           
             {/* CTA */}
                 <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
                         <div className="max-w-3xl mx-auto px-6">
                                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-6 text-center">
                                               Ready to go deeper?
-                                  </p>p>
+                                  </p>
                                   <div className="flex flex-col gap-2">
                                               <Link
                                                               href="/services/managed-it"
@@ -335,10 +335,10 @@ export default function ReviewsPage() {
                                                                             <MonitorSmartphone className="w-4 h-4 text-seed-400 shrink-0" />
                                                                             <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
                                                                                               Managed IT Support &mdash; proactive monitoring, helpdesk, and infrastructure
-                                                                            </span>span>
-                                                            </div>div>
+                                                                            </span>
+                                                            </div>
                                                             <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
-                                              </Link>Link>
+                                              </Link>
                                               <Link
                                                               href="/services/seedtech-platform"
                                                               className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
@@ -347,10 +347,10 @@ export default function ReviewsPage() {
                                                                             <Rocket className="w-4 h-4 text-seed-400 shrink-0" />
                                                                             <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
                                                                                               Basic Website &mdash; deploy your website with modern design and functionality
-                                                                            </span>span>
-                                                            </div>div>
+                                                                            </span>
+                                                            </div>
                                                             <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
-                                              </Link>Link>
+                                              </Link>
                                               <Link
                                                               href="/services/ecommerce-development"
                                                               className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-blue-500/30 hover:bg-blue-500/[0.04] transition-all duration-200"
@@ -359,10 +359,10 @@ export default function ReviewsPage() {
                                                                             <ShoppingCart className="w-4 h-4 text-blue-400 shrink-0" />
                                                                             <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
                                                                                               Ecommerce &mdash; Shopify, BigCommerce, and custom storefronts
-                                                                            </span>span>
-                                                            </div>div>
+                                                                            </span>
+                                                            </div>
                                                             <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-blue-400 transition-colors shrink-0" />
-                                              </Link>Link>
+                                              </Link>
                                               <Link
                                                               href="/services/custom-development"
                                                               className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-cyan-500/30 hover:bg-cyan-500/[0.04] transition-all duration-200"
@@ -371,26 +371,26 @@ export default function ReviewsPage() {
                                                                             <SquareTerminal className="w-4 h-4 text-cyan-400 shrink-0" />
                                                                             <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
                                                                                               Custom Development &mdash; SaaS, portals, internal tools, and web apps
-                                                                            </span>span>
-                                                            </div>div>
+                                                                            </span>
+                                                            </div>
                                                             <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-cyan-400 transition-colors shrink-0" />
-                                              </Link>Link>
-                                  </div>div>
+                                              </Link>
+                                  </div>
                                   <p className="text-center text-sm text-white/25 mt-8">
                                               Not sure where to start?{" "}
                                               <Link href="/contact" className="text-seed-400/70 hover:text-seed-400 transition-colors">
                                                             Contact us and we&apos;ll point you in the right direction.
-                                              </Link>Link>
-                                  </p>p>
-                        </div>div>
-                </section>section>
+                                              </Link>
+                                  </p>
+                        </div>
+                </section>
           
             {/* Modal */}
                 <AnimatePresence>
                   {selectedReview && (
                       <ReviewModal review={selectedReview} onClose={handleClose} />
                     )}
-                </AnimatePresence>AnimatePresence>
-          </div>div>
+                </AnimatePresence>
+          </div>
         );
-}</div>
+}

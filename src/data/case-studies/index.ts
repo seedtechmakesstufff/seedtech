@@ -19,7 +19,7 @@ export interface CaseStudyData {
   stats: { value: string; label: string }[];
   deliverables: { icon: LucideIcon; title: string; body: string }[];
   process: { step: string; title: string; description: string }[];
-  testimonial?: { quote: string; name: string; role: string };
+  testimonial?: { quote: string; name: string };
 }
 
 const caseStudies: Record<string, CaseStudyData> = {

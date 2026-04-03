@@ -9,7 +9,6 @@ import { useQuoteFlow } from "@/components/quote-flow";
 import StaggeredMenu, { StaggeredMenuHandle } from "@/components/ui/StaggeredMenu";
 
 const navLinks = [
-  { label: "Home", href: "/" },
   {
     label: "Services",
     href: "/services",
@@ -128,17 +127,16 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 pt-3 transition-transform duration-300 ease-out",
+        "fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-out",
         hidden && "-translate-y-full"
       )}
     >
-      <div className="mx-auto max-w-6xl px-4">
-        <nav className={cn(
-          "rounded-2xl flex items-center justify-between h-14 px-4 transition-all duration-300",
-          overLight
-            ? "bg-[#1a1a2e] border border-white/[0.10] shadow-lg shadow-black/30"
-            : "liquid-glass"
-        )}>
+      <nav className={cn(
+        "flex items-center justify-between h-16 px-6 lg:px-12 transition-all duration-300 border-b",
+        overLight
+          ? "bg-[#1a1a2e]/90 backdrop-blur-xl border-white/[0.08]"
+          : "bg-dark-base/60 backdrop-blur-xl border-white/[0.06]"
+      )}>
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image
@@ -209,7 +207,6 @@ export function Navbar() {
             <Menu className="w-6 h-6" />
           </button>
         </nav>
-      </div>
 
       {/* Staggered Mobile Menu — visible on tablet + mobile (below md) */}
       <div className="md:hidden">
