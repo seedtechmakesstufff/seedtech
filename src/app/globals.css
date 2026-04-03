@@ -62,6 +62,14 @@
   .text-gradient-brand {
     @apply bg-gradient-brand-text bg-clip-text text-transparent;
   }
+  .text-gradient-web {
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    @apply bg-clip-text text-transparent;
+  }
+  .text-gradient-purple-blue {
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    @apply bg-clip-text text-transparent;
+  }
 
   /* Glass card effects */
   .glass-dark {

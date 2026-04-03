@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, type Transition } from "framer-motion";
 import { LiquidGlassPill } from "@/components/kit";
-import { SplitTextReveal } from "@/components/kit";
 import MattsCustomBackground from "@/components/ui/MattsCustomBackground";
 
 const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -35,50 +35,84 @@ export function HeroSection() {
       {/* Content layer */}
       <div className="relative z-10 mx-auto max-w-6xl px-6 pt-36 pb-8 text-center w-full pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto">
 
-        {/* Liquid Glass service pills */}
-        <motion.div
-          className="flex flex-wrap items-center justify-center gap-2 mb-8"
+        {/* Eyebrow */}
+        <motion.p
+          className="text-seed-400 text-eyebrow uppercase tracking-widest mb-6"
           {...fadeUp(0.1)}
         >
+          Northern New Jersey IT Support, Websites, and SEO
+        </motion.p>
+
+        {/* Pills */}
+        <motion.div
+          className="flex flex-wrap items-center justify-center gap-2 mb-8"
+          {...fadeUp(0.18)}
+        >
           <LiquidGlassPill variant="default" size="sm" dot>
-            Managed IT Support
+            Proactive IT Support
           </LiquidGlassPill>
           <LiquidGlassPill variant="seed" size="sm" dot>
-            Web Development
+            Custom Websites
           </LiquidGlassPill>
           <LiquidGlassPill variant="blue" size="sm" dot>
-            eCommerce
+            SEO Support
           </LiquidGlassPill>
         </motion.div>
 
-        {/* Hero headline — word-by-word reveal */}
-        <SplitTextReveal
-          text="Tech Support & Websites Built for Small and Medium Businesses"
-          as="h1"
-          delay={0.25}
-          stagger={0.06}
-          duration={0.7}
-          highlightWords={["Small", "Medium"]}
-          highlightClass="bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-500 bg-clip-text text-transparent"
+        {/* Hero headline — word-by-word reveal with per-word gradient */}
+        <h1
           className="font-display text-display leading-[1.05] text-white"
-        />
-
-        {/* Subline */}
-        <motion.div {...fadeUp(0.7)} className="mt-8 flex items-center justify-center gap-0 flex-wrap">
+          aria-label="Tech Support & Websites Built for Small and Medium Businesses"
+        >
           {[
-            { label: "Proactive Support" },
-            { label: "Better Websites" },
-            { label: "Less Stress" },
-          ].map(({ label }, i) => (
-            <span key={label} className="flex items-center">
-              <span className="px-5 py-1 text-body-lg md:text-subheading font-body font-semibold text-white tracking-tight">
-                {label}
-              </span>
-              {i < 2 && (
-                <span className="w-px h-5 bg-white/20 mx-1 shrink-0" />
-              )}
+            { word: "Tech", cls: "" },
+            { word: "Support", cls: "" },
+            { word: "&", cls: "" },
+            { word: "Websites", cls: "" },
+            { word: "Built", cls: "" },
+            { word: "for", cls: "" },
+            { word: "Small", cls: "text-gradient-purple-blue" },
+            { word: "and", cls: "" },
+            { word: "Medium", cls: "text-gradient-web" },
+            { word: "Businesses", cls: "" },
+          ].map(({ word, cls }, i) => (
+            <span key={i} className="inline-block overflow-hidden align-bottom">
+              <motion.span
+                className={`inline-block${cls ? ` ${cls}` : ""}`}
+                initial={{ y: "110%", opacity: 0, filter: "blur(28px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                transition={{ duration: 0.7, delay: 0.25 + i * 0.06, ease: EXPO_OUT }}
+              >
+                {word}{i < 9 ? "\u00A0" : ""}
+              </motion.span>
             </span>
           ))}
+        </h1>
+
+        {/* Body */}
+        <motion.div {...fadeUp(0.7)} className="mt-6 max-w-2xl mx-auto space-y-4 text-white/85 text-body-lg font-[450] leading-relaxed">
+          <p>
+            SeedTech helps small and medium businesses bring their technology, support, and online presence together in a way that feels clear, connected, and easier to manage.
+          </p>
+          <p>
+            From proactive IT support to custom websites and SEO, our goal is to make the tools your business depends on work better together.
+          </p>
+        </motion.div>
+
+        {/* CTAs */}
+        <motion.div {...fadeUp(0.9)} className="mt-10 flex items-center justify-center gap-4 flex-wrap">
+          <Link
+            href="/free-audit"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-seed-600 to-seed-500 text-white hover:shadow-glowSeed transition-all duration-200"
+          >
+            Get a Free IT Assessment
+          </Link>
+          <Link
+            href="/services"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-medium border border-white/20 text-white/80 hover:bg-white/[0.06] hover:border-white/30 transition-all duration-200"
+          >
+            See Our Services
+          </Link>
         </motion.div>
       </div>
 

@@ -232,14 +232,17 @@ export function TrustedBySection() {
       <div className="relative z-10">
         {/* Header */}
         <div className="mx-auto max-w-3xl px-6 text-center mb-16">
+          <p className="text-seed-400 text-eyebrow uppercase tracking-widest mb-4">
+            Trusted by Businesses in New Jersey and Beyond
+          </p>
           <AnimatedH2
             className="font-display text-heading md:text-heading-lg text-white leading-[1.1]"
-            highlightWords={["Brands"]}
+            highlightWords={[]}
           >
-            Trusted by Brands
+            Clear, Practical, and Dependable Technology Support
           </AnimatedH2>
           <p className="mt-5 text-body-lg text-white/50 leading-relaxed">
-            We specialize in prioritizing and customizing what works best for your business
+            We work with businesses that want technology to feel more organized, more supported, and easier to manage over time.
           </p>
         </div>
 
