@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { TrustedBySection } from "@/components/home/TrustedBySection";
 import { ShowcaseCarousel } from "@/components/home/ShowcaseCarousel";
 import { ManagedITShowcaseSection } from "@/components/home/ManagedITShowcaseSection";
+import { AreasWeServeSection } from "@/components/home/AreasWeServeSection";
 import { ReadyDeeperSection } from "@/components/home/ReadyDeeperSection";
 import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { FAQSection } from "@/components/home/FAQSection";
@@ -24,6 +25,7 @@ export default function HomePage() {
       <TrustedBySection />
       <ShowcaseCarousel />
       <ManagedITShowcaseSection />
+      <AreasWeServeSection />
       <BlogPreviewSection />
       <FAQSection />
       <ReadyDeeperSection />

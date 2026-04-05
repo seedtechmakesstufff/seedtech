@@ -47,6 +47,12 @@ export function PlanCard({ plan, calcs, isSelected, onClick, view, seats }: Plan
         </div>
       </div>
 
+      {/* Per-seat price */}
+      <div className="mb-4 pb-4 border-b border-white/[0.06]">
+        <span className="text-2xl font-bold tracking-tight text-white">${plan.price}</span>
+        <span className="text-sm text-light-base/40 ml-1">/seat/mo</span>
+      </div>
+
       {/* Metrics */}
       <div className="space-y-3 flex-grow">
         {view === "sales" &&
@@ -91,7 +97,7 @@ export function PlanCard({ plan, calcs, isSelected, onClick, view, seats }: Plan
 
         {showCost && view === "customer" && calcs.savings !== undefined && (
           <div className="p-3 rounded-xl bg-brand-cyan/10 border border-brand-cyan/20">
-            <p className="text-xs text-light-base/50">Savings vs. Full-Time Hire</p>
+            <p className="text-xs text-light-base/50">How much you save vs a Full-Time Hire (est.)</p>
             <p className="text-xl font-bold tracking-tight text-brand-cyan">
               <AnimatedCounter value={displaySavings} prefix="$" decimals={0} />
             </p>

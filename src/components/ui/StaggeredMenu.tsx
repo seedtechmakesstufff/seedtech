@@ -18,6 +18,17 @@ export interface StaggeredMenuChild {
   ariaLabel: string;
   link: string;
   onClick?: () => void;
+  /** Optional icon URL (rendered as img) for rich sub-page cards */
+  iconUrl?: string;
+  /** Optional description for rich sub-page cards */
+  description?: string;
+}
+
+export interface StaggeredMenuFeaturedCard {
+  title: string;
+  description: string;
+  href: string;
+  image: string;
 }
 
 export interface StaggeredMenuItem {
@@ -26,6 +37,10 @@ export interface StaggeredMenuItem {
   link: string;
   onClick?: () => void;
   children?: StaggeredMenuChild[];
+  /** Featured image cards shown below children in sub-page */
+  featuredCards?: StaggeredMenuFeaturedCard[];
+  /** React node to use as icon next to label on root page */
+  iconNode?: React.ReactNode;
 }
 
 export interface StaggeredMenuSocialItem {
@@ -63,8 +78,8 @@ export interface StaggeredMenuProps {
 // ─── CSS (outside component — avoids hydration mismatch) ──────────────────────
 
 const SM_CSS = `
-.staggered-menu-wrapper{position:relative;width:100%;height:100%;z-index:40;pointer-events:none}
-.staggered-menu-wrapper.fixed-wrapper{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:40;overflow:hidden}
+.staggered-menu-wrapper{position:relative;width:100%;height:100%;z-index:60;pointer-events:none}
+.staggered-menu-wrapper.fixed-wrapper{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:60;overflow:hidden}
 .staggered-menu-header{position:absolute;top:0;left:0;width:100%;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;background:transparent;pointer-events:none;z-index:20}
 .staggered-menu-header>*{pointer-events:auto}
 .sm-logo{display:flex;align-items:center;user-select:none}
@@ -87,9 +102,11 @@ const SM_CSS = `
 .sm-page{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;overflow-y:auto;will-change:transform}
 .sm-panel-close{position:absolute;top:1.2rem;right:1.5rem;display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background:transparent;border:none;cursor:pointer;color:rgba(248,248,250,0.55);transition:color 0.2s;z-index:20;padding:0}
 .sm-panel-close:hover{color:#f8f8fa}
-.sm-panel-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+.sm-panel-logo{position:absolute;top:1.2rem;left:1.5rem;z-index:20;display:flex;align-items:center;user-select:none}
+.sm-panel-logo img{display:block;height:24px;width:auto;object-fit:contain}
+.sm-panel-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.25rem}
 .sm-panel-itemWrap{position:relative;overflow:visible;line-height:1}
-.sm-panel-item{position:relative;color:#f8f8fa;font-weight:700;font-size:clamp(2rem,8vw,3.2rem);cursor:pointer;line-height:1.05;letter-spacing:-0.5px;text-transform:uppercase;transition:color 0.2s;display:inline-flex;align-items:center;gap:0.35em;text-decoration:none;padding:0.08em 0;border:none;background:transparent;width:100%}
+.sm-panel-item{position:relative;color:rgba(248,248,250,0.7);font-weight:500;font-size:1rem;cursor:pointer;line-height:1.3;letter-spacing:0;transition:color 0.2s;display:inline-flex;align-items:center;gap:0.5em;text-decoration:none;padding:0.75rem 0;border:none;background:transparent;width:100%}
 .sm-panel-itemLabel{display:inline-block;will-change:transform;transform-origin:50% 100%}
 .sm-panel-item:hover{color:var(--sm-accent,#40A660)}
 .sm-panel-item-chevron{flex-shrink:0;opacity:0.4;transition:opacity 0.2s,transform 0.2s;margin-left:auto}
@@ -104,6 +121,26 @@ const SM_CSS = `
 .sm-socials-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:row;align-items:center;gap:1.25rem;flex-wrap:wrap}
 .sm-socials-link{color:rgba(248,248,250,0.55);font-size:0.875rem;text-decoration:none;transition:color 0.2s}
 .sm-socials-link:hover{color:#f8f8fa}
+.sm-rich-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.5rem}
+.sm-rich-card{display:flex;align-items:flex-start;gap:0.875rem;padding:0.875rem 1rem;border-radius:0.875rem;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);text-decoration:none;transition:background 0.2s,border-color 0.2s}
+.sm-rich-card:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12)}
+.sm-rich-card-icon{flex-shrink:0;width:2.25rem;height:2.25rem;display:flex;align-items:center;justify-content:center;border-radius:0.625rem;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5)}
+.sm-rich-card-icon svg{width:1.125rem;height:1.125rem}
+.sm-rich-card-body{min-width:0}
+.sm-rich-card-title{font-size:0.875rem;font-weight:600;color:#f8f8fa;line-height:1.3}
+.sm-rich-card-desc{font-size:0.75rem;color:rgba(248,248,250,0.4);line-height:1.5;margin-top:0.125rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sm-featured-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;margin-top:1rem}
+.sm-featured-card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;border-radius:0.75rem;overflow:hidden;min-height:120px;text-decoration:none}
+.sm-featured-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7}
+.sm-featured-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,20,0.95) 0%,rgba(12,12,20,0.4) 100%)}
+.sm-featured-card-text{position:relative;z-index:1;padding:0.75rem}
+.sm-featured-card-title{font-size:0.8125rem;font-weight:600;color:#f8f8fa;line-height:1.3}
+.sm-featured-card-desc{font-size:0.6875rem;color:rgba(248,248,250,0.5);line-height:1.4;margin-top:0.25rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sm-quote-btn{display:inline-flex;align-items:center;padding:0.75rem 1.75rem;font-size:0.875rem;font-weight:600;color:#fff;border-radius:0.75rem;border:none;cursor:pointer;margin-top:auto;align-self:flex-start;transition:opacity 0.2s}
+.sm-quote-btn:hover{opacity:0.85}
+.sm-back-breadcrumb{display:inline-flex;align-items:center;gap:0.375rem;font-size:0.8125rem;font-weight:500;color:rgba(248,248,250,0.45);background:transparent;border:none;cursor:pointer;padding:0;margin-bottom:1.25rem;transition:color 0.2s}
+.sm-back-breadcrumb:hover{color:#f8f8fa}
+.sm-back-breadcrumb-label{color:rgba(248,248,250,0.7)}
 `;
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -205,10 +242,6 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
       }
       itemEntranceTweenRef.current?.kill();
 
-      const rootPage = rootPageRef.current;
-      const itemEls = rootPage
-        ? (Array.from(rootPage.querySelectorAll(".sm-panel-itemLabel")) as HTMLElement[])
-        : [];
       const socialTitle = panel.querySelector(".sm-socials-title") as HTMLElement | null;
       const socialLinks = Array.from(panel.querySelectorAll(".sm-socials-link")) as HTMLElement[];
 
@@ -218,7 +251,6 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
       }));
       const panelStart = Number(gsap.getProperty(panel, "xPercent"));
 
-      if (itemEls.length) gsap.set(itemEls, { yPercent: 140 });
       if (socialTitle) gsap.set(socialTitle, { opacity: 0 });
       if (socialLinks.length) gsap.set(socialLinks, { y: 25, opacity: 0 });
 
@@ -243,21 +275,6 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
         { xPercent: 0, duration: panelDuration, ease: "power4.out" },
         panelInsertTime
       );
-
-      if (itemEls.length) {
-        const itemsStart = panelInsertTime + panelDuration * 0.15;
-        tl.to(
-          itemEls,
-          {
-            yPercent: 0,
-            duration: 1,
-            ease: "power4.out",
-            stagger: { each: 0.1, from: "start" },
-            onComplete: () => { gsap.set(itemEls, { clearProps: "transform" }); },
-          },
-          itemsStart
-        );
-      }
 
       if (socialTitle || socialLinks.length) {
         const socialsStart = panelInsertTime + panelDuration * 0.4;
@@ -314,13 +331,6 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
         ease: "power3.in",
         overwrite: "auto",
         onComplete: () => {
-          const rootPage = rootPageRef.current;
-          if (rootPage) {
-            const itemEls = Array.from(
-              rootPage.querySelectorAll(".sm-panel-itemLabel")
-            ) as HTMLElement[];
-            if (itemEls.length) gsap.set(itemEls, { yPercent: 140 });
-          }
           busyRef.current = false;
         },
       });
@@ -491,45 +501,11 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
       if (!root || !sub) return;
 
       if (direction === "toSub") {
-        // Prep sub items (now rendered) for entrance
-        const subItems = Array.from(
-          sub.querySelectorAll(".sm-panel-itemLabel")
-        ) as HTMLElement[];
-        if (subItems.length) gsap.set(subItems, { yPercent: 140 });
-
         gsap.to(root, { xPercent: -100, duration: 0.45, ease: "power4.inOut" });
         gsap.fromTo(sub, { xPercent: 100 }, { xPercent: 0, duration: 0.45, ease: "power4.inOut" });
-
-        if (subItems.length) {
-          gsap.to(subItems, {
-            yPercent: 0,
-            duration: 0.8,
-            ease: "power4.out",
-            stagger: { each: 0.08, from: "start" },
-            delay: 0.3,
-            onComplete: () => { gsap.set(subItems, { clearProps: "transform" }); },
-          });
-        }
       } else {
-        // toRoot: animate root items back in
-        const rootItems = Array.from(
-          root.querySelectorAll(".sm-panel-itemLabel")
-        ) as HTMLElement[];
-        if (rootItems.length) gsap.set(rootItems, { yPercent: 140 });
-
         gsap.to(sub, { xPercent: 100, duration: 0.4, ease: "power3.inOut" });
         gsap.fromTo(root, { xPercent: -100 }, { xPercent: 0, duration: 0.4, ease: "power3.inOut" });
-
-        if (rootItems.length) {
-          gsap.to(rootItems, {
-            yPercent: 0,
-            duration: 0.8,
-            ease: "power4.out",
-            stagger: { each: 0.08, from: "start" },
-            delay: 0.25,
-            onComplete: () => { gsap.set(rootItems, { clearProps: "transform" }); },
-          });
-        }
       }
     }, [activeSub]);
 
@@ -616,6 +592,14 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
           className="staggered-menu-panel"
           aria-hidden={!open}
         >
+          {/* Logo — top left inside panel */}
+          {logoUrl && (
+            <div className="sm-panel-logo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logoUrl} alt={logoAlt} draggable={false} width={140} height={28} />
+            </div>
+          )}
+
           {/* Close button — always present inside the panel */}
           <button
             className="sm-panel-close"
@@ -638,52 +622,69 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
               >
                 {items.map((it, idx) => {
                   const hasChildren = Boolean(it.children && it.children.length > 0);
+                  const isQuote = it.onClick && !hasChildren;
                   return (
                     <li className="sm-panel-itemWrap" key={it.label + idx}>
-                      <a
-                        className="sm-panel-item"
-                        href={hasChildren ? undefined : it.link}
-                        aria-label={it.ariaLabel}
-                        role={hasChildren ? "button" : undefined}
-                        tabIndex={0}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (hasChildren) {
-                            navigateToSub(it);
-                          } else {
-                            if (it.onClick) {
-                              it.onClick();
-                            } else {
-                              window.location.href = it.link;
-                            }
+                      {isQuote ? (
+                        <button
+                          className="sm-quote-btn"
+                          style={{ background: accentColor || "#40A660" }}
+                          aria-label={it.ariaLabel}
+                          onClick={() => {
+                            if (it.onClick) it.onClick();
                             closeMenu();
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
+                          }}
+                          type="button"
+                        >
+                          <span className="sm-panel-itemLabel">{it.label}</span>
+                        </button>
+                      ) : (
+                        <a
+                          className="sm-panel-item"
+                          href={hasChildren ? undefined : it.link}
+                          aria-label={it.ariaLabel}
+                          role={hasChildren ? "button" : undefined}
+                          tabIndex={0}
+                          onClick={(e) => {
                             e.preventDefault();
-                            if (hasChildren) navigateToSub(it);
-                          }
-                        }}
-                      >
-                        <span className="sm-panel-itemLabel">{it.label}</span>
-                        {hasChildren && (
-                          <svg
-                            className="sm-panel-item-chevron"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            <path d="M9 18l6-6-6-6" />
-                          </svg>
-                        )}
-                      </a>
+                            if (hasChildren) {
+                              navigateToSub(it);
+                            } else {
+                              if (it.onClick) {
+                                it.onClick();
+                              } else {
+                                window.location.href = it.link;
+                              }
+                              closeMenu();
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              if (hasChildren) navigateToSub(it);
+                            }
+                          }}
+                        >
+                          {it.iconNode && <span style={{ display: "inline-flex", alignItems: "center", marginRight: "0.25rem" }}>{it.iconNode}</span>}
+                          <span className="sm-panel-itemLabel">{it.label}</span>
+                          {hasChildren && (
+                            <svg
+                              className="sm-panel-item-chevron"
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M9 18l6-6-6-6" />
+                            </svg>
+                          )}
+                        </a>
+                      )}
                     </li>
                   );
                 })}
@@ -712,39 +713,102 @@ export const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>
 
             {/* Sub page — always mounted so GSAP can target it */}
             <div ref={subPageRef} className="sm-page">
-              <button
-                className="sm-back-btn"
-                onClick={navigateBack}
-                type="button"
-                aria-label="Back to main menu"
-                style={{ opacity: activeSub ? 1 : 0, pointerEvents: activeSub ? "auto" : "none" }}
-              >
-                <span className="sm-back-arrow">&#8592;</span>
-                Back
-              </button>
-              {activeSub && <p className="sm-sub-eyebrow">{activeSub.label}</p>}
-              <ul className="sm-panel-list" role="list">
-                {(activeSub?.children ?? []).map((child, idx) => (
-                  <li className="sm-panel-itemWrap" key={child.label + idx}>
+              {activeSub && (
+                <button
+                  className="sm-back-breadcrumb"
+                  onClick={navigateBack}
+                  type="button"
+                  aria-label="Back to main menu"
+                >
+                  <span>Back</span>
+                  <span>/</span>
+                  <span className="sm-back-breadcrumb-label">{activeSub.label}</span>
+                </button>
+              )}
+
+              {/* Rich children cards (icon + title + description) */}
+              {activeSub?.children?.some((c) => c.description) ? (
+                <ul className="sm-rich-list" role="list">
+                  {(activeSub.children ?? []).map((child, idx) => (
+                    <li key={child.label + idx}>
+                      <a
+                        className="sm-rich-card sm-panel-itemLabel"
+                        href={child.link}
+                        aria-label={child.ariaLabel}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (child.onClick) {
+                            child.onClick();
+                          } else {
+                            window.location.href = child.link;
+                          }
+                          closeMenu();
+                        }}
+                      >
+                        {child.iconUrl && (
+                          <span className="sm-rich-card-icon">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={child.iconUrl} alt="" width={18} height={18} aria-hidden="true" />
+                          </span>
+                        )}
+                        <span className="sm-rich-card-body">
+                          <span className="sm-rich-card-title">{child.label}</span>
+                          {child.description && <span className="sm-rich-card-desc">{child.description}</span>}
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ul className="sm-panel-list" role="list">
+                  {(activeSub?.children ?? []).map((child, idx) => (
+                    <li className="sm-panel-itemWrap" key={child.label + idx}>
+                      <a
+                        className="sm-panel-item"
+                        href={child.link}
+                        aria-label={child.ariaLabel}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (child.onClick) {
+                            child.onClick();
+                          } else {
+                            window.location.href = child.link;
+                          }
+                          closeMenu();
+                        }}
+                      >
+                        <span className="sm-panel-itemLabel">{child.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Featured image cards */}
+              {activeSub?.featuredCards && activeSub.featuredCards.length > 0 && (
+                <div className="sm-featured-grid">
+                  {activeSub.featuredCards.map((card, idx) => (
                     <a
-                      className="sm-panel-item"
-                      href={child.link}
-                      aria-label={child.ariaLabel}
+                      key={card.title + idx}
+                      className="sm-featured-card sm-panel-itemLabel"
+                      href={card.href}
                       onClick={(e) => {
                         e.preventDefault();
-                        if (child.onClick) {
-                          child.onClick();
-                        } else {
-                          window.location.href = child.link;
-                        }
+                        window.location.href = card.href;
                         closeMenu();
                       }}
                     >
-                      <span className="sm-panel-itemLabel">{child.label}</span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={card.image} alt={card.title} />
+                      <span className="sm-featured-card-overlay" />
+                      <span className="sm-featured-card-text">
+                        <span className="sm-featured-card-title">{card.title}</span>
+                        <span className="sm-featured-card-desc">{card.description}</span>
+                      </span>
                     </a>
-                  </li>
-                ))}
-              </ul>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </aside>

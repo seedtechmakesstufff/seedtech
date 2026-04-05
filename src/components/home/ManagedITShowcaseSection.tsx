@@ -120,8 +120,6 @@ function ValueCard({ label }: { label: string }) {
         "opacity-25 hover:opacity-100",
         "hover:border-white/[0.25] hover:bg-white/[0.03]",
       )}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.3 }}
     >
       <span className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 text-center px-3 select-none">
         {label}

@@ -52,7 +52,7 @@ export function HeroSection() {
 
         {/* Hero headline — word-by-word reveal with per-word gradient */}
         <h1
-          className="font-display text-display leading-[1.05] text-white"
+          className="font-display text-[clamp(2.75rem,8vw,4.5rem)] leading-[1.05] text-white"
           aria-label="Technology Infrastructure & Websites Built for High-Performance Businesses"
         >
           {[

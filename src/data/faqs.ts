@@ -2,7 +2,7 @@ export const homepageFAQs: { question: string; answer: string }[] = [
   {
     question: "What does SeedTech do?",
     answer:
-      "SeedTech provides proactive IT support, website development, and SEO support for small and mid-sized businesses. Our goal is to help businesses stay supported, secure, and easier to find online.",
+      "SeedTech provides proactive IT support, website development, and SEO services for businesses of all sizes — from growing teams to large organizations. Our goal is to keep your operations supported, your systems secure, and your business easier to find online.",
   },
   {
     question: "Do you focus more on IT support or websites?",
@@ -12,7 +12,7 @@ export const homepageFAQs: { question: string; answer: string }[] = [
   {
     question: "Do you work with small businesses?",
     answer:
-      "Yes. SeedTech is built to support small and mid-sized businesses that want practical technology help, clear communication, and support that feels dependable.",
+      "Yes. SeedTech works with businesses at every stage — from small teams just getting structured to large companies with complex IT environments. We bring the same level of support and accountability regardless of size.",
   },
   {
     question: "Can you help if we already have a website or an existing IT setup?",

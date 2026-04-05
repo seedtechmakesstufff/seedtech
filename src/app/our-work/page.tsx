@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { Section } from "@/components/layout/Section";
 import { ProjectCard } from "@/components/projects/ProjectCard";
-import { GradientOrb, GridPattern, CTABanner, LiquidGlassPill, AnimatedH1 } from "@/components/kit";
+import { GradientOrb, GridPattern, LiquidGlassPill, AnimatedH1 } from "@/components/kit";
 import { projects } from "@/data/projects";
 import type { Department } from "@/data/projects";
 import { cn } from "@/lib/utils";
-import { useQuoteFlow } from "@/components/quote-flow";
+import { PartnerCTA } from "@/components/shared/PartnerCTA";
 
 type Filter = "all" | Department;
 
@@ -19,7 +19,6 @@ const filters: { label: string; value: Filter }[] = [
 
 export default function OurWorkPage() {
   const [active, setActive] = useState<Filter>("all");
-  const { openQuoteFlow } = useQuoteFlow();
 
   const filtered =
     active === "all" ? projects : projects.filter((p) => p.department === active);
@@ -77,16 +76,7 @@ export default function OurWorkPage() {
       </Section>
 
       {/* CTA */}
-      <Section>
-        <CTABanner
-          title="Want Results Like These?"
-          description="Let&apos;s talk about your project. We&apos;ll scope it out, give you an honest quote, and start building."
-          primaryLabel="Start a Project"
-          onPrimaryClick={() => openQuoteFlow()}
-          secondaryLabel="View Our Services"
-          secondaryHref="/services"
-        />
-      </Section>
+      <PartnerCTA />
     </div>
   );
 }

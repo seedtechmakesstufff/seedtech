@@ -16,6 +16,7 @@ import {
   BookCheck,
   ArrowRight,
   ArrowLeft,
+  ChevronDown,
   X as XIcon,
 } from "lucide-react";
 import {
@@ -185,6 +186,7 @@ export function QuotePriceCalculator({
 
   // ── Form state ──
   const [seats, setSeats] = useState(10);
+  const [seatInfoOpen, setSeatInfoOpen] = useState(false);
   const [mdmSeats, setMdmSeats] = useState(4);
   const [clientName, setClientName] = useState("");
   const [dealNotes, setDealNotes] = useState("");
@@ -282,6 +284,40 @@ export function QuotePriceCalculator({
                     Select a plan below that best fits your needs. We&apos;ll schedule
                     a free consultation upon completion.
                   </p>
+
+                  {/* What are seats? accordion */}
+                  <div className="rounded-xl border border-white/[0.06] bg-dark-elevated overflow-hidden text-left">
+                    <button
+                      type="button"
+                      onClick={() => setSeatInfoOpen((o) => !o)}
+                      className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-white/70 hover:text-white transition-colors"
+                    >
+                      What are seats?
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 transition-transform duration-200",
+                          seatInfoOpen && "rotate-180"
+                        )}
+                      />
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {seatInfoOpen && (
+                        <motion.div
+                          key="seat-info"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 text-[13px] leading-relaxed text-white/40">
+                            A <span className="text-white/60 font-medium">seat</span> is one user license — it covers one team member who will use the managed IT services. Each seat includes help desk access, device monitoring, security tools, and all plan features. If you have 10 employees who need IT support, you need 10 seats.
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-dark-elevated border border-white/[0.06]">
                     <input
                       type="number"

@@ -7,50 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireSiteContext } from "@/lib/site-context";
-
-/* ── Known static routes ──
- * Mirrors the sitemap.ts static routes so every page appears in the
- * Metadata tab even if the crawler hasn't reached it yet.
- */
-const STATIC_ROUTES: { path: string; kind: string }[] = [
-  { path: "/", kind: "page" },
-  { path: "/about", kind: "page" },
-  { path: "/contact", kind: "page" },
-  { path: "/free-audit", kind: "page" },
-
-  // Services
-  { path: "/services", kind: "page" },
-  { path: "/services/managed-it", kind: "service" },
-  { path: "/services/managed-it/plans", kind: "service" },
-  { path: "/services/managed-it/assessment", kind: "service" },
-  { path: "/services/managed-it/onboarding", kind: "service" },
-  { path: "/services/managed-it/why-seedtech", kind: "service" },
-  { path: "/services/managed-it/mobile-device-management", kind: "service" },
-  { path: "/services/web-development", kind: "service" },
-  { path: "/services/seedtech-platform", kind: "service" },
-  { path: "/services/ecommerce-development", kind: "service" },
-  { path: "/services/custom-development", kind: "service" },
-  { path: "/services/seo-autopilot", kind: "service" },
-
-  // Pricing
-  { path: "/pricing/it-support", kind: "page" },
-  { path: "/pricing/web-development", kind: "page" },
-
-  // Industries
-  { path: "/industries", kind: "page" },
-  { path: "/industries/trucking", kind: "industry" },
-  { path: "/industries/construction", kind: "industry" },
-  { path: "/industries/law-firms", kind: "industry" },
-  { path: "/industries/medical", kind: "industry" },
-
-  // Content
-  { path: "/blog", kind: "page" },
-  { path: "/our-work", kind: "page" },
-  { path: "/reviews", kind: "page" },
-
-  // Legal
-  { path: "/terms-conditions", kind: "page" },
-];
+import { STATIC_ROUTES } from "@/lib/static-routes";
 
 interface MergedPage {
   path: string;

@@ -56,7 +56,10 @@ export function SectionHeader({
         duration={0.65}
         highlightWords={highlightWords}
         className={cn(
-          "font-display text-heading md:text-heading-lg",
+          "font-display",
+          titleAs === "h1"
+            ? "text-[clamp(2.75rem,8vw,4.5rem)] leading-[1.05]"
+            : "text-heading md:text-heading-lg",
           isDark ? "text-white" : "text-dark-base"
         )}
       />

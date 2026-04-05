@@ -32,23 +32,46 @@ const footerLinks = {
     { label: "Managed IT Support", href: "/services/managed-it" },
     { label: "Web Development", href: "/services/web-development" },
     { label: "SEO Autopilot", href: "/services/seo-autopilot" },
+    { label: "Endpoint Security", href: "/endpoint-security-new-jersey" },
+    { label: "Help Desk Services", href: "/help-desk-services-new-jersey" },
+    { label: "Outsourced IT", href: "/outsourced-it-support-new-jersey" },
+    { label: "Cybersecurity", href: "/cybersecurity-services-new-jersey" },
+    { label: "Cloud Services", href: "/cloud-services-new-jersey" },
   ],
   industries: [
     { label: "Trucking & Logistics", href: "/industries/trucking" },
-    { label: "Construction & Rigging", href: "/industries/construction" },
-    { label: "Law Firms", href: "/industries/law-firms" },
-    { label: "Medical Practices", href: "/industries/medical" },
+    { label: "Construction", href: "/it-support-construction-companies-nj" },
+    { label: "Law Firms", href: "/it-support-law-firms-new-jersey" },
+    { label: "Medical & HIPAA", href: "/hipaa-compliant-it-support-nj" },
+  ],
+  locations: [
+    { label: "Morristown", href: "/locations/morristown-it-support" },
+    { label: "Mendham", href: "/locations/mendham-it-support" },
+    { label: "Chester", href: "/locations/chester-it-support" },
+    { label: "Bernardsville", href: "/locations/bernardsville-it-support" },
+    { label: "Basking Ridge", href: "/locations/basking-ridge-it-support" },
+    { label: "Morris County", href: "/locations/morris-county-it-support" },
+    { label: "Somerset County", href: "/locations/somerset-county-it-support" },
+    { label: "Essex County", href: "/locations/essex-county-it-support" },
+    { label: "Union County", href: "/locations/union-county-it-support" },
+  ],
+  insights: [
+    { label: "What Does Managed IT Cost?", href: "/insights/what-does-managed-it-cost-nj" },
+    { label: "When to Switch IT Providers", href: "/insights/when-to-switch-it-provider" },
+    { label: "What Does an MSP Do?", href: "/insights/what-does-an-msp-do" },
+    { label: "Signs Your IT Company Is Failing", href: "/insights/signs-your-it-company-is-failing" },
   ],
   company: [
     { label: "About Us", href: "/about" },
     { label: "Our Work", href: "/our-work" },
     { label: "Contact", href: "/contact" },
+    { label: "Blog", href: "/blog" },
   ],
 };
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/[0.06] bg-dark-base">
+    <footer className="bg-dark-base">
       <div className="mx-auto max-w-6xl px-6 py-20">
 
         {/* ── Row 1: Brand + Contact ───────────────────────────────────── */}
@@ -90,19 +113,19 @@ export function Footer() {
               <Mail className="w-4 h-4 text-seed-500 shrink-0" />
               info@seedtechllc.com
             </a>
-            <a href="tel:+15551234567" className="flex items-center gap-3 text-sm text-white/50 hover:text-white transition-colors">
+            <a href="tel:+12016209002" className="flex items-center gap-3 text-sm text-white/50 hover:text-white transition-colors">
               <Phone className="w-4 h-4 text-seed-500 shrink-0" />
-              (555) 123-4567
+              (201) 620-9002
             </a>
             <span className="flex items-center gap-3 text-sm text-white/50">
               <MapPin className="w-4 h-4 text-seed-500 shrink-0" />
-              Northern NJ
+              Hopatcong, NJ
             </span>
           </div>
         </div>
 
         {/* ── Row 2: Nav columns ───────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 mb-16">
           {/* Services */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Services</p>
@@ -131,6 +154,20 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Locations */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Locations</p>
+            <ul className="space-y-3">
+              {footerLinks.locations.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Company */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Company</p>
@@ -145,10 +182,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Insights */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Resources</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-5">Insights</p>
             <ul className="space-y-3">
+              {footerLinks.insights.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="/pricing/it-support" className="text-sm text-white/60 hover:text-white transition-colors">
                   IT Support Pricing
@@ -157,11 +201,6 @@ export function Footer() {
               <li>
                 <Link href="/pricing/web-development" className="text-sm text-white/60 hover:text-white transition-colors">
                   Website Pricing
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-sm text-white/60 hover:text-white transition-colors">
-                  Blog
                 </Link>
               </li>
             </ul>

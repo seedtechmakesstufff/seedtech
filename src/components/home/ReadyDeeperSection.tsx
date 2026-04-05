@@ -38,7 +38,7 @@ const hoverTargets: HoverTarget[] = [
 
 export function ReadyDeeperSection() {
   return (
-    <section className="bg-dark-base py-20 md:py-28 border-t border-white/[0.05]">
+    <section className="bg-dark-base py-20 md:py-28">
       {/* Outer wrapper — particles fill this area behind the card */}
       <div className="relative max-w-[1376px] mx-auto px-4 sm:px-6">
         {/* Gradient div — fades from page background (top) to transparent (bottom) */}

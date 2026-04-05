@@ -27,7 +27,10 @@ export function AnimatedH1({ children, className, highlightWords, delay = 0.15 }
       stagger={0.07}
       duration={0.7}
       highlightWords={highlightWords}
-      className={cn("font-display text-title md:text-display text-white leading-[1.05]", className)}
+      className={cn(
+        "font-display text-white leading-[1.05] text-[clamp(2.75rem,8vw,4.5rem)]",
+        className,
+      )}
     />
   );
 }

@@ -204,25 +204,30 @@ A **2-4 sentence description** that covers:
 
 ## 5. STATIC_ROUTES Registration
 
-If the page is a permanent (non-dynamic) page, add it to the `STATIC_ROUTES` array
-in **three files**:
+If the page is a permanent (non-dynamic) page, add it to the shared `STATIC_ROUTES` array
+in **one file**:
 
 | File | Purpose |
 |------|---------|
-| `src/app/api/admin/seo/page-contexts/route.ts` | Page context discovery |
-| `src/app/api/admin/seo/metadata/generate-all/route.ts` | Bulk metadata generation |
-| `src/app/api/admin/seo/page-contexts/generate-all/route.ts` | Bulk context generation |
+| `src/lib/static-routes.ts` | Single source of truth — imported by all 4 SEO API routes |
 
 ```typescript
 { path: "/services/new-service", kind: "service" },
 ```
+
+This file is imported by:
+- `src/app/api/admin/seo/metadata/route.ts`
+- `src/app/api/admin/seo/metadata/generate-all/route.ts`
+- `src/app/api/admin/seo/page-contexts/route.ts`
+- `src/app/api/admin/seo/page-contexts/generate-all/route.ts`
 
 **Page kinds:**
 - `page` — general pages (about, contact, pricing, reviews)
 - `service` — service offering pages
 - `industry` — industry vertical pages
 - `blog` — blog posts (auto-discovered, don't add manually)
-- `landing` — lead-gen landing pages (e.g., free-audit)
+- `landing` — lead-gen landing pages and SEO pages
+- `article` — insights/educational articles
 
 > **Note:** Blog posts are auto-discovered from the `BlogPost` table. Do NOT add them
 > to STATIC_ROUTES. Crawled pages are also auto-discovered from `SitePage`.
@@ -417,7 +422,7 @@ Use this checklist when creating any new page:
 - [ ] Keep data co-located in the page file (features, steps, tiers, FAQs)
 
 ### After build
-- [ ] Add path to `STATIC_ROUTES` in all 3 route files (if permanent page)
+- [ ] Add path to `STATIC_ROUTES` in `src/lib/static-routes.ts` (if permanent page)
 - [ ] Go to Admin → AI Context → Page Context Map → add/generate context for the page
 - [ ] Optionally add tracked keywords with this page as the target
 - [ ] Use AI Context Preview to verify the prompt looks correct
