@@ -229,14 +229,14 @@ function StatsBlock() {
   const inView = useInView(ref, { once: true, margin: "-80px 0px" });
 
   const stats = [
-    { value: "200+", label: "Brands" },
-    { value: "20+", label: "Years in IT Experience" },
+    { value: "100+", label: "Clients" },
+    { value: "16+", label: "Years in IT Experience" },
     {
-      value: "65",
-      label: "Hours on average of saved from\npotential downtime per month\nper user",
+      value: "85",
+      label: "Average amount of down time saved",
       multiLine: true,
     },
-    { value: "∞", label: "Ability to resolve tasks\nthat keep you running", multiLine: true },
+    { value: "$38k", label: "On average preventive business loss", multiLine: true },
   ];
 
   return (
@@ -276,7 +276,7 @@ export function ManagedITShowcaseSection() {
             className="font-display text-[clamp(1.5rem,4.5vw,4rem)] leading-[1.15] text-white"
             stagger={0.035}
           >
-            More than just IT Support - regardless of company size, our brands run more efficiently and reliably.
+            More than just IT Support - regardless of company size, our clients run more efficiently and reliably.
           </WordReveal>
         </div>
 

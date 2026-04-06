@@ -73,6 +73,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/locations/somerset-county-it-support`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/locations/essex-county-it-support`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/locations/union-county-it-support`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/locations/manhattan-it-support`, changeFrequency: "monthly", priority: 0.8 },
+
+    // SEO — Nationwide
+    { url: `${SITE_URL}/nationwide-it-support`, changeFrequency: "monthly", priority: 0.9 },
 
     // SEO — Insights articles
     { url: `${SITE_URL}/insights/what-does-managed-it-cost-nj`, changeFrequency: "monthly", priority: 0.8 },

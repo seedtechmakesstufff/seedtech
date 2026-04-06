@@ -53,17 +53,14 @@ export function HeroSection() {
         {/* Hero headline — word-by-word reveal with per-word gradient */}
         <h1
           className="font-display text-[clamp(2.75rem,8vw,4.5rem)] leading-[1.05] text-white"
-          aria-label="Technology Infrastructure & Websites Built for High-Performance Businesses"
+          aria-label="Proactive IT Support & Websites"
         >
           {[
-            { word: "Technology", cls: "" },
-            { word: "Infrastructure", cls: "" },
+            { word: "Proactive", cls: "text-gradient-purple-blue" },
+            { word: "IT", cls: "" },
+            { word: "Support", cls: "" },
             { word: "&", cls: "" },
             { word: "Websites", cls: "" },
-            { word: "Built", cls: "" },
-            { word: "for", cls: "" },
-            { word: "High-Performance", cls: "text-gradient-purple-blue" },
-            { word: "Businesses", cls: "" },
           ].map(({ word, cls }, i) => (
             <span key={i} className="inline-block overflow-hidden align-bottom">
               <motion.span
@@ -72,7 +69,7 @@ export function HeroSection() {
                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                 transition={{ duration: 0.7, delay: 0.25 + i * 0.06, ease: EXPO_OUT }}
               >
-                {word}{i < 7 ? "\u00A0" : ""}
+                {word}{i < 4 ? "\u00A0" : ""}
               </motion.span>
             </span>
           ))}
@@ -81,7 +78,7 @@ export function HeroSection() {
         {/* Body */}
         <motion.div {...fadeUp(0.7)} className="mt-6 max-w-2xl mx-auto space-y-4 text-white/85 text-body-lg font-[450] leading-relaxed">
           <p>
-            From proactive IT support to custom websites and SEO, our goal is to make the tools your business depends on work better together.
+            proactively supporting your technology infrastructure
           </p>
         </motion.div>
 

@@ -23,9 +23,9 @@ export default function HomePage() {
       <FAQJsonLd questions={homepageFAQs} />
       <HeroSection />
       <TrustedBySection />
-      <ShowcaseCarousel />
       <ManagedITShowcaseSection />
       <AreasWeServeSection />
+      <ShowcaseCarousel />
       <BlogPreviewSection />
       <FAQSection />
       <ReadyDeeperSection />

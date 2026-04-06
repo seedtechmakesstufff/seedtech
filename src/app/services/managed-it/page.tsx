@@ -2,7 +2,6 @@ import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
-  CheckCircle2,
   ClipboardList,
   Shield,
   ShieldCheck,
@@ -30,19 +29,21 @@ import {
   CheckList,
   AnimatedH1,
 } from "@/components/kit";
+import { FixingItRightTabs } from "@/components/managed-it/FixingItRightTabs";
+import { AreasWeServeSection } from "@/components/home/AreasWeServeSection";
 export const generateMetadata = buildMetadata("/services/managed-it");
 
 /* ─── Data ─────────────────────────────────────────────────────────────────── */
 const sectionOneCards = [
   {
+    icon: Radar,
+    title: "Catch issues early where possible",
+    body: "Monitoring and maintenance help identify many problems before they become bigger disruptions.",
+  },
+  {
     icon: Headphones,
     title: "Help your team get back to work quickly",
     body: "When something goes wrong, your team needs a clear path back to productivity.",
-  },
-  {
-    icon: Radar,
-    title: "Catch issues early when possible",
-    body: "Monitoring and maintenance help identify many problems before they become bigger disruptions.",
   },
   {
     icon: Repeat,
@@ -56,13 +57,13 @@ const sectionOneCards = [
   },
   {
     icon: MessageSquare,
-    title: "Make support feel easier",
+    title: "Getting support should feel easier",
     body: "Your team should know who to contact, what to expect, and what happens next.",
   },
   {
     icon: Workflow,
-    title: "Improve the environment over time",
-    body: "Good IT support should not just maintain the status quo. It should help your systems become more stable and better organized.",
+    title: "Improve your environment over time",
+    body: "Great IT support should not just maintain the status quo. It should help your systems become more stable and better organized.",
   },
 ];
 
@@ -252,9 +253,49 @@ export default function ManagedITPage() {
         </div>
       </section>
 
+
+      {/* Pricing Tiers */}
+      <Section>
+        <SectionHeader title="Simple Managed IT Support Plans" description="Choose the level of support that fits your business today, with room to grow as your needs evolve." />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {tiers.map((tier) => (
+            <LiquidGlassCard key={tier.name} className={`p-6 flex flex-col ${tier.highlight ? "liquid-glass-tinted-seed" : ""}`}>
+              {tier.highlight && <LiquidGlassPill variant="seed" size="sm" className="self-start mb-4">Most Popular</LiquidGlassPill>}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl liquid-glass flex items-center justify-center">
+                  <tier.icon className="w-5 h-5 text-seed-400" />
+                </div>
+                <h3 className="font-display text-card-title text-white">{tier.name}</h3>
+              </div>
+              <p className="text-body-sm text-light-base/50 mb-4">{tier.description}</p>
+              <div className="mb-5">
+                <span className="font-display text-heading text-seed-400">{tier.price}</span>
+                <span className="text-body-sm text-light-base/40">{tier.unit}</span>
+              </div>
+              <CheckList theme="dark" items={tier.features} className="mb-6 flex-1" />
+              <Link href="/services/managed-it/plans" className={`w-full text-center inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative overflow-hidden ${tier.highlight ? "liquid-glass-tinted-seed liquid-glass-hover text-white" : "liquid-glass text-white"}`}>
+                Compare Plans <ArrowRight className="w-4 h-4" />
+              </Link>
+            </LiquidGlassCard>
+          ))}
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
+          <Link href="/services/managed-it/plans" className="text-seed-400 hover:text-seed-300 text-sm font-medium transition-colors">Full plan comparison & pricing calculator →</Link>
+          <Link href="/services/managed-it/mobile-device-management" className="text-light-base/40 hover:text-light-base/60 text-sm transition-colors">MDM add-on from $12/device/mo →</Link>
+        </div>
+      </Section>
+      {/* Section 2 — Tabbed: We Focus on Fixing It Right */}
+      <Section>
+        <SectionHeader
+          eyebrow="How SeedTech Works"
+          title="We Focus on Fixing It Right"
+          description="When something breaks, we do not want to just patch it and move on. We want to help resolve the issue, understand what caused it, and reduce the chances of it happening again."
+        />
+        <FixingItRightTabs />
+      </Section>
       {/* Section 1 */}
       <Section theme="light">
-        <SectionHeader eyebrow="What Managed IT Should Actually Do" title="Support Should Do More Than Just Respond to Problems" description="Good IT support is not just about fixing something after it breaks. It is about helping your business stay productive, reducing unnecessary downtime, and making technology easier to manage over time." theme="light" />
+        <SectionHeader eyebrow="What Managed IT Should Actually Do" title="Support Should Do More Than Just Respond to Problems" description="Great IT support is not just about fixing something after it breaks. It is about helping your business stay productive, reducing unnecessary downtime, and making technology easier to manage over time." theme="light" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionOneCards.map((card) => (
             <div key={card.title} className="rounded-2xl border border-emerald-100 bg-emerald-50/30 p-7">
@@ -265,69 +306,6 @@ export default function ManagedITPage() {
               <p className="text-body-sm leading-relaxed text-dark-base/60">{card.body}</p>
             </div>
           ))}
-        </div>
-      </Section>
-
-      {/* Section 2 */}
-      <Section>
-        <SectionHeader
-          eyebrow="How SeedTech Works"
-          title="We Focus on Fixing It Right"
-          description="When something breaks, we do not want to just patch it and move on. We want to help resolve the issue, understand what caused it, and reduce the chances of it happening again."
-        />
-        <div className="mx-auto max-w-3xl space-y-4 text-center">
-          <p className="text-body-lg leading-relaxed text-light-base/60">
-            We start by helping your team get moving again as quickly as possible.
-          </p>
-          <p className="text-body-lg leading-relaxed text-light-base/60">
-            Then we look deeper. That could mean reviewing device health, configuration,
-            documentation, user setup, security settings, vendor issues, or bigger gaps in
-            process.
-          </p>
-          <p className="text-body-lg leading-relaxed text-light-base/60">
-            Whenever possible, we recommend or implement a more reliable long-term solution — not
-            just a temporary fix.
-          </p>
-        </div>
-        <div className="mx-auto mt-10 max-w-3xl">
-          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {[
-              "Faster recovery when issues happen",
-              "Fewer recurring problems",
-              "Better stability over time",
-              "More confidence in your IT environment",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3 rounded-2xl border border-seed-500/15 bg-white/[0.03] p-5 text-body-sm text-light-base/70">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-seed-400" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      {/* Section 3 */}
-      <Section theme="light">
-        <SectionHeader
-          eyebrow="Proactive by Design"
-          title="We Do Our Best to Catch Problems Before They Disrupt the Workday"
-          description="The best support issue is the one your team never has to notice."
-          theme="light"
-        />
-        <div className="mx-auto max-w-3xl space-y-4 text-center">
-          <p className="text-body-lg leading-relaxed text-dark-base/60">
-            SeedTech uses monitoring, maintenance, patching, security tools, and automation to
-            help keep systems healthy in the background.
-          </p>
-          <p className="text-body-lg leading-relaxed text-dark-base/60">
-            Not every issue can be prevented. Hardware fails. Vendors have outages. People make
-            mistakes. But proactive support helps us catch many issues earlier, respond faster,
-            and reduce unnecessary disruption.
-          </p>
-          <p className="text-body-lg leading-relaxed text-dark-base/60">
-            And when something cannot be prevented, we work to understand what happened and what
-            should change so it is less likely to happen again.
-          </p>
         </div>
       </Section>
 
@@ -395,58 +373,9 @@ export default function ManagedITPage() {
         </div>
       </Section>
 
-      {/* Additional Section */}
-      <Section>
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="mb-6 font-display text-heading text-white md:text-heading-lg">
-            When We Can Prevent It, We Do. When We Can’t, We Work to Keep It From Happening Again.
-          </h2>
-          <div className="space-y-4 text-body-lg leading-relaxed text-light-base/60">
-            <p>
-              Not every issue can be caught ahead of time. Hardware fails. Vendors have outages.
-              People click things they should not click.
-            </p>
-            <p>What matters is how your IT partner responds.</p>
-            <p>
-              At SeedTech, we focus on resolving the issue, understanding what caused it, and
-              putting better safeguards, processes, or recommendations in place where it makes
-              sense. That way support is not just reactive — it becomes part of making your
-              business more stable over time.
-            </p>
-          </div>
-        </div>
-      </Section>
 
-      {/* Pricing Tiers */}
-      <Section>
-        <SectionHeader title="Simple Managed IT Plans" description="Choose the level of support that fits your business today, with room to grow as your needs evolve." />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {tiers.map((tier) => (
-            <LiquidGlassCard key={tier.name} className={`p-6 flex flex-col ${tier.highlight ? "liquid-glass-tinted-seed" : ""}`}>
-              {tier.highlight && <LiquidGlassPill variant="seed" size="sm" className="self-start mb-4">Most Popular</LiquidGlassPill>}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl liquid-glass flex items-center justify-center">
-                  <tier.icon className="w-5 h-5 text-seed-400" />
-                </div>
-                <h3 className="font-display text-card-title text-white">{tier.name}</h3>
-              </div>
-              <p className="text-body-sm text-light-base/50 mb-4">{tier.description}</p>
-              <div className="mb-5">
-                <span className="font-display text-heading text-seed-400">{tier.price}</span>
-                <span className="text-body-sm text-light-base/40">{tier.unit}</span>
-              </div>
-              <CheckList theme="dark" items={tier.features} className="mb-6 flex-1" />
-              <Link href="/services/managed-it/plans" className={`w-full text-center inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative overflow-hidden ${tier.highlight ? "liquid-glass-tinted-seed liquid-glass-hover text-white" : "liquid-glass text-white"}`}>
-                Compare Plans <ArrowRight className="w-4 h-4" />
-              </Link>
-            </LiquidGlassCard>
-          ))}
-        </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
-          <Link href="/services/managed-it/plans" className="text-seed-400 hover:text-seed-300 text-sm font-medium transition-colors">Full plan comparison & pricing calculator →</Link>
-          <Link href="/services/managed-it/mobile-device-management" className="text-light-base/40 hover:text-light-base/60 text-sm transition-colors">MDM add-on from $12/device/mo →</Link>
-        </div>
-      </Section>
+      {/* Areas We Serve */}
+      <AreasWeServeSection />
 
       {/* FAQ */}
       <Section theme="light">

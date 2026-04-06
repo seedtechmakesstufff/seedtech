@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { MapPin, Globe } from "lucide-react";
 import { AnimatedH2 } from "@/components/kit";
 
 const towns = [
@@ -10,6 +10,8 @@ const towns = [
   { name: "Chester", href: "/locations/chester-it-support", county: "Morris" },
   { name: "Bernardsville", href: "/locations/bernardsville-it-support", county: "Somerset" },
   { name: "Basking Ridge", href: "/locations/basking-ridge-it-support", county: "Somerset" },
+  { name: "Manhattan", href: "/locations/manhattan-it-support", county: "New York" },
+  { name: "Nationwide", href: "/nationwide-it-support", county: "United States", icon: "globe" as const },
 ];
 
 const counties = [
@@ -26,7 +28,7 @@ export function AreasWeServeSection() {
         {/* Header */}
         <div className="text-center mb-14">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-seed-400 mb-4">
-            Northern New Jersey
+            New Jersey &amp; Beyond
           </p>
           <AnimatedH2 className="font-display text-heading md:text-heading-lg text-white leading-[1.1]">
             Areas We Serve
@@ -37,7 +39,7 @@ export function AreasWeServeSection() {
         </div>
 
         {/* Town cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 mb-6">
           {towns.map((town) => (
             <Link
               key={town.href}
@@ -45,10 +47,10 @@ export function AreasWeServeSection() {
               className="group relative flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-5 py-8 transition-all duration-300 hover:border-seed-500/30 hover:bg-white/[0.04]"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-seed-500/10 text-seed-400 transition-colors group-hover:bg-seed-500/20">
-                <MapPin className="h-5 w-5" />
+                {"icon" in town && town.icon === "globe" ? <Globe className="h-5 w-5" /> : <MapPin className="h-5 w-5" />}
               </div>
               <span className="text-sm font-semibold text-white">{town.name}</span>
-              <span className="text-[11px] text-white/35">{town.county} County</span>
+              <span className="text-[11px] text-white/35">{town.county}{!("icon" in town) ? " County" : ""}</span>
             </Link>
           ))}
         </div>
@@ -65,6 +67,17 @@ export function AreasWeServeSection() {
             </Link>
           ))}
         </div>
+
+        {/* Don't see your area CTA */}
+        <p className="mt-10 text-center text-sm text-white/40">
+          Don&apos;t see your area? Don&apos;t worry, we&apos;ve got you covered.{" "}
+          <a
+            href="tel:+12016209002"
+            className="text-seed-400 hover:text-seed-300 underline underline-offset-2 transition-colors"
+          >
+            Call to set up a discovery meeting today.
+          </a>
+        </p>
       </div>
     </section>
   );

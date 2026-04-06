@@ -76,6 +76,10 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: "/locations/somerset-county-it-support", kind: "landing" },
   { path: "/locations/essex-county-it-support", kind: "landing" },
   { path: "/locations/union-county-it-support", kind: "landing" },
+  { path: "/locations/manhattan-it-support", kind: "landing" },
+
+  // ── SEO — Nationwide ──
+  { path: "/nationwide-it-support", kind: "landing" },
 
   // ── SEO — Insights articles ──
   { path: "/insights/what-does-managed-it-cost-nj", kind: "article" },

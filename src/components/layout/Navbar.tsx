@@ -9,6 +9,7 @@ import {
   Monitor,
   SquareTerminal,
   MapPin,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -139,6 +140,18 @@ const locationsMega: MegaDropdownData = {
       href: "/locations/union-county-it-support",
       description: "Proactive IT solutions for Union County offices and firms.",
       icon: MapPin,
+    },
+    {
+      label: "Manhattan",
+      href: "/locations/manhattan-it-support",
+      description: "On-site and remote IT support for Manhattan businesses and offices.",
+      icon: MapPin,
+    },
+    {
+      label: "Nationwide",
+      href: "/nationwide-it-support",
+      description: "Remote IT support, monitoring, and cybersecurity for businesses across the U.S.",
+      icon: Globe,
     },
   ],
   featured: [
