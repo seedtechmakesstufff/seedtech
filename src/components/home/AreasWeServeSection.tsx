@@ -39,12 +39,12 @@ export function AreasWeServeSection() {
         </div>
 
         {/* Town cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 mb-6">
+        <div className="flex gap-4 overflow-x-auto pb-2 mb-6 scrollbar-hide snap-x snap-mandatory -mx-6 px-6">
           {towns.map((town) => (
             <Link
               key={town.href}
               href={town.href}
-              className="group relative flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-5 py-8 transition-all duration-300 hover:border-seed-500/30 hover:bg-white/[0.04]"
+              className="group relative flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-5 py-8 transition-all duration-300 hover:border-seed-500/30 hover:bg-white/[0.04] min-w-[140px] shrink-0 snap-start"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-seed-500/10 text-seed-400 transition-colors group-hover:bg-seed-500/20">
                 {"icon" in town && town.icon === "globe" ? <Globe className="h-5 w-5" /> : <MapPin className="h-5 w-5" />}
