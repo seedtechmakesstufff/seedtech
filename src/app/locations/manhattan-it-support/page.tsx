@@ -13,6 +13,7 @@ import {
   Server,
   Landmark,
   Film,
+  ClipboardList,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -27,6 +28,7 @@ import {
   Body,
   AnimatedH1,
 } from "@/components/kit";
+import { FixingItRightTabs } from "@/components/managed-it/FixingItRightTabs";
 
 export const metadata: Metadata = {
   title: "Manhattan IT Support | SeedTech — Managed IT Services in Manhattan, NYC",
@@ -96,6 +98,45 @@ const localBusiness = [
     icon: Building2,
     title: "Startups & growing companies",
     body: "Manhattan startups need IT that scales without complexity. Per-user pricing, month-to-month terms, and cloud-first infrastructure mean you get enterprise-grade IT without enterprise-grade overhead.",
+  },
+];
+
+const includedCards = [
+  {
+    icon: Headphones,
+    title: "Help desk support",
+    body: "Responsive support for your users during business hours when they need help.",
+    href: "/help-desk-services-new-jersey",
+  },
+  {
+    icon: Monitor,
+    title: "Monitoring and maintenance",
+    body: "Ongoing oversight of systems to catch issues early and keep devices running more reliably.",
+    href: "/services/managed-it",
+  },
+  {
+    icon: Shield,
+    title: "Cybersecurity protection",
+    body: "Endpoint protection, patching, and best-practice safeguards to help reduce risk.",
+    href: "/cybersecurity-services-new-jersey",
+  },
+  {
+    icon: Server,
+    title: "Backup and recovery support",
+    body: "Protection for important data and support for recovery planning when something goes wrong.",
+    href: "/backup-disaster-recovery-new-jersey",
+  },
+  {
+    icon: PhoneCall,
+    title: "Vendor coordination",
+    body: "Help working with internet providers, software vendors, phone providers, and other third parties when needed.",
+    href: "/services/managed-it",
+  },
+  {
+    icon: ClipboardList,
+    title: "Guidance and recommendations",
+    body: "Practical advice to help improve your environment over time, not just keep it running day to day.",
+    href: "/services/managed-it/assessment",
   },
 ];
 
@@ -268,6 +309,39 @@ export default function ManhattanITSupportPage() {
               <h3 className="mb-2 font-display text-card-title text-dark-base">{s.title}</h3>
               <p className="text-body-sm leading-relaxed text-dark-base/60">{s.body}</p>
             </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* How SeedTech Works */}
+      <Section>
+        <SectionHeader
+          eyebrow="How SeedTech Works"
+          title="A Support Process Designed to Actually Improve Things"
+          description="We do not just close tickets — we investigate, document, and improve your environment over time."
+        />
+        <FixingItRightTabs />
+      </Section>
+
+      {/* What's Included */}
+      <Section theme="light">
+        <SectionHeader
+          eyebrow="What's Included"
+          title="Managed IT Support Built Around the Day-to-Day Needs of Your Business"
+          description="Our managed IT services are designed to cover the core pieces most businesses need to stay supported, secure, and productive."
+          theme="light"
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {includedCards.map((card) => (
+            <Link key={card.title} href={card.href} className="group">
+              <div className="rounded-2xl border border-black/[0.05] bg-white p-7 shadow-cardLight h-full transition-all duration-200 group-hover:shadow-lg group-hover:border-seed-200">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-seed-50">
+                  <card.icon className="h-5 w-5 text-seed-600" />
+                </div>
+                <h3 className="mb-2 font-display text-card-title text-dark-base group-hover:text-seed-600 transition-colors">{card.title}</h3>
+                <p className="text-body-sm leading-relaxed text-dark-base/60">{card.body}</p>
+              </div>
+            </Link>
           ))}
         </div>
       </Section>

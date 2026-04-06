@@ -16,6 +16,7 @@ import {
   Stethoscope,
   Scale,
   HardHat,
+  ClipboardList,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -30,6 +31,7 @@ import {
   Body,
   AnimatedH1,
 } from "@/components/kit";
+import { FixingItRightTabs } from "@/components/managed-it/FixingItRightTabs";
 
 export const metadata: Metadata = {
   title: "Nationwide IT Support Services | SeedTech — Remote & On-Site IT Across the U.S.",
@@ -112,6 +114,45 @@ const stats = [
   { value: "100+", label: "Clients served" },
   { value: "16+", label: "Years in IT" },
   { value: "85", label: "Avg. hours of downtime saved/mo" },
+];
+
+const includedCards = [
+  {
+    icon: Headphones,
+    title: "Help desk support",
+    body: "Responsive support for your users during business hours when they need help.",
+    href: "/help-desk-services-new-jersey",
+  },
+  {
+    icon: Monitor,
+    title: "Monitoring and maintenance",
+    body: "Ongoing oversight of systems to catch issues early and keep devices running more reliably.",
+    href: "/services/managed-it",
+  },
+  {
+    icon: Shield,
+    title: "Cybersecurity protection",
+    body: "Endpoint protection, patching, and best-practice safeguards to help reduce risk.",
+    href: "/cybersecurity-services-new-jersey",
+  },
+  {
+    icon: Server,
+    title: "Backup and recovery support",
+    body: "Protection for important data and support for recovery planning when something goes wrong.",
+    href: "/backup-disaster-recovery-new-jersey",
+  },
+  {
+    icon: PhoneCall,
+    title: "Vendor coordination",
+    body: "Help working with internet providers, software vendors, phone providers, and other third parties when needed.",
+    href: "/services/managed-it",
+  },
+  {
+    icon: ClipboardList,
+    title: "Guidance and recommendations",
+    body: "Practical advice to help improve your environment over time, not just keep it running day to day.",
+    href: "/services/managed-it/assessment",
+  },
 ];
 
 const faqs = [
@@ -298,42 +339,34 @@ export default function NationwideITSupportPage() {
         </div>
       </Section>
 
-      {/* How it works */}
+      {/* How SeedTech Works */}
       <Section theme="light">
         <SectionHeader
-          eyebrow="How It Works"
-          title="Seamless IT Support From Coast to Coast"
-          description="Getting started is simple — and the transition is designed to be low-disruption."
+          eyebrow="How SeedTech Works"
+          title="A Support Process Designed to Actually Improve Things"
+          description="We do not just close tickets — we investigate, document, and improve your environment over time."
           theme="light"
         />
-        <div className="mx-auto max-w-3xl">
-          <div className="space-y-8">
-            {[
-              {
-                step: "01",
-                title: "Assessment",
-                body: "We audit your current IT environment — devices, security posture, vendor relationships, and pain points. This happens entirely remotely via our management tools.",
-              },
-              {
-                step: "02",
-                title: "Onboarding",
-                body: "We deploy monitoring agents, security tools, and backup configurations to every device. Your team gets introduced to our help desk and support process.",
-              },
-              {
-                step: "03",
-                title: "Ongoing support",
-                body: "Proactive monitoring runs 24/7. Your team contacts us directly for help. We maintain documentation, run patching cycles, and continuously improve your environment.",
-              },
-            ].map((s) => (
-              <div key={s.step} className="flex gap-6">
-                <span className="font-display text-[3rem] leading-none text-seed-600/20 shrink-0">{s.step}</span>
-                <div className="pt-2">
-                  <h3 className="font-display text-card-title text-dark-base mb-2">{s.title}</h3>
-                  <p className="text-body-sm text-dark-base/60 leading-relaxed">{s.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <FixingItRightTabs />
+      </Section>
+
+      {/* What's Included */}
+      <Section>
+        <SectionHeader
+          eyebrow="What's Included"
+          title="Managed IT Support Built Around the Day-to-Day Needs of Your Business"
+          description="Our managed IT services are designed to cover the core pieces most businesses need to stay supported, secure, and productive."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {includedCards.map((card) => (
+            <Link key={card.title} href={card.href} className="group">
+              <LiquidGlassCard className="p-7 h-full transition-all duration-200 group-hover:ring-1 group-hover:ring-white/20">
+                <IconBox icon={card.icon} variant="gradient" className="mb-4" />
+                <CardTitle className="mb-2 group-hover:text-seed-300 transition-colors">{card.title}</CardTitle>
+                <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
+              </LiquidGlassCard>
+            </Link>
+          ))}
         </div>
       </Section>
 
