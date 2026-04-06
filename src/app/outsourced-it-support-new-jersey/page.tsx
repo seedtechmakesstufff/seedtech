@@ -73,31 +73,37 @@ const whatYouGet = [
     icon: Headphones,
     title: "Unlimited help desk",
     body: "Your team calls and reaches a real technician. Password resets, email problems, software issues, and network outages — handled same-day, no ticket limits, no per-incident charges.",
+    href: "/help-desk-services-new-jersey",
   },
   {
     icon: Monitor,
     title: "24/7 monitoring and alerting",
     body: "NinjaOne monitors every endpoint, server, and network device in your environment around the clock. We're alerted to issues before your team notices them.",
+    href: "/managed-it-services-new-jersey",
   },
   {
     icon: Shield,
     title: "Full cybersecurity stack",
     body: "SentinelOne endpoint protection, automated patching, MFA enforcement, access controls, and employee offboarding security. Layered protection, not just antivirus.",
+    href: "/cybersecurity-services-new-jersey",
   },
   {
     icon: Wrench,
     title: "On-site support",
     body: "Hardware swaps, network work, office moves, and hands-on troubleshooting. SeedCare Plus and Pro plans include monthly on-site hours for issues that need a physical presence.",
+    href: "/it-support-new-jersey",
   },
   {
     icon: Laptop,
     title: "Employee onboarding and offboarding",
     body: "New hire laptop configured, accounts created, security enrolled. Departing employee accounts disabled, access revoked, data transferred. Same-day, every time.",
+    href: "/services/managed-it/onboarding",
   },
   {
     icon: BarChart3,
     title: "Vendor management",
     body: "ISPs, phone systems, software vendors, hardware warranties. We handle the calls, the holds, and the follow-ups so your team can focus on the work that actually matters.",
+    href: "/services/managed-it",
   },
 ];
 
@@ -261,11 +267,13 @@ export default function OutsourcedITSupportNJPage() {
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {whatYouGet.map((card) => (
-            <LiquidGlassCard key={card.title} className="p-7">
-              <IconBox icon={card.icon} variant="gradient" className="mb-4" />
-              <CardTitle className="mb-2">{card.title}</CardTitle>
-              <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
-            </LiquidGlassCard>
+            <Link key={card.title} href={card.href} className="group">
+              <LiquidGlassCard className="p-7 h-full transition-all duration-200 group-hover:ring-1 group-hover:ring-white/20">
+                <IconBox icon={card.icon} variant="gradient" className="mb-4" />
+                <CardTitle className="mb-2 group-hover:text-seed-300 transition-colors">{card.title}</CardTitle>
+                <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
+              </LiquidGlassCard>
+            </Link>
           ))}
         </div>
       </Section>

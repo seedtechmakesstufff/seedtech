@@ -51,31 +51,37 @@ const supportTypes = [
     icon: Headphones,
     title: "Remote help desk",
     body: "Your team calls or emails, and a real person picks up. We resolve the majority of issues remotely within the first session — no ticket queues, no phone trees.",
+    href: "/help-desk-services-new-jersey",
   },
   {
     icon: Wrench,
     title: "On-site support",
     body: "Some issues need hands on the hardware. SeedCare Plus and Pro include monthly on-site hours for network work, hardware swaps, and office moves.",
+    href: "/services/managed-it/plans",
   },
   {
     icon: Monitor,
     title: "New employee setup",
     body: "Laptop configured, accounts created, security enrolled, access provisioned — ready on day one. We handle the full onboarding workflow so your team doesn't have to.",
+    href: "/services/managed-it/onboarding",
   },
   {
     icon: Shield,
     title: "Security & compliance",
     body: "SentinelOne on every endpoint, automated patching, enforced MFA, and access controls. Not just antivirus — actual security posture management.",
+    href: "/cybersecurity-services-new-jersey",
   },
   {
     icon: Server,
     title: "Hardware lifecycle management",
     body: "We track warranty dates, performance degradation, and end-of-life schedules. When it's time to replace something, we handle sourcing, configuration, and deployment.",
+    href: "/managed-it-services-new-jersey",
   },
   {
     icon: Phone,
     title: "Vendor management",
     body: "ISPs, phone systems, software licenses, hardware warranties. We handle the calls, the holds, and the follow-ups so you don't have to.",
+    href: "/outsourced-it-support-new-jersey",
   },
 ];
 
@@ -276,11 +282,13 @@ export default function ITSupportNJPage() {
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {supportTypes.map((card) => (
-            <LiquidGlassCard key={card.title} className="p-7">
-              <IconBox icon={card.icon} variant="gradient" className="mb-4" />
-              <CardTitle className="mb-2">{card.title}</CardTitle>
-              <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
-            </LiquidGlassCard>
+            <Link key={card.title} href={card.href} className="group">
+              <LiquidGlassCard className="p-7 h-full transition-all duration-200 group-hover:ring-1 group-hover:ring-white/20">
+                <IconBox icon={card.icon} variant="gradient" className="mb-4" />
+                <CardTitle className="mb-2 group-hover:text-seed-300 transition-colors">{card.title}</CardTitle>
+                <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
+              </LiquidGlassCard>
+            </Link>
           ))}
         </div>
       </Section>

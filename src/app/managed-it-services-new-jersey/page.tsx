@@ -75,31 +75,37 @@ const whatYouGet = [
     icon: Headphones,
     title: "Unlimited help desk support",
     body: "Your team gets a real person to call — not a phone tree. Every SeedCare plan includes unlimited remote support during business hours.",
+    href: "/help-desk-services-new-jersey",
   },
   {
     icon: Radar,
     title: "24/7 proactive monitoring",
     body: "We monitor your endpoints, servers, and network around the clock. Issues are caught and addressed before your team notices them.",
+    href: "/it-support-new-jersey",
   },
   {
     icon: Shield,
     title: "Cybersecurity protection",
     body: "SentinelOne AI-driven endpoint security on every device. Patching, access controls, and threat response — not just antivirus.",
+    href: "/cybersecurity-services-new-jersey",
   },
   {
     icon: Server,
     title: "Backup and disaster recovery",
     body: "Cloud backup with 30-day retention (Essentials) up to full image backup (Pro). If something breaks, we can restore it.",
+    href: "/backup-disaster-recovery-new-jersey",
   },
   {
     icon: PhoneCall,
     title: "Vendor coordination",
     body: "We handle your ISPs, phone providers, software vendors, and carriers. No more three-way calls or playing middleman.",
+    href: "/outsourced-it-support-new-jersey",
   },
   {
     icon: Workflow,
     title: "Strategic guidance",
     body: "Practical recommendations to improve your environment over time — hardware refresh planning, process improvements, technology roadmap.",
+    href: "/services/managed-it/assessment",
   },
 ];
 
@@ -364,11 +370,13 @@ export default function ManagedITServicesNJPage() {
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {whatYouGet.map((card) => (
-            <LiquidGlassCard key={card.title} className="p-7">
-              <IconBox icon={card.icon} variant="gradient" className="mb-4" />
-              <CardTitle className="mb-2">{card.title}</CardTitle>
-              <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
-            </LiquidGlassCard>
+            <Link key={card.title} href={card.href} className="group">
+              <LiquidGlassCard className="p-7 h-full transition-all duration-200 group-hover:ring-1 group-hover:ring-white/20">
+                <IconBox icon={card.icon} variant="gradient" className="mb-4" />
+                <CardTitle className="mb-2 group-hover:text-seed-300 transition-colors">{card.title}</CardTitle>
+                <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
+              </LiquidGlassCard>
+            </Link>
           ))}
         </div>
       </Section>

@@ -72,31 +72,37 @@ const sectionFourCards = [
     icon: Headphones,
     title: "Help desk support",
     body: "Responsive support for your users during business hours when they need help.",
+    href: "/help-desk-services-new-jersey",
   },
   {
     icon: Monitor,
     title: "Monitoring and maintenance",
     body: "Ongoing oversight of systems to catch issues early and keep devices running more reliably.",
+    href: "/managed-it-services-new-jersey",
   },
   {
     icon: Shield,
     title: "Cybersecurity protection",
     body: "Endpoint protection, patching, and best-practice safeguards to help reduce risk.",
+    href: "/cybersecurity-services-new-jersey",
   },
   {
     icon: Server,
     title: "Backup and recovery support",
     body: "Protection for important data and support for recovery planning when something goes wrong.",
+    href: "/backup-disaster-recovery-new-jersey",
   },
   {
     icon: PhoneCall,
     title: "Vendor coordination",
     body: "Help working with internet providers, software vendors, phone providers, and other third parties when needed.",
+    href: "/outsourced-it-support-new-jersey",
   },
   {
     icon: ClipboardList,
     title: "Guidance and recommendations",
     body: "Practical advice to help improve your environment over time, not just keep it running day to day.",
+    href: "/services/managed-it/assessment",
   },
 ];
 
@@ -318,11 +324,13 @@ export default function ManagedITPage() {
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionFourCards.map((card) => (
-            <LiquidGlassCard key={card.title} className="p-7">
-              <IconBox icon={card.icon} variant="gradient" className="mb-4" />
-              <CardTitle className="mb-2">{card.title}</CardTitle>
-              <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
-            </LiquidGlassCard>
+            <Link key={card.title} href={card.href} className="group">
+              <LiquidGlassCard className="p-7 h-full transition-all duration-200 group-hover:ring-1 group-hover:ring-white/20">
+                <IconBox icon={card.icon} variant="gradient" className="mb-4" />
+                <CardTitle className="mb-2 group-hover:text-seed-300 transition-colors">{card.title}</CardTitle>
+                <Body className="text-light-base/55 leading-relaxed">{card.body}</Body>
+              </LiquidGlassCard>
+            </Link>
           ))}
         </div>
       </Section>
