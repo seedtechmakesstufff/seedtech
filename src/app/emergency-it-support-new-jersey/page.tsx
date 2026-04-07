@@ -435,6 +435,42 @@ export default function EmergencyITSupportNJPage() {
           <h2 className="mb-6 font-display text-card-title text-dark-base">Related Services</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
+              href="/server-down-business"
+              className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow"
+            >
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">
+                Server Down? →
+              </h3>
+              <p className="text-body-sm text-dark-base/50">Business server outage diagnosis and emergency support.</p>
+            </Link>
+            <Link
+              href="/network-down-business"
+              className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow"
+            >
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">
+                Network Down? →
+              </h3>
+              <p className="text-body-sm text-dark-base/50">Troubleshoot network connectivity issues fast.</p>
+            </Link>
+            <Link
+              href="/company-server-down"
+              className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow"
+            >
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">
+                Company Server Down →
+              </h3>
+              <p className="text-body-sm text-dark-base/50">Emergency response when your company server fails.</p>
+            </Link>
+            <Link
+              href="/business-email-down"
+              className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow"
+            >
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">
+                Business Email Down →
+              </h3>
+              <p className="text-body-sm text-dark-base/50">Fix email outages affecting your entire company.</p>
+            </Link>
+            <Link
               href="/managed-it-services-new-jersey"
               className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow"
             >
@@ -451,24 +487,6 @@ export default function EmergencyITSupportNJPage() {
                 Free IT Assessment →
               </h3>
               <p className="text-body-sm text-dark-base/50">Find out where your environment is vulnerable before the next incident.</p>
-            </Link>
-            <Link
-              href="/services/managed-it/plans"
-              className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow"
-            >
-              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">
-                SeedCare Plans →
-              </h3>
-              <p className="text-body-sm text-dark-base/50">Flat-rate managed IT starting at $110/user/month. No contracts.</p>
-            </Link>
-            <Link
-              href="/it-support-new-jersey"
-              className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow"
-            >
-              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">
-                IT Support New Jersey →
-              </h3>
-              <p className="text-body-sm text-dark-base/50">Ongoing business IT support for companies across New Jersey.</p>
             </Link>
           </div>
         </div>

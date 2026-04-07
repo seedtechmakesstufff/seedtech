@@ -257,6 +257,22 @@ export default function ServerDownHelpPage() {
         <div className="mx-auto max-w-3xl">
           <h2 className="mb-6 font-display text-card-title text-dark-base">Related Pages</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Link href="/server-down-business" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Server Down Business →</h3>
+              <p className="text-body-sm text-dark-base/50">Business server outage diagnosis and cost analysis.</p>
+            </Link>
+            <Link href="/company-server-down" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Company Server Down →</h3>
+              <p className="text-body-sm text-dark-base/50">Emergency response when your company server fails.</p>
+            </Link>
+            <Link href="/network-down-business" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Network Down? →</h3>
+              <p className="text-body-sm text-dark-base/50">Troubleshoot network connectivity problems.</p>
+            </Link>
+            <Link href="/business-email-down" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
+              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Business Email Down →</h3>
+              <p className="text-body-sm text-dark-base/50">Fix email outages affecting your company.</p>
+            </Link>
             <Link href="/emergency-it-support-new-jersey" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
               <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Emergency IT Support NJ →</h3>
               <p className="text-body-sm text-dark-base/50">Immediate response for critical outages.</p>
@@ -264,14 +280,6 @@ export default function ServerDownHelpPage() {
             <Link href="/backup-disaster-recovery-new-jersey" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
               <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Backup & DR NJ →</h3>
               <p className="text-body-sm text-dark-base/50">Recover your data after an outage.</p>
-            </Link>
-            <Link href="/ransomware-response-new-jersey" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
-              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Ransomware Response NJ →</h3>
-              <p className="text-body-sm text-dark-base/50">Server encrypted? Don&apos;t pay the ransom.</p>
-            </Link>
-            <Link href="/managed-it-services-new-jersey" className="group rounded-2xl border border-black/[0.05] bg-white p-6 shadow-cardLight hover:shadow-lg transition-shadow">
-              <h3 className="font-display text-card-title text-dark-base mb-1 group-hover:text-seed-600 transition-colors">Managed IT Services NJ →</h3>
-              <p className="text-body-sm text-dark-base/50">Prevent outages with proactive IT.</p>
             </Link>
           </div>
         </div>

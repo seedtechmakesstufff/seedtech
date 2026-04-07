@@ -65,6 +65,10 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: "/cloud-services-new-jersey", kind: "landing" },
   { path: "/server-down-help", kind: "landing" },
   { path: "/ransomware-response-new-jersey", kind: "landing" },
+  { path: "/server-down-business", kind: "landing" },
+  { path: "/network-down-business", kind: "landing" },
+  { path: "/company-server-down", kind: "landing" },
+  { path: "/business-email-down", kind: "landing" },
 
   // ── SEO — Location pages ──
   { path: "/locations/morristown-it-support", kind: "landing" },

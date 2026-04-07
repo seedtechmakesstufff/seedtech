@@ -92,6 +92,10 @@
 |------|-------|--------|
 | Server Down Help | /server-down-help | LIVE |
 | Ransomware Response NJ | /ransomware-response-new-jersey | LIVE |
+| Server Down Business | /server-down-business | LIVE |
+| Network Down Business | /network-down-business | LIVE |
+| Company Server Down | /company-server-down | LIVE |
+| Business Email Down | /business-email-down | LIVE |
 
 ### Tier 3 — Location Pages
 

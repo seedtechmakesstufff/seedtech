@@ -62,6 +62,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/cloud-services-new-jersey`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${SITE_URL}/server-down-help`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${SITE_URL}/ransomware-response-new-jersey`, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/server-down-business`, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/network-down-business`, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/company-server-down`, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${SITE_URL}/business-email-down`, changeFrequency: "monthly", priority: 0.9 },
 
     // SEO — Location pages
     { url: `${SITE_URL}/locations/morristown-it-support`, changeFrequency: "monthly", priority: 0.8 },
