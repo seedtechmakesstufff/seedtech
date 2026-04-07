@@ -1,6 +1,7 @@
 /* ── Admin Submissions API ──
- * GET  /api/admin/submissions        — list all submissions (with optional filters)
- * PATCH /api/admin/submissions       — update submission status
+ * GET    /api/admin/submissions  — list all submissions (with optional filters)
+ * PATCH  /api/admin/submissions  — update submission status
+ * DELETE /api/admin/submissions  — delete one or many submissions
  */
 
 import { getServerSession } from "next-auth";
@@ -54,4 +55,27 @@ export async function PATCH(req: NextRequest) {
   });
 
   return NextResponse.json(updated);
+}
+
+/**
+ * DELETE /api/admin/submissions
+ * Body: { id: string } OR { ids: string[] }
+ * Deletes one submission or many in bulk.
+ */
+export async function DELETE(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await req.json();
+  const ids: string[] = body.ids ?? (body.id ? [body.id] : []);
+
+  if (ids.length === 0) {
+    return NextResponse.json({ error: "id or ids[] required" }, { status: 400 });
+  }
+
+  const result = await prisma.formSubmission.deleteMany({
+    where: { id: { in: ids } },
+  });
+
+  return NextResponse.json({ deleted: result.count });
 }
