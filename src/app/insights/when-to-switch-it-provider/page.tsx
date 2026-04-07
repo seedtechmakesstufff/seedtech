@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "When to Switch IT Providers — SeedTech",
     description: "Warning signs your IT provider isn't working. How to evaluate, transition, and find a better fit.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "When to Switch IT Providers" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "When to Switch IT Providers" }],
   },
 };
 

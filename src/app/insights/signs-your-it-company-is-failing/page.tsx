@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Signs Your IT Company Is Failing You — SeedTech",
     description: "Red flags that your IT provider is underperforming — and what good IT support should look like.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Signs Your IT Company Is Failing You" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Signs Your IT Company Is Failing You" }],
   },
 };
 

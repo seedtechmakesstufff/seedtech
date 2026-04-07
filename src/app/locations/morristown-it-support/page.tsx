@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Morristown IT Support — SeedTech",
     description: "Managed IT services for Morristown businesses. Proactive support, cybersecurity, and cloud management from a local NJ provider.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Morristown IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Morristown IT Support — SeedTech" }],
   },
 };
 

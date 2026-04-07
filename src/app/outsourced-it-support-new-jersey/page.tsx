@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "Outsourced IT Support New Jersey — SeedTech",
     description:
       "Outsource your IT to SeedTech. Full help desk, cybersecurity, monitoring, and vendor management — flat-rate pricing, no contracts, real technicians.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Outsourced IT Support New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Outsourced IT Support New Jersey — SeedTech" }],
   },
 };
 

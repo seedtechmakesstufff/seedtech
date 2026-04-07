@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Chester IT Support — SeedTech",
     description: "Managed IT services for Chester businesses. Local NJ provider with proactive support and no contracts.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Chester IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Chester IT Support — SeedTech" }],
   },
 };
 

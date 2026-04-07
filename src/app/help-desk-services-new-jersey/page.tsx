@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "IT Help Desk Services New Jersey — SeedTech",
     description:
       "Unlimited IT help desk for NJ businesses. Call and reach a real technician — password resets, email issues, software problems, network outages. Same-day resolution.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "IT Help Desk Services New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "IT Help Desk Services New Jersey — SeedTech" }],
   },
 };
 

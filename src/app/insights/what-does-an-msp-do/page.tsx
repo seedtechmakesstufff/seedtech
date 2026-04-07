@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "What Does an MSP Do? — SeedTech",
     description: "What a managed service provider actually does, what's included, and how to tell if you need one.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "What Does an MSP Do?" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "What Does an MSP Do?" }],
   },
 };
 

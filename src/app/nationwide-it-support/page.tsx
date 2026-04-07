@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: "Nationwide IT Support Services — SeedTech",
     description:
       "Remote and on-site IT support for businesses across the U.S. — proactive monitoring, cybersecurity, help desk, and cloud management from SeedTech.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Nationwide IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Nationwide IT Support — SeedTech" }],
   },
 };
 

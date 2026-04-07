@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "Emergency IT Support New Jersey — SeedTech",
     description:
       "When your business systems are down, every minute counts. SeedTech provides rapid-response emergency IT support across New Jersey.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Emergency IT Support New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Emergency IT Support New Jersey — SeedTech" }],
   },
 };
 

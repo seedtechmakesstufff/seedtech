@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "Data Security for Law Firms in New Jersey — SeedTech",
     description:
       "Protect privileged client data with encryption, access controls, verified backup, and retention policies designed for NJ law firms.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Data Security for Law Firms NJ — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Data Security for Law Firms NJ — SeedTech" }],
   },
 };
 

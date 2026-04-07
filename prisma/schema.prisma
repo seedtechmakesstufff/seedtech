@@ -56,13 +56,14 @@ model Membership {
 }
 
 model Site {
-  id               String                  @id @default(cuid())
-  tenantId         String
-  name             String
-  slug             String
-  domain           String
-  siteUrl          String
-  tenant           Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                String                  @id @default(cuid())
+  tenantId          String
+  name              String
+  slug              String
+  domain            String
+  siteUrl           String
+  defaultOgImageUrl String?
+  tenant            Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   businessProfile  BusinessProfile?
   industryConfig   IndustryConfig?
   pages            SitePage[]

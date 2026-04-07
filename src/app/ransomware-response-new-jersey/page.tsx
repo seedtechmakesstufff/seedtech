@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "Ransomware Response New Jersey — SeedTech",
     description:
       "Emergency ransomware response for NJ businesses. Containment, recovery from backup, and SentinelOne-powered prevention. Don't pay — call (914) 362-8889.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Ransomware Response New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Ransomware Response New Jersey — SeedTech" }],
   },
 };
 

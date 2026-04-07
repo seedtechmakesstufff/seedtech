@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "Backup & Disaster Recovery New Jersey — SeedTech",
     description:
       "Monitored cloud backup and disaster recovery for NJ businesses. File-level, image-level, and tested recovery plans — included in SeedCare plans.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Backup & Disaster Recovery New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Backup & Disaster Recovery New Jersey — SeedTech" }],
   },
 };
 

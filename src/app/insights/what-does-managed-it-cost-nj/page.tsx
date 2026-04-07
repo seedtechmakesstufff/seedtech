@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "What Does Managed IT Cost in NJ? — SeedTech",
     description: "Managed IT pricing breakdown for New Jersey businesses. Per-user costs, what's included, and what to watch out for.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "What Does Managed IT Cost in NJ?" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "What Does Managed IT Cost in NJ?" }],
   },
 };
 

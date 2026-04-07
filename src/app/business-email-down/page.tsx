@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "Business Email Down? — SeedTech",
     description:
       "Your company email is down and no one can send or receive messages. Here's how to diagnose the problem and get expert help restoring email service.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Business Email Down — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Business Email Down — SeedTech" }],
   },
 };
 

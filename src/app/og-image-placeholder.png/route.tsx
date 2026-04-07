@@ -1,6 +1,6 @@
-/* ── Default OG Image (1200×630) ──
- * Generates a branded Open Graph image at /og-image.png
- * Used as the default share thumbnail for all pages.
+/* ── System Placeholder OG Image (1200×630) ──
+ * Generates a branded Open Graph image at /og-image-placeholder.png
+ * Tier 3 fallback: used when no page-level or site-wide default OG image is set.
  */
 
 import { ImageResponse } from "next/og";

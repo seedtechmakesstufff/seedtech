@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Morris County IT Support — SeedTech",
     description: "Managed IT services for Morris County businesses. Monitoring, cybersecurity, cloud management — local provider, no contracts.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Morris County IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Morris County IT Support — SeedTech" }],
   },
 };
 

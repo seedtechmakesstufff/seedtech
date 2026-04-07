@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "Manhattan IT Support — SeedTech",
     description:
       "Managed IT services for Manhattan businesses. Proactive support, cybersecurity, and cloud management from SeedTech.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Manhattan IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Manhattan IT Support — SeedTech" }],
   },
 };
 

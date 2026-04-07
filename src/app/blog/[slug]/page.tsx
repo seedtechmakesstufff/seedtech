@@ -9,7 +9,7 @@ import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { AnimatedH1 } from "@/components/kit";
 import { ArticleJsonLd, BreadcrumbJsonLd, PersonJsonLd } from "@/components/JsonLd";
-import { getPageMetadataRecord } from "@/lib/page-metadata";
+import { getPageMetadataRecord, resolveOgImage } from "@/lib/page-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +26,7 @@ export async function generateMetadata({
 
   const title = dbMeta?.title || post.metaTitle || post.title;
   const description = dbMeta?.description || post.metaDescription || post.excerpt;
+  const ogImage = await resolveOgImage(dbMeta?.ogImageUrl);
 
   return {
     title,
@@ -36,7 +37,7 @@ export async function generateMetadata({
       description: dbMeta?.ogDescription || description,
       type: "article",
       publishedTime: post.publishedAt || undefined,
-      ...(dbMeta?.ogImageUrl ? { images: [{ url: dbMeta.ogImageUrl }] } : {}),
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     ...(dbMeta?.noIndex || dbMeta?.noFollow
       ? { robots: { index: !dbMeta.noIndex, follow: !dbMeta.noFollow } }

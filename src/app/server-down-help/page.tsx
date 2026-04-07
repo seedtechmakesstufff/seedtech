@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title: "Server Down? Here's What to Do — SeedTech",
     description:
       "Step-by-step guidance when your server goes down. What to check first, common causes, and how to get emergency server support. Call (914) 362-8889.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Server Down Help — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Server Down Help — SeedTech" }],
   },
 };
 

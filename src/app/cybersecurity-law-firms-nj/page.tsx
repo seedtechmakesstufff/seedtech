@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     title: "Cybersecurity for Law Firms in New Jersey — SeedTech",
     description:
       "Layered cybersecurity for NJ law firms. Endpoint protection, email security, access controls, and incident response built for attorney-client privilege.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Cybersecurity for Law Firms NJ — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Cybersecurity for Law Firms NJ — SeedTech" }],
   },
 };
 

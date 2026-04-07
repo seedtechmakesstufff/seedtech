@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Settings,
   CheckCircle2,
@@ -20,6 +20,11 @@ import {
   Mail,
   Clock,
   Eye,
+  Image as ImageIcon,
+  Upload,
+  Trash2,
+  RotateCcw,
+  Palette,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -28,7 +33,7 @@ import Link from "next/link";
    Types
    ═══════════════════════════════════════════════════════════════ */
 
-type Section = "connections" | "automation";
+type Section = "connections" | "defaults" | "automation";
 
 interface ConnectionStatus {
   status: "connected" | "invalid" | "rate_limited" | "missing" | "disconnected" | "error" | "untested";
@@ -51,6 +56,7 @@ const STATUS_CONFIG = {
 
 const NAV_SECTIONS: { key: Section; label: string; icon: React.ComponentType<{ className?: string }>; desc: string }[] = [
   { key: "connections", label: "Connections", icon: Globe, desc: "API keys & integrations" },
+  { key: "defaults", label: "Defaults", icon: Palette, desc: "OG image & site-wide SEO" },
   { key: "automation", label: "Automation & Reports", icon: CalendarClock, desc: "Cron, email & IndexNow" },
 ];
 
@@ -143,6 +149,7 @@ export default function SeoSettingsPage() {
         {/* Content area */}
         <div className="flex-1 min-w-0">
           {section === "connections" && <ConnectionsSection envVars={envVars} envLoaded={envLoaded} />}
+          {section === "defaults" && <DefaultsSection />}
           {section === "automation" && <AutomationSection envVars={envVars} />}
         </div>
       </div>
@@ -353,6 +360,214 @@ GOOGLE_SEARCH_CONSOLE_SITE=https://yourdomain.com`}</pre>
           <p className="text-xs text-white/25 mt-4">
             Set variables in <code className="bg-white/[0.06] px-1 py-0.5 rounded">.env.local</code> (dev) or Vercel Settings → Environment Variables (production). Restart/redeploy to apply.
           </p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION: Defaults (OG Image & site-wide SEO)
+   ═══════════════════════════════════════════════════════════════ */
+
+function DefaultsSection() {
+  const [defaultOgImageUrl, setDefaultOgImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [msg, setMsg] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const fetchDefault = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/seo/settings/default-og-image");
+      const data = await res.json();
+      setDefaultOgImageUrl(data.defaultOgImageUrl ?? null);
+    } catch { /* silent */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchDefault(); }, [fetchDefault]);
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    setMsg("");
+    try {
+      const fd = new FormData();
+      fd.append("ogImage", file);
+      const res = await fetch("/api/admin/seo/settings/default-og-image", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      setDefaultOgImageUrl(data.defaultOgImageUrl);
+      setMsg("Default OG image saved!");
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Upload failed");
+    }
+    setUploading(false);
+  };
+
+  const handleRemove = async () => {
+    setUploading(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/admin/seo/settings/default-og-image", { method: "DELETE" });
+      if (res.ok) {
+        setDefaultOgImageUrl(null);
+        setMsg("Default OG image removed — pages will use system placeholder.");
+      }
+    } catch {
+      setMsg("Failed to remove image");
+    }
+    setUploading(false);
+  };
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleUpload(file);
+    e.target.value = "";
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleUpload(file);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Default OG Image */}
+      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-seed-500/10 flex items-center justify-center">
+            <ImageIcon className="w-4 h-4 text-seed-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-white">Default OG Image</h3>
+            <p className="text-xs text-white/35">Site-wide fallback Open Graph image for social sharing. Used when a page doesn&apos;t have its own OG image.</p>
+          </div>
+          {defaultOgImageUrl ? (
+            <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">Set</span>
+          ) : (
+            <span className="text-xs bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/20">Using Placeholder</span>
+          )}
+        </div>
+        <div className="p-6 space-y-4">
+          {/* Cascade explanation */}
+          <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06]">
+            <p className="text-xs font-medium text-white/50 mb-2">OG Image Priority (3-tier cascade)</p>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-5 h-5 rounded-full bg-seed-500/20 text-seed-400 flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
+                <span className="text-white/60">Page-level OG image</span>
+                <span className="text-white/25 ml-auto">per-page in Metadata tab</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
+                <span className="text-white/60">Site-wide default</span>
+                <span className="text-white/25 ml-auto">set below ↓</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-5 h-5 rounded-full bg-white/[0.08] text-white/40 flex items-center justify-center text-[10px] font-bold shrink-0">3</span>
+                <span className="text-white/40">System placeholder</span>
+                <span className="text-white/20 ml-auto">/og-image-placeholder.png</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Upload area */}
+          <div>
+            <label className="text-xs font-medium text-white/50 flex items-center gap-1.5 mb-2">
+              <Upload className="w-3 h-3" />Site-Wide Default
+              <span className="ml-auto text-[10px] text-white/20">1200×630 recommended</span>
+            </label>
+
+            {loading ? (
+              <div className="flex items-center justify-center h-36 bg-white/[0.02] rounded-lg border border-white/[0.06]">
+                <Loader2 className="w-5 h-5 text-white/20 animate-spin" />
+              </div>
+            ) : defaultOgImageUrl ? (
+              <div className="relative rounded-lg overflow-hidden border border-white/[0.08]">
+                <img
+                  src={defaultOgImageUrl}
+                  alt="Default OG image preview"
+                  className="w-full h-44 object-cover"
+                />
+                <div className="absolute top-2 right-2 flex gap-1.5">
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploading}
+                    className="p-1.5 rounded-md bg-black/70 text-white/70 hover:text-white transition-colors"
+                    title="Replace image"
+                  >
+                    {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={handleRemove}
+                    disabled={uploading}
+                    className="p-1.5 rounded-md bg-black/70 text-red-400/70 hover:text-red-400 transition-colors"
+                    title="Remove image"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={onDrop}
+                onClick={() => fileRef.current?.click()}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-3 h-36 rounded-lg border-2 border-dashed cursor-pointer transition-all",
+                  dragOver
+                    ? "border-seed-500/50 bg-seed-500/[0.04]"
+                    : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.15] hover:bg-white/[0.03]"
+                )}
+              >
+                <Upload className="w-5 h-5 text-white/30" />
+                <div className="text-center">
+                  <p className="text-xs text-white/50">
+                    <span className="text-seed-400 font-medium">Click to upload</span> or drag & drop
+                  </p>
+                  <p className="text-[10px] text-white/25 mt-0.5">PNG, JPEG, WebP — max 5 MB · 1200×630px</p>
+                </div>
+              </div>
+            )}
+
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              className="hidden"
+              onChange={onFileChange}
+            />
+          </div>
+
+          {/* Status message */}
+          {msg && (
+            <div className={cn("flex items-center gap-2 text-xs", msg.includes("fail") || msg.includes("error") ? "text-red-400" : "text-green-400")}>
+              {msg.includes("fail") || msg.includes("error") ? <XCircle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+              {msg}
+            </div>
+          )}
+
+          {/* Placeholder preview */}
+          {!defaultOgImageUrl && !loading && (
+            <div className="bg-dark-base rounded-lg px-4 py-3 border border-white/[0.06]">
+              <p className="text-xs text-white/40 mb-2">Current fallback: System Placeholder</p>
+              <div className="rounded-lg overflow-hidden border border-white/[0.06]">
+                <img
+                  src="/og-image-placeholder.png"
+                  alt="System placeholder"
+                  className="w-full h-28 object-cover opacity-60"
+                />
+              </div>
+              <p className="text-[10px] text-white/25 mt-2">
+                This auto-generated branded image is used when no default is uploaded. Upload a custom image above for better social sharing.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>

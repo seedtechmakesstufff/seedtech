@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "Network Down at Your Business? — SeedTech",
     description:
       "Network issues affecting your business? Troubleshoot connectivity problems, identify root causes, and get expert IT support to restore your network.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Network Down Business — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Network Down Business — SeedTech" }],
   },
 };
 

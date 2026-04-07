@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: "Managed Service Provider New Jersey — SeedTech MSP",
     description:
       "SeedTech is a New Jersey MSP delivering complete managed IT services — help desk, cybersecurity, monitoring, and on-site support. No contracts, per-user pricing.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Managed Service Provider New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Managed Service Provider New Jersey — SeedTech" }],
   },
 };
 

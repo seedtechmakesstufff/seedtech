@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: "Cybersecurity Services New Jersey — SeedTech",
     description:
       "Layered cybersecurity for NJ businesses. AI-driven endpoint security, automated patching, MFA enforcement, and access controls — not just antivirus.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Cybersecurity Services New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Cybersecurity Services New Jersey — SeedTech" }],
   },
 };
 

@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "IT Support New Jersey — SeedTech",
     description:
       "Fast, reliable IT support for New Jersey businesses. Unlimited help desk, proactive monitoring, on-site support — flat-rate pricing with no contracts.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "IT Support New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "IT Support New Jersey — SeedTech" }],
   },
 };
 

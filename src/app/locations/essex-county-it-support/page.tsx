@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Essex County IT Support — SeedTech",
     description: "Managed IT services for Essex County businesses. Proactive monitoring, cybersecurity, help desk, and cloud management.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Essex County IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Essex County IT Support — SeedTech" }],
   },
 };
 

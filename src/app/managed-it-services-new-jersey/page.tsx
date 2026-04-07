@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: "Managed IT Services New Jersey — SeedTech",
     description:
       "Proactive managed IT support for New Jersey businesses. 24/7 monitoring, unlimited help desk, cybersecurity, and backup — flat-rate, no contracts.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Managed IT Services New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Managed IT Services New Jersey — SeedTech" }],
   },
 };
 

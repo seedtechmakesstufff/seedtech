@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "IT Support for Construction Companies NJ — SeedTech",
     description:
       "Managed IT for NJ construction firms. Job-site tech, project management support, mobile device security, and a help desk that understands the trades.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "IT Support for Construction Companies NJ — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "IT Support for Construction Companies NJ — SeedTech" }],
   },
 };
 

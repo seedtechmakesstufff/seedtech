@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Somerset County IT Support — SeedTech",
     description: "Managed IT services for Somerset County businesses. Local provider, proactive support, cybersecurity, and cloud management.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Somerset County IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Somerset County IT Support — SeedTech" }],
   },
 };
 

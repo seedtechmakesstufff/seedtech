@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "IT Compliance for Law Firms in New Jersey — SeedTech",
     description:
       "Meet your ethical and regulatory IT obligations. ABA tech competence, NJ bar requirements, and audit-ready documentation for law firms.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "IT Compliance for Law Firms NJ — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "IT Compliance for Law Firms NJ — SeedTech" }],
   },
 };
 

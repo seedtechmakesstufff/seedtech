@@ -27,6 +27,7 @@ export async function GET() {
     crawlRunCount,
     snapshotCount,
     competitorCount,
+    siteRecord,
   ] = await Promise.all([
     prisma.businessProfile.findUnique({ where: { siteId }, select: { companyName: true, primaryService: true, targetAudience: true, toneOfVoice: true } }),
     prisma.contextNode.count({ where: { siteId } }),
@@ -41,6 +42,7 @@ export async function GET() {
     prisma.seoCrawlRun.count({ where: { siteId } }).catch(() => 0),
     prisma.seoSnapshot.count({ where: { siteId } }).catch(() => 0),
     prisma.competitorDomain.count({ where: { siteId } }).catch(() => 0),
+    prisma.site.findUnique({ where: { id: siteId }, select: { defaultOgImageUrl: true } }),
   ]);
 
   // Check GSC connection via env
@@ -105,6 +107,14 @@ export async function GET() {
       complete: gscConnected,
       href: "/admin/seo/settings",
       detail: gscConnected ? "Connected" : null,
+    },
+    {
+      id: "default-og-image",
+      label: "Default OG Image",
+      description: "Site-wide fallback image for social sharing (1200×630)",
+      complete: !!siteRecord?.defaultOgImageUrl,
+      href: "/admin/seo/settings",
+      detail: siteRecord?.defaultOgImageUrl ? "Uploaded" : null,
     },
     {
       id: "metadata",

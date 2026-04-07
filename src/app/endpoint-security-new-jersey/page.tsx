@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     title: "Endpoint Security New Jersey — SeedTech",
     description:
       "AI-powered endpoint protection for NJ businesses. SentinelOne on every device — laptops, desktops, servers. Real-time detection, automated rollback, zero-day defense.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Endpoint Security New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Endpoint Security New Jersey — SeedTech" }],
   },
 };
 

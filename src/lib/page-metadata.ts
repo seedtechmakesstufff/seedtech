@@ -4,6 +4,11 @@
  * No code-level fallbacks. If a DB record is missing, the page renders with a
  * visible "[MISSING METADATA]" title so it gets caught immediately.
  *
+ * OG Image 3-tier cascade:
+ *   1. Page-level ogImageUrl (per-page in admin)
+ *   2. Site-wide defaultOgImageUrl (SEO Settings → Defaults)
+ *   3. System placeholder (/og-image-placeholder.png — generated branded image)
+ *
  * Usage in any page.tsx:
  *
  *   import { buildMetadata } from "@/lib/page-metadata";
@@ -14,6 +19,38 @@
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 import type { Metadata } from "next";
+
+/** System placeholder — always available, generated at build time */
+const OG_PLACEHOLDER = "/og-image-placeholder.png";
+
+/**
+ * Fetch the site-wide default OG image URL from the Site record.
+ * Returns null if not set.
+ */
+async function getSiteDefaultOgImage(siteId: string = DEFAULT_SITE_ID): Promise<string | null> {
+  try {
+    const site = await prisma.site.findUnique({
+      where: { id: siteId },
+      select: { defaultOgImageUrl: true },
+    });
+    return site?.defaultOgImageUrl ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resolve OG image using the 3-tier cascade:
+ *   1. Page-level → 2. Site default → 3. System placeholder
+ */
+export async function resolveOgImage(
+  pageOgImageUrl: string | null | undefined,
+  siteId: string = DEFAULT_SITE_ID,
+): Promise<string> {
+  if (pageOgImageUrl) return pageOgImageUrl;
+  const siteDefault = await getSiteDefaultOgImage(siteId);
+  return siteDefault || OG_PLACEHOLDER;
+}
 
 /**
  * Fetch PageMetadata record for a given path.
@@ -52,7 +89,7 @@ export function buildMetadata(path: string) {
     const description = record.description || undefined;
     const ogTitle = record.ogTitle || title;
     const ogDescription = record.ogDescription || description;
-    const ogImage = record.ogImageUrl || undefined;
+    const ogImage = await resolveOgImage(record.ogImageUrl);
     const canonical = record.canonical || path;
     const noIndex = record.noIndex ?? false;
     const noFollow = record.noFollow ?? false;

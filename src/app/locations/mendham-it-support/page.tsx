@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Mendham IT Support — SeedTech",
     description: "Managed IT services for Mendham businesses. Local provider, proactive support, no contracts.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Mendham IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Mendham IT Support — SeedTech" }],
   },
 };
 

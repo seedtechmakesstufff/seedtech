@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "Server Down at Your Business? — SeedTech",
     description:
       "Your company server is down and your team can't work. Here's how to check server status, common causes, and how to get immediate help.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Server Down Business — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Server Down Business — SeedTech" }],
   },
 };
 

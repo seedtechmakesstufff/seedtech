@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "Premium IT support, web development, and SEO solutions that help businesses grow. Based in New Jersey & California.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image-placeholder.png",
         width: 1200,
         height: 630,
         alt: "SeedTech — IT Support, Web Development & SEO",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     title: "SeedTech | Premium IT Support, Web Development & SEO",
     description:
       "Premium IT support, web development, and SEO solutions that help businesses grow.",
-    images: ["/og-image.png"],
+    images: ["/og-image-placeholder.png"],
   },
   robots: {
     index: true,

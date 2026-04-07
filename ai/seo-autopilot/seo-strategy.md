@@ -15,7 +15,8 @@
 - `description` — include geo keyword, CTA trigger, phone number if urgent. 155 chars max.
 - `alternates.canonical` — relative path (resolved by `metadataBase` in layout.tsx)
 - `openGraph.title` / `openGraph.description` — slightly different wording from meta
-- `openGraph.images` — explicit `[{ url: "/og-image.png", width: 1200, height: 630, alt }]`
+- `openGraph.images` — explicit `[{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt }]`
+  - **OG Image 3-tier cascade:** page-level → site default (SEO Settings) → `/og-image-placeholder.png`
 
 ### JSON-LD (3 schemas per page)
 1. **Service or Article** — `@type: Service` for service/location pages, `@type: Article` for insights

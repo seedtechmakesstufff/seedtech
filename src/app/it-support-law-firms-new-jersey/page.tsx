@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: "IT Support for Law Firms in New Jersey — SeedTech",
     description:
       "Managed IT services built for NJ law firms. Secure infrastructure, compliance-ready systems, and a help desk that answers the phone.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "IT Support for Law Firms NJ — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "IT Support for Law Firms NJ — SeedTech" }],
   },
 };
 

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Bernardsville IT Support — SeedTech",
     description: "Managed IT services for Bernardsville businesses. Local NJ provider, proactive support, no long-term contracts.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bernardsville IT Support — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Bernardsville IT Support — SeedTech" }],
   },
 };
 

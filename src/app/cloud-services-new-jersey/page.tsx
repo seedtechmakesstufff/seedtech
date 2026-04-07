@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "Cloud Services New Jersey — SeedTech",
     description:
       "Microsoft 365 management, cloud migration, and license optimization for NJ businesses. Practical cloud support — not enterprise complexity.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Cloud Services New Jersey — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Cloud Services New Jersey — SeedTech" }],
   },
 };
 

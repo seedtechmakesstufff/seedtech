@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "Company Server Down? Emergency Response — SeedTech",
     description:
       "Your company server is down and your entire organization is affected. Get emergency support, fast diagnosis, and a plan to prevent it from happening again.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Company Server Down — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "Company Server Down — SeedTech" }],
   },
 };
 

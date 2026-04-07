@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "HIPAA Compliant IT Support NJ — SeedTech",
     description:
       "Healthcare IT for NJ medical practices. HIPAA-ready security controls, patient data protection, EHR support, and audit-ready documentation.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "HIPAA Compliant IT Support NJ — SeedTech" }],
+    images: [{ url: "/og-image-placeholder.png", width: 1200, height: 630, alt: "HIPAA Compliant IT Support NJ — SeedTech" }],
   },
 };
 
