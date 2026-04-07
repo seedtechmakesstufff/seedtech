@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -83,6 +84,23 @@ const NAV_ITEMS: NavItem[] = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch("/api/admin/submissions/unread");
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadCount(data.count || 0);
+        }
+      } catch { /* silent */ }
+    };
+    fetchUnread();
+    // Poll every 60s for new submissions
+    const interval = setInterval(fetchUnread, 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-dark-raised border-r border-white/[0.06] shrink-0">
@@ -122,6 +140,11 @@ export function AdminSidebar() {
               >
                 <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-seed-400" : "text-white/40")} />
                 <span className="flex-1">{item.label}</span>
+                {item.label === "Submissions" && unreadCount > 0 && (
+                  <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
                 {item.children && (
                   <ChevronDown
                     className={cn(

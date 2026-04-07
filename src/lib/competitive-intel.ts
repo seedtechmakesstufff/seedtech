@@ -163,7 +163,7 @@ async function fetchPageHtml(url: string): Promise<string | null> {
 /**
  * Fetch and analyze a single competitor page.
  */
-async function analyzeCompetitorPage(
+export async function analyzeCompetitorPage(
   url: string,
   siteConfig?: SiteScoringConfig
 ): Promise<CompetitorPageResult | null> {
@@ -326,7 +326,7 @@ export async function analyzeCompetitor(
  * Discover competitor pages from their sitemap.
  * Falls back to homepage if sitemap isn't available.
  */
-async function discoverCompetitorPages(domain: string, maxPages: number = 20): Promise<string[]> {
+export async function discoverCompetitorPages(domain: string, maxPages: number = 20): Promise<string[]> {
   const urls: string[] = [];
   const baseUrl = `https://${domain}`;
 

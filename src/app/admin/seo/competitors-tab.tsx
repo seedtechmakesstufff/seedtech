@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Swords,
   Plus,
@@ -16,8 +16,13 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
+  X,
+  Check,
+  Radar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Lottie from "lottie-react";
+import progressAnimation from "@/../public/lotties/progress.json";
 
 /* ── Types ── */
 
@@ -84,6 +89,21 @@ export default function CompetitorsTab() {
   const [expandedGaps, setExpandedGaps] = useState(false);
   const [expandedKeywordGaps, setExpandedKeywordGaps] = useState(false);
 
+  // ── Analysis Modal State ──
+  const [analysisModal, setAnalysisModal] = useState<{ id: string; name: string; domain: string } | null>(null);
+  const [analysisRunning, setAnalysisRunning] = useState(false);
+  const [analysisDone, setAnalysisDone] = useState(false);
+  const [analysisLog, setAnalysisLog] = useState<Array<{
+    url: string;
+    status: "discovering" | "analyzing" | "done" | "error";
+    title?: string;
+    aiVisScore?: number;
+    eeatScore?: number;
+    error?: string;
+  }>>([]);
+  const [analysisStats, setAnalysisStats] = useState({ total: 0, analyzed: 0, errors: 0, avgScore: 0 });
+  const analysisLogRef = useRef<HTMLDivElement>(null);
+
   const loadData = useCallback(async () => {
     try {
       const [compRes, analysisRes] = await Promise.all([
@@ -120,26 +140,105 @@ export default function CompetitorsTab() {
     } catch { /* silent */ }
   };
 
-  const runAnalysis = async (competitorId: string) => {
-    setAnalyzing(competitorId);
+  const openAnalysisModal = (comp: CompetitorDomain) => {
+    setAnalysisModal({ id: comp.id, name: comp.name, domain: comp.domain });
+    setAnalysisRunning(false);
+    setAnalysisDone(false);
+    setAnalysisLog([]);
+    setAnalysisStats({ total: 0, analyzed: 0, errors: 0, avgScore: 0 });
+  };
+
+  const runAnalysis = async () => {
+    if (!analysisModal) return;
+    setAnalysisRunning(true);
+    setAnalysisDone(false);
+    setAnalysisLog([]);
+    setAnalysisStats({ total: 0, analyzed: 0, errors: 0, avgScore: 0 });
+    setAnalyzing(analysisModal.id);
+
     try {
-      await fetch("/api/admin/seo/competitors/analysis", {
+      const res = await fetch("/api/admin/seo/competitors/analysis/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ competitorId }),
+        body: JSON.stringify({ competitorId: analysisModal.id }),
       });
-      loadData();
-    } catch { /* silent */ }
-    finally { setAnalyzing(null); }
+
+      if (!res.ok || !res.body) {
+        setAnalysisLog([{ url: analysisModal.domain, status: "error", error: "Failed to start analysis" }]);
+        setAnalysisDone(true);
+        setAnalysisRunning(false);
+        setAnalyzing(null);
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let receivedDone = false;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const event = JSON.parse(line.slice(6));
+
+            if (event.type === "discovered") {
+              setAnalysisStats((s) => ({ ...s, total: event.count }));
+            } else if (event.type === "page_start") {
+              setAnalysisLog((prev) => [...prev, { url: event.url, status: "analyzing" }]);
+              // Auto-scroll
+              setTimeout(() => analysisLogRef.current?.scrollTo({ top: analysisLogRef.current.scrollHeight, behavior: "smooth" }), 50);
+            } else if (event.type === "page_done") {
+              setAnalysisLog((prev) => prev.map((e) =>
+                e.url === event.url ? { ...e, status: "done", title: event.title, aiVisScore: event.aiVisScore, eeatScore: event.eeatScore } : e
+              ));
+              setAnalysisStats((s) => ({ ...s, analyzed: s.analyzed + 1 }));
+            } else if (event.type === "page_error") {
+              setAnalysisLog((prev) => prev.map((e) =>
+                e.url === event.url ? { ...e, status: "error", error: event.error } : e
+              ));
+              setAnalysisStats((s) => ({ ...s, errors: s.errors + 1 }));
+            } else if (event.type === "error") {
+              setAnalysisLog((prev) => [...prev, { url: "Error", status: "error", error: event.message }]);
+            } else if (event.type === "done") {
+              setAnalysisStats((s) => ({ ...s, analyzed: event.pagesAnalyzed, errors: event.errors, avgScore: event.avgScore }));
+              setAnalysisDone(true);
+              setAnalysisRunning(false);
+              receivedDone = true;
+              loadData();
+            }
+          } catch { /* skip malformed JSON */ }
+        }
+      }
+
+      if (!receivedDone) {
+        setAnalysisDone(true);
+        setAnalysisRunning(false);
+        loadData();
+      }
+    } catch {
+      setAnalysisLog((prev) => [...prev, { url: "Error", status: "error", error: "Network error" }]);
+      setAnalysisDone(true);
+      setAnalysisRunning(false);
+    } finally {
+      setAnalyzing(null);
+    }
   };
 
   const removeCompetitor = async (id: string, name: string) => {
     if (!confirm(`Remove ${name} from competitors?`)) return;
     try {
       await fetch(`/api/admin/seo/competitors`, {
-        method: "POST",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: "_remove", name: "_remove" }), // handled by deactivation
+        body: JSON.stringify({ id }),
       });
       loadData();
     } catch { /* silent */ }
@@ -247,7 +346,7 @@ export default function CompetitorsTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => runAnalysis(comp.id)}
+                    onClick={() => openAnalysisModal(comp)}
                     disabled={analyzing === comp.id}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-seed-500/10 text-seed-400 hover:bg-seed-500/20 rounded-lg transition-colors disabled:opacity-50"
                   >
@@ -329,7 +428,7 @@ export default function CompetitorsTab() {
                     <BarChart3 className="w-8 h-8 text-white/10 mx-auto mb-2" />
                     <p className="text-xs text-white/30">Not analyzed yet</p>
                     <button
-                      onClick={() => runAnalysis(comp.id)}
+                      onClick={() => openAnalysisModal(comp)}
                       disabled={analyzing === comp.id}
                       className="mt-2 text-xs text-seed-400 hover:text-seed-300"
                     >
@@ -496,6 +595,152 @@ export default function CompetitorsTab() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ═══ Analysis Modal ═══ */}
+      {analysisModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-dark-elevated border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-seed-500/10 flex items-center justify-center">
+                  <Radar className="w-4 h-4 text-seed-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Analyze {analysisModal.name}</h3>
+                  <p className="text-[11px] text-white/40">{analysisModal.domain}</p>
+                </div>
+              </div>
+              {!analysisRunning && (
+                <button onClick={() => setAnalysisModal(null)} className="text-white/30 hover:text-white transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5">
+              {/* Pre-run state */}
+              {!analysisRunning && !analysisDone && (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-seed-500/[0.04] border border-seed-500/10">
+                    <p className="text-sm text-white/70">
+                      This will crawl <strong className="text-white">{analysisModal.domain}</strong>, discover their pages from the sitemap, and score each one for AI Visibility &amp; E-E-A-T.
+                    </p>
+                    <div className="mt-3 flex items-center gap-4 text-xs text-white/40">
+                      <span className="flex items-center gap-1"><Globe className="w-3 h-3 text-seed-400" /> Sitemap discovery</span>
+                      <span className="flex items-center gap-1"><Bot className="w-3 h-3 text-seed-400" /> AI Visibility scoring</span>
+                      <span className="flex items-center gap-1"><Shield className="w-3 h-3 text-seed-400" /> E-E-A-T audit</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-white/25">Up to 15 pages will be analyzed. Each page takes ~3-4 seconds. Results are saved automatically and used for gap analysis.</p>
+                  <button
+                    onClick={runAnalysis}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium transition-colors"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    Start Analysis
+                  </button>
+                </div>
+              )}
+
+              {/* Running / Done — Log area */}
+              {(analysisRunning || analysisDone) && (
+                <div className="space-y-4">
+                  {/* Progress bar */}
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="text-white/50">
+                        {analysisDone ? "Analysis Complete" : "Analyzing pages…"}
+                      </span>
+                      <span className="text-white/30 font-mono">
+                        {analysisStats.analyzed + analysisStats.errors}/{analysisStats.total || "?"}
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all duration-500",
+                          analysisDone ? "bg-emerald-500" : "bg-seed-500"
+                        )}
+                        style={{ width: `${analysisStats.total > 0 ? ((analysisStats.analyzed + analysisStats.errors) / analysisStats.total) * 100 : 0}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Log */}
+                  <div
+                    ref={analysisLogRef}
+                    className="max-h-72 overflow-y-auto rounded-lg border border-white/[0.06] bg-black/30 divide-y divide-white/[0.03]"
+                  >
+                    {analysisLog.map((entry, i) => (
+                      <div key={i} className="px-3 py-2 flex items-start gap-2">
+                        <div className="mt-0.5 shrink-0">
+                          {entry.status === "analyzing" && <Lottie animationData={progressAnimation} loop autoplay style={{ width: 12, height: 12 }} className="shrink-0" />}
+                          {entry.status === "done" && <Check className="w-3 h-3 text-emerald-400" />}
+                          {entry.status === "error" && <X className="w-3 h-3 text-red-400" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-mono text-white/50 truncate">{entry.title || entry.url}</p>
+                          {entry.status === "done" && (
+                            <div className="flex items-center gap-3 mt-0.5 text-[10px] text-white/30">
+                              <span>AI: <span className={cn("font-medium", scoreGrade(entry.aiVisScore || 0).color)}>{entry.aiVisScore}</span></span>
+                              <span>E-E-A-T: <span className={cn("font-medium", scoreGrade(entry.eeatScore || 0).color)}>{entry.eeatScore}</span></span>
+                            </div>
+                          )}
+                          {entry.status === "error" && entry.error && (
+                            <p className="text-[11px] text-red-400/60 mt-0.5">{entry.error}</p>
+                          )}
+                        </div>
+                        <div className="shrink-0 mt-0.5">
+                          {entry.status === "done" && <span className="text-[9px] text-emerald-400/60 uppercase font-medium">scored</span>}
+                          {entry.status === "analyzing" && <span className="text-[9px] text-seed-400/60 uppercase font-medium">analyzing</span>}
+                          {entry.status === "error" && <span className="text-[9px] text-red-400/60 uppercase font-medium">failed</span>}
+                        </div>
+                      </div>
+                    ))}
+                    {analysisLog.length === 0 && analysisRunning && (
+                      <div className="px-3 py-4 text-center">
+                        <Lottie animationData={progressAnimation} loop autoplay style={{ width: 20, height: 20 }} className="mx-auto" />
+                        <p className="text-[11px] text-white/30 mt-2">Discovering pages from sitemap…</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Done stats */}
+                  {analysisDone && (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 rounded-lg bg-emerald-500/[0.06] border border-emerald-500/15 text-center">
+                        <p className="text-lg font-bold text-emerald-400">{analysisStats.analyzed}</p>
+                        <p className="text-[10px] text-white/30 mt-0.5">Pages Scored</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-seed-500/[0.06] border border-seed-500/15 text-center">
+                        <p className={cn("text-lg font-bold", scoreGrade(analysisStats.avgScore).color)}>{analysisStats.avgScore}</p>
+                        <p className="text-[10px] text-white/30 mt-0.5">Avg AI Score</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-red-500/[0.06] border border-red-500/15 text-center">
+                        <p className="text-lg font-bold text-red-400">{analysisStats.errors}</p>
+                        <p className="text-[10px] text-white/30 mt-0.5">Errors</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Done button */}
+                  {analysisDone && (
+                    <button
+                      onClick={() => setAnalysisModal(null)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                      Done
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
