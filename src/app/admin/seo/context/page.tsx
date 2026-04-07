@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Brain, Building2, Target, FileText, Save, Loader2, Check,
   Search, Globe, Pencil, X, Sparkles, Info,
-  Plus, Trash2, Tag, AlertTriangle, Wand2, Upload,
+  Plus, Trash2, Tag, AlertTriangle, Wand2,
   BarChart3, MessageSquare, Crosshair,
   Zap,
   Boxes, Link2, Shield, Briefcase,

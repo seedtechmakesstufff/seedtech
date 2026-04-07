@@ -126,7 +126,7 @@ const RESEARCH_MODES: { key: ResearchMode; label: string; icon: React.ComponentT
 
 const tierMap: Record<string, number> = { tier1: 1, tier2: 2, tier3: 3 };
 
-const tierColors: Record<number, string> = {
+const _tierColors: Record<number, string> = {
   1: "bg-seed-500/20 text-seed-400 border-seed-500/30",
   2: "bg-blue-500/20 text-blue-400 border-blue-500/30",
   3: "bg-purple-500/20 text-purple-400 border-purple-500/30",
@@ -183,8 +183,8 @@ export default function SEODashboardPage() {
   const [insights, setInsights] = useState<InsightItem[]>([]);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insightsGenerating, setInsightsGenerating] = useState(false);
-  const [discoveredKeywords, setDiscoveredKeywords] = useState<DiscoveredKeyword[]>([]);
-  const [discoveryLoading, setDiscoveryLoading] = useState(false);
+  const [_discoveredKeywords, setDiscoveredKeywords] = useState<DiscoveredKeyword[]>([]);
+  const [_discoveryLoading, setDiscoveryLoading] = useState(false);
   const [reportSending, setReportSending] = useState(false);
   const [reportResult, setReportResult] = useState<string | null>(null);
   const [reportPreviewUrl, setReportPreviewUrl] = useState<string | null>(null);
@@ -347,7 +347,7 @@ export default function SEODashboardPage() {
     try { await fetch("/api/admin/seo/insights?action=resolve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }); setInsights((p) => p.filter((i) => i.id !== id)); } catch {}
   }, []);
 
-  const doDiscoverKeywords = useCallback(async () => {
+  const _doDiscoverKeywords = useCallback(async () => {
     setDiscoveryLoading(true);
     try { const r = await fetch("/api/admin/seo/keyword-discovery", { method: "POST" }); const d = await r.json(); if (d.keywords) setDiscoveredKeywords(d.keywords); } catch {}
     setDiscoveryLoading(false);
