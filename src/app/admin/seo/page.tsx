@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Target, TrendingUp, TrendingDown, CheckCircle2, Circle, Clock,
@@ -9,8 +9,12 @@ import {
   Lightbulb, Mail, Eye, X, ExternalLink, Bug, Link2, CalendarClock, Crosshair, SlidersHorizontal,
   Bot, XCircle, Award, Activity, Pencil, Swords, Network, MessageSquareQuote, Tags,
   Rocket, Layers,
+  Search, Plus, Upload, Trash2, Check, Download, Copy, Compass, HelpCircle, Info, Minus,
 } from "lucide-react";
 import Link from "next/link";
+import Lottie from "lottie-react";
+import progressAnimation from "@/../public/lotties/progress.json";
+import { cn } from "@/lib/utils";
 import CompetitorsTab from "./competitors-tab";
 import TopicClustersTab from "./topic-clusters-tab";
 import CitationsTab from "./citations-tab";
@@ -81,6 +85,44 @@ interface ContentIdeaData {
 }
 
 interface SiteInfo { id: string; name: string; domain: string; siteUrl: string }
+
+/* ── Types for Keywords section (migrated from context page) ── */
+
+interface TrackedKeyword {
+  id: string;
+  keyword: string;
+  tier: string;
+  volume: string;
+  competition: string;
+  intent: string;
+  targetPage: string;
+  currentPosition: number | null;
+  previousPosition: number | null;
+  clicks28d: number;
+  impressions28d: number;
+  cluster?: { id: string; name: string } | null;
+}
+
+interface KeywordSuggestion {
+  keyword: string;
+  tier: string;
+  intent: string;
+  targetPage: string;
+  volume: string;
+  competition: string;
+  rationale: string;
+}
+
+type KeywordView = "manage" | "research";
+type ResearchMode = "full-audit" | "discover" | "gaps" | "competitors" | "questions";
+
+const RESEARCH_MODES: { key: ResearchMode; label: string; icon: React.ComponentType<{ className?: string }>; desc: string }[] = [
+  { key: "full-audit", label: "Full Audit", icon: BarChart3, desc: "Comprehensive keyword strategy review" },
+  { key: "discover", label: "Discover", icon: Compass, desc: "Find new keyword opportunities" },
+  { key: "gaps", label: "Gap Analysis", icon: Crosshair, desc: "Find what you're missing" },
+  { key: "competitors", label: "Competitive Intel", icon: Target, desc: "What competitors target" },
+  { key: "questions", label: "Questions", icon: HelpCircle, desc: "What people ask" },
+];
 
 const tierMap: Record<string, number> = { tier1: 1, tier2: 2, tier3: 3 };
 
@@ -1274,121 +1316,7 @@ export default function SEODashboardPage() {
 
       {/* KEYWORDS TAB */}
       {activeTab === "keywords" && (
-        <div className="space-y-6">
-          {/* Keyword Summary + Manage link */}
-          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2"><Target className="w-4 h-4 text-seed-400" />Tracked Keywords</h2>
-              <Link href="/admin/seo/context?section=keywords" className="flex items-center gap-1.5 text-xs text-seed-400 hover:text-seed-300 bg-seed-500/10 hover:bg-seed-500/20 px-3 py-1.5 rounded-lg transition-colors">
-                <SlidersHorizontal className="w-3.5 h-3.5" />Manage Keywords <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-
-            {trackedKeywords.length > 0 ? (
-              <>
-                {/* Tier summary cards */}
-                <div className="grid grid-cols-3 gap-px bg-white/[0.04]">
-                  {[
-                    { tier: 1, label: "Tier 1 — Primary", keywords: tier1 },
-                    { tier: 2, label: "Tier 2 — Secondary", keywords: tier2 },
-                    { tier: 3, label: "Tier 3 — Long-tail", keywords: tier3 },
-                  ].map(({ tier, label, keywords: kws }) => (
-                    <div key={tier} className="bg-dark-elevated px-4 py-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${tierColors[tier]}`}>T{tier}</span>
-                        <span className="text-xs text-white/40">{label}</span>
-                        <span className="text-xs text-white/20 ml-auto">{kws.length}</span>
-                      </div>
-                      <div className="space-y-1">
-                        {kws.slice(0, 3).map((kw) => {
-                          const livePos = gscSummary?.trackedPositions?.[kw.keyword];
-                          return (
-                            <div key={kw.keyword} className="flex items-center justify-between">
-                              <span className="text-xs text-white/60 truncate max-w-[140px]">{kw.keyword}</span>
-                              {livePos ? <span className="text-xs text-seed-400 font-mono">{livePos.toFixed(1)}</span> : <span className="text-xs text-white/20">—</span>}
-                            </div>
-                          );
-                        })}
-                        {kws.length > 3 && <p className="text-[10px] text-white/20">+{kws.length - 3} more</p>}
-                        {kws.length === 0 && <p className="text-[10px] text-white/20">No keywords in this tier</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Top movers — show keywords with position changes */}
-                {(() => {
-                  const movers = trackedKeywords
-                    .map((kw) => {
-                      const livePos = gscSummary?.trackedPositions?.[kw.keyword];
-                      const prev = kw.currentPosition ?? null;
-                      const delta = livePos && prev ? prev - livePos : null;
-                      return { ...kw, livePos, delta };
-                    })
-                    .filter((kw) => kw.delta !== null && Math.abs(kw.delta!) >= 0.3)
-                    .sort((a, b) => Math.abs(b.delta!) - Math.abs(a.delta!));
-
-                  if (movers.length === 0) return null;
-                  return (
-                    <div className="px-5 py-3 border-t border-white/[0.04]">
-                      <p className="text-xs text-white/30 mb-2 uppercase tracking-wider font-medium">Position Changes</p>
-                      <div className="space-y-1.5">
-                        {movers.slice(0, 5).map((kw) => (
-                          <div key={kw.keyword} className="flex items-center justify-between">
-                            <span className="text-xs text-white/60">{kw.keyword}</span>
-                            <span className={`flex items-center gap-1 text-xs ${kw.delta! > 0 ? "text-green-400" : "text-red-400"}`}>
-                              {kw.delta! > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                              {Math.abs(kw.delta!).toFixed(1)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </>
-            ) : (
-              <div className="px-5 py-8 text-center">
-                <Target className="w-8 h-8 text-white/10 mx-auto mb-2" />
-                <p className="text-white/30 text-sm">No keywords tracked yet.</p>
-                <Link href="/admin/seo/context?section=keywords" className="text-seed-400 hover:text-seed-300 text-xs mt-1 inline-flex items-center gap-1">
-                  Add keywords on the AI Context page <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* AI Keyword Discovery */}
-          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400" />AI Keyword Discovery</h2>
-              <button onClick={doDiscoverKeywords} disabled={discoveryLoading} className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 disabled:opacity-50">
-                {discoveryLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}{discoveryLoading ? "Discovering\u2026" : "Discover Keywords"}
-              </button>
-            </div>
-            {discoveredKeywords.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead><tr className="text-left text-white/30 text-xs uppercase tracking-wider border-b border-white/[0.04]"><th className="px-5 py-3 font-medium">Keyword</th><th className="px-5 py-3 font-medium">Est. Volume</th><th className="px-5 py-3 font-medium">Difficulty</th><th className="px-5 py-3 font-medium">Rationale</th></tr></thead>
-                  <tbody className="divide-y divide-white/[0.04]">
-                    {discoveredKeywords.map((kw) => (
-                      <tr key={kw.keyword} className="hover:bg-white/[0.02]">
-                        <td className="px-5 py-3 text-white/80 font-medium">{kw.keyword}</td>
-                        <td className="px-5 py-3 text-white/50 font-mono text-xs">{kw.estimatedVolume}</td>
-                        <td className="px-5 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${kw.difficulty === "Low" ? "bg-green-400/10 text-green-400" : kw.difficulty === "Medium" ? "bg-yellow-400/10 text-yellow-400" : "bg-red-400/10 text-red-400"}`}>{kw.difficulty}</span></td>
-                        <td className="px-5 py-3 text-white/40 text-xs max-w-[300px]">{kw.rationale}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="px-5 py-10 text-center text-white/20 text-sm">
-                {discoveryLoading ? <div className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" />AI is analyzing your keyword landscape\u2026</div> : <>Click <strong className="text-white/40">Discover Keywords</strong> to find new opportunities using AI.</>}
-              </div>
-            )}
-          </div>
-        </div>
+        <KeywordsSection />
       )}
 
       {/* AUDIT TAB */}
@@ -1753,4 +1681,1117 @@ export default function SEODashboardPage() {
 
     </div>
   );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION: Keywords (migrated from /admin/seo/context)
+   ═══════════════════════════════════════════════════════════════ */
+
+function KeywordsSection() {
+  const [view, setView] = useState<KeywordView>("manage");
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <Target className="w-5 h-5 text-purple-400" />
+            Tracked Keywords
+          </h2>
+          <p className="text-xs text-white/40 mt-0.5">
+            Keywords with a <strong className="text-white/60">target page</strong> tell the AI which keywords belong to which page.
+            When generating metadata for a page, keywords targeting it are marked as high-priority.
+          </p>
+        </div>
+        <div className="flex items-center gap-1 bg-dark-elevated border border-white/[0.06] rounded-lg p-0.5">
+          <button
+            onClick={() => setView("manage")}
+            className={cn(
+              "text-xs font-medium px-3 py-1.5 rounded-md transition-all",
+              view === "manage" ? "bg-purple-500/15 text-purple-300 border border-purple-500/20" : "text-white/40 hover:text-white/60",
+            )}
+          >
+            Manage
+          </button>
+          <button
+            onClick={() => setView("research")}
+            className={cn(
+              "text-xs font-medium px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5",
+              view === "research" ? "bg-purple-500/15 text-purple-300 border border-purple-500/20" : "text-white/40 hover:text-white/60",
+            )}
+          >
+            <Sparkles className="w-3 h-3" />
+            AI Research
+          </button>
+        </div>
+      </div>
+
+      {view === "manage" ? <KeywordManageView /> : <KeywordResearchView />}
+    </div>
+  );
+}
+
+/* ─── Manage View (CRUD) ─── */
+
+function KeywordManageView() {
+  const [keywords, setKeywords] = useState<TrackedKeyword[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filterTier, setFilterTier] = useState<string>("all");
+  const [filterIntent, setFilterIntent] = useState<string>("all");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<Partial<TrackedKeyword>>({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+
+  // Add keyword form
+  const [addForm, setAddForm] = useState({
+    keyword: "",
+    tier: "tier2",
+    intent: "informational",
+    targetPage: "/",
+    volume: "unknown",
+    competition: "medium",
+  });
+
+  // Bulk import
+  const [bulkText, setBulkText] = useState("");
+  const [bulkImporting, setBulkImporting] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{ imported: number; total: number } | null>(null);
+
+  const fetchKeywords = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/seo/keywords");
+      const data = await res.json();
+      if (data.keywords) setKeywords(data.keywords);
+    } catch { /* silent */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchKeywords(); }, [fetchKeywords]);
+
+  // ── Add single keyword ──
+  const handleAdd = async () => {
+    if (!addForm.keyword.trim()) return;
+    setActionLoading("add");
+    try {
+      const res = await fetch("/api/admin/seo/keywords", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addForm),
+      });
+      if (res.ok) {
+        setShowAddModal(false);
+        setAddForm({ keyword: "", tier: "tier2", intent: "informational", targetPage: "/", volume: "unknown", competition: "medium" });
+        await fetchKeywords();
+      }
+    } catch { /* silent */ }
+    setActionLoading(null);
+  };
+
+  // ── Edit keyword inline ──
+  const startEdit = (kw: TrackedKeyword) => {
+    setEditingId(kw.id);
+    setEditDraft({ tier: kw.tier, intent: kw.intent, targetPage: kw.targetPage, volume: kw.volume, competition: kw.competition });
+  };
+
+  const saveEdit = async () => {
+    if (!editingId) return;
+    setActionLoading(editingId);
+    try {
+      const res = await fetch(`/api/admin/seo/keywords/${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editDraft),
+      });
+      if (res.ok) {
+        setEditingId(null);
+        setSavedId(editingId);
+        setTimeout(() => setSavedId(null), 2000);
+        await fetchKeywords();
+      }
+    } catch { /* silent */ }
+    setActionLoading(null);
+  };
+
+  // ── Delete keyword ──
+  const handleDelete = async (id: string) => {
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/seo/keywords/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setDeletingId(null);
+        await fetchKeywords();
+      }
+    } catch { /* silent */ }
+    setActionLoading(null);
+  };
+
+  // ── Bulk import ──
+  const handleBulkImport = async () => {
+    const lines = bulkText.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) return;
+    setBulkImporting(true);
+    setBulkResult(null);
+
+    const kwArray = lines.map((line) => {
+      // Support: keyword, tier, intent, targetPage  OR  just keyword
+      const parts = line.split(/[,\t]/).map((p) => p.trim());
+      return {
+        keyword: parts[0],
+        tier: parts[1] || "tier2",
+        intent: parts[2] || "informational",
+        targetPage: parts[3] || "/",
+        volume: parts[4] || "unknown",
+        competition: parts[5] || "medium",
+      };
+    });
+
+    try {
+      const res = await fetch("/api/admin/seo/keywords", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(kwArray),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBulkResult(data);
+        await fetchKeywords();
+      }
+    } catch { /* silent */ }
+    setBulkImporting(false);
+  };
+
+  // ── Filtering ──
+  const filtered = keywords.filter((kw) => {
+    if (search && !kw.keyword.toLowerCase().includes(search.toLowerCase()) && !kw.targetPage.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filterTier !== "all" && kw.tier !== filterTier) return false;
+    if (filterIntent !== "all" && kw.intent !== filterIntent) return false;
+    return true;
+  });
+
+  const tier1 = keywords.filter((k) => k.tier === "tier1");
+  const tier2 = keywords.filter((k) => k.tier === "tier2");
+  const tier3 = keywords.filter((k) => k.tier === "tier3");
+
+  const kwTierColors: Record<string, string> = {
+    tier1: "bg-seed-500/20 text-seed-400 border-seed-500/30",
+    tier2: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    tier3: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  };
+
+  const intentColors: Record<string, string> = {
+    transactional: "text-emerald-400",
+    commercial: "text-amber-400",
+    informational: "text-blue-400",
+    navigational: "text-white/40",
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-white/30" /></div>;
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-3">
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-4">
+          <p className="text-2xl font-bold text-white/80">{keywords.length}</p>
+          <p className="text-xs text-white/40 mt-1">Total Keywords</p>
+        </div>
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-4">
+          <p className="text-2xl font-bold text-seed-400">{tier1.length}</p>
+          <p className="text-xs text-white/40 mt-1">Tier 1 — Primary</p>
+        </div>
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-4">
+          <p className="text-2xl font-bold text-blue-400">{tier2.length}</p>
+          <p className="text-xs text-white/40 mt-1">Tier 2 — Secondary</p>
+        </div>
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-4">
+          <p className="text-2xl font-bold text-purple-400">{tier3.length}</p>
+          <p className="text-xs text-white/40 mt-1">Tier 3 — Long-tail</p>
+        </div>
+      </div>
+
+      {/* Actions bar */}
+      <div className="flex items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+          <input
+            type="text"
+            placeholder="Search keywords or target pages…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-purple-500/50"
+          />
+        </div>
+
+        {/* Tier filter */}
+        <select
+          value={filterTier}
+          onChange={(e) => setFilterTier(e.target.value)}
+          className="px-3 py-2 rounded-lg border border-white/[0.08] bg-dark-base text-sm text-white/60 focus:outline-none focus:border-purple-500/50"
+        >
+          <option value="all">All Tiers</option>
+          <option value="tier1">Tier 1</option>
+          <option value="tier2">Tier 2</option>
+          <option value="tier3">Tier 3</option>
+        </select>
+
+        {/* Intent filter */}
+        <select
+          value={filterIntent}
+          onChange={(e) => setFilterIntent(e.target.value)}
+          className="px-3 py-2 rounded-lg border border-white/[0.08] bg-dark-base text-sm text-white/60 focus:outline-none focus:border-purple-500/50"
+        >
+          <option value="all">All Intents</option>
+          <option value="transactional">Transactional</option>
+          <option value="commercial">Commercial</option>
+          <option value="informational">Informational</option>
+          <option value="navigational">Navigational</option>
+        </select>
+
+        {/* Add / Import buttons */}
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-lg bg-seed-500 hover:bg-seed-600 text-white transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Add
+        </button>
+        <button
+          onClick={() => { setShowBulkModal(true); setBulkResult(null); setBulkText(""); }}
+          className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white/60 hover:text-white transition-colors"
+        >
+          <Upload className="w-4 h-4" />
+          Import
+        </button>
+      </div>
+
+      {/* Keywords table */}
+      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/[0.06]">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Keyword</th>
+                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Tier</th>
+                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Position</th>
+                <th className="text-left px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Intent</th>
+                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Volume</th>
+                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Competition</th>
+                <th className="text-left px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Target Page</th>
+                <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider w-24">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.04]">
+              {filtered.map((kw) => (
+                editingId === kw.id ? (
+                  /* ── Inline edit row ── */
+                  <tr key={kw.id} className="bg-purple-500/[0.03]">
+                    <td className="px-4 py-2 text-white/70 font-medium">{kw.keyword}</td>
+                    <td className="px-3 py-2 text-center">
+                      <select
+                        value={editDraft.tier || kw.tier}
+                        onChange={(e) => setEditDraft({ ...editDraft, tier: e.target.value })}
+                        className="bg-dark-base border border-white/[0.1] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                      >
+                        <option value="tier1">T1</option>
+                        <option value="tier2">T2</option>
+                        <option value="tier3">T3</option>
+                      </select>
+                    </td>
+                    <td className="px-3 py-2 text-center font-mono text-white/40 text-xs">
+                      {kw.currentPosition ? kw.currentPosition.toFixed(1) : "—"}
+                    </td>
+                    <td className="px-3 py-2">
+                      <select
+                        value={editDraft.intent || kw.intent}
+                        onChange={(e) => setEditDraft({ ...editDraft, intent: e.target.value })}
+                        className="bg-dark-base border border-white/[0.1] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                      >
+                        <option value="transactional">Transactional</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="informational">Informational</option>
+                        <option value="navigational">Navigational</option>
+                      </select>
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <select
+                        value={editDraft.volume || kw.volume}
+                        onChange={(e) => setEditDraft({ ...editDraft, volume: e.target.value })}
+                        className="bg-dark-base border border-white/[0.1] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                      >
+                        <option value="unknown">Unknown</option>
+                        <option value="very-low">Very Low</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="very-high">Very High</option>
+                      </select>
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <select
+                        value={editDraft.competition || kw.competition}
+                        onChange={(e) => setEditDraft({ ...editDraft, competition: e.target.value })}
+                        className="bg-dark-base border border-white/[0.1] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                      >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                      </select>
+                    </td>
+                    <td className="px-3 py-2">
+                      <input
+                        type="text"
+                        value={editDraft.targetPage ?? kw.targetPage}
+                        onChange={(e) => setEditDraft({ ...editDraft, targetPage: e.target.value })}
+                        className="w-full bg-dark-base border border-white/[0.1] rounded px-2 py-1 text-xs font-mono text-white focus:outline-none focus:border-purple-500/50"
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={saveEdit}
+                          disabled={actionLoading === kw.id}
+                          className="p-1 rounded bg-seed-500/20 hover:bg-seed-500/30 text-seed-400 transition-colors"
+                          title="Save"
+                        >
+                          {actionLoading === kw.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="p-1 rounded bg-white/[0.04] hover:bg-white/[0.08] text-white/40 transition-colors"
+                          title="Cancel"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  /* ── Read row ── */
+                  <tr
+                    key={kw.id}
+                    className={cn(
+                      "transition-colors group",
+                      savedId === kw.id ? "bg-emerald-500/[0.04]" : "hover:bg-white/[0.02]",
+                      deletingId === kw.id ? "bg-red-500/[0.04]" : "",
+                    )}
+                  >
+                    <td className="px-4 py-2.5 text-white/70 font-medium">
+                      <div className="flex items-center gap-2">
+                        {kw.keyword}
+                        {savedId === kw.id && <Check className="w-3 h-3 text-emerald-400" />}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-center">
+                      <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", kwTierColors[kw.tier] || "")}>
+                        T{kw.tier.replace("tier", "")}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <span className="font-mono text-white/50 text-xs">
+                          {kw.currentPosition ? kw.currentPosition.toFixed(1) : "—"}
+                        </span>
+                        {kw.currentPosition && kw.previousPosition && (
+                          kw.currentPosition < kw.previousPosition
+                            ? <TrendingUp className="w-3 h-3 text-emerald-400" />
+                            : kw.currentPosition > kw.previousPosition
+                              ? <TrendingDown className="w-3 h-3 text-red-400" />
+                              : <Minus className="w-3 h-3 text-white/20" />
+                        )}
+                      </div>
+                    </td>
+                    <td className={cn("px-3 py-2.5 capitalize text-xs", intentColors[kw.intent] || "text-white/40")}>{kw.intent}</td>
+                    <td className="px-3 py-2.5 text-center text-xs text-white/40 capitalize">{kw.volume === "unknown" ? "—" : kw.volume}</td>
+                    <td className="px-3 py-2.5 text-center text-xs text-white/40 capitalize">{kw.competition}</td>
+                    <td className="px-3 py-2.5 text-white/30 text-xs font-mono">{kw.targetPage || "/"}</td>
+                    <td className="px-3 py-2.5 text-center">
+                      {deletingId === kw.id ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => handleDelete(kw.id)}
+                            disabled={actionLoading === kw.id}
+                            className="px-2 py-0.5 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 text-[10px] font-medium transition-colors"
+                          >
+                            {actionLoading === kw.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirm"}
+                          </button>
+                          <button
+                            onClick={() => setDeletingId(null)}
+                            className="px-2 py-0.5 rounded bg-white/[0.04] text-white/40 text-[10px] font-medium transition-colors hover:bg-white/[0.08]"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => startEdit(kw)}
+                            className="p-1 rounded hover:bg-white/[0.06] text-white/30 hover:text-white/60 transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeletingId(kw.id)}
+                            className="p-1 rounded hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors"
+                            title="Remove"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )
+              ))}
+              {filtered.length === 0 && keywords.length > 0 && (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-white/30 text-sm">
+                    No keywords match your filters.
+                  </td>
+                </tr>
+              )}
+              {keywords.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="px-4 py-12 text-center">
+                    <Target className="w-8 h-8 text-white/10 mx-auto mb-3" />
+                    <p className="text-sm text-white/30 mb-3">No keywords tracked yet.</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => setShowAddModal(true)}
+                        className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-seed-500/10 hover:bg-seed-500/20 border border-seed-500/20 text-seed-400 transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        Add Keyword
+                      </button>
+                      <button
+                        onClick={() => { setShowBulkModal(true); setBulkResult(null); setBulkText(""); }}
+                        className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-white/50 transition-colors"
+                      >
+                        <Upload className="w-3 h-3" />
+                        Bulk Import
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        {filtered.length > 0 && (
+          <div className="px-4 py-2 border-t border-white/[0.04] text-xs text-white/25">
+            Showing {filtered.length} of {keywords.length} keywords
+          </div>
+        )}
+      </section>
+
+      {/* How keywords are used */}
+      <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-purple-500/[0.04] border border-purple-500/10">
+        <Info className="w-4 h-4 text-purple-400/60 mt-0.5 shrink-0" />
+        <div className="text-xs text-white/40 space-y-1">
+          <p><strong className="text-white/60">How keywords influence AI outputs:</strong></p>
+          <p>• Keywords with a <strong className="text-white/55">target page</strong> matching the current page are labeled &quot;HIGH PRIORITY&quot; in the AI prompt</p>
+          <p>• Keywords targeting <em>other</em> pages are shown to the AI with a &quot;do NOT use&quot; instruction for differentiation</p>
+          <p>• Unassigned keywords (target page = /) are offered as &quot;use if relevant&quot;</p>
+        </div>
+      </div>
+
+      {/* ═══ Add Keyword Modal ═══ */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-dark-elevated border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-seed-500/10 flex items-center justify-center">
+                  <Plus className="w-4 h-4 text-seed-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-white">Add Keyword</h3>
+              </div>
+              <button onClick={() => setShowAddModal(false)} className="text-white/30 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="text-xs font-medium text-white/50 mb-1.5 block">Keyword *</label>
+                <input
+                  type="text"
+                  value={addForm.keyword}
+                  onChange={(e) => setAddForm({ ...addForm, keyword: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white focus:outline-none focus:border-seed-500/50"
+                  placeholder="managed IT services NJ"
+                  autoFocus
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-white/50 mb-1.5 block">Tier</label>
+                  <select
+                    value={addForm.tier}
+                    onChange={(e) => setAddForm({ ...addForm, tier: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-dark-base text-sm text-white focus:outline-none focus:border-seed-500/50"
+                  >
+                    <option value="tier1">Tier 1 — Primary</option>
+                    <option value="tier2">Tier 2 — Secondary</option>
+                    <option value="tier3">Tier 3 — Long-tail</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-white/50 mb-1.5 block">Intent</label>
+                  <select
+                    value={addForm.intent}
+                    onChange={(e) => setAddForm({ ...addForm, intent: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-dark-base text-sm text-white focus:outline-none focus:border-seed-500/50"
+                  >
+                    <option value="transactional">Transactional</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="informational">Informational</option>
+                    <option value="navigational">Navigational</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-white/50 mb-1.5 block">Volume</label>
+                  <select
+                    value={addForm.volume}
+                    onChange={(e) => setAddForm({ ...addForm, volume: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-dark-base text-sm text-white focus:outline-none focus:border-seed-500/50"
+                  >
+                    <option value="unknown">Unknown</option>
+                    <option value="very-low">Very Low</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="very-high">Very High</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-white/50 mb-1.5 block">Competition</label>
+                  <select
+                    value={addForm.competition}
+                    onChange={(e) => setAddForm({ ...addForm, competition: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-dark-base text-sm text-white focus:outline-none focus:border-seed-500/50"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-white/50 mb-1.5 block">Target Page</label>
+                <input
+                  type="text"
+                  value={addForm.targetPage}
+                  onChange={(e) => setAddForm({ ...addForm, targetPage: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm font-mono text-white focus:outline-none focus:border-seed-500/50"
+                  placeholder="/services/managed-it"
+                />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-white/[0.06] flex items-center justify-end gap-3">
+              <button onClick={() => setShowAddModal(false)} className="text-sm text-white/40 hover:text-white/60 transition-colors">Cancel</button>
+              <button
+                onClick={handleAdd}
+                disabled={!addForm.keyword.trim() || actionLoading === "add"}
+                className="flex items-center gap-2 bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {actionLoading === "add" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Add Keyword
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Bulk Import Modal ═══ */}
+      {showBulkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-dark-elevated border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Upload className="w-4 h-4 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Bulk Import Keywords</h3>
+                  <p className="text-[11px] text-white/40">One keyword per line, optionally with CSV fields</p>
+                </div>
+              </div>
+              <button onClick={() => setShowBulkModal(false)} className="text-white/30 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div className="text-[11px] text-white/30 bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2 font-mono">
+                <p className="text-white/50 mb-1">Format: keyword, tier, intent, targetPage, volume, competition</p>
+                <p>managed IT services NJ, tier1, commercial, /services/managed-it, high, medium</p>
+                <p>cybersecurity solutions, tier2, informational, /services/cybersecurity</p>
+                <p>IT help desk support</p>
+                <p className="text-white/20 mt-1">Columns after keyword are optional — defaults will be used.</p>
+              </div>
+              <textarea
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+                rows={10}
+                className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm font-mono text-white focus:outline-none focus:border-blue-500/50 resize-none"
+                placeholder="Paste keywords here, one per line…"
+                autoFocus
+              />
+              {bulkResult && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span className="text-emerald-400">Imported {bulkResult.imported} of {bulkResult.total} keywords</span>
+                </div>
+              )}
+            </div>
+            <div className="px-6 py-4 border-t border-white/[0.06] flex items-center justify-between">
+              <span className="text-xs text-white/25">
+                {bulkText.split("\n").filter((l) => l.trim()).length} keywords detected
+              </span>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setShowBulkModal(false)} className="text-sm text-white/40 hover:text-white/60 transition-colors">
+                  {bulkResult ? "Close" : "Cancel"}
+                </button>
+                {!bulkResult && (
+                  <button
+                    onClick={handleBulkImport}
+                    disabled={!bulkText.trim() || bulkImporting}
+                    className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {bulkImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {bulkImporting ? "Importing…" : "Import Keywords"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── AI Research View ─── */
+
+function KeywordResearchView() {
+  const [researchMode, setResearchMode] = useState<ResearchMode>("full-audit");
+  const [focusArea, setFocusArea] = useState("");
+  const [running, setRunning] = useState(false);
+  const [streamText, setStreamText] = useState("");
+  const [suggestions, setSuggestions] = useState<KeywordSuggestion[]>([]);
+  const [dataSources, setDataSources] = useState<Record<string, unknown> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedSuggestions, setSelectedSuggestions] = useState<Set<number>>(new Set());
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{ imported: number; total: number } | null>(null);
+  const streamRef = useRef<HTMLDivElement>(null);
+
+  const startResearch = async () => {
+    setRunning(true);
+    setStreamText("");
+    setSuggestions([]);
+    setError(null);
+    setDataSources(null);
+    setSelectedSuggestions(new Set());
+    setImportResult(null);
+
+    try {
+      const res = await fetch("/api/admin/seo/keywords/research", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: researchMode,
+          focusArea: focusArea.trim() || undefined,
+          includeGsc: true,
+        }),
+      });
+
+      if (!res.ok || !res.body) {
+        setError("Failed to start research");
+        setRunning(false);
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(line.slice(6));
+
+            if (evt.type === "start") {
+              setDataSources(evt.dataSources);
+            }
+
+            if (evt.type === "text") {
+              setStreamText(evt.content);
+              setTimeout(() => {
+                streamRef.current?.scrollTo({ top: streamRef.current.scrollHeight, behavior: "smooth" });
+              }, 50);
+            }
+
+            if (evt.type === "done") {
+              setStreamText(evt.fullText);
+              if (evt.suggestions) setSuggestions(evt.suggestions);
+              setRunning(false);
+            }
+
+            if (evt.type === "error") {
+              setError(evt.error);
+              setRunning(false);
+            }
+          } catch { /* skip malformed */ }
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Research failed");
+    }
+    setRunning(false);
+  };
+
+  const toggleSuggestion = (idx: number) => {
+    setSelectedSuggestions((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx); else next.add(idx);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    if (selectedSuggestions.size === suggestions.length) {
+      setSelectedSuggestions(new Set());
+    } else {
+      setSelectedSuggestions(new Set(suggestions.map((_, i) => i)));
+    }
+  };
+
+  const importSelected = async () => {
+    const selected = suggestions.filter((_, i) => selectedSuggestions.has(i));
+    if (selected.length === 0) return;
+    setImporting(true);
+
+    try {
+      const res = await fetch("/api/admin/seo/keywords", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selected.map((s) => ({
+          keyword: s.keyword,
+          tier: s.tier,
+          intent: s.intent,
+          targetPage: s.targetPage,
+          volume: s.volume,
+          competition: s.competition,
+        }))),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setImportResult(data);
+      }
+    } catch { /* silent */ }
+    setImporting(false);
+  };
+
+  const resTierColors: Record<string, string> = {
+    tier1: "bg-seed-500/20 text-seed-400 border-seed-500/30",
+    tier2: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    tier3: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* Research mode selector */}
+      <div className="grid grid-cols-5 gap-2">
+        {RESEARCH_MODES.map((m) => (
+          <button
+            key={m.key}
+            onClick={() => setResearchMode(m.key)}
+            className={cn(
+              "flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-center transition-all border",
+              researchMode === m.key
+                ? "bg-purple-500/10 border-purple-500/20 text-purple-300"
+                : "bg-dark-elevated border-white/[0.06] text-white/40 hover:text-white/60 hover:border-white/[0.1]",
+            )}
+          >
+            <m.icon className={cn("w-5 h-5", researchMode === m.key ? "text-purple-400" : "text-white/25")} />
+            <span className="text-xs font-medium">{m.label}</span>
+            <span className="text-[10px] text-white/25 leading-tight">{m.desc}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Focus area + Launch */}
+      <div className="flex items-end gap-3">
+        <div className="flex-1">
+          <label className="text-xs font-medium text-white/50 mb-1.5 block">
+            Focus Area <span className="text-white/25 font-normal">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={focusArea}
+            onChange={(e) => setFocusArea(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.02] text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-purple-500/50"
+            placeholder="e.g., cybersecurity, cloud services, specific page…"
+          />
+        </div>
+        <button
+          onClick={startResearch}
+          disabled={running}
+          className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-50 shrink-0"
+        >
+          {running ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Researching…
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4" />
+              Start Research
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Data sources badge */}
+      {dataSources && (
+        <div className="flex items-center gap-3 text-[11px] text-white/30">
+          <span className="text-white/50">Data sources:</span>
+          <span className={cn("flex items-center gap-1", dataSources.businessContext ? "text-emerald-400/60" : "text-white/20")}>
+            <Check className="w-3 h-3" /> Business Profile
+          </span>
+          <span className={cn("flex items-center gap-1", (dataSources.existingKeywords as number) > 0 ? "text-emerald-400/60" : "text-white/20")}>
+            <Check className="w-3 h-3" /> {dataSources.existingKeywords as number} Keywords
+          </span>
+          <span className={cn("flex items-center gap-1", dataSources.pageContexts ? "text-emerald-400/60" : "text-white/20")}>
+            <Check className="w-3 h-3" /> Page Contexts
+          </span>
+          <span className={cn("flex items-center gap-1", dataSources.gsc ? "text-emerald-400/60" : "text-amber-400/60")}>
+            {dataSources.gsc ? <Check className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+            {dataSources.gsc ? "GSC Connected" : "GSC Not Connected"}
+          </span>
+        </div>
+      )}
+
+      {/* Stream output */}
+      {(streamText || running) && (
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+          <div className="px-4 py-3 bg-white/[0.02] border-b border-white/[0.06] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Brain className="w-4 h-4 text-purple-400/60" />
+              <span className="text-xs font-medium text-white/50">AI Research Analysis</span>
+              {running && <Lottie animationData={progressAnimation} loop autoplay style={{ width: 16, height: 16 }} />}
+            </div>
+            {!running && streamText && (
+              <button
+                onClick={() => { navigator.clipboard.writeText(streamText); }}
+                className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/50 transition-colors"
+              >
+                <Copy className="w-3 h-3" />
+                Copy
+              </button>
+            )}
+          </div>
+          <div
+            ref={streamRef}
+            className="p-5 max-h-[500px] overflow-y-auto prose prose-invert prose-sm prose-headings:text-white/80 prose-p:text-white/50 prose-li:text-white/50 prose-strong:text-white/70 prose-code:text-purple-300 prose-code:bg-purple-500/10 prose-code:px-1 prose-code:rounded max-w-none text-sm leading-relaxed"
+          >
+            <KwMarkdownRenderer text={streamText} />
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-500/[0.06] border border-red-500/15 text-sm text-red-400">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          {error}
+        </div>
+      )}
+
+      {/* Keyword suggestions table */}
+      {suggestions.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-semibold text-white">
+                {suggestions.length} Keyword Suggestions Found
+              </h3>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={selectAll}
+                className="text-xs text-white/40 hover:text-white/60 transition-colors"
+              >
+                {selectedSuggestions.size === suggestions.length ? "Deselect All" : "Select All"}
+              </button>
+              {importResult ? (
+                <span className="flex items-center gap-1.5 text-sm text-emerald-400">
+                  <Check className="w-4 h-4" />
+                  Imported {importResult.imported} keywords
+                </span>
+              ) : (
+                <button
+                  onClick={importSelected}
+                  disabled={selectedSuggestions.size === 0 || importing}
+                  className="flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-lg bg-seed-500 hover:bg-seed-600 text-white transition-colors disabled:opacity-40"
+                >
+                  {importing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                  Import {selectedSuggestions.size > 0 ? `${selectedSuggestions.size} Selected` : "Selected"}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/[0.06]">
+                    <th className="px-3 py-2.5 w-8"></th>
+                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Keyword</th>
+                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Tier</th>
+                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Intent</th>
+                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Volume</th>
+                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Comp.</th>
+                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Target Page</th>
+                    <th className="text-left px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Rationale</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.04]">
+                  {suggestions.map((s, i) => (
+                    <tr
+                      key={i}
+                      onClick={() => toggleSuggestion(i)}
+                      className={cn(
+                        "cursor-pointer transition-colors",
+                        selectedSuggestions.has(i)
+                          ? "bg-seed-500/[0.06]"
+                          : "hover:bg-white/[0.02]",
+                      )}
+                    >
+                      <td className="px-3 py-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedSuggestions.has(i)}
+                          onChange={() => toggleSuggestion(i)}
+                          className="rounded border-white/20 bg-transparent text-seed-500 focus:ring-seed-500/30 w-3.5 h-3.5"
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-white/70 font-medium">{s.keyword}</td>
+                      <td className="px-3 py-2 text-center">
+                        <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", resTierColors[s.tier] || resTierColors.tier2)}>
+                          T{s.tier.replace("tier", "")}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-white/40 capitalize text-xs">{s.intent}</td>
+                      <td className="px-3 py-2 text-center text-xs text-white/40 capitalize">{s.volume}</td>
+                      <td className="px-3 py-2 text-center text-xs text-white/40 capitalize">{s.competition}</td>
+                      <td className="px-3 py-2 text-white/30 text-xs font-mono">{s.targetPage}</td>
+                      <td className="px-3 py-2 text-white/30 text-[11px] max-w-xs truncate">{s.rationale}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!running && !streamText && !error && (
+        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-12 text-center">
+          <Sparkles className="w-8 h-8 text-purple-400/20 mx-auto mb-3" />
+          <p className="text-sm text-white/30 mb-1">AI Keyword Research Agent</p>
+          <p className="text-xs text-white/20 max-w-md mx-auto">
+            Select a research mode above and click &quot;Start Research&quot; to analyze your keyword strategy.
+            The AI will use your business profile, page contexts, existing keywords, and Google Search Console data to identify opportunities.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Simple Markdown Renderer for keyword research ─── */
+
+function KwMarkdownRenderer({ text }: { text: string }) {
+  const lines = text.split("\n");
+  const elements: React.ReactNode[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.includes("KEYWORD_SUGGESTION")) continue;
+
+    if (line.startsWith("### ")) {
+      elements.push(<h3 key={i} className="text-white/80 font-semibold text-sm mt-4 mb-2">{kwFormatInline(line.slice(4))}</h3>);
+    } else if (line.startsWith("## ")) {
+      elements.push(<h2 key={i} className="text-white/80 font-semibold text-base mt-5 mb-2">{kwFormatInline(line.slice(3))}</h2>);
+    } else if (line.startsWith("# ")) {
+      elements.push(<h1 key={i} className="text-white font-bold text-lg mt-6 mb-3">{kwFormatInline(line.slice(2))}</h1>);
+    } else if (line.match(/^[-•*]\s/)) {
+      elements.push(<p key={i} className="text-white/50 text-sm ml-4 my-0.5">• {kwFormatInline(line.replace(/^[-•*]\s+/, ""))}</p>);
+    } else if (line.match(/^\d+\.\s/)) {
+      elements.push(<p key={i} className="text-white/50 text-sm ml-4 my-0.5">{kwFormatInline(line)}</p>);
+    } else if (line.match(/^---+$/)) {
+      elements.push(<hr key={i} className="border-white/[0.06] my-4" />);
+    } else if (line.trim() === "") {
+      elements.push(<div key={i} className="h-2" />);
+    } else {
+      elements.push(<p key={i} className="text-white/50 text-sm my-1">{kwFormatInline(line)}</p>);
+    }
+  }
+
+  return <>{elements}</>;
+}
+
+function kwFormatInline(text: string): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    if (boldMatch && boldMatch.index !== undefined) {
+      if (boldMatch.index > 0) parts.push(remaining.slice(0, boldMatch.index));
+      parts.push(<strong key={key++} className="text-white/70 font-semibold">{boldMatch[1]}</strong>);
+      remaining = remaining.slice(boldMatch.index + boldMatch[0].length);
+      continue;
+    }
+
+    const codeMatch = remaining.match(/`(.+?)`/);
+    if (codeMatch && codeMatch.index !== undefined) {
+      if (codeMatch.index > 0) parts.push(remaining.slice(0, codeMatch.index));
+      parts.push(<code key={key++} className="text-purple-300 bg-purple-500/10 px-1 rounded text-xs">{codeMatch[1]}</code>);
+      remaining = remaining.slice(codeMatch.index + codeMatch[0].length);
+      continue;
+    }
+
+    const italicMatch = remaining.match(/\*(.+?)\*/);
+    if (italicMatch && italicMatch.index !== undefined) {
+      if (italicMatch.index > 0) parts.push(remaining.slice(0, italicMatch.index));
+      parts.push(<em key={key++} className="text-white/60">{italicMatch[1]}</em>);
+      remaining = remaining.slice(italicMatch.index + italicMatch[0].length);
+      continue;
+    }
+
+    parts.push(remaining);
+    break;
+  }
+
+  return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
