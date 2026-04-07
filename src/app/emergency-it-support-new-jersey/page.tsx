@@ -13,9 +13,11 @@ import {
   Zap,
   Users,
   ShieldCheck,
+  Globe,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
+import { TrustedBySection } from "@/components/home/TrustedBySection";
 import {
   GradientOrb,
   GridPattern,
@@ -254,6 +256,9 @@ export default function EmergencyITSupportNJPage() {
         </div>
       </section>
 
+      {/* Trusted by Brands */}
+      <TrustedBySection />
+
       {/* Section 1 — Signs you need emergency support */}
       <Section theme="light">
         <SectionHeader
@@ -357,17 +362,17 @@ export default function EmergencyITSupportNJPage() {
         </div>
       </Section>
 
-      {/* Section 5 — NJ-specific trust signals */}
+      {/* Section 5 — NJ + NYC trust signals */}
       <Section theme="light">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="mb-6 font-display text-heading text-dark-base md:text-heading-lg">
-            Emergency IT Support Across New Jersey
+            Emergency IT Support Across New Jersey and New York City
           </h2>
           <div className="space-y-4 text-body-lg leading-relaxed text-dark-base/60">
             <p>
               SeedTech is based in Northern New Jersey and provides emergency IT support
               to businesses across Morris County, Somerset County, Essex County, Union County,
-              and the surrounding areas.
+              Manhattan, and the surrounding areas.
             </p>
             <p>
               We work with trucking companies, law firms, medical practices, contractors,
@@ -400,6 +405,13 @@ export default function EmergencyITSupportNJPage() {
                 {loc}
               </span>
             ))}
+            <Link
+              href="/locations/manhattan-it-support"
+              className="inline-flex items-center gap-1.5 rounded-full border border-seed-200 bg-seed-50 px-4 py-1.5 text-xs font-medium text-seed-700 shadow-sm hover:bg-seed-100 transition-colors"
+            >
+              <Globe className="h-3 w-3" />
+              Manhattan
+            </Link>
           </div>
         </div>
       </Section>
