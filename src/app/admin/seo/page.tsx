@@ -329,10 +329,37 @@ export default function SEODashboardPage() {
   const pingIndexNow = useCallback(async () => {
     setIndexNowLoading(true); setIndexNowResult(null);
     try {
-      // Build URLs dynamically from site info
+      // Fetch all URLs from sitemap for a full-site ping
       const baseUrl = siteInfo?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "https://seedtechllc.com";
-      const r = await fetch("/api/admin/seo/indexnow", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: [baseUrl, `${baseUrl}/blog`] }) });
-      const d = await r.json(); setIndexNowResult(d.success ? "Submitted " + (d.results?.length || 0) + " URLs" : d.error || "Failed");
+      let urls: string[] = [baseUrl];
+      try {
+        const sitemapRes = await fetch("/sitemap.xml");
+        const sitemapText = await sitemapRes.text();
+        const locMatches = sitemapText.match(/<loc>([^<]+)<\/loc>/g);
+        if (locMatches && locMatches.length > 0) {
+          urls = locMatches.map((m) => m.replace(/<\/?loc>/g, "")).filter(Boolean);
+        }
+      } catch { /* fallback to just baseUrl */ }
+
+      const r = await fetch("/api/admin/seo/indexnow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urls }),
+      });
+      const d = await r.json();
+
+      if (d.error) {
+        setIndexNowResult(d.error);
+      } else if (d.results) {
+        const succeeded = d.results.filter((r: { success: boolean }) => r.success).length;
+        setIndexNowResult(`Submitted ${succeeded}/${d.results.length} URLs`);
+      } else if (d.result) {
+        setIndexNowResult(d.result.success ? "Submitted 1 URL" : "Failed to submit");
+      } else if (d.message) {
+        setIndexNowResult(d.message);
+      } else {
+        setIndexNowResult("Unknown response");
+      }
     } catch { setIndexNowResult("Failed to connect"); }
     setIndexNowLoading(false);
   }, [siteInfo]);
