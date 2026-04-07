@@ -24,9 +24,6 @@ import {
   LiquidGlassCard,
   LiquidGlassPill,
   CTABanner,
-  IconBox,
-  CardTitle,
-  Body,
   AnimatedH1,
 } from "@/components/kit";
 

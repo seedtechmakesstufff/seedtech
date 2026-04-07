@@ -9,7 +9,6 @@ import {
   ShieldAlert,
   HardDrive,
   AlertTriangle,
-  CheckCircle2,
   TrendingDown,
   Users,
   Wrench,
