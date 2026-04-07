@@ -11,24 +11,34 @@ export function AuditForm() {
     e.preventDefault();
     setLoading(true);
     const form = e.currentTarget;
+    const website = (form.elements.namedItem("website") as HTMLInputElement).value;
+    const industry = (form.elements.namedItem("industry") as HTMLSelectElement).value;
+    const challenge = (form.elements.namedItem("message") as HTMLTextAreaElement).value;
+
+    // Build a combined message so the admin sees all context
+    const messageParts: string[] = [];
+    if (challenge) messageParts.push(challenge);
+    if (website) messageParts.push(`Website: ${website}`);
+    if (industry) messageParts.push(`Industry: ${industry}`);
+
     const data = {
-      name: (form.elements.namedItem("name") as HTMLInputElement).value,
+      fullName: (form.elements.namedItem("name") as HTMLInputElement).value,
       email: (form.elements.namedItem("email") as HTMLInputElement).value,
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
-      website: (form.elements.namedItem("website") as HTMLInputElement).value,
-      industry: (form.elements.namedItem("industry") as HTMLSelectElement).value,
-      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
-      subject: "Free Website & Technology Audit Request",
+      service: "Free Website & Technology Audit",
+      message: messageParts.join("\n") || "Free Website & Technology Audit Request",
     };
 
     try {
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!res.ok) console.error("[AuditForm] API error:", res.status, await res.text());
       setSubmitted(true);
-    } catch {
+    } catch (err) {
+      console.error("[AuditForm] Network error:", err);
       // Still show success to avoid blocking UX
       setSubmitted(true);
     } finally {
