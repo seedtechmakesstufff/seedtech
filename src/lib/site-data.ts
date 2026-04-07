@@ -304,6 +304,6 @@ export async function getSiteUrl(
   return (
     process.env.GOOGLE_SEARCH_CONSOLE_SITE?.replace("sc-domain:", "https://") ||
     process.env.NEXTAUTH_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL || ""
+    process.env.NEXT_PUBLIC_SITE_URL || "https://seedtechllc.com"
   );
 }

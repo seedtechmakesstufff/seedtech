@@ -37,7 +37,7 @@ export async function PUT(
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // Auto-ping IndexNow when a post is published or content is updated while published
-  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE || process.env.NEXT_PUBLIC_SITE_URL || "";
+  const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE || process.env.NEXT_PUBLIC_SITE_URL || "https://seedtechllc.com";
   const shouldPing =
     isIndexNowConfigured() &&
     updated.status === "published" &&

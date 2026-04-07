@@ -6,7 +6,7 @@
 
 import { type ReactElement } from "react";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://seedtechllc.com";
 const BUSINESS_NAME = process.env.NEXT_PUBLIC_BUSINESS_NAME || "";
 const LOGO_URL = `${SITE_URL}/images/logo.png`;
 

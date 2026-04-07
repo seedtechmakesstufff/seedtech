@@ -330,7 +330,7 @@ export default function SEODashboardPage() {
     setIndexNowLoading(true); setIndexNowResult(null);
     try {
       // Build URLs dynamically from site info
-      const baseUrl = siteInfo?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "";
+      const baseUrl = siteInfo?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "https://seedtechllc.com";
       const r = await fetch("/api/admin/seo/indexnow", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: [baseUrl, `${baseUrl}/blog`] }) });
       const d = await r.json(); setIndexNowResult(d.success ? "Submitted " + (d.results?.length || 0) + " URLs" : d.error || "Failed");
     } catch { setIndexNowResult("Failed to connect"); }
