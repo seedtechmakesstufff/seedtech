@@ -4,6 +4,7 @@ import { ArrowRight, PhoneCall, Building2, Landmark, ShoppingBag, Wrench, Shield
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { GradientOrb, GridPattern, LiquidGlassCard, LiquidGlassPill, CTABanner, IconBox, CardTitle, Body, AnimatedH1 } from "@/components/kit";
+import { TrustedBySection } from "@/components/home/TrustedBySection";
 
 export const metadata: Metadata = {
   title: "Chester IT Support | SeedTech — Managed IT Services in Chester, NJ",
@@ -117,6 +118,8 @@ export default function ChesterITSupportPage() {
           </div>
         </div>
       </Section>
+
+      <TrustedBySection />
 
       <Section>
         <SectionHeader title="IT Support in Chester — FAQ" align="left" />

@@ -4,6 +4,7 @@ import { ArrowRight, PhoneCall, MapPin, Scale, Truck, Stethoscope, Wrench, Shiel
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { GradientOrb, GridPattern, LiquidGlassCard, LiquidGlassPill, CTABanner, IconBox, CardTitle, Body, AnimatedH1 } from "@/components/kit";
+import { TrustedBySection } from "@/components/home/TrustedBySection";
 
 export const metadata: Metadata = {
   title: "Morris County IT Support | SeedTech — Managed IT Services in Morris County, NJ",
@@ -119,6 +120,8 @@ export default function MorrisCountyITSupportPage() {
           </div>
         </div>
       </Section>
+
+      <TrustedBySection />
 
       <Section>
         <SectionHeader title="Morris County IT Support — FAQ" align="left" />

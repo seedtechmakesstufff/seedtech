@@ -25,6 +25,7 @@ import {
   Body,
   AnimatedH1,
 } from "@/components/kit";
+import { TrustedBySection } from "@/components/home/TrustedBySection";
 
 export const metadata: Metadata = {
   title: "Morristown IT Support | SeedTech — Managed IT Services in Morristown, NJ",
@@ -176,6 +177,8 @@ export default function MorristownITSupportPage() {
           </div>
         </div>
       </Section>
+
+      <TrustedBySection />
 
       <Section>
         <SectionHeader title="IT Support in Morristown — FAQ" align="left" />

@@ -4,6 +4,7 @@ import { ArrowRight, PhoneCall, MapPin, Landmark, Stethoscope, ShoppingBag, Buil
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { GradientOrb, GridPattern, LiquidGlassCard, LiquidGlassPill, CTABanner, IconBox, CardTitle, Body, AnimatedH1 } from "@/components/kit";
+import { TrustedBySection } from "@/components/home/TrustedBySection";
 
 export const metadata: Metadata = {
   title: "Union County IT Support | SeedTech — Managed IT Services in Union County, NJ",
@@ -116,6 +117,8 @@ export default function UnionCountyITSupportPage() {
           </div>
         </div>
       </Section>
+
+      <TrustedBySection />
 
       <Section>
         <SectionHeader title="Union County IT Support — FAQ" align="left" />

@@ -29,6 +29,7 @@ import {
   AnimatedH1,
 } from "@/components/kit";
 import { FixingItRightTabs } from "@/components/managed-it/FixingItRightTabs";
+import { TrustedBySection } from "@/components/home/TrustedBySection";
 
 export const metadata: Metadata = {
   title: "Manhattan IT Support | SeedTech — Managed IT Services in Manhattan, NYC",
@@ -398,6 +399,8 @@ export default function ManhattanITSupportPage() {
           </div>
         </div>
       </Section>
+
+      <TrustedBySection />
 
       {/* FAQ */}
       <Section>
