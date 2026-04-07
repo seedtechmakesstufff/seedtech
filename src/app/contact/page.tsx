@@ -5,6 +5,7 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { FormInput, FormTextarea, FormSelect, Button, LiquidGlassCard } from "@/components/kit";
 import { CheckCircle2 } from "lucide-react";
+import { FormGuard, useFormGuard } from "@/components/forms/FormGuard";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -16,6 +17,7 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const guard = useFormGuard();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -32,7 +34,7 @@ export default function ContactPage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...guard.fields() }),
       });
 
       if (!res.ok) {
@@ -85,6 +87,7 @@ export default function ContactPage() {
 
         <LiquidGlassCard className="mx-auto max-w-2xl p-8 md:p-12">
           <form onSubmit={handleSubmit} className="space-y-6">
+          <FormGuard started={guard.started} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormInput
               label="Full Name"

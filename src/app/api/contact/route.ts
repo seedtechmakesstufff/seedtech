@@ -8,10 +8,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 import { sendContactNotification } from "@/lib/email";
+import { validateFormSecurity, getClientIp } from "@/lib/form-security";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
+    // ── Security checks (rate limit + honeypot + timing) ──
+    const ip = getClientIp(req);
+    const rejection = validateFormSecurity(ip, body);
+    if (rejection) return rejection;
+
+    // Strip security fields before processing
     const { fullName, email, phone, company, service, message } = body;
 
     if (!fullName || !email || !message) {

@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { FormGuard, useFormGuard } from "./FormGuard";
 
 export function AuditForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const guard = useFormGuard();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,6 +29,7 @@ export function AuditForm() {
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       service: "Free Website & Technology Audit",
       message: messageParts.join("\n") || "Free Website & Technology Audit Request",
+      ...guard.fields(),
     };
 
     try {
@@ -65,6 +68,7 @@ export function AuditForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <FormGuard started={guard.started} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-body-sm text-white/50 mb-2">Your Name *</label>

@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useQuoteFlow } from "./quote-flow-provider";
 import { QuotePriceCalculator } from "@/components/quote-generator/quote-price-calculator";
+import { useFormGuard } from "@/components/forms/FormGuard";
 import type { ServicePath, WebDevTier, QuoteFlowStep } from "./types";
 
 // ─── Web Dev tier data (reused from pricing page) ──────────────────────────
@@ -187,6 +188,7 @@ export function QuoteFlowModal() {
     currentSiteUrl: "",
     notes: "",
   });
+  const guard = useFormGuard();
 
   // ── Handle preselected service / tier ──
   useEffect(() => {
@@ -259,6 +261,7 @@ export function QuoteFlowModal() {
             currentSiteUrl: webForm.currentSiteUrl,
             notes: webForm.notes,
           },
+          ...guard.fields(),
         }),
       });
     } catch (err) {
@@ -288,6 +291,7 @@ export function QuoteFlowModal() {
             mdmMonthlyCost: itData?.mdmMonthlyCost,
             dealNotes: itData?.dealNotes,
           },
+          ...guard.fields(),
         }),
       });
     } catch (err) {
