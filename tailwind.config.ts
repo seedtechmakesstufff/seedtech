@@ -53,7 +53,7 @@ const config: Config = {
         display: ["4.5rem", { lineHeight: "1.05", letterSpacing: "0", fontWeight: "400" }],
         title: ["3.5rem", { lineHeight: "1.1", letterSpacing: "0", fontWeight: "400" }],
         "heading-lg": ["2.75rem", { lineHeight: "1.15", letterSpacing: "0", fontWeight: "400" }],
-        heading: ["2.25rem", { lineHeight: "1.2", letterSpacing: "0", fontWeight: "400" }],
+        heading: ["2.5rem", { lineHeight: "1.15", letterSpacing: "0", fontWeight: "400" }],
         subheading: ["1.5rem", { lineHeight: "1.35", letterSpacing: "0", fontWeight: "400" }],
         "card-title": ["1.125rem", { lineHeight: "1.4", letterSpacing: "0", fontWeight: "400" }],
         "body-lg": ["1.125rem", { lineHeight: "1.65", fontWeight: "400" }],

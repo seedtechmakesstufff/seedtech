@@ -59,7 +59,7 @@ export function SectionHeader({
           "font-display",
           titleAs === "h1"
             ? "text-[clamp(2.75rem,8vw,4.5rem)] leading-[1.05]"
-            : "text-heading md:text-heading-lg",
+            : "text-[clamp(2.5rem,6vw,2.75rem)] leading-[1.15]",
           isDark ? "text-white" : "text-dark-base"
         )}
       />

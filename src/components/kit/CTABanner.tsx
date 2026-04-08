@@ -40,13 +40,13 @@ export function CTABanner({
     )}>
       <AmbientGlow />
       <div className="relative z-10 space-y-6">
-        <AnimatedH2 className="font-display text-heading md:text-heading-lg text-white">
+        <AnimatedH2 className="font-display text-[clamp(2.5rem,6vw,2.75rem)] leading-[1.15] text-white">
           {title}
         </AnimatedH2>
         <p className="text-body-lg text-white/60 max-w-md mx-auto">
           {description}
         </p>
-        <div className="flex items-center justify-center gap-4 pt-2">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
           {onPrimaryClick ? (
             <Button variant="primary" icon="arrow" onClick={onPrimaryClick}>
               {primaryLabel}
