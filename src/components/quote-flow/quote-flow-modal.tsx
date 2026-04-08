@@ -26,6 +26,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackLead } from "@/lib/gtag";
 import { useQuoteFlow } from "./quote-flow-provider";
 import { QuotePriceCalculator } from "@/components/quote-generator/quote-price-calculator";
 import { useFormGuard } from "@/components/forms/FormGuard";
@@ -246,58 +247,56 @@ export function QuoteFlowModal() {
 
   // ── Web Dev form submit ──
   const handleWebSubmit = async () => {
-    try {
-      await fetch("/api/quote-submission", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          source: "quote_web",
-          fullName: webForm.fullName,
-          email: webForm.email,
-          phone: webForm.phone,
-          company: webForm.businessName,
-          tier: selectedTier,
-          metadata: {
-            currentSiteUrl: webForm.currentSiteUrl,
-            notes: webForm.notes,
-          },
-          ...guard.fields(),
-        }),
-      });
-    } catch (err) {
-      console.error("Failed to save web quote:", err);
-    }
+    // Fire tracking immediately — don't wait for the API call
+    trackLead("quote_web", { tier: selectedTier || "unknown" });
     setStep("thank-you");
+    // Save to DB in background (non-blocking)
+    fetch("/api/quote-submission", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: "quote_web",
+        fullName: webForm.fullName,
+        email: webForm.email,
+        phone: webForm.phone,
+        company: webForm.businessName,
+        tier: selectedTier,
+        metadata: {
+          currentSiteUrl: webForm.currentSiteUrl,
+          notes: webForm.notes,
+        },
+        ...guard.fields(),
+      }),
+    }).catch((err) => console.error("Failed to save web quote:", err));
   };
 
   // ── IT Support submit handler ──
   const handleItSubmit = async (itData?: Record<string, unknown>) => {
-    try {
-      await fetch("/api/quote-submission", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          source: "quote_it",
-          fullName: (itData?.fullName as string) ?? "",
-          email: (itData?.email as string) ?? "",
-          phone: (itData?.phone as string) ?? "",
-          company: (itData?.clientName as string) ?? "",
-          tier: (itData?.selectedPlan as string) ?? "",
-          metadata: {
-            seats: itData?.seats,
-            includeMdm: itData?.includeMdm,
-            mdmSeats: itData?.mdmSeats,
-            yearlyCost: itData?.yearlyCost,
-            mdmMonthlyCost: itData?.mdmMonthlyCost,
-            dealNotes: itData?.dealNotes,
-          },
-          ...guard.fields(),
-        }),
-      });
-    } catch (err) {
-      console.error("Failed to save IT quote:", err);
-    }
+    // Fire tracking immediately — don't wait for the API call
+    trackLead("quote_it", { tier: (itData?.selectedPlan as string) || "unknown" });
     setStep("thank-you");
+    // Save to DB in background (non-blocking)
+    fetch("/api/quote-submission", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: "quote_it",
+        fullName: (itData?.fullName as string) ?? "",
+        email: (itData?.email as string) ?? "",
+        phone: (itData?.phone as string) ?? "",
+        company: (itData?.clientName as string) ?? "",
+        tier: (itData?.selectedPlan as string) ?? "",
+        metadata: {
+          seats: itData?.seats,
+          includeMdm: itData?.includeMdm,
+          mdmSeats: itData?.mdmSeats,
+          yearlyCost: itData?.yearlyCost,
+          mdmMonthlyCost: itData?.mdmMonthlyCost,
+          dealNotes: itData?.dealNotes,
+        },
+        ...guard.fields(),
+      }),
+    }).catch((err) => console.error("Failed to save IT quote:", err));
   };
 
   const isWebFormValid =

@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import { FormInput, FormTextarea, FormSelect, Button, LiquidGlassCard } from "@/components/kit";
 import { CheckCircle2 } from "lucide-react";
 import { FormGuard, useFormGuard } from "@/components/forms/FormGuard";
+import { trackLead } from "@/lib/gtag";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -42,6 +43,7 @@ export default function ContactPage() {
         throw new Error(data.error || "Something went wrong.");
       }
 
+      trackLead("contact", { service: form.service });
       setStatus("success");
       setForm({ fullName: "", email: "", company: "", service: "it", message: "" });
     } catch (err) {

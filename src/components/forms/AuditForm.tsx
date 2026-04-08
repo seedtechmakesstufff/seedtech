@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { FormGuard, useFormGuard } from "./FormGuard";
+import { trackLead } from "@/lib/gtag";
 
 export function AuditForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -39,6 +40,7 @@ export function AuditForm() {
         body: JSON.stringify(data),
       });
       if (!res.ok) console.error("[AuditForm] API error:", res.status, await res.text());
+      trackLead("audit");
       setSubmitted(true);
     } catch (err) {
       console.error("[AuditForm] Network error:", err);
