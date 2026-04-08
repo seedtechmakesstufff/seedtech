@@ -6,7 +6,6 @@ import {
   PhoneCall,
   Shield,
   Users,
-  HardDrive,
   Settings,
   Cloud,
   CheckCircle2,
@@ -15,8 +14,6 @@ import {
   Scale,
   Stethoscope,
   Truck,
-  Laptop,
-  UserPlus,
   FolderOpen,
   Globe,
 } from "lucide-react";

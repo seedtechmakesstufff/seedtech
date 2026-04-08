@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import {
   ArrowRight,
   MapPin,
-  Wrench,
   Server,
   Network,
   Wifi,
@@ -15,9 +14,6 @@ import {
   Shield,
   CheckCircle2,
   Building2,
-  Scale,
-  Stethoscope,
-  Truck,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
