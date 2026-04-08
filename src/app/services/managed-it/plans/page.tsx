@@ -2,9 +2,6 @@ import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
-  Shield,
-  ShieldCheck,
-  ShieldPlus,
   Check,
   X,
   Smartphone,
@@ -69,8 +66,6 @@ const breadcrumbSchema = {
   ],
 };
 
-const tierIcons = [Shield, ShieldCheck, ShieldPlus];
-const tierColors = ["text-blue-400", "text-seed-400", "text-purple-400"];
 const tierBorders = ["border-blue-500/20", "border-seed-500/30", "border-purple-500/20"];
 const tierBgs = ["", "liquid-glass-tinted-seed", ""];
 
@@ -118,17 +113,18 @@ export default function PlansPage() {
       <Section>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {newPlans.map((plan, i) => {
-            const TierIcon = tierIcons[i];
             const isPopular = i === 1;
+            const PlanIcon = plan.Icon;
             return (
-              <LiquidGlassCard key={plan.name} className={`p-8 flex flex-col relative ${tierBorders[i]} ${tierBgs[i]}`}>
+              <div key={plan.name} className="relative pt-3">
                 {isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
                     <LiquidGlassPill variant="seed">Most Popular</LiquidGlassPill>
                   </div>
                 )}
-                <div className="flex items-center gap-3 mb-6 mt-2">
-                  <IconBox icon={TierIcon} className={tierColors[i]} />
+                <LiquidGlassCard className={`p-8 flex flex-col h-full ${tierBorders[i]} ${tierBgs[i]}`}>
+                <div className="flex items-center gap-4 mb-6 mt-2">
+                  {PlanIcon && <PlanIcon className="w-8 h-8 text-seed-400 shrink-0" />}
                   <div>
                     <h3 className="font-display text-card-title text-white">{plan.name}</h3>
                     <p className="text-body-sm text-light-base/40">{plan.description}</p>
@@ -161,6 +157,7 @@ export default function PlansPage() {
                   Get Started
                 </QuoteButton>
               </LiquidGlassCard>
+              </div>
             );
           })}
         </div>
