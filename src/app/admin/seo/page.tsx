@@ -1692,7 +1692,7 @@ function KeywordsSection() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3">
         <div>
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
             <Target className="w-5 h-5 text-purple-400" />
@@ -1703,7 +1703,7 @@ function KeywordsSection() {
             When generating metadata for a page, keywords targeting it are marked as high-priority.
           </p>
         </div>
-        <div className="flex items-center gap-1 bg-dark-elevated border border-white/[0.06] rounded-lg p-0.5">
+        <div className="flex items-center gap-1 bg-dark-elevated border border-white/[0.06] rounded-lg p-0.5 w-fit">
           <button
             onClick={() => setView("manage")}
             className={cn(
@@ -1974,9 +1974,9 @@ function KeywordManageView() {
 
       {/* Keywords table */}
       <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-dark-elevated">
               <tr className="border-b border-white/[0.06]">
                 <th className="text-left px-4 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Keyword</th>
                 <th className="text-center px-3 py-3 text-xs font-semibold text-white/50 uppercase tracking-wider">Tier</th>
