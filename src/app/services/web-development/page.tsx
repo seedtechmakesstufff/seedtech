@@ -139,8 +139,8 @@ export default function WebDevelopmentPage() {
   return (
     <div className="pt-20">
       <ServiceJsonLd
-        name="Web Development"
-        description="Custom websites, ecommerce platforms, and web applications built with modern frameworks. From branding to full-stack development."
+        name="Web Design and Development Services"
+        description="Professional web design services and web development company. Business websites, ecommerce platforms, and custom web applications built with modern frameworks."
         url="https://seedtechllc.com/services/web-development"
       />
       <BreadcrumbJsonLd
@@ -159,13 +159,13 @@ export default function WebDevelopmentPage() {
         <GridPattern />
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <p className="text-eyebrow uppercase tracking-[0.2em] text-seed-400 mb-6">
-            Web Development
+            Web Design &amp; Development Services
           </p>
           <AnimatedH1 highlightWords={["Ecommerce,", "Platforms"]} className="mb-8 text-center">
-            Websites, Ecommerce, and Custom Platforms — Built for How Your Business Actually Operates
+            Professional Web Design Services — Websites, Ecommerce, and Custom Platforms
           </AnimatedH1>
           <p className="text-body-lg text-light-base/50 max-w-2xl mx-auto mb-4 leading-relaxed">
-            From fast-launch business websites on the SeedTech Platform to full-stack ecommerce and custom software development, we build digital systems that are designed around the business — not forced into a one-size-fits-all template.
+            SeedTech is a web development company that builds modern websites, ecommerce stores, and custom web applications. From fast-launch business websites on the SeedTech Platform to full-stack ecommerce and custom software development — every project is designed around the business, not forced into a template.
           </p>
         </div>
       </section>
@@ -185,10 +185,10 @@ export default function WebDevelopmentPage() {
               highlightWords={["Three"]}
               className="font-display text-heading md:text-heading-lg text-white leading-tight mb-4"
             >
-              Three Ways We Build
+              Three Web Development Services — Choose Your Path
             </AnimatedH2>
             <p className="text-sm md:text-base text-white/40 max-w-lg mx-auto">
-              Every business is different. Pick the track that fits yours.
+              Every business is different. Whether you need a professional website, a redesign, or a custom web application — pick the track that fits.
             </p>
           </div>
 
@@ -209,7 +209,7 @@ export default function WebDevelopmentPage() {
                   Standard Website on the SeedTech Platform
                 </h3>
                 <p className="text-sm text-white/50 leading-relaxed mb-6 flex-1">
-                  For service businesses, lead-generation brands, and professional firms, the SeedTech Platform is the fastest way to launch a high-performance site with modern infrastructure and SEO Autopilot already configured from your business context.
+                  For service businesses, lead-generation brands, and professional firms, the SeedTech Platform is the fastest way to launch a professional website with modern infrastructure and SEO Autopilot already configured. Also ideal for website redesign projects.
                 </p>
                 <div className="flex items-center gap-2 text-seed-400 text-sm font-medium group-hover:gap-3 transition-all duration-300">
                   <span>Most popular</span>
@@ -420,7 +420,7 @@ export default function WebDevelopmentPage() {
               Pricing
             </p>
             <AnimatedH2 className="font-display text-heading md:text-title text-white">
-              Simple, Transparent Pricing
+              Web Development Services — Transparent Pricing
             </AnimatedH2>
           </div>
 

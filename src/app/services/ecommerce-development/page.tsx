@@ -131,8 +131,8 @@ export default function EcommerceDevelopmentPage() {
   return (
     <div className="pt-20">
       <ServiceJsonLd
-        name="Ecommerce Development"
-        description="Ecommerce design and development on Shopify, BigCommerce, and WordPress for businesses that need more than a basic storefront."
+        name="Ecommerce Development Services"
+        description="Ecommerce development company specializing in Shopify, BigCommerce, and WooCommerce. Ecommerce web design, platform migrations, and custom storefront development."
         url="https://seedtechllc.com/services/ecommerce-development"
       />
       <BreadcrumbJsonLd
@@ -153,19 +153,16 @@ export default function EcommerceDevelopmentPage() {
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400 mb-6">
-            Ecommerce Development
+            Ecommerce Development Company
           </p>
           <AnimatedH1
             highlightWords={["Selling,", "Scale"]}
             className="mb-8 text-center leading-[1.05]"
           >
-            Ecommerce Built for Selling, Operations, and Scale
+            Ecommerce Web Development — Built for Selling, Operations, and Scale
           </AnimatedH1>
           <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
-            We design and develop ecommerce experiences on Shopify, BigCommerce, and WordPress for
-            businesses that need more than a basic storefront. From platform selection and storefront
-            UX to catalog structure, integrations, and custom functionality — we build ecommerce
-            systems around how the business actually sells.
+            SeedTech is an ecommerce development company that designs and builds ecommerce experiences on Shopify, BigCommerce, and WordPress. From platform selection and ecommerce web design to catalog structure, integrations, and custom functionality — we deliver full-stack ecommerce development services around how the business actually sells.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <QuoteButton
@@ -200,13 +197,13 @@ export default function EcommerceDevelopmentPage() {
             More Than a Storefront Build
           </AnimatedH2>
           <p className="text-sm md:text-[15px] text-white/50 leading-relaxed mb-4">
-            Strong ecommerce development is not just about launching a homepage, product pages,
+            Strong ecommerce web development is not just about launching a homepage, product pages,
             and a checkout. It is about building the structure behind the storefront: the platform
             fit, the catalog, the content, the customer journey, and the operational realities
             that keep the business moving.
           </p>
           <p className="text-sm md:text-[15px] text-white/50 leading-relaxed">
-            We build ecommerce systems that are designed to support selling — not just look like
+            As an ecommerce web design company, we build systems that are designed to support selling — not just look like
             they do.
           </p>
         </div>
@@ -265,7 +262,7 @@ export default function EcommerceDevelopmentPage() {
               highlightWords={["Ecommerce"]}
               className="font-display text-3xl md:text-4xl font-bold text-white leading-tight"
             >
-              What We Build in Ecommerce
+              Ecommerce Development Services We Deliver
             </AnimatedH2>
           </div>
 
@@ -392,10 +389,10 @@ export default function EcommerceDevelopmentPage() {
             highlightWords={["$15,000"]}
             className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-6"
           >
-            Ecommerce Projects Starting at $15,000
+            Ecommerce Development Projects Starting at $15,000
           </AnimatedH2>
           <p className="text-sm md:text-[15px] text-white/45 leading-relaxed mb-10 max-w-lg mx-auto">
-            Every ecommerce project is scoped individually. We start with a discovery
+            Every ecommerce development project is scoped individually. We start with a discovery
             conversation to understand the platform, catalog, and feature requirements — then
             provide an accurate budget and timeline estimate.
           </p>

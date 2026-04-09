@@ -104,8 +104,8 @@ export default function SeedTechPlatformPage() {
   return (
     <div className="pt-20">
       <ServiceJsonLd
-        name="SeedTech Platform"
-        description="Fast-launch website infrastructure for service businesses and lead-generation brands. Built on Next.js, you own your code, and SEO Autopilot is configured from day one."
+        name="Business Website Design — SeedTech Platform"
+        description="Professional business website design starting at $2,500. Fast-launch website infrastructure for service businesses and lead-generation brands with SEO Autopilot built in."
         url="https://seedtechllc.com/services/seedtech-platform"
       />
       <BreadcrumbJsonLd
@@ -139,7 +139,7 @@ export default function SeedTechPlatformPage() {
             highlightWords={["Faster", "SEO"]}
             className="mb-8 text-center leading-[1.05]"
           >
-            Launch a Custom Website Faster — With SEO Already Built In
+            Business Website Design — Launch a Custom Website Faster With SEO Already Built In
           </AnimatedH1>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -190,10 +190,10 @@ export default function SeedTechPlatformPage() {
                 highlightWords={["Website"]}
                 className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-6"
               >
-                A Faster Path to Website Development
+                A Faster Path to Professional Website Design
               </AnimatedH2>
               <p className="text-sm md:text-[15px] text-white/50 leading-relaxed">
-                The SeedTech Platform is our fast-launch website infrastructure for service
+                The SeedTech Platform is our business website design infrastructure for service
                 businesses, professional firms, and lead-generation brands. We use your business
                 context to scaffold the site, shape the page structure, and configure SEO Autopilot
                 from day one — so you launch faster with a site that is ready to work.
@@ -420,7 +420,7 @@ export default function SeedTechPlatformPage() {
               highlightWords={["$2,500"]}
               className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-5"
             >
-              Website Builds Starting at $2,500
+              Business Website Design Starting at $2,500
             </AnimatedH2>
             <p className="text-sm text-white/40 max-w-lg mx-auto">
               Both options are built on the SeedTech Platform and include SEO Autopilot setup.

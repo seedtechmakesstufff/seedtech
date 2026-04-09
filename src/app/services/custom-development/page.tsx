@@ -136,8 +136,8 @@ export default function CustomDevelopmentPage() {
   return (
     <div className="pt-20">
       <ServiceJsonLd
-        name="Custom Development"
-        description="Custom software, platforms, and applications built around real workflows. SaaS products, internal tools, portals, PWAs, and business systems."
+        name="Custom Web Application Development"
+        description="Custom web app development company. SaaS products, business portals, dashboards, internal tools, and web applications built around real workflows."
         url="https://seedtechllc.com/services/custom-development"
       />
       <BreadcrumbJsonLd
@@ -158,18 +158,17 @@ export default function CustomDevelopmentPage() {
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-6">
-            Custom Development
+            Custom Web App Development
           </p>
           <AnimatedH1
             highlightWords={["Software,", "Real"]}
             className="mb-8 text-center leading-[1.05]"
           >
-            Custom Software, Platforms, and Applications Built Around Real Workflows
+            Custom Web Application Development — Software, Platforms, and Systems Built Around Real Workflows
           </AnimatedH1>
           <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
-            When your needs go beyond a standard website or off-the-shelf platform, we design and
-            develop custom systems tailored to how your business actually works. From SaaS products
-            and internal tools to portals, apps, PWAs, and business platforms — we build software
+            When your needs go beyond a standard website or off-the-shelf platform, SeedTech delivers custom web app development tailored to how your business actually works. From SaaS products
+            and internal tools to web applications, PWAs, and business platforms — we build software
             with real logic behind it.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -209,7 +208,7 @@ export default function CustomDevelopmentPage() {
             dashboards, permissions, data models, and business logic.
           </p>
           <p className="text-sm md:text-[15px] text-white/50 leading-relaxed">
-            That is where custom development becomes the right path. We design and build software
+            That is where custom web development becomes the right path. As a web application development company, we design and build software
             systems that support real operations, real products, and real workflows — not just
             marketing pages.
           </p>
@@ -229,7 +228,7 @@ export default function CustomDevelopmentPage() {
               highlightWords={["Build"]}
               className="font-display text-3xl md:text-4xl font-bold text-white leading-tight"
             >
-              What We Build
+              Web App Development — What We Build
             </AnimatedH2>
           </div>
 
@@ -470,10 +469,10 @@ export default function CustomDevelopmentPage() {
             highlightWords={["Scoped"]}
             className="font-display text-3xl md:text-4xl font-bold text-white leading-tight mb-6"
           >
-            Every Custom Project Is Scoped Individually
+            Every Custom Web App Development Project Is Scoped Individually
           </AnimatedH2>
           <p className="text-sm md:text-[15px] text-white/45 leading-relaxed mb-10 max-w-lg mx-auto">
-            Custom development scope varies significantly based on complexity, users, integrations,
+            Custom website development scope varies significantly based on complexity, users, integrations,
             and business logic. We start with a discovery conversation to understand what the system
             needs to do — then provide a detailed scope, timeline, and budget.
           </p>
