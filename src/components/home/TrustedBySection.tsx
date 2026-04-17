@@ -234,9 +234,9 @@ export function TrustedBySection() {
         <div className="mx-auto max-w-3xl px-6 text-center mb-16">
           <AnimatedH2
             className="font-display text-heading md:text-heading-lg text-white leading-[1.1]"
-            highlightWords={[]}
+            highlightWords={["Any"]}
           >
-            Trusted by Brands
+            Trusted by Businesses of Any Size
           </AnimatedH2>
         </div>
 

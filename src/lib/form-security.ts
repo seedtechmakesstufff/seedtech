@@ -70,3 +70,43 @@ export function validateFormSecurity(
 
   return null; // All checks passed
 }
+
+/**
+ * Verify a reCAPTCHA v3 token against Google's API.
+ * Returns true if the score meets the threshold (≥ 0.5).
+ * Returns true (graceful pass) if the secret key is not configured.
+ */
+export async function verifyRecaptcha(token: string | undefined): Promise<boolean> {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) return true; // Skip check if not configured
+
+  if (!token) {
+    console.warn("[form-security] reCAPTCHA token missing");
+    return false;
+  }
+
+  try {
+    const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ secret, response: token }),
+    });
+    const data = await res.json() as { success: boolean; score?: number; "error-codes"?: string[] };
+
+    if (!data.success) {
+      console.warn("[form-security] reCAPTCHA failed:", data["error-codes"]);
+      return false;
+    }
+
+    const score = data.score ?? 1;
+    if (score < 0.5) {
+      console.warn(`[form-security] reCAPTCHA low score: ${score}`);
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error("[form-security] reCAPTCHA verification error:", err);
+    return true; // Graceful pass on network error
+  }
+}

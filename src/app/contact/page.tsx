@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { FormInput, FormTextarea, FormSelect, Button, LiquidGlassCard } from "@/components/kit";
@@ -8,7 +9,7 @@ import { CheckCircle2 } from "lucide-react";
 import { FormGuard, useFormGuard } from "@/components/forms/FormGuard";
 import { trackLead } from "@/lib/gtag";
 
-export default function ContactPage() {
+function ContactForm() {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -19,6 +20,7 @@ export default function ContactPage() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const guard = useFormGuard();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -26,16 +28,21 @@ export default function ContactPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     setStatus("submitting");
     setErrorMsg("");
+
+    let recaptchaToken = "";
+    if (executeRecaptcha) {
+      recaptchaToken = await executeRecaptcha("contact_form");
+    }
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, ...guard.fields() }),
+        body: JSON.stringify({ ...form, ...guard.fields(), recaptchaToken }),
       });
 
       if (!res.ok) {
@@ -50,7 +57,7 @@ export default function ContactPage() {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
     }
-  };
+  }, [executeRecaptcha, form, guard]);
 
   if (status === "success") {
     return (
@@ -153,10 +160,24 @@ export default function ContactPage() {
             >
               {status === "submitting" ? "Sending…" : "Send Message"}
             </Button>
+            <p className="mt-3 text-xs text-white/30">
+              Protected by reCAPTCHA.{" "}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/50">Privacy</a>
+              {" & "}
+              <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/50">Terms</a>
+            </p>
           </div>
           </form>
         </LiquidGlassCard>
       </Section>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ""}>
+      <ContactForm />
+    </GoogleReCaptchaProvider>
   );
 }
