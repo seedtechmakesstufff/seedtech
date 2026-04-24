@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     // ── Security checks (rate limit + honeypot + timing) ──
     const ip = getClientIp(req);
-    const rejection = validateFormSecurity(ip, body);
+    const rejection = await validateFormSecurity(ip, body);
     if (rejection) return rejection;
 
     // ── reCAPTCHA v3 verification ──

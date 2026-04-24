@@ -154,6 +154,15 @@ export default function RootLayout({
             gtag('config', 'AW-628431508');
           `}
         </Script>
+
+        {/* reCAPTCHA v3 — invisible bot scoring, used by all public forms */}
+        {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+          <Script
+            src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+            strategy="afterInteractive"
+          />
+        )}
+
         <PublicShell>{children}</PublicShell>
       </body>
     </html>

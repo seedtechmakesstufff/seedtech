@@ -4,11 +4,13 @@ import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { FormGuard, useFormGuard } from "./FormGuard";
 import { trackLead } from "@/lib/gtag";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 export function AuditForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const guard = useFormGuard();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,6 +32,7 @@ export function AuditForm() {
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       service: "Free Website & Technology Audit",
       message: messageParts.join("\n") || "Free Website & Technology Audit Request",
+      recaptchaToken: executeRecaptcha ? await executeRecaptcha("audit_form") : "",
       ...guard.fields(),
     };
 

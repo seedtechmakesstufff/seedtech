@@ -30,6 +30,7 @@ import { trackLead } from "@/lib/gtag";
 import { useQuoteFlow } from "./quote-flow-provider";
 import { QuotePriceCalculator } from "@/components/quote-generator/quote-price-calculator";
 import { useFormGuard } from "@/components/forms/FormGuard";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import type { ServicePath, WebDevTier, QuoteFlowStep } from "./types";
 
 // ─── Web Dev tier data (reused from pricing page) ──────────────────────────
@@ -190,6 +191,7 @@ export function QuoteFlowModal() {
     notes: "",
   });
   const guard = useFormGuard();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   // ── Handle preselected service / tier ──
   useEffect(() => {
@@ -247,10 +249,9 @@ export function QuoteFlowModal() {
 
   // ── Web Dev form submit ──
   const handleWebSubmit = async () => {
-    // Fire tracking immediately — don't wait for the API call
     trackLead("quote_web", { tier: selectedTier || "unknown" });
     setStep("thank-you");
-    // Save to DB in background (non-blocking)
+    const recaptchaToken = executeRecaptcha ? await executeRecaptcha("quote_web") : "";
     fetch("/api/quote-submission", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -261,6 +262,7 @@ export function QuoteFlowModal() {
         phone: webForm.phone,
         company: webForm.businessName,
         tier: selectedTier,
+        recaptchaToken,
         metadata: {
           currentSiteUrl: webForm.currentSiteUrl,
           notes: webForm.notes,
@@ -272,10 +274,9 @@ export function QuoteFlowModal() {
 
   // ── IT Support submit handler ──
   const handleItSubmit = async (itData?: Record<string, unknown>) => {
-    // Fire tracking immediately — don't wait for the API call
     trackLead("quote_it", { tier: (itData?.selectedPlan as string) || "unknown" });
     setStep("thank-you");
-    // Save to DB in background (non-blocking)
+    const recaptchaToken = executeRecaptcha ? await executeRecaptcha("quote_it") : "";
     fetch("/api/quote-submission", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -286,6 +287,7 @@ export function QuoteFlowModal() {
         phone: (itData?.phone as string) ?? "",
         company: (itData?.clientName as string) ?? "",
         tier: (itData?.selectedPlan as string) ?? "",
+        recaptchaToken,
         metadata: {
           seats: itData?.seats,
           includeMdm: itData?.includeMdm,

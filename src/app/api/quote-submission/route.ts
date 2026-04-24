@@ -8,16 +8,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_ID } from "@/lib/site-context";
 import { sendQuoteNotification } from "@/lib/email";
-import { validateFormSecurity, getClientIp } from "@/lib/form-security";
+import { validateFormSecurity, getClientIp, verifyRecaptcha } from "@/lib/form-security";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // ── Security checks (rate limit + honeypot + timing) ──
+    // ── Security checks (rate limit + honeypot + timing + content validation) ──
     const ip = getClientIp(req);
-    const rejection = validateFormSecurity(ip, body);
+    const rejection = await validateFormSecurity(ip, body);
     if (rejection) return rejection;
+
+    // ── reCAPTCHA v3 verification ──
+    const recaptchaOk = await verifyRecaptcha(body.recaptchaToken as string | undefined);
+    if (!recaptchaOk) {
+      return NextResponse.json({ error: "Bot check failed. Please try again." }, { status: 422 });
+    }
 
     // Strip security fields before processing
     const {

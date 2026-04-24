@@ -5,8 +5,8 @@
  *  1. A hidden honeypot <input> that bots auto-fill (humans never see it)
  *  2. A hidden timestamp <input> tracking when the form first rendered
  *
- * Both values are included automatically when the form is submitted as JSON.
- * The server checks these in `form-security.ts`.
+ * reCAPTCHA v3 tokens are fetched per-form via useGoogleReCaptcha() and
+ * passed as a top-level `recaptchaToken` field, not through FormGuard.
  *
  * Usage:
  *   import { FormGuard, useFormGuard } from "@/components/forms/FormGuard";
@@ -39,6 +39,27 @@ export function useFormGuard() {
       website_url: "", // honeypot — must be empty
     }),
   };
+}
+
+/** Hidden fields rendered inside a <form> element. */
+export function FormGuard({ started }: { started: number }) {
+  return (
+    <>
+      {/* Honeypot — invisible to humans, auto-filled by bots */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, height: 0, overflow: "hidden" }}>
+        <label htmlFor="website_url">Website URL</label>
+        <input
+          type="text"
+          id="website_url"
+          name="website_url"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
+      {/* Timing — records when the form rendered */}
+      <input type="hidden" name="_started" value={started} />
+    </>
+  );
 }
 
 /** Hidden fields rendered inside a <form> element. */
