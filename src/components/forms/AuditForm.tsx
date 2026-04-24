@@ -4,13 +4,19 @@ import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { FormGuard, useFormGuard } from "./FormGuard";
 import { trackLead } from "@/lib/gtag";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+
+async function getToken(action: string): Promise<string> {
+  try {
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    if (!siteKey || typeof window === "undefined" || !window.grecaptcha) return "";
+    return await window.grecaptcha.execute(siteKey, { action });
+  } catch { return ""; }
+}
 
 export function AuditForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const guard = useFormGuard();
-  const { executeRecaptcha } = useGoogleReCaptcha();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,7 +38,7 @@ export function AuditForm() {
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       service: "Free Website & Technology Audit",
       message: messageParts.join("\n") || "Free Website & Technology Audit Request",
-      recaptchaToken: executeRecaptcha ? await executeRecaptcha("audit_form") : "",
+      recaptchaToken: await getToken("audit_form"),
       ...guard.fields(),
     };
 

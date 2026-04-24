@@ -50,24 +50,6 @@ function looksRandom(value: string): boolean {
   return false;
 }
 
-/** Verify a reCAPTCHA v3 token with Google. Returns true if score ≥ 0.5, false if bot, null if no token/error. */
-export async function verifyRecaptcha(token: string | undefined): Promise<boolean> {
-  const secret = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secret || !token) return true; // No secret configured — allow through
-  try {
-    const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `secret=${secret}&response=${token}`,
-    });
-    const data = await res.json() as { success: boolean; score: number };
-    if (!data.success) return false;
-    return data.score >= 0.5;
-  } catch {
-    return true; // Network error — don't block the form
-  }
-}
-
 export async function validateFormSecurity(
   ip: string,
   body: Record<string, unknown>

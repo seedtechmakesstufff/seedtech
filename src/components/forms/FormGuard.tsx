@@ -61,24 +61,3 @@ export function FormGuard({ started }: { started: number }) {
     </>
   );
 }
-
-/** Hidden fields rendered inside a <form> element. */
-export function FormGuard({ started }: { started: number }) {
-  return (
-    <>
-      {/* Honeypot — invisible to humans, auto-filled by bots */}
-      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, height: 0, overflow: "hidden" }}>
-        <label htmlFor="website_url">Website URL</label>
-        <input
-          type="text"
-          id="website_url"
-          name="website_url"
-          tabIndex={-1}
-          autoComplete="off"
-        />
-      </div>
-      {/* Timing — records when the form rendered */}
-      <input type="hidden" name="_started" value={started} />
-    </>
-  );
-}

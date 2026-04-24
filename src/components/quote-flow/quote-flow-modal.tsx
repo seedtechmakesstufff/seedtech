@@ -30,7 +30,6 @@ import { trackLead } from "@/lib/gtag";
 import { useQuoteFlow } from "./quote-flow-provider";
 import { QuotePriceCalculator } from "@/components/quote-generator/quote-price-calculator";
 import { useFormGuard } from "@/components/forms/FormGuard";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import type { ServicePath, WebDevTier, QuoteFlowStep } from "./types";
 
 // ─── Web Dev tier data (reused from pricing page) ──────────────────────────
@@ -191,7 +190,14 @@ export function QuoteFlowModal() {
     notes: "",
   });
   const guard = useFormGuard();
-  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  async function getToken(action: string): Promise<string> {
+    try {
+      const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+      if (!siteKey || !window.grecaptcha) return "";
+      return await window.grecaptcha.execute(siteKey, { action });
+    } catch { return ""; }
+  }
 
   // ── Handle preselected service / tier ──
   useEffect(() => {
@@ -251,7 +257,7 @@ export function QuoteFlowModal() {
   const handleWebSubmit = async () => {
     trackLead("quote_web", { tier: selectedTier || "unknown" });
     setStep("thank-you");
-    const recaptchaToken = executeRecaptcha ? await executeRecaptcha("quote_web") : "";
+    const recaptchaToken = await getToken("quote_web");
     fetch("/api/quote-submission", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -276,7 +282,7 @@ export function QuoteFlowModal() {
   const handleItSubmit = async (itData?: Record<string, unknown>) => {
     trackLead("quote_it", { tier: (itData?.selectedPlan as string) || "unknown" });
     setStep("thank-you");
-    const recaptchaToken = executeRecaptcha ? await executeRecaptcha("quote_it") : "";
+    const recaptchaToken = await getToken("quote_it");
     fetch("/api/quote-submission", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
