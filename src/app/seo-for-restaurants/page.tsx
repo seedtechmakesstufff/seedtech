@@ -7,7 +7,6 @@ import {
   Star,
   MapPin,
   Bot,
-  Search,
   Sparkles,
   TrendingUp,
   Users,

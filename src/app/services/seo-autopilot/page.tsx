@@ -2,10 +2,7 @@ import { buildMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import {
   ArrowRight,
-  Brain,
-  BarChart3,
   FileText,
-  LayoutDashboard,
   Search,
   Zap,
   CheckCircle2,
