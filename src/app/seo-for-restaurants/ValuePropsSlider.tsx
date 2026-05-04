@@ -75,7 +75,7 @@ export function ValuePropsSlider({ items }: Props) {
         {items.map((v) => (
           <div
             key={v.title}
-            className="group relative aspect-[4/5] shrink-0 snap-start rounded-2xl overflow-hidden border border-white/10 bg-dark-raised w-[80%] sm:w-[48%] lg:w-[calc((100%-2.5rem)/3)]"
+            className="group relative aspect-[3/4] sm:aspect-[4/5] shrink-0 snap-start rounded-2xl overflow-hidden border border-white/10 bg-dark-raised w-[80%] sm:w-[48%] lg:w-[calc((100%-2.5rem)/3)]"
           >
             {/* Background — real image or gradient placeholder */}
             <div className="absolute inset-0">
