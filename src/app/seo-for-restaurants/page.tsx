@@ -350,7 +350,7 @@ export default function RestaurantSeoPage() {
                 {/* Floating stat cards */}
                 <div className="absolute top-4 right-4 sm:top-6 sm:right-6 rounded-xl border border-white/15 bg-dark-base/70 px-3 py-2 sm:px-4 sm:py-2.5 backdrop-blur-md">
                   <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-seed-400">Map Pack</p>
-                  <p className="font-display text-sm sm:text-base font-bold text-white">#1 → #1</p>
+                  <p className="font-display text-sm sm:text-base font-bold text-white">#8 → #1</p>
                 </div>
                 <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 rounded-xl border border-white/15 bg-dark-base/70 px-3 py-2 sm:px-4 sm:py-2.5 backdrop-blur-md">
                   <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-seed-400">Reservations</p>
