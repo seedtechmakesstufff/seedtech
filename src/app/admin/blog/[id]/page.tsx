@@ -373,6 +373,7 @@ export default function EditBlogPostPage() {
               >
                 <option value="IT Support">IT Support</option>
                 <option value="Web Development">Web Development</option>
+                <option value="SEO">SEO</option>
                 <option value="Cybersecurity">Cybersecurity</option>
                 <option value="Business">Business</option>
                 <option value="Cloud">Cloud</option>

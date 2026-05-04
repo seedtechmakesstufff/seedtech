@@ -1,8 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
-  PhoneCall,
   Utensils,
   Star,
   MapPin,
@@ -12,10 +12,7 @@ import {
   Users,
   Calendar,
   CheckCircle2,
-  Globe,
   Brain,
-  Eye,
-  Smartphone,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -25,7 +22,6 @@ import {
   LiquidGlassCard,
   LiquidGlassPill,
   LiquidGlassButton,
-  IconBox,
   CardTitle,
   Body,
   AnimatedH1,
@@ -35,6 +31,9 @@ import {
 import type { FAQItem } from "@/components/kit";
 import { AutopilotCards } from "@/components/home/AutopilotCards";
 import { ValuePropsSlider } from "./ValuePropsSlider";
+import { RestaurantDemoCarousel } from "./RestaurantDemoCarousel";
+import { SeoBlogSection } from "./SeoBlogSection";
+import { SeoPlanCta } from "./SeoPlanCta";
 
 export const metadata: Metadata = {
   title:
@@ -68,54 +67,42 @@ const glassStyle: React.CSSProperties = {
   WebkitBackdropFilter: "blur(16px)",
 };
 
-const problems = [
-  {
-    icon: Eye,
-    title: "Diners search, but they don't find you",
-    body: "When someone within 5 miles searches \"best dinner spot near me\" or \"steakhouse with a private room,\" if you're not on the first page, you don't exist. Most restaurant websites are invisible in the only places that matter.",
-  },
-  {
-    icon: Bot,
-    title: "AI is the new word-of-mouth",
-    body: "ChatGPT, Google AI Overviews, and Gemini are now answering \"where should I eat tonight?\" before users ever click a result. If your restaurant isn't being cited by AI, you're losing reservations to the ones that are.",
-  },
-  {
-    icon: Smartphone,
-    title: "Your Google Business Profile is leaking leads",
-    body: "Most restaurants set up Google Business once and never touch it again. Photos go stale, hours fall out of sync, posts go silent — and Google quietly demotes you in Maps results.",
-  },
-];
-
 const valueProps = [
   {
     icon: <TrendingUp />,
     title: "More reservations from search",
     body: "Rank for the high-intent searches that actually fill tables — \"date night restaurants near me,\" \"best [cuisine] in [city],\" \"private dining for 20 guests.\" Local SEO is the channel with the lowest customer acquisition cost in hospitality.",
+    image: "/img/seo-autopilot/restaurants/restaurant_seo_rank_searches_2x.webp",
   },
   {
     icon: <MapPin />,
     title: "Dominate Google Maps in your radius",
     body: "Map Pack rankings drive 3x more clicks than organic results for restaurant searches. We optimize your Google Business Profile, manage reviews, and build the local citations and content that move you into the top 3 pins.",
+    image: "/img/seo-autopilot/restaurants/restaurant_seo_google_maps_2x.webp",
   },
   {
     icon: <Brain />,
     title: "Cited by ChatGPT, Gemini, and AI Overviews",
     body: "When AI assistants recommend restaurants, they pull from structured, citable content. We build pages that are explicitly designed to be quoted by AI — turning your menu, story, and reviews into AI-discoverable answers.",
+    image: "/img/seo-autopilot/restaurants/restaurant_seo_ai_citations_2x.webp",
   },
   {
     icon: <Star />,
     title: "More 5-star reviews, less effort",
     body: "Reviews are the #1 ranking factor for local restaurant SEO. We build automated review request flows, reply templates, and reputation tracking so your star count grows without you thinking about it.",
+    image: "/img/seo-autopilot/restaurants/restaurant_seo_reviews_card_2x.webp",
   },
   {
     icon: <Users />,
     title: "Capture diners researching you",
     body: "Most reservations start with \"is [restaurant] any good?\" We help you control that narrative — menu pages, dietary info pages, FAQ schema, and review showcases that convert researchers into bookings.",
+    image: "/img/seo-autopilot/restaurants/restaurant_seo_pages_convert_2x.webp",
   },
   {
     icon: <Calendar />,
     title: "Fill tables on slow nights",
     body: "Strategic content for Tuesday lunch, Wednesday happy hour, off-peak weekend brunches — targeting the searches that bring diners in when you need them most.",
+    image: "/img/seo-autopilot/restaurants/restaurant_seo_fill_tables_2x.webp",
   },
 ];
 
@@ -127,6 +114,7 @@ const plans = [
     tagline: "For restaurants ready to own local search",
     features: [
       "SEO Autopilot platform — full access",
+      "Up to 5 dedicated keyword landing pages (e.g. \"date night dinner [city],\" \"private dining for 20\")",
       "Google Business Profile optimization & weekly posts",
       "20 tracked keywords (local + AI search)",
       "2 published blog posts per month",
@@ -144,6 +132,7 @@ const plans = [
     tagline: "For restaurants competing in tough markets",
     features: [
       "Everything in Local Authority, plus:",
+      "10–20 dedicated keyword landing pages (multi-cuisine, multi-neighborhood, event-specific)",
       "60 tracked keywords (multi-location ready)",
       "4 published blog posts per month",
       "AI citation tracking (ChatGPT, Gemini, AI Overviews)",
@@ -215,11 +204,6 @@ const faqs: FAQItem[] = [
     question: "Do you handle multi-location restaurants?",
     answer:
       "Yes — the Market Dominator plan is built for multi-location restaurant groups. We build location-specific landing pages, manage multiple Google Business Profiles, and track per-location keyword performance separately. We also build a unified content strategy that lifts the brand across all locations.",
-  },
-  {
-    question: "What if I already have an SEO agency?",
-    answer:
-      "We're happy to do a side-by-side audit and show you exactly what they're delivering versus what we'd deliver. Our pricing is competitive with most boutique SEO agencies, but you also get the SEO Autopilot platform (a $400+/month value) and a free website rebuild — neither of which traditional agencies can offer.",
   },
   {
     question: "Is there a contract?",
@@ -315,8 +299,8 @@ export default function RestaurantSeoPage() {
               <LiquidGlassPill variant="seed" className="mb-6">
                 <Utensils className="w-3.5 h-3.5 mr-1.5" /> Restaurant SEO
               </LiquidGlassPill>
-              <AnimatedH1 className="mb-6 leading-[1.05]">
-                Fill more tables. Rank where your guests are searching.
+              <AnimatedH1 highlightWords={["Restaurants"]} className="mb-6 leading-[1.05]">
+                SEO Services for Restaurants
               </AnimatedH1>
               <p className="mb-6 text-body-lg leading-relaxed text-light-base/60">
                 Local SEO is the lowest-cost lead channel in hospitality — and most restaurants
@@ -330,20 +314,6 @@ export default function RestaurantSeoPage() {
                 </span>{" "}
                 — mobile-first, AI-ready, fully integrated with your reservation system. Normally $7,800.
               </p>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Link
-                  href="/contact?service=seo-restaurant"
-                  className="inline-flex items-center gap-2 rounded-xl liquid-glass-tinted-seed liquid-glass-hover px-8 py-3.5 text-sm font-medium text-white transition-all duration-300"
-                >
-                  Claim Your Free Rebuild <ArrowRight className="h-4 w-4" />
-                </Link>
-                <a
-                  href="tel:+19143628889"
-                  className="inline-flex items-center gap-2 rounded-xl liquid-glass px-8 py-3.5 text-sm font-medium text-white transition-all duration-200"
-                >
-                  <PhoneCall className="h-4 w-4" /> (914) 362-8889
-                </a>
-              </div>
               {/* Trust strip */}
               <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs text-white/40">
                 <div className="flex items-center gap-2">
@@ -364,87 +334,33 @@ export default function RestaurantSeoPage() {
                 </div>
               </div>
             </div>
-            {/* Hero visual placeholder */}
-            <div className="hidden lg:block relative">
-              <div className="relative aspect-[4/5] rounded-3xl border border-white/10 bg-gradient-to-br from-seed-500/20 via-emerald-500/10 to-blue-500/20 backdrop-blur-sm overflow-hidden">
-                <GridPattern />
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8 text-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-                    <Utensils className="h-10 w-10 text-seed-300" />
-                  </div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-white/30">
-                    Restaurant Hero Image
-                  </p>
-                  <p className="text-sm text-white/50 max-w-xs">
-                    Replace with hero shot of food, dining room, or owner / chef portrait
-                  </p>
-                </div>
-                {/* Resolution spec badge */}
-                <div className="absolute bottom-3 right-3 rounded-md bg-black/40 backdrop-blur-sm px-2 py-1 text-[10px] font-mono text-white/40 border border-white/10">
-                  placeholder · 1200×1500 (4:5)
-                </div>
+            {/* Hero visual */}
+            <div className="relative mt-8 lg:mt-0">
+              <div className="relative aspect-[4/3] sm:aspect-[4/4] lg:aspect-[4/5] rounded-3xl border border-white/10 overflow-hidden">
+                <Image
+                  src="/img/seo-autopilot/seo_restaurants.webp"
+                  alt="Restaurant SEO — more reservations from search"
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 40vw, 480px"
+                />
+                {/* Subtle dark overlay so stat cards stay legible */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-black/0" />
                 {/* Floating stat cards */}
-                <div className="absolute top-6 right-6 rounded-xl border border-white/15 bg-dark-base/70 px-4 py-2.5 backdrop-blur-md">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-seed-400">Map Pack</p>
-                  <p className="font-display text-base font-bold text-white">#1 → #1</p>
+                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 rounded-xl border border-white/15 bg-dark-base/70 px-3 py-2 sm:px-4 sm:py-2.5 backdrop-blur-md">
+                  <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-seed-400">Map Pack</p>
+                  <p className="font-display text-sm sm:text-base font-bold text-white">#1 → #1</p>
                 </div>
-                <div className="absolute bottom-6 left-6 rounded-xl border border-white/15 bg-dark-base/70 px-4 py-2.5 backdrop-blur-md">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-seed-400">Reservations</p>
-                  <p className="font-display text-base font-bold text-white">+47% MoM</p>
+                <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 rounded-xl border border-white/15 bg-dark-base/70 px-3 py-2 sm:px-4 sm:py-2.5 backdrop-blur-md">
+                  <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-seed-400">Reservations</p>
+                  <p className="font-display text-sm sm:text-base font-bold text-white">+47% MoM</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* ═══ Stat strip ═══ */}
-      <Section theme="light">
-        <div className="mx-auto max-w-5xl">
-          <SectionHeader
-            eyebrow="The Numbers"
-            title="Restaurant search is where the demand lives"
-            description="Every percentage point of local search visibility maps directly to reservations. Here's what the data actually says."
-            theme="light"
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[
-              {
-                stat: "76%",
-                label: "of local mobile searchers visit a business within 24 hours",
-              },
-              { stat: "3x", label: "more clicks for businesses ranking in the Google Map Pack" },
-              { stat: "88%", label: "of consumers trust online reviews as much as personal recommendations" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="rounded-2xl border border-black/[0.05] bg-white p-7 shadow-cardLight"
-              >
-                <p className="font-display text-heading-lg text-seed-600 mb-2">{s.stat}</p>
-                <p className="text-body-sm leading-relaxed text-dark-base/60">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══ The Problem ═══ */}
-      <Section>
-        <SectionHeader
-          eyebrow="What's Broken"
-          title="Why most restaurant websites quietly fail at SEO"
-          description="It's not that restaurants don't care about getting found online. It's that the playbook for restaurant SEO has changed three times in the last two years — and most websites are still running the 2019 version."
-        />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {problems.map((p) => (
-            <LiquidGlassCard key={p.title} className="p-7">
-              <IconBox icon={p.icon} variant="gradient" className="mb-4" />
-              <CardTitle className="mb-2">{p.title}</CardTitle>
-              <Body className="text-light-base/55 leading-relaxed">{p.body}</Body>
-            </LiquidGlassCard>
-          ))}
-        </div>
-      </Section>
 
       {/* ═══ Value Props (Lead Drivers) ═══ */}
       <section className="bg-dark-base py-24 md:py-32">
@@ -586,8 +502,96 @@ export default function RestaurantSeoPage() {
         </div>
       </Section>
 
+      {/* ═══ Free Website Rebuild — dedicated section (above Pricing) ═══ */}
+      <section
+        id="free-rebuild"
+        className="relative overflow-hidden bg-dark-base py-24 md:py-32 scroll-mt-24"
+      >
+        <GradientOrb color="seed" size="xl" className="-top-20 left-1/2 -translate-x-1/2 opacity-20" />
+        <GridPattern />
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300">
+            <Sparkles className="w-3.5 h-3.5" />
+            Limited Time Offer
+          </div>
+          <p className="font-display text-base md:text-lg font-medium text-white/60 mb-3">
+            Currently a Client?
+          </p>
+          <AnimatedH2
+            highlightWords={["Free", "Rebuild"]}
+            className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-6"
+          >
+            Get a Free Website Rebuild with Any SEO Plan
+          </AnimatedH2>
+          <p className="text-base md:text-lg text-white/55 max-w-2xl mx-auto leading-relaxed mb-10">
+            Sign up for either plan during our launch window and we rebuild your restaurant
+            website on the SeedTech Platform at no cost.{" "}
+            <span className="text-amber-300 font-medium">Normally $7,800.</span>
+          </p>
+
+          {/* Restaurant demo carousel — break out of max-w-4xl parent */}
+          <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen max-w-[100vw] mb-12 px-6">
+            <div className="mx-auto max-w-6xl">
+              <RestaurantDemoCarousel />
+            </div>
+          </div>
+
+          {/* Platform / Next.js explainer */}
+          <div className="text-left max-w-3xl mx-auto space-y-5 mb-10">
+            <h3 className="font-display text-xl md:text-2xl font-bold text-white text-center mb-2">
+              Built on Next.js. Fully Custom-Coded. Insanely Fast.
+            </h3>
+            <p className="text-sm md:text-[15px] text-white/55 leading-relaxed">
+              Most restaurant websites are bloated WordPress installs or drag-and-drop templates
+              loaded with 30+ third-party scripts. They&apos;re slow, fragile, and Google ranks
+              them accordingly. The SeedTech Platform is different — every site is a fully
+              custom-coded application built on{" "}
+              <span className="text-white font-medium">Next.js</span>, the same React framework
+              powering Nike, TikTok, and OpenAI.
+            </p>
+            <p className="text-sm md:text-[15px] text-white/55 leading-relaxed">
+              That means your site loads in under a second, ships with perfect Core Web Vitals,
+              renders content server-side for AI crawlers, and has structured data baked into
+              every page from day one. No plugins. No bloat. No security patches to chase.
+              Just the fastest, most SEO-optimized foundation a restaurant website can have.
+            </p>
+          </div>
+
+          {/* Feature bullets — match site card design */}
+          <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto mb-10 text-left">
+            {[
+              { label: "Extremely fast site speeds", note: "Server-side rendered, edge-cached, image-optimized." },
+              { label: "Perfect Core Web Vitals", note: "Google's ranking signals — green across the board." },
+              { label: "Mobile-first design", note: "70% of restaurant searches happen on phones." },
+              { label: "Reservation & POS integrations", note: "OpenTable, Resy, Tock, Toast, Square — all wired in." },
+              { label: "AI-ready structured data", note: "Menu, hours, dietary info — all marked up for AI citation." },
+              { label: "SEO Autopilot pre-configured", note: "Platform live and tracking from day one." },
+            ].map((item) => (
+              <div key={item.label} style={glassStyle} className="p-5 flex items-start gap-3">
+                <CheckCircle2 className="w-4 h-4 text-seed-400 shrink-0 mt-1" />
+                <div>
+                  <p className="text-sm font-semibold text-white">{item.label}</p>
+                  <p className="text-xs text-white/40 leading-relaxed">{item.note}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <LiquidGlassButton
+            href="#pricing"
+            variant="seed"
+            size="lg"
+          >
+            See Pricing
+          </LiquidGlassButton>
+          <p className="text-xs text-white/30 mt-4">
+            Offer ends when our launch cohort closes.
+          </p>
+        </div>
+      </section>
+
       {/* ═══ Pricing ═══ */}
-      <Section theme="light">
+      <Section id="pricing" theme="light">
         <SectionHeader
           eyebrow="Pricing"
           title="Two plans. Both come with a free website rebuild."
@@ -629,120 +633,15 @@ export default function RestaurantSeoPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href={`/contact?service=seo-restaurant&plan=${encodeURIComponent(plan.name)}`}
-                className={`flex items-center justify-center gap-2 w-full rounded-xl px-6 py-3.5 text-sm font-semibold transition-all duration-300 ${
-                  plan.highlight
-                    ? "bg-gradient-to-r from-seed-500 to-emerald-500 text-white hover:shadow-glowSeed"
-                    : "border border-dark-base/10 text-dark-base hover:border-seed-500 hover:text-seed-600"
-                }`}
-              >
-                {plan.cta} <ArrowRight className="w-4 h-4" />
-              </Link>
+              <SeoPlanCta
+                planName={plan.name}
+                ctaLabel={plan.cta}
+                highlight={plan.highlight}
+              />
             </div>
           ))}
         </div>
       </Section>
-
-      {/* ═══ Free Website Rebuild — dedicated section ═══ */}
-      <section
-        id="free-rebuild"
-        className="relative overflow-hidden bg-dark-base py-24 md:py-32 scroll-mt-24"
-      >
-        <GradientOrb color="seed" size="xl" className="-top-20 left-1/2 -translate-x-1/2 opacity-20" />
-        <GridPattern />
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300">
-            <Sparkles className="w-3.5 h-3.5" />
-            Limited Time Offer
-          </div>
-          <AnimatedH2
-            highlightWords={["Free", "Rebuild"]}
-            className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-6"
-          >
-            Get a Free Website Rebuild with Any SEO Plan
-          </AnimatedH2>
-          <p className="text-base md:text-lg text-white/55 max-w-2xl mx-auto leading-relaxed mb-10">
-            Sign up for either plan during our launch window and we rebuild your restaurant
-            website on the SeedTech Platform at no cost.{" "}
-            <span className="text-amber-300 font-medium">Normally $7,800.</span>
-          </p>
-
-          {/* Image placeholder */}
-          <div className="mx-auto max-w-3xl mb-12">
-            <div className="relative aspect-[16/9] rounded-3xl border border-white/10 bg-gradient-to-br from-seed-500/15 via-emerald-500/5 to-blue-500/15 backdrop-blur-sm overflow-hidden">
-              <GridPattern />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-                  <Globe className="h-8 w-8 text-seed-300" />
-                </div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/30">
-                  Website Mockup Placeholder
-                </p>
-                <p className="text-sm text-white/50 max-w-sm">
-                  Replace with screenshot of a restaurant site built on the SeedTech Platform
-                </p>
-              </div>
-              {/* Resolution spec badge */}
-              <div className="absolute bottom-3 right-3 rounded-md bg-black/40 backdrop-blur-sm px-2 py-1 text-[10px] font-mono text-white/40 border border-white/10">
-                placeholder · 1920×1080 (16:9)
-              </div>
-            </div>
-          </div>
-
-          {/* Platform / Next.js explainer */}
-          <div className="text-left max-w-3xl mx-auto space-y-5 mb-10">
-            <h3 className="font-display text-xl md:text-2xl font-bold text-white text-center mb-2">
-              Built on Next.js. Fully Custom-Coded. Insanely Fast.
-            </h3>
-            <p className="text-sm md:text-[15px] text-white/55 leading-relaxed">
-              Most restaurant websites are bloated WordPress installs or drag-and-drop templates
-              loaded with 30+ third-party scripts. They&apos;re slow, fragile, and Google ranks
-              them accordingly. The SeedTech Platform is different — every site is a fully
-              custom-coded application built on{" "}
-              <span className="text-white font-medium">Next.js</span>, the same React framework
-              powering Nike, TikTok, and OpenAI.
-            </p>
-            <p className="text-sm md:text-[15px] text-white/55 leading-relaxed">
-              That means your site loads in under a second, ships with perfect Core Web Vitals,
-              renders content server-side for AI crawlers, and has structured data baked into
-              every page from day one. No plugins. No bloat. No security patches to chase.
-              Just the fastest, most SEO-optimized foundation a restaurant website can have.
-            </p>
-          </div>
-
-          {/* Feature bullets — match site card design */}
-          <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto mb-10 text-left">
-            {[
-              { label: "Sub-second load times", note: "Server-side rendered, edge-cached, image-optimized." },
-              { label: "Perfect Core Web Vitals", note: "Google's ranking signals — green across the board." },
-              { label: "Mobile-first design", note: "70% of restaurant searches happen on phones." },
-              { label: "Reservation & POS integrations", note: "OpenTable, Resy, Tock, Toast, Square — all wired in." },
-              { label: "AI-ready structured data", note: "Menu, hours, dietary info — all marked up for AI citation." },
-              { label: "SEO Autopilot pre-configured", note: "Platform live and tracking from day one." },
-            ].map((item) => (
-              <div key={item.label} style={glassStyle} className="p-5 flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-seed-400 shrink-0 mt-1" />
-                <div>
-                  <p className="text-sm font-semibold text-white">{item.label}</p>
-                  <p className="text-xs text-white/40 leading-relaxed">{item.note}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <LiquidGlassButton
-            href="/contact?service=seo-restaurant&plan=free-rebuild"
-            variant="seed"
-            size="lg"
-          >
-            Contact Sam for more details
-          </LiquidGlassButton>
-          <p className="text-xs text-white/30 mt-4">
-            Offer ends when our launch cohort closes.
-          </p>
-        </div>
-      </section>
 
       {/* ═══ FAQ ═══ */}
       <Section>
@@ -752,23 +651,26 @@ export default function RestaurantSeoPage() {
         </div>
       </Section>
 
+      {/* ═══ SEO Blog ═══ */}
+      <SeoBlogSection />
+
       {/* ═══ Pinned Floating "Limited Time" CTA ═══ */}
       <a
         href="#free-rebuild"
-        className="group fixed bottom-6 right-6 z-40 hidden sm:flex items-center gap-3 rounded-2xl border border-amber-400/40 bg-dark-base/90 backdrop-blur-md px-5 py-4 shadow-2xl shadow-amber-500/10 hover:border-amber-400/70 hover:bg-dark-base hover:shadow-amber-500/20 transition-all duration-300 max-w-[280px]"
+        className="group fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2.5 sm:gap-3 rounded-2xl border border-amber-400/40 bg-dark-base/90 backdrop-blur-md px-3.5 py-3 sm:px-5 sm:py-4 shadow-2xl shadow-amber-500/10 hover:border-amber-400/70 hover:bg-dark-base hover:shadow-amber-500/20 transition-all duration-300 max-w-[220px] sm:max-w-[280px]"
         aria-label="Free website rebuild — limited time offer"
       >
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 border border-amber-400/30 shrink-0">
-          <Sparkles className="h-5 w-5 text-amber-300" />
+        <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-amber-400/15 border border-amber-400/30 shrink-0">
+          <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
         </div>
         <div className="flex flex-col gap-0.5 text-left">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-amber-300">
+          <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-amber-300">
             Limited Time
           </p>
-          <p className="text-sm font-semibold text-white leading-tight">
+          <p className="text-xs sm:text-sm font-semibold text-white leading-tight">
             Free Website Rebuild
           </p>
-          <p className="text-[11px] text-white/50 group-hover:text-white/70 transition-colors flex items-center gap-1">
+          <p className="text-[10px] sm:text-[11px] text-white/50 group-hover:text-white/70 transition-colors flex items-center gap-1">
             Learn more <ArrowRight className="w-3 h-3" />
           </p>
         </div>

@@ -17,6 +17,7 @@ import {
   X,
   Monitor,
   Globe,
+  Search,
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
@@ -206,6 +207,13 @@ export function QuoteFlowModal() {
       if (preselectedService === "it-support") {
         setStep("it-wizard");
         setItStep(0);
+      } else if (preselectedService === "seo") {
+        if (preselectedTier) {
+          setSelectedTier(preselectedTier);
+          setStep("seo-form");
+        } else {
+          setStep("seo-select-plan");
+        }
       } else if (preselectedTier) {
         // Skip tier selection — go straight to contact with tier pre-set
         setSelectedTier(preselectedTier);
@@ -242,6 +250,8 @@ export function QuoteFlowModal() {
     if (service === "it-support") {
       setStep("it-wizard");
       setItStep(0);
+    } else if (service === "seo") {
+      setStep("seo-select-plan");
     } else {
       setStep("web-select-tier");
     }
@@ -276,6 +286,31 @@ export function QuoteFlowModal() {
         ...guard.fields(),
       }),
     }).catch((err) => console.error("Failed to save web quote:", err));
+  };
+
+  // ── SEO submit handler ──
+  const handleSeoSubmit = async () => {
+    trackLead("quote_seo", { tier: selectedTier || "unknown" });
+    setStep("thank-you");
+    const recaptchaToken = await getToken("quote_seo");
+    fetch("/api/quote-submission", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: "quote_seo",
+        fullName: webForm.fullName,
+        email: webForm.email,
+        phone: webForm.phone,
+        company: webForm.businessName,
+        tier: selectedTier,
+        recaptchaToken,
+        metadata: {
+          currentSiteUrl: webForm.currentSiteUrl,
+          notes: webForm.notes,
+        },
+        ...guard.fields(),
+      }),
+    }).catch((err) => console.error("Failed to save SEO quote:", err));
   };
 
   // ── IT Support submit handler ──
@@ -326,6 +361,10 @@ export function QuoteFlowModal() {
         return { label: "Select a Package", percent: 33 };
       case "web-contact":
         return { label: "Your Details", percent: 66 };
+      case "seo-select-plan":
+        return { label: "Select a Plan", percent: 33 };
+      case "seo-form":
+        return { label: "Your Details", percent: 66 };
       case "thank-you":
         return { label: "Complete", percent: 100 };
       default:
@@ -372,6 +411,10 @@ export function QuoteFlowModal() {
                           setStep("web-select-tier");
                           return;
                         }
+                        if (step === "seo-form") {
+                          setStep("seo-select-plan");
+                          return;
+                        }
                         setStep("select-service");
                         setServicePath(null);
                         setItStep(0);
@@ -387,7 +430,9 @@ export function QuoteFlowModal() {
                       ? "IT Support Quote"
                       : servicePath === "web-development"
                         ? "Web Development Quote"
-                        : "Get a Free Quote"}
+                        : servicePath === "seo"
+                          ? "SEO Quote"
+                          : "Get a Free Quote"}
                   </span>
                 </div>
 
@@ -446,7 +491,7 @@ export function QuoteFlowModal() {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                       {/* IT Support Card */}
                       <button
                         onClick={() => handleServiceSelect("it-support")}
@@ -495,6 +540,32 @@ export function QuoteFlowModal() {
                           </div>
                           <div className="flex items-center gap-2 text-sm font-medium text-brand-blue group-hover:gap-3 transition-all">
                             Browse packages
+                            <ArrowRight className="w-4 h-4" />
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* SEO Card */}
+                      <button
+                        onClick={() => handleServiceSelect("seo")}
+                        className="group relative rounded-2xl border border-white/[0.06] bg-dark-elevated p-8 text-left transition-all duration-300 hover:border-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.15)] hover:-translate-y-1"
+                      >
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="relative space-y-5">
+                          <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center">
+                            <Search className="w-8 h-8 text-amber-300" />
+                          </div>
+                          <div>
+                            <h3 className="font-display text-subheading text-white mb-2">
+                              SEO
+                            </h3>
+                            <p className="text-body-sm text-light-base/50 leading-relaxed">
+                              Restaurant + business SEO. Local rankings, AI
+                              search citations, and a free website rebuild.
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm font-medium text-amber-300 group-hover:gap-3 transition-all">
+                            Get an SEO quote
                             <ArrowRight className="w-4 h-4" />
                           </div>
                         </div>
@@ -779,6 +850,262 @@ export function QuoteFlowModal() {
                         className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-brand text-white text-sm font-medium hover:shadow-glowSeed transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         Submit Quote Request
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ════════════════════════════════════════════════════════════
+                    STEP: SEO Form (plan select + contact)
+                    ════════════════════════════════════════════════════════════ */}
+                {step === "seo-select-plan" && (
+                  <motion.div
+                    key="seo-select-plan"
+                    variants={stepVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={{ duration: 0.3 }}
+                    className="w-full max-w-5xl mx-auto px-6 py-16"
+                  >
+                    <div className="text-center space-y-4 mb-12">
+                      <p className="text-eyebrow uppercase tracking-widest text-amber-300">
+                        Pricing
+                      </p>
+                      <h2 className="font-display text-title md:text-display text-white">
+                        Choose Your SEO Plan
+                      </h2>
+                      <p className="text-body-lg text-light-base/50 max-w-2xl mx-auto">
+                        Both plans include the SEO Autopilot platform and the
+                        limited-time free website rebuild.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {[
+                        {
+                          name: "Local Authority",
+                          price: "$1,200",
+                          period: "/mo",
+                          tagline:
+                            "For restaurants ready to own local search.",
+                          features: [
+                            "SEO Autopilot platform — full access",
+                            "Up to 5 dedicated keyword landing pages",
+                            "Google Business Profile optimization & weekly posts",
+                            "20 tracked keywords (local + AI search)",
+                            "2 published blog posts per month",
+                            "Monthly review monitoring & reply templates",
+                            "Local citation building (10/quarter)",
+                            "Monthly performance reports",
+                          ],
+                          highlight: false,
+                        },
+                        {
+                          name: "Market Dominator",
+                          price: "$2,500",
+                          period: "/mo",
+                          tagline:
+                            "For restaurants competing in tough markets.",
+                          features: [
+                            "Everything in Local Authority, plus:",
+                            "10–20 dedicated keyword landing pages",
+                            "60 tracked keywords (multi-location ready)",
+                            "4 published blog posts per month",
+                            "AI citation tracking (ChatGPT, Gemini, AIO)",
+                            "Competitor SERP analysis & gap monitoring",
+                            "Automated review request flows",
+                            "Local link building (5 quality links/mo)",
+                            "Priority support + dedicated account lead",
+                          ],
+                          highlight: true,
+                        },
+                      ].map((plan) => {
+                        const active = selectedTier === plan.name;
+                        return (
+                          <button
+                            key={plan.name}
+                            type="button"
+                            onClick={() => {
+                              setSelectedTier(plan.name);
+                              setStep("seo-form");
+                            }}
+                            className={cn(
+                              "group relative rounded-2xl p-8 text-left transition-all duration-300 hover:-translate-y-1 flex flex-col",
+                              plan.highlight
+                                ? "border-2 border-amber-400/60 bg-gradient-to-br from-amber-400/[0.06] to-dark-elevated shadow-[0_0_40px_rgba(251,191,36,0.12)] hover:shadow-[0_0_56px_rgba(251,191,36,0.22)]"
+                                : "border border-white/[0.08] bg-dark-elevated hover:border-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.08)]",
+                              active &&
+                                "ring-2 ring-amber-400/70 ring-offset-2 ring-offset-dark-base"
+                            )}
+                          >
+                            {plan.highlight && (
+                              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-dark-base shadow-lg">
+                                Most Popular
+                              </div>
+                            )}
+
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <h3 className="font-display text-2xl font-bold text-white">
+                                {plan.name}
+                              </h3>
+                              {active && (
+                                <CheckCircle2 className="w-5 h-5 text-amber-300 shrink-0 mt-1" />
+                              )}
+                            </div>
+                            <p className="text-sm text-white/55 mb-6">
+                              {plan.tagline}
+                            </p>
+
+                            <div className="mb-6 flex items-baseline gap-1">
+                              <span className="font-display text-4xl font-bold text-white">
+                                {plan.price}
+                              </span>
+                              <span className="text-sm text-white/40">
+                                {plan.period}
+                              </span>
+                            </div>
+
+                            <ul className="space-y-2.5 mb-8 flex-1">
+                              {plan.features.map((feature) => (
+                                <li
+                                  key={feature}
+                                  className="flex items-start gap-2.5"
+                                >
+                                  <CheckCircle2 className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                                  <span className="text-sm text-white/70 leading-relaxed">
+                                    {feature}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+
+                            <div
+                              className={cn(
+                                "flex items-center justify-center gap-2 w-full rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300",
+                                plan.highlight
+                                  ? "bg-gradient-to-r from-amber-400 to-amber-500 text-dark-base group-hover:shadow-[0_0_24px_rgba(251,191,36,0.4)]"
+                                  : "border border-white/15 text-white group-hover:border-amber-400/60 group-hover:text-amber-300"
+                              )}
+                            >
+                              Select {plan.name}
+                              <ArrowRight className="w-4 h-4" />
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ════════════════════════════════════════════════════════════
+                    STEP: SEO Contact Form
+                    ════════════════════════════════════════════════════════════ */}
+                {step === "seo-form" && (
+                  <motion.div
+                    key="seo-form"
+                    variants={stepVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={{ duration: 0.3 }}
+                    className="w-full max-w-3xl mx-auto px-6 py-16"
+                  >
+                    <div className="text-center space-y-4 mb-10">
+                      <h2 className="font-display text-heading text-white">
+                        Tell Us About Your Business
+                      </h2>
+                      <p className="text-body-sm text-light-base/50">
+                        Selected:{" "}
+                        <span className="font-semibold text-amber-300">
+                          {selectedTier}
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Contact form */}
+                    <div className="rounded-2xl bg-dark-elevated border border-white/[0.06] p-6 md:p-8 space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <FlowInput
+                          id="seo-fullName"
+                          label="Full Name"
+                          type="text"
+                          value={webForm.fullName}
+                          onChange={(e) =>
+                            setWebForm((f) => ({ ...f, fullName: e.target.value }))
+                          }
+                          placeholder="Jane Doe"
+                        />
+                        <FlowInput
+                          id="seo-email"
+                          label="Email"
+                          type="email"
+                          value={webForm.email}
+                          onChange={(e) =>
+                            setWebForm((f) => ({ ...f, email: e.target.value }))
+                          }
+                          placeholder="jane@restaurant.com"
+                        />
+                        <FlowInput
+                          id="seo-phone"
+                          label="Phone"
+                          type="tel"
+                          value={webForm.phone}
+                          onChange={(e) =>
+                            setWebForm((f) => ({ ...f, phone: e.target.value }))
+                          }
+                          placeholder="(123) 456-7890"
+                        />
+                        <FlowInput
+                          id="seo-businessName"
+                          label="Restaurant / Business Name"
+                          type="text"
+                          value={webForm.businessName}
+                          onChange={(e) =>
+                            setWebForm((f) => ({ ...f, businessName: e.target.value }))
+                          }
+                          placeholder="Acme Bistro"
+                        />
+                      </div>
+                      <FlowInput
+                        id="seo-siteUrl"
+                        label="Current Website URL (optional)"
+                        type="url"
+                        value={webForm.currentSiteUrl}
+                        onChange={(e) =>
+                          setWebForm((f) => ({ ...f, currentSiteUrl: e.target.value }))
+                        }
+                        placeholder="https://example.com"
+                      />
+                      <FlowTextarea
+                        id="seo-notes"
+                        label="Goals / Target Keywords (optional)"
+                        value={webForm.notes}
+                        onChange={(e) =>
+                          setWebForm((f) => ({ ...f, notes: e.target.value }))
+                        }
+                        placeholder="e.g. Italian restaurant in Chelsea, want to rank for ‘pasta near me’ and capture AI search traffic…"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-center gap-4 mt-10">
+                      <button
+                        onClick={() => {
+                          setSelectedTier(null);
+                          setStep("seo-select-plan");
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm text-white/40 hover:text-white/70 transition-colors"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        Change plan
+                      </button>
+                      <button
+                        onClick={handleSeoSubmit}
+                        disabled={!isWebFormValid || !selectedTier}
+                        className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-brand text-white text-sm font-medium hover:shadow-glowSeed transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        Submit SEO Quote Request
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>

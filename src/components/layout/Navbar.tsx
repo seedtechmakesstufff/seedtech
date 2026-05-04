@@ -69,9 +69,9 @@ const servicesMega: MegaDropdownData = {
       icon: SquareTerminal,
     },
     {
-      label: "SEO Autopilot",
+      label: "SEO",
       href: "/services/seo-autopilot",
-      description: "AI-powered SEO platform. Rank in search and get cited by ChatGPT, Gemini, and Google AI.",
+      description: "Local SEO, AI search visibility, and content built to rank — for restaurants and growing businesses.",
       icon: Search,
     },
   ],

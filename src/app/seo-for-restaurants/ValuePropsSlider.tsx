@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 export type ValueProp = {
   icon: ReactNode;
   title: string;
   body: string;
+  image?: string; // optional — path relative to /public
 };
 
 type Props = {
@@ -75,17 +77,23 @@ export function ValuePropsSlider({ items }: Props) {
             key={v.title}
             className="group relative aspect-[4/5] shrink-0 snap-start rounded-2xl overflow-hidden border border-white/10 bg-dark-raised w-[80%] sm:w-[48%] lg:w-[calc((100%-2.5rem)/3)]"
           >
-            {/* Background image placeholder — replace with <Image /> when ready */}
-            <div className="absolute inset-0 bg-gradient-to-br from-seed-900/40 via-dark-raised to-blue-900/30">
-              {/* When swapping in a real image, use:
-                  <Image src="/restaurant-card-X.jpg" alt="..." fill className="object-cover" />
-                  Recommended size: 800×1000 (4:5 ratio, 2x retina) */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-30 [&>svg]:w-24 [&>svg]:h-24 [&>svg]:text-white/20">
-                {v.icon}
-              </div>
-              <div className="absolute bottom-3 right-3 rounded-md bg-black/40 backdrop-blur-sm px-2 py-1 text-[10px] font-mono text-white/40 border border-white/10">
-                placeholder · 800×1000
-              </div>
+            {/* Background — real image or gradient placeholder */}
+            <div className="absolute inset-0">
+              {v.image ? (
+                <Image
+                  src={v.image}
+                  alt={v.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 80vw, (max-width: 1024px) 48vw, 33vw"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-seed-900/40 via-dark-raised to-blue-900/30">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-20 [&>svg]:w-24 [&>svg]:h-24 [&>svg]:text-white/20">
+                    {v.icon}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Top gradient for text legibility */}

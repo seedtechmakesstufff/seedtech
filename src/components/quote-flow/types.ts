@@ -2,13 +2,15 @@
  * Types for the unified Quote Flow modal.
  */
 
-export type ServicePath = "it-support" | "web-development";
+export type ServicePath = "it-support" | "web-development" | "seo";
 
 export type QuoteFlowStep =
   | "select-service"
   | "it-wizard"
   | "web-select-tier"
   | "web-contact"
+  | "seo-select-plan"
+  | "seo-form"
   | "thank-you";
 
 export interface WebDevTier {

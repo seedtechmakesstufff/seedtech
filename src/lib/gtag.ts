@@ -31,11 +31,11 @@ function gtag(...args: unknown[]) {
 /**
  * Fire a lead/conversion event.
  *
- * @param source  — form identifier: "quote_web" | "quote_it" | "contact" | "audit"
+ * @param source  — form identifier: "quote_web" | "quote_it" | "quote_seo" | "contact" | "audit"
  * @param meta    — optional key/value pairs (tier, email, service, etc.)
  */
 export function trackLead(
-  source: "quote_web" | "quote_it" | "contact" | "audit",
+  source: "quote_web" | "quote_it" | "quote_seo" | "contact" | "audit",
   meta?: Record<string, string | number | boolean | undefined>
 ) {
   // 1️⃣  GA4 — generate_lead event (shows up in GA4 → Events → generate_lead)
