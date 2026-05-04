@@ -104,7 +104,9 @@ export function RestaurantDemoCarousel() {
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 40) dx < 0 ? goNext() : goPrev();
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) goNext(); else goPrev();
+    }
     touchStartX.current = null;
   };
 
