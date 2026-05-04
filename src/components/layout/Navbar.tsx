@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Monitor,
   SquareTerminal,
+  Search,
   MapPin,
   Globe,
   type LucideIcon,
@@ -66,6 +67,12 @@ const servicesMega: MegaDropdownData = {
       href: "/services/web-development",
       description: "Custom websites, eCommerce stores, and web apps built to convert.",
       icon: SquareTerminal,
+    },
+    {
+      label: "SEO Autopilot",
+      href: "/services/seo-autopilot",
+      description: "AI-powered SEO platform. Rank in search and get cited by ChatGPT, Gemini, and Google AI.",
+      icon: Search,
     },
   ],
   featured: [

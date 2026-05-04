@@ -573,3 +573,8 @@
 .context-canvas .react-flow__controls button path {
   fill: currentColor;
 }
+
+/* Hide reCAPTCHA badge — legally required disclosure still in form copy */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}
