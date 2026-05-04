@@ -6,7 +6,6 @@ import {
   Utensils,
   Star,
   MapPin,
-  Bot,
   Sparkles,
   TrendingUp,
   Users,
@@ -386,66 +385,6 @@ export default function RestaurantSeoPage() {
         </div>
       </section>
 
-      {/* ═══ AI Search Spotlight ═══ */}
-      <Section>
-        <div className="mx-auto max-w-5xl">
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-seed-600/10 via-emerald-600/5 to-blue-600/10 p-10 md:p-16 backdrop-blur-sm">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-wider text-seed-400">
-              <Bot className="w-3.5 h-3.5" />
-              AI Search Optimization
-            </div>
-            <AnimatedH2 className="mb-6 max-w-3xl">
-              When AI recommends restaurants, you want to be the answer.
-            </AnimatedH2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <div className="space-y-4 text-body-lg leading-relaxed text-light-base/60">
-                <p>
-                  ChatGPT, Google AI Overviews, Gemini, and Perplexity are now answering
-                  &quot;where should we eat?&quot; before any blue link loads. Restaurants that
-                  get cited capture demand the rest of the market never sees.
-                </p>
-                <p>
-                  We&apos;re one of the only platforms that explicitly tracks and optimizes for
-                  AI citation — restructuring your menu, story, and reviews into the kind of
-                  content these systems pull from.
-                </p>
-                {/* Visual placeholder — AI citation example */}
-                <div className="mt-6 rounded-2xl border border-white/10 bg-dark-base/50 p-5 backdrop-blur-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Bot className="w-4 h-4 text-seed-400" />
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">
-                      ChatGPT response (example)
-                    </span>
-                  </div>
-                  <p className="text-sm text-white/70 italic leading-relaxed">
-                    &quot;For an upscale dinner near you, [Your Restaurant] is highly rated for
-                    its [cuisine] menu and seasonal tasting options...&quot;
-                  </p>
-                  <div className="mt-3 flex items-center gap-2 text-[11px] text-seed-400">
-                    <Sparkles className="w-3 h-3" />
-                    <span>Cited from your menu page + reviews</span>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                {[
-                  "AI Visibility scores on every page (0–100)",
-                  "Live citation tracking across 5 AI platforms",
-                  "Structured data for menu, hours, dietary info, and FAQs",
-                  "Citeable opening paragraphs on every page",
-                  "Entity authority — make AI confident your brand exists",
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-seed-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-body-sm text-light-base/70">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
-
       {/* ═══ SEO Autopilot Platform ═══ */}
       <section className="bg-dark-raised py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6 flex flex-col gap-10">
@@ -530,7 +469,7 @@ export default function RestaurantSeoPage() {
           </p>
 
           {/* Restaurant demo carousel — break out of max-w-4xl parent */}
-          <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen max-w-[100vw] mb-12 px-6">
+          <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen max-w-[100vw] mb-12 px-6 overflow-hidden">
             <div className="mx-auto max-w-6xl">
               <RestaurantDemoCarousel />
             </div>

@@ -158,7 +158,7 @@ export function RestaurantDemoCarousel() {
         onClick={handleContainerClick}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="relative z-10 mx-auto h-[190px] sm:h-[270px] md:h-[360px] lg:h-[420px] select-none overflow-hidden"
+        className="relative z-10 mx-auto h-[190px] sm:h-[270px] md:h-[360px] lg:h-[420px] select-none"
         style={{ cursor: "none" }}
       >
         <CursorFollower containerRef={containerRef} />
