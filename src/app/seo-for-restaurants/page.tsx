@@ -335,7 +335,7 @@ export default function RestaurantSeoPage() {
             </div>
             {/* Hero visual */}
             <div className="relative mt-8 lg:mt-0">
-              <div className="relative aspect-[4/3] sm:aspect-[4/4] lg:aspect-[4/5] rounded-3xl border border-white/10 overflow-hidden">
+              <div className="relative aspect-[4/4] sm:aspect-[4/5] lg:aspect-[3/5] rounded-3xl border border-white/10 overflow-hidden">
                 <Image
                   src="/img/seo-autopilot/seo_restaurants.webp"
                   alt="Restaurant SEO — more reservations from search"
