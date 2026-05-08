@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Menu,
@@ -360,9 +361,17 @@ function useOverLightSection() {
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
   const overLight = useOverLightSection();
   const hidden = useHideOnScroll();
   const { openQuoteFlow } = useQuoteFlow();
+  const isSalesRepPage = pathname.startsWith("/work-with-seedtech");
+  const isSalesRepApplyPage = pathname.startsWith("/work-with-seedtech/apply");
+  const salesRepCtaHref = isSalesRepApplyPage ? "/work-with-seedtech" : "/work-with-seedtech/apply";
+  const salesRepCtaLabel = isSalesRepApplyPage ? "Role Overview" : "Apply Now";
+  const mobileCta = isSalesRepPage
+    ? { label: salesRepCtaLabel, onClick: () => { window.location.href = salesRepCtaHref; } }
+    : { label: "Get a Quote", onClick: () => openQuoteFlow() };
 
   return (
     <>
@@ -446,12 +455,21 @@ export function Navbar() {
           </div>
 
           {/* CTA */}
-          <button
-            onClick={() => openQuoteFlow()}
-            className="relative z-10 hidden md:inline-flex items-center px-5 py-2 text-sm font-medium text-white liquid-glass-tinted-seed liquid-glass-hover rounded-xl transition-all duration-300 overflow-hidden"
-          >
-            Get a Quote
-          </button>
+          {isSalesRepPage ? (
+            <a
+              href={salesRepCtaHref}
+              className="relative z-10 hidden md:inline-flex items-center px-5 py-2 text-sm font-medium text-white bg-gradient-brand rounded-xl transition-all duration-300 hover:shadow-glowSeed"
+            >
+              {salesRepCtaLabel}
+            </a>
+          ) : (
+            <button
+              onClick={() => openQuoteFlow()}
+              className="relative z-10 hidden md:inline-flex items-center px-5 py-2 text-sm font-medium text-white liquid-glass-tinted-seed liquid-glass-hover rounded-xl transition-all duration-300 overflow-hidden"
+            >
+              Get a Quote
+            </button>
+          )}
 
           {/* Mobile Toggle — triggers StaggeredMenu */}
           <button
@@ -471,7 +489,7 @@ export function Navbar() {
       onClose={() => setMobileOpen(false)}
       logoUrl="/seedtechlogo_white-scaled.webp"
       logoAlt="SeedTech"
-      cta={{ label: "Get a Quote", onClick: () => openQuoteFlow() }}
+      cta={mobileCta}
       items={navLinks.map((link) => {
         const hasMega = "mega" in link && link.mega;
         const isServices = link.label === "Services";

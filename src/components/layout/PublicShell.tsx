@@ -10,6 +10,7 @@ import { PageBlurOverlay } from "./PageBlurOverlay";
 export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isSalesRepPage = pathname.startsWith("/work-with-seedtech");
 
   if (isAdmin) {
     return <>{children}</>;
@@ -19,9 +20,9 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
     <QuoteFlowProvider>
       <Navbar />
       <main>{children}</main>
-      <Footer />
+      <Footer variant={isSalesRepPage ? "compact" : "default"} />
       <QuoteFlowModal />
-      <PageBlurOverlay />
+      {!isSalesRepPage && <PageBlurOverlay />}
     </QuoteFlowProvider>
   );
 }

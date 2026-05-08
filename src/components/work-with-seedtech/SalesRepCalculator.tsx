@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Calculator, Smartphone, Wifi } from "lucide-react";
 import { mdmAddon, newPlans } from "@/lib/plans";
 import { COMMISSION_LADDER, getCommissionRate } from "@/lib/calculators/commission";
-
-const FAILOVER_PRICE_PER_LOCATION = 40;
+import { FAILOVER_PRICE_PER_LOCATION } from "@/lib/calculators/constants";
 
 const planNames = [
   "SeedCare Essentials",
@@ -81,7 +80,7 @@ function StatCard({
           : "border-white/[0.08] bg-dark-overlay",
       ].join(" ")}
     >
-      <p className="text-xs uppercase tracking-[0.18em] text-white/45">{label}</p>
+      <p className="text-xs uppercase tracking-[0.18em] text-white/90">{label}</p>
       <p className={accent ? "mt-3 text-3xl font-display text-white" : "mt-3 text-2xl font-display text-white"}>
         {value}
       </p>
@@ -98,7 +97,7 @@ function CompactMetric({
 }) {
   return (
     <div className="rounded-xl border border-white/[0.08] bg-dark-base px-4 py-4">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">{label}</p>
+      <p className="text-[11px] uppercase tracking-[0.18em] text-white/80">{label}</p>
       <p className="mt-2 text-xl font-display text-white">{value}</p>
     </div>
   );
@@ -134,7 +133,7 @@ export function SalesRepCalculator() {
               </div>
               <div>
                 <p className="text-sm font-medium text-white">Live Commission Calculator</p>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/90">
                   Build a realistic SeedTech deal and see both sides in real time: what the client would buy,
                   what they would pay, and what your payout could look like over 12 months.
                 </p>
@@ -144,7 +143,7 @@ export function SalesRepCalculator() {
 
           <div className="grid gap-6 md:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-sm font-medium text-white/75">Target market</span>
+              <span className="text-sm font-medium text-white/90">Target market</span>
               <select
                 value={selectedIndustry}
                 onChange={(event) => setSelectedIndustry(event.target.value as IndustryKey)}
@@ -158,32 +157,32 @@ export function SalesRepCalculator() {
               </select>
             </label>
 
-            <div className="rounded-xl border border-seed-500/20 bg-seed-500/10 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-seed-300">Recommended default package</p>
+            <div className="rounded-xl border border-seed-500/25 bg-dark-overlay p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-seed-200">Recommended default package</p>
               <div className="mt-3 flex items-start justify-between gap-4">
                 <div>
                   <p className="text-lg font-display text-white">{industryProfile.recommendedPlan}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-white/60">{industryProfile.note}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-white/90">{industryProfile.note}</p>
                 </div>
                 <span
                   className={[
                     "shrink-0 rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em]",
                     isRecommendedPlanSelected
                       ? "border border-seed-400/30 bg-seed-400/10 text-seed-200"
-                      : "border border-white/10 bg-white/[0.04] text-white/55",
+                      : "border border-white/10 bg-white/[0.04] text-white/80",
                   ].join(" ")}
                 >
                   {isRecommendedPlanSelected ? "Current match" : "Recommended"}
                 </span>
               </div>
-              <p className="mt-3 text-xs uppercase tracking-[0.14em] text-white/45">
+              <p className="mt-3 text-xs uppercase tracking-[0.14em] text-white/80">
                 Choose a plan below to compare or override the default fit.
               </p>
             </div>
           </div>
 
           <div>
-            <p className="text-sm font-medium text-white/75">Plan</p>
+            <p className="text-sm font-medium text-white/90">Plan</p>
             <div className="mt-3 grid gap-4 md:grid-cols-3">
               {planNames.map((planName) => {
                 const isSelected = selectedPlan === planName;
@@ -201,7 +200,7 @@ export function SalesRepCalculator() {
                     ].join(" ")}
                   >
                     <p className="text-lg font-display text-white">{planName}</p>
-                    <p className="mt-2 text-sm text-white/55">{planDescriptions[planName]}</p>
+                    <p className="mt-2 text-sm text-white/80">{planDescriptions[planName]}</p>
                     <p className="mt-4 text-sm font-medium text-seed-300">{formatCurrency(planPriceByName[planName])}/user/mo</p>
                   </button>
                 );
@@ -214,7 +213,7 @@ export function SalesRepCalculator() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium text-white">Number of users</p>
-                  <p className="mt-1 text-sm text-white/55">Seats are billed per person, not per device.</p>
+                  <p className="mt-1 text-sm text-white/80">Seats are billed per person, not per device.</p>
                 </div>
                 <input
                   type="number"
@@ -244,7 +243,7 @@ export function SalesRepCalculator() {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-white">MDM devices</p>
-                      <p className="mt-1 text-sm text-white/55">{formatCurrency(mdmAddon.pricePerDevice)}/device/mo</p>
+                      <p className="mt-1 text-sm text-white/80">{formatCurrency(mdmAddon.pricePerDevice)}/device/mo</p>
                     </div>
                     <input
                       type="number"
@@ -266,7 +265,7 @@ export function SalesRepCalculator() {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-white">5G failover locations</p>
-                      <p className="mt-1 text-sm text-white/55">{formatCurrency(FAILOVER_PRICE_PER_LOCATION)}/location/mo</p>
+                      <p className="mt-1 text-sm text-white/80">{formatCurrency(FAILOVER_PRICE_PER_LOCATION)}/location/mo</p>
                     </div>
                     <input
                       type="number"
@@ -287,7 +286,7 @@ export function SalesRepCalculator() {
           <StatCard label="Commissionable monthly revenue" value={formatCurrency(clientMonthly)} accent />
 
           <div className="rounded-2xl border border-white/[0.08] bg-dark-overlay p-5">
-            <p className="text-xs uppercase tracking-[0.18em] text-white/45">Payout summary</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/80">Payout summary</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <CompactMetric label="Annual recurring revenue" value={formatCurrency(clientAnnualized)} />
               <CompactMetric label="Current commission rate" value={`${commissionRate}%`} />
@@ -297,11 +296,11 @@ export function SalesRepCalculator() {
           </div>
 
           <div className="rounded-2xl border border-white/[0.08] bg-dark-overlay p-5">
-            <p className="text-xs uppercase tracking-[0.18em] text-white/45">Current commission ladder</p>
-            <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-white/70">
+            <p className="text-xs uppercase tracking-[0.18em] text-white/80">Current commission ladder</p>
+            <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-white/90">
               {COMMISSION_LADDER.map((tier) => (
                 <div key={`${tier.minSeats}-${tier.maxSeats ?? "plus"}`} className="rounded-xl border border-white/[0.06] bg-dark-base px-3 py-2.5">
-                  <span className="block text-xs uppercase tracking-[0.14em] text-white/45">
+                  <span className="block text-xs uppercase tracking-[0.14em] text-white/80">
                     {tier.maxSeats === null
                       ? `${tier.minSeats}+ seats`
                       : `${tier.minSeats}-${tier.maxSeats} seats`}
@@ -313,29 +312,29 @@ export function SalesRepCalculator() {
           </div>
 
           <div className="rounded-2xl border border-white/[0.08] bg-dark-overlay p-5">
-            <p className="text-xs uppercase tracking-[0.18em] text-white/45">Deal snapshot</p>
-            <dl className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-white/70">
+            <p className="text-xs uppercase tracking-[0.18em] text-white/80">Deal snapshot</p>
+            <dl className="mt-4 grid gap-3 sm:grid-cols-2 text-sm text-white/90">
               <div className="rounded-xl border border-white/[0.06] bg-dark-base px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/45">Plan</dt>
-                <dd className="mt-1 text-white/75">{selectedPlan}</dd>
+                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/80">Plan</dt>
+                <dd className="mt-1 text-white/90">{selectedPlan}</dd>
               </div>
               <div className="rounded-xl border border-white/[0.06] bg-dark-base px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/45">Seats</dt>
-                <dd className="mt-1 text-white/75">{seats}</dd>
+                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/80">Seats</dt>
+                <dd className="mt-1 text-white/90">{seats}</dd>
               </div>
               <div className="rounded-xl border border-white/[0.06] bg-dark-base px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/45">MDM devices</dt>
-                <dd className="mt-1 text-white/75">{mdmDevices}</dd>
+                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/80">MDM devices</dt>
+                <dd className="mt-1 text-white/90">{mdmDevices}</dd>
               </div>
               <div className="rounded-xl border border-white/[0.06] bg-dark-base px-4 py-3">
-                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/45">5G failover locations</dt>
-                <dd className="mt-1 text-white/75">{failoverLocations}</dd>
+                <dt className="text-[11px] uppercase tracking-[0.14em] text-white/80">5G failover locations</dt>
+                <dd className="mt-1 text-white/90">{failoverLocations}</dd>
               </div>
             </dl>
 
             <div className="mt-5 rounded-xl border border-seed-500/20 bg-seed-500/10 px-4 py-4">
               <p className="text-xs uppercase tracking-[0.18em] text-seed-300">Commission note</p>
-              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-white/65">
+              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-white/90">
                 <li>Seat count sets the rate. Approved recurring add-ons change dollars, not the percentage.</li>
                 <li>Paid on collected monthly recurring revenue only, for up to 12 months, on approved active accounts.</li>
                 <li>Hardware, taxes, one-time fees, project labor, and unpaid invoices do not count.</li>

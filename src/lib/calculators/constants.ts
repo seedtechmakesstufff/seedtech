@@ -12,6 +12,8 @@ export const PLAN_PRICES = {
 
 export const MDM_PRICE_PER_DEVICE = 12;
 
+export const FAILOVER_PRICE_PER_LOCATION = 40;
+
 export const FULL_TIME_SALARY_PER_PERSON = 65_000;
 
 export type PlanKey = keyof typeof PLAN_PRICES;

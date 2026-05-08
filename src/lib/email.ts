@@ -17,9 +17,12 @@ import {
   contactAutoReplyTemplate,
   quoteNotificationTemplate,
   quoteAutoReplyTemplate,
+  salesRepApplicationNotificationTemplate,
+  salesRepApplicationAutoReplyTemplate,
   teamInviteTemplate,
   type ContactNotificationData,
   type QuoteNotificationData,
+  type SalesRepApplicationNotificationData,
   type TeamInviteData,
   type EmailBranding,
 } from "./email-templates";
@@ -189,6 +192,33 @@ export async function sendQuoteNotification(
       to: data.email,
       subject: `Your ${serviceLabel} quote request — ${branding.companyName}`,
       html: quoteAutoReplyTemplate(data, branding),
+    }),
+  ]);
+
+  return { notification, autoReply };
+}
+
+/* ── Sales rep application ─────────────────────────────────── */
+
+export async function sendSalesRepApplicationNotification(
+  data: SalesRepApplicationNotificationData
+): Promise<{ notification: EmailResult; autoReply: EmailResult }> {
+  const [admins, branding] = await Promise.all([notifyRecipients(), getEmailBranding()]);
+
+  const [notification, autoReply] = await Promise.all([
+    admins.length > 0
+      ? sendEmail({
+          to: admins,
+          subject: `New Sales Rep Application — ${data.fullName}`,
+          html: salesRepApplicationNotificationTemplate(data, branding),
+          replyTo: data.email,
+        })
+      : Promise.resolve<EmailResult>({ success: false, error: "No admin recipients configured" }),
+
+    sendEmail({
+      to: data.email,
+      subject: `We received your application — ${branding.companyName}`,
+      html: salesRepApplicationAutoReplyTemplate(data, branding),
     }),
   ]);
 

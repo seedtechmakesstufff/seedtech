@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { SiBehance, SiInstagram, SiTiktok } from "react-icons/si";
 import { FaLinkedinIn } from "react-icons/fa";
@@ -70,7 +71,60 @@ const footerLinks = {
   ],
 };
 
-export function Footer() {
+export function Footer({ variant = "default" }: { variant?: "default" | "compact" }) {
+  const pathname = usePathname();
+
+  if (variant === "compact") {
+    const isSalesRepApplyPage = pathname.startsWith("/work-with-seedtech/apply");
+    const salesRepCtaHref = isSalesRepApplyPage ? "/work-with-seedtech" : "/work-with-seedtech/apply";
+    const salesRepCtaLabel = isSalesRepApplyPage ? "Role Overview" : "Apply Now";
+
+    return (
+      <footer className="border-t border-white/[0.06] bg-dark-base">
+        <div className="mx-auto max-w-6xl px-6 py-10">
+          <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-xl">
+              <Link href="/" className="flex items-center">
+                <Image
+                  src="/seedtechlogo_white-scaled.webp"
+                  alt="SeedTech"
+                  width={140}
+                  height={36}
+                  className="h-9 w-auto object-contain"
+                />
+              </Link>
+              <p className="mt-4 text-sm leading-relaxed text-white/62">
+                For sales reps evaluating the SeedCare opportunity. Questions about fit, payout, or process? Reach out directly.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:items-end">
+              <a href="tel:+12016209002" className="text-sm text-white/72 transition-colors hover:text-white">
+                (201) 620-9002
+              </a>
+              <a href="mailto:info@seedtechllc.com" className="text-sm text-white/72 transition-colors hover:text-white">
+                info@seedtechllc.com
+              </a>
+              <Link
+                href={salesRepCtaHref}
+                className="inline-flex items-center justify-center rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:shadow-glowSeed"
+              >
+                {salesRepCtaLabel}
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/[0.06] pt-6 text-xs text-white/34 sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} SeedTech LLC. All rights reserved.</p>
+            <Link href="/terms-conditions" className="transition-colors hover:text-white/60">
+              Privacy Policy &amp; Terms
+            </Link>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
     <footer className="bg-dark-base">
       <div className="mx-auto max-w-6xl px-6 py-20">

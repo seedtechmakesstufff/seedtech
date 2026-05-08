@@ -220,6 +220,20 @@ export interface QuoteNotificationData {
   metadata?: Record<string, unknown> | null;
 }
 
+export interface SalesRepApplicationNotificationData {
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  location?: string | null;
+  linkedinUrl?: string | null;
+  currentCompany?: string | null;
+  salesExperience?: string | null;
+  outboundExperience?: string | null;
+  message?: string | null;
+  resumeUrl: string;
+  resumeFileName: string;
+}
+
 export function quoteNotificationTemplate(data: QuoteNotificationData, branding: EmailBranding = DEFAULT_BRANDING): string {
   const isIt  = data.source === "quote_it";
   const serviceLabel = isIt ? "Managed IT Support" : "Web Development";
@@ -317,6 +331,70 @@ export function quoteAutoReplyTemplate(data: QuoteNotificationData, branding: Em
   `;
 
   return layout(`Your ${serviceLabel} quote request — ${branding.companyName}`, body, branding);
+}
+
+/* ── Template: Sales Rep Application ───────────────────────── */
+
+export function salesRepApplicationNotificationTemplate(
+  data: SalesRepApplicationNotificationData,
+  branding: EmailBranding = DEFAULT_BRANDING
+): string {
+  const rows =
+    field("Name", data.fullName) +
+    field("Email", data.email) +
+    field("Phone", data.phone) +
+    field("Location", data.location) +
+    field("Current Company", data.currentCompany) +
+    field("LinkedIn", data.linkedinUrl) +
+    field("Outbound Sales Experience", data.salesExperience) +
+    field("Prospecting Background", data.outboundExperience) +
+    field("Resume", data.resumeFileName);
+
+  const body = `
+    ${h1("New Sales Rep Application")}
+    ${subheading("A candidate applied through the SeedTech sales rep opportunity page.")}
+    ${divider()}
+    ${fieldsTable(rows)}
+    ${data.message ? `
+    <tr style="display:block;">
+      <td style="display:block;padding:8px 0;">
+        <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;">Why they're a fit</span>
+        <div style="margin-top:8px;padding:16px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;font-size:15px;color:#111827;line-height:1.6;">${data.message.replace(/\n/g, "<br />")}</div>
+      </td>
+    </tr>` : ""}
+    ${divider()}
+    ${ctaButton("Open Resume", data.resumeUrl)}
+    ${note("Reply directly to this email to follow up with the applicant.")}
+  `;
+
+  return layout(`New Sales Rep Application — ${branding.companyName}`, body, branding);
+}
+
+export function salesRepApplicationAutoReplyTemplate(
+  data: SalesRepApplicationNotificationData,
+  branding: EmailBranding = DEFAULT_BRANDING
+): string {
+  const firstName = data.fullName.split(" ")[0];
+
+  const body = `
+    ${h1("Application received, " + firstName + ".")}
+    ${subheading("Thanks for applying to the SeedTech sales rep role.")}
+    ${divider()}
+    <p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 20px;">
+      We received your application and resume. Our team will review it and reach out if there is a fit for the next step.
+    </p>
+    ${fieldsTable(
+      field("Name", data.fullName) +
+      field("Email", data.email) +
+      field("Phone", data.phone) +
+      field("Location", data.location) +
+      field("Resume", data.resumeFileName)
+    )}
+    ${divider()}
+    ${note("If you need to update your resume or details, reply to this email.")}
+  `;
+
+  return layout(`We received your application — ${branding.companyName}`, body, branding);
 }
 
 /* ── Template: Team Invite ──────────────────────────────────── */
