@@ -5,12 +5,33 @@
  */
 import { PLAN_PRICES, FULL_TIME_SALARY_PER_PERSON } from "./constants";
 
+export const COMMISSION_LADDER = [
+  { minSeats: 1, maxSeats: 5, rate: 15 },
+  { minSeats: 6, maxSeats: 10, rate: 16 },
+  { minSeats: 11, maxSeats: 15, rate: 17 },
+  { minSeats: 16, maxSeats: 19, rate: 18 },
+  { minSeats: 20, maxSeats: 22, rate: 19 },
+  { minSeats: 23, maxSeats: null, rate: 20 },
+] as const;
+
 /** Tiered commission rate based on seat count. */
 export function getCommissionRate(seats: number): number {
-  if (seats >= 200) return 15;
-  if (seats >= 100) return 12;
-  if (seats >= 50) return 10;
-  return 8;
+  const normalizedSeats = Math.max(1, Math.floor(seats));
+
+  for (const tier of COMMISSION_LADDER) {
+    if (tier.maxSeats === null) {
+      if (normalizedSeats >= tier.minSeats) {
+        return tier.rate;
+      }
+      continue;
+    }
+
+    if (normalizedSeats >= tier.minSeats && normalizedSeats <= tier.maxSeats) {
+      return tier.rate;
+    }
+  }
+
+  return COMMISSION_LADDER[0].rate;
 }
 
 export function calculateCommissions(

@@ -64,6 +64,7 @@ const footerLinks = {
   company: [
     { label: "About Us", href: "/about" },
     { label: "Our Work", href: "/our-work" },
+    { label: "Want to Work With SeedTech?", href: "/work-with-seedtech" },
     { label: "Contact", href: "/contact" },
     { label: "Blog", href: "/blog" },
   ],
