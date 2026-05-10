@@ -13,6 +13,33 @@ function SalesRepApplicationFormInner() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [resumeName, setResumeName] = useState("");
+  const [locationValue, setLocationValue] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [zipStatus, setZipStatus] = useState<"idle" | "loading" | "found" | "error">("idle");
+
+  async function handleZipChange(zip: string) {
+    const clean = zip.replace(/\D/g, "").slice(0, 5);
+    setZipCode(clean);
+    if (clean.length === 5) {
+      setZipStatus("loading");
+      try {
+        const res = await fetch(`https://api.zippopotam.us/us/${clean}`);
+        if (res.ok) {
+          const data = await res.json() as { places: [{ "place name": string; "state abbreviation": string }] };
+          const city = data.places[0]["place name"];
+          const state = data.places[0]["state abbreviation"];
+          setLocationValue(`${city}, ${state}`);
+          setZipStatus("found");
+        } else {
+          setZipStatus("error");
+        }
+      } catch {
+        setZipStatus("error");
+      }
+    } else {
+      setZipStatus("idle");
+    }
+  }
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,9 +106,39 @@ function SalesRepApplicationFormInner() {
         <FormInput label="Full Name" name="fullName" placeholder="Jordan Smith" required theme="light" />
         <FormInput label="Email Address" name="email" type="email" placeholder="jordan@example.com" required theme="light" />
         <FormInput label="Phone Number" name="phone" type="tel" placeholder="(555) 123-4567" required theme="light" />
-        <FormInput label="Location" name="location" placeholder="North Jersey" required theme="light" />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-dark-base/70">
+            Location <span className="text-red-500">*</span>
+          </label>
+          <input
+            name="location"
+            type="text"
+            required
+            placeholder="City, State"
+            value={locationValue}
+            onChange={(e) => setLocationValue(e.target.value)}
+            className="w-full rounded-xl border border-black/[0.08] bg-light-base px-4 py-3 text-sm text-dark-base placeholder:text-dark-base/30 outline-none transition-all focus:border-seed-600/50"
+          />
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={5}
+              value={zipCode}
+              onChange={(e) => handleZipChange(e.target.value)}
+              placeholder="Zip code"
+              className="w-24 rounded-xl border border-black/[0.08] bg-light-base px-3 py-2 text-sm text-dark-base placeholder:text-dark-base/30 outline-none transition-all focus:border-seed-600/50"
+            />
+            <span className="text-xs text-dark-base/50">
+              {zipStatus === "loading" && "Looking up…"}
+              {zipStatus === "found" && "✓ Location filled in"}
+              {zipStatus === "error" && "Zip not found — type manually"}
+              {zipStatus === "idle" && "or enter zip to auto-fill"}
+            </span>
+          </div>
+        </div>
         <FormInput label="Current Company" name="currentCompany" placeholder="Optional" theme="light" />
-        <FormInput label="LinkedIn URL" name="linkedinUrl" type="url" placeholder="https://linkedin.com/in/yourname" theme="light" />
+        <FormInput label="LinkedIn (optional)" name="linkedinUrl" type="text" placeholder="linkedin.com/in/yourname" theme="light" />
       </div>
 
       <FormTextarea
