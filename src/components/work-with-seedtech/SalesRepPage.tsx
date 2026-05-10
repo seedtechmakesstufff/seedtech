@@ -1,371 +1,316 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  BriefcaseBusiness,
-  Building2,
-  CheckCircle2,
-  ChevronDown,
-  Stethoscope,
-  Target,
-  TrendingUp,
-  Truck,
-  Wrench,
-} from "lucide-react";
-import { Section } from "@/components/layout/Section";
-import { SectionHeader } from "@/components/layout/SectionHeader";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { AnimatedH1, GradientOrb, GridPattern, LiquidGlassPill } from "@/components/kit";
 import { SalesRepCalculator } from "./SalesRepCalculator";
+import { FaqAccordion } from "./FaqAccordion";
+import { SalesRepGate } from "./SalesRepGate";
 
-const plans = [
+const workSteps = [
   {
-    name: "SeedCare Essentials",
-    price: "$110/user/mo",
-    summary: "Foundational support and protection.",
-    fit: "Best for smaller teams moving off reactive IT.",
+    n: "01",
+    text: "Build prospect lists in Sprout targeting local SMBs in construction, trucking, law, and medical.",
   },
   {
-    name: "SeedCare Plus",
-    badge: "Best default",
-    price: "$130/user/mo",
-    summary: "The safest default for growing SMBs.",
-    fit: "Best for companies that want a real partner, not just tickets answered.",
+    n: "02",
+    text: "Run structured outbound through call and email to generate qualified meetings.",
   },
   {
-    name: "SeedCare Pro",
-    price: "$160/user/mo",
-    summary: "Strategic partnership tier.",
-    fit: "Best for owners who want planning, accountability, and higher-touch support.",
+    n: "03",
+    text: "Hand off warm opportunities — SeedTech runs discovery, scopes, closes, and supports.",
   },
 ];
 
-const industries = [
-  {
-    icon: Wrench,
-    title: "Construction / Trades",
-    prompt: "Downtime, field devices, and office-to-field handoff problems.",
-    tier: "Usually Plus",
-  },
-  {
-    icon: Truck,
-    title: "Trucking / Logistics",
-    prompt: "Dispatch continuity, communication, and device support issues.",
-    tier: "Plus + add-ons",
-  },
-  {
-    icon: Building2,
-    title: "Law Firms",
-    prompt: "Security, responsiveness, and professional client-facing support.",
-    tier: "Often Pro",
-  },
-  {
-    icon: Stethoscope,
-    title: "Medical / Dental",
-    prompt: "Scheduling disruption, reliability, and secure systems.",
-    tier: "Often Pro",
-  },
+const compTerms = [
+  "Commission 15–20% based on seat count",
+  "Paid on collected MRR, up to 12 months",
+  "No technical responsibility on your side",
 ];
 
 const roleColumns = [
   {
-    icon: Target,
     title: "Your role",
-    items: [
-      "Build lists in Sprout",
-      "Run call and email outreach",
-      "Book qualified meetings",
-    ],
+    items: ["Prospect, outbound & lead discovery", "Present proposals & close deals", "Own onboarding, implementation & client management"],
   },
   {
-    icon: BriefcaseBusiness,
-    title: "Our role",
-    items: [
-      "Run discovery",
-      "Scope the proposal",
-      "Close, onboard, and support",
-    ],
+    title: "SeedTech backs you",
+    items: ["Tech scoping & specs for your proposals", "Hands-on implementation & deployment", "Resolves client technical support tickets"],
   },
   {
-    icon: TrendingUp,
-    title: "Shared win",
-    items: [
-      "Better-fit accounts",
-      "Stronger retention",
-      "Recurring commission over time",
-    ],
+    title: "The result",
+    highlight: true,
+    items: ["You're the client's go-to contact", "Support handles tickets behind the scenes", "Recurring commission on every renewal"],
   },
+];
+
+const industries = [
+  { title: "Construction / Trades", tier: "Plus", prompt: "Downtime, field devices, and office-to-field coordination." },
+  { title: "Trucking / Logistics", tier: "Plus", prompt: "Dispatch continuity, communication, and device support." },
+  { title: "Law Firms", tier: "Pro", prompt: "Security, reliability, and professional client-facing support." },
+  { title: "Medical / Dental", tier: "Pro", prompt: "Scheduling disruption, reliability, and secure systems." },
 ];
 
 const faqs = [
   {
     question: "Do I need IT experience?",
     answer:
-      "You do not need to be the technician. You do need to sell consultatively and understand the business value. SeedTech supports the technical side.",
+      "No technical background required. You need to be able to have a consultative conversation about business pain — downtime, reliability, communication — not configure servers. SeedTech handles all technical scoping and delivery. We'll give you what you need to speak confidently in front of a prospect.",
   },
   {
-    question: "Do I have to close the deal myself?",
+    question: "Am I responsible for closing the deal?",
     answer:
-      "No. This role is built around outbound prospecting and qualified meeting generation. You will use Sprout to build lists and work call/email outreach, and SeedTech supports discovery, scoping, and close.",
+      "You'll be in the room for every step — discovery, proposal presentation, and signature. Early on, SeedTech will close alongside you so you can get comfortable with the process. The goal is for you to own the close independently over time. You prospect and build the relationship; we back you up technically until you've got it.",
+  },
+  {
+    question: "What does my role look like after a client signs?",
+    answer:
+      "You become their primary point of contact — the client manager. If they have a question, concern, or need something changed, they reach out to you. You loop in SeedTech support as needed. You're not resolving technical issues yourself, but you're the face of the relationship and accountable for client satisfaction.",
   },
   {
     question: "How is commission paid?",
     answer:
-      "Commission is paid on collected monthly recurring revenue and can run for up to 12 months while the client remains active and paying.",
+      "Commission is paid monthly based on each client's active, paying recurring revenue. The rate scales with your book of business — starting at 15% and climbing to 20% as you close more seats. Payouts continue for up to 12 months per active client.",
   },
   {
-    question: "Are the services sold on long contracts?",
+    question: "Are clients on long contracts?",
     answer:
-      "SeedCare is typically sold month-to-month, which makes the sale easier while still keeping the client relationship durable.",
+      "SeedCare is typically sold month-to-month. That makes the initial sale easier and lowers buyer friction — no multi-year commitment required. Long-term retention comes from delivering a great experience, not locking clients in.",
   },
-];
-
-const heroWorkSteps = [
-  "Use Sprout to identify local SMB prospects that fit SeedTech's target verticals.",
-  "Run structured outbound through call and email to generate qualified meetings.",
-  "Hand warm opportunities into SeedTech's sales process while we scope and close.",
-];
-
-const heroCompTerms = [
-  "Seat-based commission ladder from 15% to 20%.",
-  "Paid on collected recurring revenue only, for up to 12 months.",
-  "No technical delivery, onboarding, or support responsibility on your side.",
+  {
+    question: "Is there a path to a full-time role?",
+    answer:
+      "Yes. Reps who consistently bring on quality accounts — clients with 10–15+ seats — are on a clear path to a W2 position at SeedTech. You'd earn a base salary while continuing to sell and collect commission. It's not guaranteed from day one, but it's the goal for reps who perform.",
+  },
 ];
 
 export function SalesRepPage() {
   return (
     <div className="pt-20">
-      <section className="relative overflow-hidden bg-dark-base py-18 md:py-22">
+
+      {/* ── 1. Hero ─────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-dark-base pb-24 pt-20 md:pb-32 md:pt-28">
         <GradientOrb color="seed" size="xl" className="-right-40 -top-32 opacity-20" />
         <GradientOrb color="blue" size="lg" className="-left-24 top-1/2 opacity-10" />
         <GridPattern />
 
         <div className="relative z-10 mx-auto max-w-6xl px-6">
-          <div className="max-w-5xl">
-            <div className="mb-6 flex flex-wrap items-center gap-3">
-              <LiquidGlassPill variant="seed">Sales Reps</LiquidGlassPill>
-              <LiquidGlassPill variant="default">Recurring Managed IT</LiquidGlassPill>
-              <LiquidGlassPill variant="default">Up to 12 Months of Payout</LiquidGlassPill>
-            </div>
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <LiquidGlassPill variant="seed">Sales Reps</LiquidGlassPill>
+            <LiquidGlassPill variant="default">Recurring Managed IT</LiquidGlassPill>
+            <LiquidGlassPill variant="default">Up to 12 Months of Payout</LiquidGlassPill>
+          </div>
 
-            <AnimatedH1 highlightWords={["recurring", "income"]} className="mb-6 max-w-4xl">
-              Turn qualified conversations into recurring income
-            </AnimatedH1>
+          <AnimatedH1 highlightWords={["recurring", "income"]} className="mb-6">
+            Turn qualified conversations into recurring income
+          </AnimatedH1>
 
-            <p className="max-w-3xl text-body-lg leading-relaxed text-white/90">
-              SeedTech helps small businesses move from reactive IT headaches to proactive support, backup,
-              security, and planning. This role is about outbound prospecting, qualified meetings, and recurring managed IT revenue.
-            </p>
+          <p className="max-w-xl text-lg leading-relaxed text-white/90">
+            Earn recurring commission connecting local businesses to SeedTech&apos;s managed IT. No tech delivery —
+            we scope, close, and support every client.
+          </p>
 
-            <p className="mt-5 max-w-3xl text-base leading-relaxed text-white/90">
-              <span className="font-medium text-white">Why reps care:</span> earn recurring commission for outbound SMB meetings that turn into managed IT clients. No IT delivery required. SeedTech scopes, closes, and supports the client.
-            </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/work-with-seedtech/apply"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-brand px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:shadow-glowSeed"
+            >
+              Apply Now
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <a
+              href="#calculator"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl liquid-glass px-8 py-4 text-sm font-semibold text-white transition-all duration-200"
+            >
+              See the Payout Calculator
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+      </section>
 
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <Link
-                href="/work-with-seedtech/apply"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-brand px-8 py-3.5 text-sm font-medium text-white transition-all duration-200 hover:shadow-glowSeed"
+      {/* ── 2. How It Works ─────────────────────────────────── */}
+      <section className="bg-dark-raised py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-seed-400">How it works</p>
+          <h2 className="mt-3 font-display text-[clamp(2rem,4vw,2.75rem)] leading-tight text-white">
+            Three steps. No IT required.
+          </h2>
+
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {workSteps.map((step) => (
+              <div key={step.n} className="flex gap-5">
+                <span className="mt-0.5 font-display text-2xl leading-none text-seed-500/50">{step.n}</span>
+                <p className="text-base leading-relaxed text-white/90">{step.text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 grid gap-3 sm:grid-cols-3">
+            {compTerms.map((term) => (
+              <div
+                key={term}
+                className="flex items-start gap-3 rounded-2xl border border-white/[0.08] bg-dark-elevated px-5 py-4"
               >
-                Apply Now
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="#calculator"
-                className="inline-flex items-center justify-center gap-2 rounded-xl liquid-glass px-8 py-3.5 text-sm font-medium text-white transition-all duration-200"
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-seed-400" />
+                <p className="text-sm leading-relaxed text-white">{term}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3–5. Gated content ─────────────────────────────── */}
+      <SalesRepGate>
+
+      {/* ── 3. Calculator ───────────────────────────────────── */}
+      <section id="calculator" className="scroll-mt-20 bg-dark-base py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-seed-400">Compensation</p>
+          <h2 className="mt-3 max-w-lg font-display text-[clamp(2rem,4vw,2.75rem)] leading-tight text-white">
+            Estimate your payout
+          </h2>
+          <p className="mt-3 max-w-lg text-base leading-relaxed text-white/80">
+            Adjust seats, plan, and add-ons to see exactly what each deal could earn you.
+          </p>
+          <div className="mt-10">
+            <SalesRepCalculator />
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. The Role ─────────────────────────────────────── */}
+      <section className="bg-dark-raised py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-seed-400">The role</p>
+          <h2 className="mt-3 font-display text-[clamp(2rem,4vw,2.75rem)] leading-tight text-white">
+            What you do. What we do.
+          </h2>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {roleColumns.map((col) => (
+              <div
+                key={col.title}
+                className={[
+                  "rounded-3xl border p-6",
+                  col.highlight
+                    ? "border-seed-500/25 bg-seed-500/10"
+                    : "border-white/[0.08] bg-dark-elevated",
+                ].join(" ")}
               >
-                See the Payout Calculator
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
+                <h3 className="font-display text-2xl text-white">{col.title}</h3>
+                <ul className="mt-4 space-y-2.5">
+                  {col.items.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-sm leading-relaxed text-white/90">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-seed-400" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-            <div className="mt-10 rounded-[2rem] border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-sm">
-              <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-seed-300">How the role actually works</p>
-                  <ol className="mt-4 space-y-4">
-                    {heroWorkSteps.map((step, index) => (
-                      <li key={step} className="flex items-start gap-3">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-seed-500/12 text-xs font-semibold text-seed-300">
-                          0{index + 1}
-                        </span>
-                        <p className="pt-1 text-sm leading-relaxed text-white/90">{step}</p>
-                      </li>
-                    ))}
-                  </ol>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {industries.map((ind) => (
+              <div key={ind.title} className="rounded-3xl border border-white/[0.08] bg-dark-elevated p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="font-display text-xl text-white">{ind.title}</h4>
+                  <span className="rounded-full border border-seed-500/30 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.16em] text-seed-300">
+                    {ind.tier}
+                  </span>
                 </div>
+                <p className="mt-2 text-xs leading-relaxed text-white/80">{ind.prompt}</p>
+              </div>
+            ))}
+          </div>
 
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-seed-300">Compensation terms</p>
-                  <ul className="mt-4 space-y-3">
-                    {heroCompTerms.map((term) => (
-                      <li key={term} className="flex items-start gap-3 text-sm leading-relaxed text-white/90">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-seed-400" />
-                        <span>{term}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          {/* Growth path callout */}
+          <div className="mt-6 rounded-3xl border border-seed-500/20 bg-seed-500/10 p-8 md:p-10">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-seed-400">Long-term path</p>
+                <h3 className="mt-2 font-display text-[clamp(1.5rem,3vw,2rem)] leading-tight text-white">
+                  Build a book. Earn a salary.
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/80">
+                  For reps who consistently bring on quality accounts — clients with 10–15+ seats — we open the door to a full W2 position at SeedTech. You keep selling, keep earning commission, and gain the stability of a base salary. It&apos;s the path from independent rep to core team member.
+                </p>
+              </div>
+              <div className="shrink-0 rounded-2xl border border-seed-500/30 bg-seed-500/10 px-6 py-4 text-center">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-seed-400">Target</p>
+                <p className="mt-1 font-display text-3xl text-white">10–15</p>
+                <p className="text-xs text-white/70">seats per account</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <Section id="calculator" theme="light" className="scroll-mt-24 py-14 md:scroll-mt-28 md:py-16">
-        <SectionHeader
-          eyebrow="Compensation"
-          title="Estimate client value and expected payout"
-          description="Adjust seats, plan, and add-ons to see the client investment alongside the corresponding commission estimate."
-          theme="light"
-          className="mb-10"
-        />
-        <SalesRepCalculator />
-      </Section>
+      {/* ── 5. Apply + FAQ ──────────────────────────────────── */}
+      <section className="bg-[#f5f5f7] py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
 
-      <Section id="brief" className="py-16 md:py-20">
-        <SectionHeader
-          eyebrow="Quick Brief"
-          title="What you sell, who you target, and how the role works"
-          description="Enough to tell a serious rep whether this is worth an application."
-          className="mb-12"
-        />
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-6">
-            <div className="rounded-3xl border border-white/[0.08] bg-dark-elevated p-6">
-              <p className="text-xs uppercase tracking-[0.18em] text-seed-400">The offer</p>
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                {plans.map((plan) => (
-                  <div
-                    key={plan.name}
-                    className={[
-                      "rounded-2xl border p-5",
-                      plan.badge
-                        ? "border-seed-500/30 bg-seed-500/10"
-                        : "border-white/[0.08] bg-dark-base",
-                    ].join(" ")}
-                  >
-                    {plan.badge && (
-                      <span className="inline-flex rounded-full bg-gradient-brand px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-white">
-                        {plan.badge}
-                      </span>
-                    )}
-                    <h3 className="mt-3 font-display text-2xl text-white">{plan.name}</h3>
-                    <p className="mt-2 text-sm font-medium text-seed-300">{plan.price}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-white/80">{plan.summary}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-white/80">{plan.fit}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-white/[0.08] bg-dark-elevated p-6">
-              <p className="text-xs uppercase tracking-[0.18em] text-seed-400">How the role works</p>
-              <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                {roleColumns.map((column) => (
-                  <div key={column.title} className="rounded-2xl border border-white/[0.08] bg-dark-base p-5">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-seed-500/10 text-seed-400">
-                      <column.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-4 font-display text-2xl text-white">{column.title}</h3>
-                    <ul className="mt-4 space-y-2 text-sm leading-relaxed text-white/80">
-                      {column.items.map((item) => (
-                        <li key={item} className="flex items-start gap-2">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-seed-400" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-5 text-sm leading-relaxed text-white/75">
-                Strong performers can grow beyond commission-only into a larger account-growth or client-management role as their book matures.
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/[0.08] bg-dark-elevated p-6">
-            <p className="text-xs uppercase tracking-[0.18em] text-seed-400">Fastest targets</p>
-            <div className="mt-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-dark-base">
-              {industries.map((industry) => (
-                <div key={industry.title} className="flex items-start gap-3 px-4 py-4 not-last:border-b not-last:border-white/[0.08]">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-seed-500/10 text-seed-400">
-                    <industry.icon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-display text-2xl text-white">{industry.title}</h3>
-                      <span className="rounded-full border border-seed-500/25 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-seed-300">
-                        {industry.tier}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-white/80">{industry.prompt}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Section theme="light" className="py-14 md:py-16">
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-[2rem] border border-dark-base/10 bg-white p-7 shadow-[0_30px_80px_-50px_rgba(10,10,15,0.35)] md:p-8">
-            <p className="text-xs uppercase tracking-[0.18em] text-seed-600">Apply now</p>
-            <h2 className="mt-4 font-display text-[clamp(2.4rem,6vw,3.4rem)] leading-[1.05] text-dark-base">
-              Review the role here. Apply on a dedicated page.
-            </h2>
-            <p className="mt-4 text-body-lg leading-relaxed text-dark-base/70">
-              Once you are interested, move straight into the application flow. Upload your resume, add your core details, and submit without losing the context of the role page.
-            </p>
-
-            <div className="mt-7 space-y-3 rounded-2xl border border-dark-base/10 bg-light-base p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-seed-600">Application flow</p>
-              <p className="text-sm leading-relaxed text-dark-base/70">1. Open the dedicated application page.</p>
-              <p className="text-sm leading-relaxed text-dark-base/70">2. Upload your resume and core contact details.</p>
-              <p className="text-sm leading-relaxed text-dark-base/70">3. Add optional context about your outbound background and submit.</p>
-            </div>
-
-            <div className="mt-7 flex flex-col gap-4 sm:flex-row">
-              <Link
-                href="/work-with-seedtech/apply"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-brand px-8 py-3.5 text-sm font-medium text-white transition-all duration-200 hover:shadow-glowSeed"
-              >
-                Go To Application
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="#calculator"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-dark-base/10 bg-dark-base px-8 py-3.5 text-sm font-medium text-white transition-all duration-200"
-              >
-                Review the Calculator
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <div className="mb-6 max-w-none text-left">
-              <p className="text-eyebrow uppercase tracking-widest text-seed-600">FAQ</p>
-              <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,3rem)] leading-[1.05] text-dark-base">
-                The practical questions
+            {/* Apply card */}
+            <div className="rounded-3xl bg-white p-8 shadow-[0_2px_60px_rgba(0,0,0,0.08)] md:p-10">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-seed-600">Ready to apply?</p>
+              <h2 className="mt-4 font-display text-[clamp(2rem,4vw,2.75rem)] leading-tight text-dark-base">
+                Apply in minutes.
               </h2>
-              <p className="mt-4 text-body-lg leading-relaxed text-dark-base/60">
-                Just the objections that matter most.
+              <p className="mt-4 text-base leading-relaxed text-dark-base/70">
+                No cover letter required. Upload your resume, add your outbound background, and submit.
               </p>
+
+              <ol className="mt-6 space-y-3">
+                {[
+                  "Open the application page",
+                  "Upload resume and contact details",
+                  "Add outbound context and submit",
+                ].map((step, i) => (
+                  <li key={step} className="flex items-center gap-3 text-sm text-dark-base">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-seed-500/10 text-xs font-semibold text-seed-600">
+                      {i + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/work-with-seedtech/apply"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-brand px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:shadow-glowSeed"
+                >
+                  Go to Application
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a
+                  href="#calculator"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-dark-base/15 px-8 py-4 text-sm font-semibold text-dark-base transition-all duration-200 hover:bg-dark-base/[0.05]"
+                >
+                  Back to Calculator
+                </a>
+              </div>
             </div>
-            <div className="space-y-3">
-              {faqs.map((faq) => (
-                <details key={faq.question} className="group rounded-2xl border border-dark-base/10 bg-white p-5 shadow-[0_30px_80px_-50px_rgba(10,10,15,0.35)]">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left [&::-webkit-details-marker]:hidden">
-                    <span className="font-display text-[1.55rem] leading-tight text-dark-base">{faq.question}</span>
-                    <ChevronDown className="h-5 w-5 shrink-0 text-dark-base/40 transition-transform duration-200 group-open:rotate-180" />
-                  </summary>
-                  <p className="mt-4 text-body leading-relaxed text-dark-base/70">{faq.answer}</p>
-                </details>
-              ))}
+
+            {/* FAQ */}
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-seed-600">FAQ</p>
+              <h2 className="mt-3 font-display text-[clamp(2rem,4vw,2.75rem)] leading-tight text-dark-base">
+                Common questions.
+              </h2>
+              <div className="mt-8">
+                <FaqAccordion faqs={faqs} />
+              </div>
             </div>
+
           </div>
         </div>
-      </Section>
+      </section>
+
+      </SalesRepGate>
+
     </div>
   );
 }
+
+

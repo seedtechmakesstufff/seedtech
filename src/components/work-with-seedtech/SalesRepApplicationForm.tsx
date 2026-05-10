@@ -85,9 +85,17 @@ function SalesRepApplicationFormInner() {
       </div>
 
       <FormTextarea
-        label="Why are you a fit for this role?"
-        name="message"
-        placeholder="Optional: tell us about your outbound process, the accounts you have sold into, or anything else we should know."
+        label="Walk us through how you'd approach a brand new prospect."
+        name="salesExperience"
+        placeholder="Optional: how do you research, reach out, and start a conversation with someone who has never heard of you?"
+        rows={4}
+        theme="light"
+      />
+
+      <FormTextarea
+        label="How do you handle a difficult or frustrated client?"
+        name="outboundExperience"
+        placeholder="Optional: describe a situation where a client was unhappy and how you managed it."
         rows={4}
         theme="light"
       />
