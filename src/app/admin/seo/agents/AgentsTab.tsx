@@ -17,6 +17,8 @@ import {
   Bot,
   Newspaper,
   Info,
+  FileSearch,
+  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { AgentDetailModal } from "./AgentDetailModal";
@@ -34,10 +36,12 @@ const AGENTS: AgentDef[] = [
   { key: "industry-researcher", label: "Industry Researcher", description: "Fetches primary sources (FMCSA, ABA, FDA, NRA…) across your client verticals and extracts novel insights. Runs first so the Brief Generator has fresh real-world signals.", endpoint: "/api/admin/agents/industry-researcher/run", icon: Newspaper, cadence: "Mon 9 AM UTC" },
   { key: "strategy-analyst", label: "Strategy Analyst", description: "Reads everything (GSC, GA4, GBP, events, citations) and writes the weekly priority brief.", endpoint: "/api/admin/agents/strategy-analyst/run", icon: Sparkles, cadence: "Mon 10:30 AM UTC" },
   { key: "brief-generator", label: "Brief Generator", description: "Turns research signals + analyst priorities into structured content briefs queued for approval.", endpoint: "/api/admin/agents/brief-generator/run", icon: FileText, cadence: "Mon 11 AM UTC" },
+  { key: "page-drafter", label: "Page Drafter", description: "Drafts optimised copy for flagged pages — new title, meta, H1, body sections, FAQs. Approve in Inbox to apply metadata.", endpoint: "/api/admin/agents/page-drafter/run", icon: Globe, cadence: "Mon 11:30 AM UTC" },
   { key: "blog-drafter", label: "Blog Drafter", description: "Drafts full posts from approved briefs. Approve in Inbox to publish.", endpoint: "/api/admin/agents/blog-drafter/run", icon: FileText, cadence: "daily 12 PM UTC" },
   { key: "gbp-post-drafter", label: "GBP Post Drafter", description: "Drafts 1-2 Google Business Profile posts per location.", endpoint: "/api/admin/agents/gbp-post-drafter/run", icon: MapPin, cadence: "Mon 12 PM UTC" },
   { key: "keyword-scout", label: "Keyword Scout", description: "Surfaces queries from GSC you don't track yet.", endpoint: "/api/admin/agents/keyword-scout/run", icon: Search, cadence: "Mon 10 AM UTC" },
   { key: "content-decay-watcher", label: "Content Decay Watcher", description: "Detects posts losing traffic/conversions and queues refresh briefs.", endpoint: "/api/admin/agents/content-decay-watcher/run", icon: Activity, cadence: "Mon 7:30 AM UTC" },
+  { key: "page-opportunity-scout", label: "Page Opportunity Scout", description: "Scans service/location pages against GSC data to flag underperforming pages — low CTR, invisible pages, missing metadata.", endpoint: "/api/admin/agents/page-opportunity-scout/run", icon: FileSearch, cadence: "Mon 8 AM UTC" },
   { key: "internal-link-agent", label: "Internal Link Agent", description: "Suggests internal-link insertions across recent posts.", endpoint: "/api/admin/agents/internal-link-agent/run", icon: Link2, cadence: "Mon 8 AM UTC" },
   { key: "weekly-digest", label: "Weekly Digest Email", description: "Sends the Monday-morning summary email.", endpoint: "/api/admin/agents/weekly-digest/run", icon: Mail, cadence: "Mon 1 PM UTC · 9 AM EDT" },
 ];

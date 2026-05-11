@@ -16,6 +16,8 @@ import { runGbpPostDrafter } from "@/lib/agents/gbp-post-drafter";
 import { runKeywordScout } from "@/lib/agents/keyword-scout";
 import { runContentDecayWatcher } from "@/lib/agents/content-decay-watcher";
 import { runInternalLinkAgent } from "@/lib/agents/internal-link-agent";
+import { runPageOpportunityScout } from "@/lib/agents/page-opportunity-scout";
+import { runPageDrafter } from "@/lib/agents/page-drafter";
 import { sendWeeklyDigest } from "@/lib/weekly-digest";
 
 const SONNET = "claude-sonnet-4-20250514";
@@ -29,6 +31,8 @@ export type AgentKey =
   | "keyword-scout"
   | "content-decay-watcher"
   | "internal-link-agent"
+  | "page-opportunity-scout"
+  | "page-drafter"
   | "weekly-digest";
 
 export const AGENT_KEYS: readonly AgentKey[] = [
@@ -40,6 +44,8 @@ export const AGENT_KEYS: readonly AgentKey[] = [
   "keyword-scout",
   "content-decay-watcher",
   "internal-link-agent",
+  "page-opportunity-scout",
+  "page-drafter",
   "weekly-digest",
 ] as const;
 
@@ -167,6 +173,32 @@ const REGISTRY: Record<AgentKey, RegisteredAgent> = {
       artifactsCreated: r.artifactsQueued,
       resultSummary: `${r.posts} posts, ${r.suggestionsCreated} suggestions, ${r.artifactsQueued} artifacts`,
       metadata: { posts: r.posts, suggestionsCreated: r.suggestionsCreated },
+    }),
+  },
+
+  "page-opportunity-scout": {
+    label: "Page Opportunity Scout",
+    defaultModel: null,
+    run: (siteId) => runPageOpportunityScout(siteId),
+    extract: (r: Awaited<ReturnType<typeof runPageOpportunityScout>>) => ({
+      artifactsCreated: r.opportunitiesFound,
+      resultSummary: `${r.pagesScanned} pages scanned, ${r.opportunitiesFound} opportunities found, ${r.skippedAlreadyFlagged} skipped`,
+      metadata: { errors: r.errors, insightIds: r.insightIds },
+    }),
+  },
+
+  "page-drafter": {
+    label: "Page Drafter",
+    defaultModel: SONNET,
+    run: (siteId) => runPageDrafter(siteId),
+    extract: (r: Awaited<ReturnType<typeof runPageDrafter>>) => ({
+      model: r.model,
+      tokensIn: r.usage.tokensIn,
+      tokensOut: r.usage.tokensOut,
+      artifactIds: r.artifactIds,
+      artifactsCreated: r.draftsCreated,
+      resultSummary: `${r.draftsCreated} page drafts${r.errors.length ? ` (${r.errors.length} errors)` : ""}`,
+      metadata: { errors: r.errors },
     }),
   },
 

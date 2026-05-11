@@ -25,9 +25,11 @@ export async function POST() {
     "industry-researcher",
     "keyword-scout",
     "content-decay-watcher",
+    "page-opportunity-scout",
     "internal-link-agent",
     "strategy-analyst",
     "brief-generator",
+    "page-drafter",
     "gbp-post-drafter",
     "weekly-digest",
   ];

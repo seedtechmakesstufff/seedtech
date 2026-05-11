@@ -320,6 +320,76 @@ For each page pair, it checks:
 Suggestions include: sourcePageUrl, targetPageUrl, anchorText, context (surrounding sentence), reason.`,
   },
 
+  "page-opportunity-scout": {
+    key: "page-opportunity-scout",
+    label: "Page Opportunity Scout",
+    cadence: "Monday 8:00 AM UTC",
+    cronPath: "/api/cron/page-opportunity-scout",
+    manualEndpoint: "/api/admin/agents/page-opportunity-scout/run",
+    what: "Scans SitePage rows against GSC data to identify underperforming service, location, and landing pages. Flags low-CTR pages, invisible pages with impressions, and pages with missing metadata as SeoInsight rows.",
+    reads: [
+      "SitePage rows (all pages for site)",
+      "GscDailyPage rows (impressions, clicks, position, last 28 days)",
+      "PageMetadata rows (existing title/description)",
+      "Existing active SeoInsight rows (for deduplication)",
+    ],
+    writes: [
+      "SeoInsight rows (type: page_opportunity)",
+    ],
+    settings: [
+      { label: "Low-CTR threshold", value: "Rank 5–20, ≥50 impressions, CTR < 3%" },
+      { label: "No-metadata threshold", value: "Rank 5–20 with no PageMetadata row" },
+      { label: "Zero-impressions threshold", value: "Page age > 60 days, 0 impressions" },
+      { label: "Max insights per run", value: "8" },
+    ],
+    tuningContext: `File: src/lib/agents/page-opportunity-scout.ts
+
+Pure heuristic agent (no Claude call). Checks four rule types:
+1. low_ctr: rank 5-20, ≥50 impressions, CTR < 3% → likely fixable with better title/meta
+2. no_metadata: rank 5-20 but no PageMetadata row exists yet
+3. zero_impressions: page older than 60 days with 0 GSC impressions
+4. missing_og: page has PageMetadata but no OG fields
+
+Skips pages already flagged with an active page_opportunity insight.
+Priority: 80 for low_ctr/no_metadata, 50 for others.
+Results sorted by impressions desc, capped at 8 per run.`,
+  },
+
+  "page-drafter": {
+    key: "page-drafter",
+    label: "Page Drafter",
+    cadence: "Monday 11:30 AM UTC",
+    cronPath: "/api/cron/page-drafter",
+    manualEndpoint: "/api/admin/agents/page-drafter/run",
+    what: "Reads active page_opportunity SeoInsight rows and calls Claude to draft optimised page copy — title, meta description, H1, body sections, FAQs, and internal link suggestions. Creates page_draft AgentArtifact rows for approval.",
+    reads: [
+      "SeoInsight rows (type: page_opportunity, status: active)",
+      "PageMetadata rows (current title/description for context)",
+      "SitePage rows (page kind, path)",
+      "Existing page_draft AgentArtifact rows (for deduplication)",
+    ],
+    writes: [
+      "AgentArtifact rows (type: page_draft, status: pending)",
+    ],
+    settings: [
+      { label: "Max drafts per run", value: "4" },
+      { label: "Claude model", value: "claude-3-5-haiku-20241022" },
+      { label: "Max tokens", value: "2000" },
+    ],
+    tuningContext: `File: src/lib/agents/page-drafter.ts
+
+Reads page_opportunity insights, calls Claude once per page to generate:
+- draftTitle (≤60 chars): SEO-optimised page title
+- draftDescription (≤160 chars): compelling meta description with CTA
+- draftH1: the primary on-page heading
+- sections[]: 2-4 content sections with heading + 2-3 sentences each
+- faqItems[]: 2-3 Q&A pairs targeting featured snippets
+- internalLinksToAdd[]: anchor text + target URL suggestions
+- reasoning: why this approach
+
+On approval in the Inbox: upserts PageMetadata (title, description, ogTitle, ogDescription) and resolves the triggering SeoInsight. Does NOT auto-edit .tsx page files — copy is surfaced for manual application.`,
+  },
+
   "weekly-digest": {
     key: "weekly-digest",
     label: "Weekly Digest Email",

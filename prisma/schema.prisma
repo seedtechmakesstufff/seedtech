@@ -405,6 +405,7 @@ enum InsightType {
   ctr_optimization
   competitor_gap
   lead_gen
+  page_opportunity
   general
 }
 

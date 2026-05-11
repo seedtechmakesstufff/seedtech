@@ -12,6 +12,7 @@ import type { BlogDraftPayload } from "@/lib/agents/blog-drafter";
 import type { GbpPostDraftPayload } from "@/lib/agents/gbp-post-drafter";
 import { applyLinkSuggestions, type LinkSuggestionsPayload } from "@/lib/agents/internal-link-agent";
 import type { KeywordCandidatePayload } from "@/lib/agents/keyword-scout";
+import type { PageDraftPayload } from "@/lib/agents/page-drafter";
 
 interface ReviewReplyPayload {
   reviewName: string;     // "accounts/x/locations/y/reviews/z"
@@ -195,4 +196,51 @@ registerPublisher("review_reply_draft", async (artifact) => {
   });
 
   return { ok: true };
+});
+
+/* ── page_draft → update PageMetadata + resolve SeoInsight ── */
+registerPublisher("page_draft", async (artifact) => {
+  const payload = artifact.payload as unknown as PageDraftPayload;
+  if (!payload?.path) throw new Error("page_draft missing path");
+
+  // Upsert PageMetadata with the new title/description
+  await prisma.pageMetadata.upsert({
+    where: { siteId_path: { siteId: artifact.siteId, path: payload.path } },
+    update: {
+      title: payload.draftTitle,
+      description: payload.draftDescription,
+      ogTitle: payload.draftTitle,
+      ogDescription: payload.draftDescription,
+    },
+    create: {
+      siteId: artifact.siteId,
+      path: payload.path,
+      title: payload.draftTitle,
+      description: payload.draftDescription,
+      ogTitle: payload.draftTitle,
+      ogDescription: payload.draftDescription,
+    },
+  });
+
+  // Resolve the triggering SeoInsight
+  if (payload.opportunityInsightId) {
+    await prisma.seoInsight.update({
+      where: { id: payload.opportunityInsightId },
+      data: { status: "resolved", resolvedAt: new Date() },
+    });
+  }
+
+  await logEvent({
+    siteId: artifact.siteId,
+    type: EVENT_TYPES.CONTENT_UPDATED,
+    title: `Page metadata updated: ${payload.path}`,
+    payload: {
+      path: payload.path,
+      draftTitle: payload.draftTitle,
+      via: "page-drafter",
+      sectionsCount: payload.sections?.length ?? 0,
+    },
+  });
+
+  return { ok: true, result: { path: payload.path, draftTitle: payload.draftTitle } };
 });

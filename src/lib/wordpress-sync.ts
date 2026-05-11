@@ -28,7 +28,7 @@ export interface WpSyncResult {
 }
 
 export interface WpSyncCredential extends WpCredentials {
-  // pathPrefix is included in WpCredentials
+  [key: string]: unknown;
 }
 
 /** Read and decrypt WordPress credentials for a site. Returns null if not configured. */
