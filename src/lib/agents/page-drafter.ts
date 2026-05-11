@@ -19,7 +19,7 @@ import { callClaude, stripJsonFences, addUsage, ZERO_USAGE, type ClaudeUsage } f
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = prisma as any;
 
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-6";
 const MAX_DRAFTS_PER_RUN = 4;
 
 export interface PageDraftSection {

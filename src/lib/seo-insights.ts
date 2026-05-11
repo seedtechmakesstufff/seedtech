@@ -428,7 +428,7 @@ export async function discoverKeywords(siteId: string = DEFAULT_SITE_ID): Promis
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 4096,
       system: `You are an expert SEO keyword researcher. Analyze the business context and existing keyword strategy to discover NEW keyword opportunities the business should target. Focus on keywords that are: (1) relevant to the business, (2) not already tracked, (3) achievable for a small/mid-size business, (4) have reasonable search volume. Return exactly 10 keyword suggestions.`,
       messages: [{

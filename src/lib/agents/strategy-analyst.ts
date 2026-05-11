@@ -26,7 +26,7 @@ import { getBusinessContextForSite, buildStrategyPrompt } from "@/lib/business-c
 import { EVENT_TYPES, logEvent } from "@/lib/events";
 import { callClaude, stripJsonFences, type ClaudeUsage } from "@/lib/claude";
 
-const MODEL = "claude-sonnet-4-20250514"; // matches topic-clusters.ts + seo-insights.ts
+const MODEL = "claude-sonnet-4-6"; // matches topic-clusters.ts + seo-insights.ts
 const ANALYST_SOURCE = "ai-strategy-analyst";
 
 export interface PriorityItem {

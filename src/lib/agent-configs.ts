@@ -43,7 +43,7 @@ export const AGENT_CONFIGS: Record<string, AgentConfig> = {
       { label: "Max item age", value: "14 days", note: "Feed items older than this are ignored" },
       { label: "Min share score to save", value: "40 / 100", note: "Claude scores each item; below 40 is dropped" },
       { label: "Items per source feed", value: "5 max", note: "Top 5 fresh items per feed passed to Claude" },
-      { label: "Claude model", value: "claude-sonnet-4-20250514" },
+      { label: "Claude model", value: "claude-sonnet-4-6" },
     ],
     tuningContext: `File: src/lib/agents/industry-researcher.ts
 
@@ -86,7 +86,7 @@ Claude extraction prompt instructs Claude to:
       "SeoStrategyDoc row (source: ai-strategy-analyst) — upserted weekly",
     ],
     settings: [
-      { label: "Claude model", value: "claude-sonnet-4-20250514" },
+      { label: "Claude model", value: "claude-sonnet-4-6" },
       { label: "Max tokens", value: "4096" },
       { label: "Strategy doc source tag", value: "ai-strategy-analyst" },
     ],
@@ -127,7 +127,7 @@ The Brief Generator reads this doc and uses it as its primary strategic context.
       { label: "Keywords fetched", value: "Top 40 by impressions28d" },
       { label: "Recent posts lookback", value: "Last 30 published posts" },
       { label: "Research signals consumed", value: "Up to 6 per run" },
-      { label: "Claude model", value: "claude-sonnet-4-20250514" },
+      { label: "Claude model", value: "claude-sonnet-4-6" },
       { label: "Max tokens", value: "4096" },
     ],
     tuningContext: `File: src/lib/agents/brief-generator.ts
@@ -169,7 +169,7 @@ The prompt rules include:
       "blog_draft AgentArtifact rows (one per approved brief)",
     ],
     settings: [
-      { label: "Claude model", value: "claude-sonnet-4-20250514" },
+      { label: "Claude model", value: "claude-sonnet-4-6" },
       { label: "Max tokens", value: "8192" },
       { label: "Cadence", value: "Daily — picks up any new approved briefs" },
     ],
@@ -209,7 +209,7 @@ The blog drafter prompt instructs Claude to write a complete, publish-ready blog
       { label: "Recent posts lookback", value: "60 days (avoid repeating topics)" },
       { label: "Blog cross-promotion", value: "Last 28 days of published posts" },
       { label: "Image required", value: "Yes — Approve is blocked without an uploaded image" },
-      { label: "Claude model", value: "claude-sonnet-4-20250514" },
+      { label: "Claude model", value: "claude-sonnet-4-6" },
     ],
     tuningContext: `File: src/lib/agents/gbp-post-drafter.ts
 

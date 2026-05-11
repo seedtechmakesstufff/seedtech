@@ -27,7 +27,7 @@ describe("estimateCostUsd", () => {
   it("computes Sonnet 4 cost from tokens", async () => {
     const { estimateCostUsd } = await import("./agent-runner");
     // 1000 in @ $3/M = $0.003, 500 out @ $15/M = $0.0075 → $0.0105
-    const cost = estimateCostUsd("claude-sonnet-4-20250514", 1000, 500);
+    const cost = estimateCostUsd("claude-sonnet-4-6", 1000, 500);
     expect(cost).toBeCloseTo(0.0105, 6);
   });
 
@@ -38,6 +38,6 @@ describe("estimateCostUsd", () => {
 
   it("returns undefined when tokens missing", async () => {
     const { estimateCostUsd } = await import("./agent-runner");
-    expect(estimateCostUsd("claude-sonnet-4-20250514", undefined, 500)).toBeUndefined();
+    expect(estimateCostUsd("claude-sonnet-4-6", undefined, 500)).toBeUndefined();
   });
 });

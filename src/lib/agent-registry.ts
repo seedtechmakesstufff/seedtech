@@ -20,7 +20,7 @@ import { runPageOpportunityScout } from "@/lib/agents/page-opportunity-scout";
 import { runPageDrafter } from "@/lib/agents/page-drafter";
 import { sendWeeklyDigest } from "@/lib/weekly-digest";
 
-const SONNET = "claude-sonnet-4-20250514";
+const SONNET = "claude-sonnet-4-6";
 
 export type AgentKey =
   | "industry-researcher"

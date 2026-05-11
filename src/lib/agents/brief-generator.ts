@@ -22,7 +22,7 @@ import { callClaude, stripJsonFences, type ClaudeUsage } from "@/lib/claude";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = prisma as any;
 
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-6";
 const ANALYST_SOURCE = "ai-strategy-analyst";
 
 export interface ContentBriefPayload {

@@ -17,7 +17,7 @@ import type { ContentBriefPayload } from "@/lib/agents/brief-generator";
 import type { Prisma } from "@prisma/client";
 import { callClaude, stripJsonFences, addUsage, ZERO_USAGE, type ClaudeUsage } from "@/lib/claude";
 
-const MODEL_QUALITY = "claude-sonnet-4-20250514";  // default — better long-form content
+const MODEL_QUALITY = "claude-sonnet-4-6";  // default — better long-form content
 const MODEL_FAST = "claude-haiku-4-5-20251001";    // 3-5x faster, used when speed matters
 const MAX_BRIEFS_PER_RUN = 3;
 const PARALLEL_CONCURRENCY = 2;                    // run 2 drafts in parallel; tune up for daily cron

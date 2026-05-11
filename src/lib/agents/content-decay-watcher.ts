@@ -22,7 +22,7 @@ import type { ContentBriefPayload } from "@/lib/agents/brief-generator";
 import type { Prisma } from "@prisma/client";
 import { callClaude, stripJsonFences, addUsage, ZERO_USAGE, type ClaudeUsage } from "@/lib/claude";
 
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-6";
 const SESSION_DROP_THRESHOLD = 0.5;        // recent < 50% of prior
 const SESSION_FLOOR = 30;                  // ignore tiny pages
 const KEYWORD_DROP_POSITIONS = 5;

@@ -24,7 +24,7 @@ import {
   type SimilarityWarning,
 } from "@/lib/dedup";
 
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-6";
 
 // How far back we look for past posts when computing performance benchmarks
 const PERF_LOOKBACK_DAYS = 90;

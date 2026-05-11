@@ -26,7 +26,7 @@ export interface AgentRunAccounting {
 // Per-1M-token pricing in USD. Used to compute costEstimateUsd.
 // Update when Anthropic changes prices.
 const MODEL_PRICING: Record<string, { in: number; out: number }> = {
-  "claude-sonnet-4-20250514":     { in: 3.0,  out: 15.0 },
+  "claude-sonnet-4-6":     { in: 3.0,  out: 15.0 },
   "claude-haiku-4-5-20251001":    { in: 1.0,  out: 5.0 },
   "claude-opus-4-7":              { in: 15.0, out: 75.0 },
 };

@@ -18,7 +18,7 @@ import { EVENT_TYPES, logEvent } from "@/lib/events";
 import { createArtifact } from "@/lib/agent-artifacts";
 import { getBusinessContextForSite, buildStrategyPrompt } from "@/lib/business-context";
 
-const DRAFT_REPLY_MODEL = "claude-sonnet-4-20250514";
+const DRAFT_REPLY_MODEL = "claude-sonnet-4-6";
 
 export interface GbpSyncResult {
   accounts: number;
