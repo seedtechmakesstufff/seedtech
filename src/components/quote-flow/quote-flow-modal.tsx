@@ -889,7 +889,7 @@ export function QuoteFlowModal() {
                           price: "$1,200",
                           period: "/mo",
                           tagline:
-                            "For restaurants ready to own local search.",
+                            "For businesses ready to own local search.",
                           features: [
                             "SEO Autopilot platform — full access",
                             "Up to 5 dedicated keyword landing pages",
@@ -907,7 +907,7 @@ export function QuoteFlowModal() {
                           price: "$2,500",
                           period: "/mo",
                           tagline:
-                            "For restaurants competing in tough markets.",
+                            "For businesses competing in tough markets.",
                           features: [
                             "Everything in Local Authority, plus:",
                             "10–20 dedicated keyword landing pages",
@@ -958,13 +958,16 @@ export function QuoteFlowModal() {
                               {plan.tagline}
                             </p>
 
-                            <div className="mb-6 flex items-baseline gap-1">
-                              <span className="font-display text-4xl font-bold text-white">
-                                {plan.price}
-                              </span>
-                              <span className="text-sm text-white/40">
-                                {plan.period}
-                              </span>
+                            <div className="mb-6">
+                              <p className="text-xs text-white/40 mb-1">Starting at</p>
+                              <div className="flex items-baseline gap-1">
+                                <span className="font-display text-4xl font-bold text-white">
+                                  {plan.price}
+                                </span>
+                                <span className="text-sm text-white/40">
+                                  {plan.period}
+                                </span>
+                              </div>
                             </div>
 
                             <ul className="space-y-2.5 mb-8 flex-1">
@@ -1045,7 +1048,7 @@ export function QuoteFlowModal() {
                           onChange={(e) =>
                             setWebForm((f) => ({ ...f, email: e.target.value }))
                           }
-                          placeholder="jane@restaurant.com"
+                          placeholder="you@yourbusiness.com"
                         />
                         <FlowInput
                           id="seo-phone"
@@ -1085,7 +1088,7 @@ export function QuoteFlowModal() {
                         onChange={(e) =>
                           setWebForm((f) => ({ ...f, notes: e.target.value }))
                         }
-                        placeholder="e.g. Italian restaurant in Chelsea, want to rank for ‘pasta near me’ and capture AI search traffic…"
+                        placeholder="e.g. Plumbing company in Austin, want to rank for 'emergency plumber near me' and capture AI search traffic…"
                       />
                     </div>
 
