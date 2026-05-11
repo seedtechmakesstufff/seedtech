@@ -52,7 +52,8 @@ export async function callClaude(opts: CallClaudeOptions): Promise<ClaudeRespons
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Claude error ${res.status}: ${body.slice(0, 300)}`);
+    console.error(`[claude] error ${res.status} from model=${opts.model} promptLen=${opts.prompt.length}`, body);
+    throw new Error(`Claude error ${res.status} (model=${opts.model}, promptLen=${opts.prompt.length}): ${body.slice(0, 1500)}`);
   }
 
   const data: {
