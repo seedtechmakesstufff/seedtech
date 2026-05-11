@@ -19,7 +19,6 @@ import { runInternalLinkAgent } from "@/lib/agents/internal-link-agent";
 import { sendWeeklyDigest } from "@/lib/weekly-digest";
 
 const SONNET = "claude-sonnet-4-20250514";
-const HAIKU = "claude-haiku-4-5-20251001";
 
 export type AgentKey =
   | "industry-researcher"
@@ -61,7 +60,9 @@ const REGISTRY: Record<AgentKey, RegisteredAgent> = {
     defaultModel: SONNET,
     run: (siteId) => runIndustryResearcher(siteId),
     extract: (r: Awaited<ReturnType<typeof runIndustryResearcher>>) => ({
-      model: SONNET,
+      model: r.model,
+      tokensIn: r.usage.tokensIn,
+      tokensOut: r.usage.tokensOut,
       artifactsCreated: r.signalsCreated,
       resultSummary: `${r.signalsCreated} signals from ${r.sourcesChecked} sources${r.errors.length ? ` (${r.errors.length} errors)` : ""}`,
       metadata: { sourcesChecked: r.sourcesChecked, errors: r.errors, signalIds: r.signalIds },
@@ -73,7 +74,9 @@ const REGISTRY: Record<AgentKey, RegisteredAgent> = {
     defaultModel: SONNET,
     run: (siteId) => runStrategyAnalyst(siteId),
     extract: (r: Awaited<ReturnType<typeof runStrategyAnalyst>>) => ({
-      model: SONNET,
+      model: r.model,
+      tokensIn: r.usage.tokensIn,
+      tokensOut: r.usage.tokensOut,
       artifactsCreated: 0,
       resultSummary: `${r.priorities} priorities`,
       metadata: { docId: r.docId, priorities: r.priorities },
@@ -85,7 +88,9 @@ const REGISTRY: Record<AgentKey, RegisteredAgent> = {
     defaultModel: SONNET,
     run: (siteId) => runBriefGenerator(siteId),
     extract: (r: Awaited<ReturnType<typeof runBriefGenerator>>) => ({
-      model: SONNET,
+      model: r.model,
+      tokensIn: r.usage.tokensIn,
+      tokensOut: r.usage.tokensOut,
       artifactIds: r.artifactIds,
       artifactsCreated: r.briefsCreated,
       resultSummary: `${r.briefsCreated} briefs`,
@@ -96,8 +101,10 @@ const REGISTRY: Record<AgentKey, RegisteredAgent> = {
     label: "Blog Drafter",
     defaultModel: SONNET,
     run: (siteId, opts) => runBlogDrafter(siteId, (opts as BlogDrafterOptions) ?? {}),
-    extract: (r: Awaited<ReturnType<typeof runBlogDrafter>>, opts) => ({
-      model: (opts as BlogDrafterOptions | undefined)?.fast ? HAIKU : SONNET,
+    extract: (r: Awaited<ReturnType<typeof runBlogDrafter>>) => ({
+      model: r.model,
+      tokensIn: r.usage.tokensIn,
+      tokensOut: r.usage.tokensOut,
       artifactIds: r.artifactIds,
       artifactsCreated: r.draftsCreated,
       resultSummary: `${r.draftsCreated} drafts${r.errors.length ? ` (${r.errors.length} errors)` : ""}`,
@@ -110,7 +117,9 @@ const REGISTRY: Record<AgentKey, RegisteredAgent> = {
     defaultModel: SONNET,
     run: (siteId) => runGbpPostDrafter(siteId),
     extract: (r: Awaited<ReturnType<typeof runGbpPostDrafter>>) => ({
-      model: SONNET,
+      model: r.model,
+      tokensIn: r.usage.tokensIn,
+      tokensOut: r.usage.tokensOut,
       artifactIds: r.artifactIds,
       artifactsCreated: r.postsDrafted,
       resultSummary: `${r.postsDrafted} posts${r.errors.length ? ` (${r.errors.length} errors)` : ""}`,
@@ -135,7 +144,9 @@ const REGISTRY: Record<AgentKey, RegisteredAgent> = {
     defaultModel: SONNET,
     run: (siteId) => runContentDecayWatcher(siteId),
     extract: (r: Awaited<ReturnType<typeof runContentDecayWatcher>>) => ({
-      model: SONNET,
+      model: r.model,
+      tokensIn: r.usage.tokensIn,
+      tokensOut: r.usage.tokensOut,
       artifactIds: r.artifactIds,
       artifactsCreated: r.briefsQueued,
       resultSummary: `${r.candidatesFound} decaying, ${r.briefsQueued} briefs queued`,

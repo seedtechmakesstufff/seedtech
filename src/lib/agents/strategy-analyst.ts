@@ -24,6 +24,7 @@
 import { prisma } from "@/lib/prisma";
 import { getBusinessContextForSite, buildStrategyPrompt } from "@/lib/business-context";
 import { EVENT_TYPES, logEvent } from "@/lib/events";
+import { callClaude, stripJsonFences, type ClaudeUsage } from "@/lib/claude";
 
 const MODEL = "claude-sonnet-4-20250514"; // matches topic-clusters.ts + seo-insights.ts
 const ANALYST_SOURCE = "ai-strategy-analyst";
@@ -50,37 +51,22 @@ export interface AnalystResult {
   docId: string;
   priorities: number;
   durationMs: number;
+  model: string;
+  usage: ClaudeUsage;
 }
 
 export async function runStrategyAnalyst(siteId: string): Promise<AnalystResult> {
   const startedAt = Date.now();
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
 
   const context = await buildAnalystContext(siteId);
   const prompt = buildAnalystPrompt(context);
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4096,
-      messages: [{ role: "user", content: prompt }],
-    }),
+  const { text, usage, model } = await callClaude({
+    model: MODEL,
+    maxTokens: 4096,
+    prompt,
   });
-
-  if (!response.ok) {
-    throw new Error(`Claude API error: ${response.status} ${await response.text()}`);
-  }
-
-  const data = await response.json();
-  const text = data.content?.[0]?.text ?? "";
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  const cleaned = stripJsonFences(text);
 
   let parsed: AnalystOutput;
   try {
@@ -125,7 +111,13 @@ export async function runStrategyAnalyst(siteId: string): Promise<AnalystResult>
     entityId: doc.id,
   });
 
-  return { docId: doc.id, priorities: parsed.priorities.length, durationMs: Date.now() - startedAt };
+  return {
+    docId: doc.id,
+    priorities: parsed.priorities.length,
+    durationMs: Date.now() - startedAt,
+    model,
+    usage,
+  };
 }
 
 /* ── Context bundle ── */

@@ -20,6 +20,7 @@ import { createArtifact } from "@/lib/agent-artifacts";
 import { EVENT_TYPES, logEvent } from "@/lib/events";
 import type { ContentBriefPayload } from "@/lib/agents/brief-generator";
 import type { Prisma } from "@prisma/client";
+import { callClaude, stripJsonFences, addUsage, ZERO_USAGE, type ClaudeUsage } from "@/lib/claude";
 
 const MODEL = "claude-sonnet-4-20250514";
 const SESSION_DROP_THRESHOLD = 0.5;        // recent < 50% of prior
@@ -49,18 +50,19 @@ export interface ContentDecayResult {
   briefsQueued: number;
   artifactIds: string[];
   errors: string[];
+  model: string;
+  usage: ClaudeUsage;
 }
 
 export async function runContentDecayWatcher(siteId: string): Promise<ContentDecayResult> {
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
-
   const candidates = await detectDecayCandidates(siteId);
   const result: ContentDecayResult = {
     candidatesFound: candidates.length,
     briefsQueued: 0,
     artifactIds: [],
     errors: [],
+    model: MODEL,
+    usage: { ...ZERO_USAGE },
   };
   if (candidates.length === 0) return result;
 
@@ -86,7 +88,8 @@ export async function runContentDecayWatcher(siteId: string): Promise<ContentDec
 
   for (const c of fresh) {
     try {
-      const brief = await generateRefreshBrief(c, businessPrompt, apiKey);
+      const { brief, usage } = await generateRefreshBrief(c, businessPrompt);
+      result.usage = addUsage(result.usage, usage);
       const artifact = await createArtifact({
         siteId,
         agent: "content-decay-watcher",
@@ -224,8 +227,7 @@ async function detectDecayCandidates(siteId: string): Promise<DecayCandidate[]> 
 async function generateRefreshBrief(
   c: DecayCandidate,
   businessPrompt: string,
-  apiKey: string
-): Promise<ContentBriefPayload> {
+): Promise<{ brief: ContentBriefPayload; usage: ClaudeUsage }> {
   const bodyExcerpt = c.body.slice(0, 4000);
 
   const prompt = `You are writing a REFRESH content brief for an existing blog post that's losing traction. The Blog Drafter agent will use this brief to rewrite the post. Be specific and pragmatic — surface what's outdated, what's missing, and what should be added.
@@ -275,25 +277,14 @@ Return ONLY valid JSON, no markdown fences:
   "reasoning": "..."
 }`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4096,
-      messages: [{ role: "user", content: prompt }],
-    }),
+  const { text, usage } = await callClaude({
+    model: MODEL,
+    maxTokens: 4096,
+    prompt,
   });
-  if (!res.ok) throw new Error(`Claude error: ${res.status} ${await res.text()}`);
-  const data = await res.json();
-  const text = data.content?.[0]?.text ?? "";
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  const cleaned = stripJsonFences(text);
   const parsed = JSON.parse(cleaned) as ContentBriefPayload;
   if (parsed.type !== "refresh") parsed.type = "refresh";
   parsed.targetSlug = c.slug;
-  return parsed;
+  return { brief: parsed, usage };
 }

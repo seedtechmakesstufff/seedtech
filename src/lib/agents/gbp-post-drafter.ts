@@ -17,6 +17,7 @@ import { prisma } from "@/lib/prisma";
 import { getBusinessContextForSite, buildStrategyPrompt } from "@/lib/business-context";
 import { createArtifact } from "@/lib/agent-artifacts";
 import type { Prisma } from "@prisma/client";
+import { callClaude, stripJsonFences, ZERO_USAGE, type ClaudeUsage } from "@/lib/claude";
 import {
   findSimilarGbpPosts,
   decideForGbpPost,
@@ -58,6 +59,8 @@ export interface GbpPostDrafterResult {
   postsDrafted: number;
   artifactIds: string[];
   errors: string[];
+  model: string;
+  usage: ClaudeUsage;
 }
 
 interface DrafterOutput {
@@ -167,10 +170,13 @@ function analysePostPerformance(posts: PostPerfRow[]): PerfInsights {
 // ── Main agent ────────────────────────────────────────────────────────────────
 
 export async function runGbpPostDrafter(siteId: string): Promise<GbpPostDrafterResult> {
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
-
-  const result: GbpPostDrafterResult = { postsDrafted: 0, artifactIds: [], errors: [] };
+  const result: GbpPostDrafterResult = {
+    postsDrafted: 0,
+    artifactIds: [],
+    errors: [],
+    model: MODEL,
+    usage: { ...ZERO_USAGE },
+  };
 
   let locations = await prisma.gbpLocation.findMany({ where: { siteId } });
 
@@ -264,26 +270,16 @@ export async function runGbpPostDrafter(siteId: string): Promise<GbpPostDrafterR
     recentBlogPosts,
   });
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4096,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  if (!res.ok) {
-    result.errors.push(`Claude error: ${res.status}`);
+  let text: string;
+  try {
+    const r = await callClaude({ model: MODEL, maxTokens: 4096, prompt });
+    text = r.text;
+    result.usage = r.usage;
+  } catch (e) {
+    result.errors.push(`Claude error: ${e instanceof Error ? e.message : String(e)}`);
     return result;
   }
-  const data = await res.json();
-  const text = (data.content?.[0]?.text ?? "") as string;
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  const cleaned = stripJsonFences(text);
 
   let parsed: DrafterOutput;
   try {

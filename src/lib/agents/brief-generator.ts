@@ -17,6 +17,7 @@ import {
   decideForBrief,
   type SimilarityWarning,
 } from "@/lib/dedup";
+import { callClaude, stripJsonFences, type ClaudeUsage } from "@/lib/claude";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = prisma as any;
@@ -49,12 +50,11 @@ interface GeneratorOutput {
 export interface BriefGeneratorResult {
   briefsCreated: number;
   artifactIds: string[];
+  model: string;
+  usage: ClaudeUsage;
 }
 
 export async function runBriefGenerator(siteId: string): Promise<BriefGeneratorResult> {
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
-
   const businessCtx = await getBusinessContextForSite(siteId);
   const businessPrompt = buildStrategyPrompt(businessCtx);
 
@@ -158,23 +158,12 @@ export async function runBriefGenerator(siteId: string): Promise<BriefGeneratorR
     freshSignals,
   });
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4096,
-      messages: [{ role: "user", content: prompt }],
-    }),
+  const { text, usage, model } = await callClaude({
+    model: MODEL,
+    maxTokens: 4096,
+    prompt,
   });
-  if (!res.ok) throw new Error(`Claude error: ${res.status} ${await res.text()}`);
-  const data = await res.json();
-  const text = data.content?.[0]?.text ?? "";
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  const cleaned = stripJsonFences(text);
 
   let parsed: GeneratorOutput;
   try {
@@ -235,7 +224,7 @@ export async function runBriefGenerator(siteId: string): Promise<BriefGeneratorR
     }
   }
 
-  return { briefsCreated: ids.length, artifactIds: ids };
+  return { briefsCreated: ids.length, artifactIds: ids, model, usage };
 }
 
 function buildPrompt(c: {

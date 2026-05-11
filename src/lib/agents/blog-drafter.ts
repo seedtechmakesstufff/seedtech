@@ -15,6 +15,7 @@ import { getBusinessContextForSite, buildStrategyPrompt } from "@/lib/business-c
 import { createArtifact } from "@/lib/agent-artifacts";
 import type { ContentBriefPayload } from "@/lib/agents/brief-generator";
 import type { Prisma } from "@prisma/client";
+import { callClaude, stripJsonFences, addUsage, ZERO_USAGE, type ClaudeUsage } from "@/lib/claude";
 
 const MODEL_QUALITY = "claude-sonnet-4-20250514";  // default — better long-form content
 const MODEL_FAST = "claude-haiku-4-5-20251001";    // 3-5x faster, used when speed matters
@@ -44,6 +45,8 @@ export interface BlogDrafterResult {
   draftsCreated: number;
   artifactIds: string[];
   errors: string[];
+  model: string;
+  usage: ClaudeUsage;
 }
 
 export interface BlogDrafterOptions {
@@ -56,8 +59,6 @@ export async function runBlogDrafter(
   siteId: string,
   options: BlogDrafterOptions = {}
 ): Promise<BlogDrafterResult> {
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
   const model = pickModel({ fast: options.fast });
   const max = options.max ?? MAX_BRIEFS_PER_RUN;
 
@@ -72,7 +73,13 @@ export async function runBlogDrafter(
     take: max,
   });
 
-  const result: BlogDrafterResult = { draftsCreated: 0, artifactIds: [], errors: [] };
+  const result: BlogDrafterResult = {
+    draftsCreated: 0,
+    artifactIds: [],
+    errors: [],
+    model,
+    usage: { ...ZERO_USAGE },
+  };
   if (briefs.length === 0) return result;
 
   const businessCtx = await getBusinessContextForSite(siteId);
@@ -86,9 +93,10 @@ export async function runBlogDrafter(
       if (!briefArtifact) break;
       try {
         const brief = briefArtifact.payload as unknown as ContentBriefPayload;
-        const draftArtifactId = await draftOne(siteId, briefArtifact.id, brief, businessPrompt, apiKey, model);
+        const { artifactId: draftArtifactId, usage } = await draftOne(siteId, briefArtifact.id, brief, businessPrompt, model);
         result.artifactIds.push(draftArtifactId);
         result.draftsCreated++;
+        result.usage = addUsage(result.usage, usage);
         await prisma.agentArtifact.update({
           where: { id: briefArtifact.id },
           data: { state: "published", publishedAt: new Date() },
@@ -113,29 +121,16 @@ async function draftOne(
   briefArtifactId: string,
   brief: ContentBriefPayload,
   businessPrompt: string,
-  apiKey: string,
-  model: string
-): Promise<string> {
+  model: string,
+): Promise<{ artifactId: string; usage: ClaudeUsage }> {
   const prompt = buildDraftPrompt(brief, businessPrompt);
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 8192,
-      messages: [{ role: "user", content: prompt }],
-    }),
+  const { text, usage } = await callClaude({
+    model,
+    maxTokens: 8192,
+    prompt,
   });
-  if (!res.ok) throw new Error(`Claude error: ${res.status} ${await res.text()}`);
-
-  const data = await res.json();
-  const text = data.content?.[0]?.text ?? "";
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  const cleaned = stripJsonFences(text);
 
   let parsed: { title: string; slug: string; excerpt: string; metaTitle: string; metaDescription: string; body: string };
   try {
@@ -195,7 +190,7 @@ async function draftOne(
     entityType: "BlogPost",
     entityId: blogPost.id,
   });
-  return draftArtifact.id;
+  return { artifactId: draftArtifact.id, usage };
 }
 
 async function createBlogPost(

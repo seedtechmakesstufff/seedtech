@@ -20,6 +20,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getBusinessContextForSite } from "@/lib/business-context";
+import { callClaude, stripJsonFences, addUsage, ZERO_USAGE, type ClaudeUsage } from "@/lib/claude";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = prisma as any;
@@ -38,6 +39,8 @@ export interface IndustryResearcherResult {
   signalIds: string[];
   sourcesChecked: number;
   errors: string[];
+  model: string;
+  usage: ClaudeUsage;
 }
 
 // ── Source registry ───────────────────────────────────────────────────────────
@@ -295,14 +298,13 @@ If NONE of the items meet the quality bar, return: { "signals": [] }`;
 // ── Main agent ────────────────────────────────────────────────────────────────
 
 export async function runIndustryResearcher(siteId: string): Promise<IndustryResearcherResult> {
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
-
   const result: IndustryResearcherResult = {
     signalsCreated: 0,
     signalIds: [],
     sourcesChecked: 0,
     errors: [],
+    model: MODEL,
+    usage: { ...ZERO_USAGE },
   };
 
   const businessCtx = await getBusinessContextForSite(siteId);
@@ -371,31 +373,15 @@ export async function runIndustryResearcher(siteId: string): Promise<IndustryRes
 
     let claudeText = "";
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 3000,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
-      if (!res.ok) {
-        result.errors.push(`Claude error for ${industry}: ${res.status}`);
-        continue;
-      }
-      const data = await res.json();
-      claudeText = data.content?.[0]?.text ?? "";
+      const r = await callClaude({ model: MODEL, maxTokens: 3000, prompt });
+      claudeText = r.text;
+      result.usage = addUsage(result.usage, r.usage);
     } catch (e) {
       result.errors.push(`Claude fetch error for ${industry}: ${e instanceof Error ? e.message : String(e)}`);
       continue;
     }
 
-    const cleaned = claudeText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const cleaned = stripJsonFences(claudeText);
     let parsed: { signals: Array<{
       sourceIndex: number;
       headline: string;
