@@ -1,14 +1,6 @@
 {
   "crons": [
     {
-      "path": "/api/cron/wordpress-sync",
-      "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/cron/content-decay-watcher",
-      "schedule": "30 5 * * *"
-    },
-    {
       "path": "/api/cron/ga4-sync",
       "schedule": "0 6 * * *"
     },
@@ -17,32 +9,36 @@
       "schedule": "30 6 * * *"
     },
     {
-      "path": "/api/cron/internal-link-agent",
-      "schedule": "0 7 * * *"
+      "path": "/api/cron/content-decay-watcher",
+      "schedule": "30 7 * * 1"
     },
     {
-      "path": "/api/cron/industry-researcher",
+      "path": "/api/cron/internal-link-agent",
       "schedule": "0 8 * * 1"
     },
     {
-      "path": "/api/cron/seo",
-      "schedule": "30 8 * * 1"
-    },
-    {
-      "path": "/api/cron/keyword-scout",
+      "path": "/api/cron/industry-researcher",
       "schedule": "0 9 * * 1"
     },
     {
-      "path": "/api/cron/strategy-analyst",
+      "path": "/api/cron/seo",
+      "schedule": "30 9 * * 1"
+    },
+    {
+      "path": "/api/cron/keyword-scout",
       "schedule": "0 10 * * 1"
     },
     {
-      "path": "/api/cron/brief-generator",
+      "path": "/api/cron/strategy-analyst",
       "schedule": "30 10 * * 1"
     },
     {
+      "path": "/api/cron/brief-generator",
+      "schedule": "0 11 * * 1"
+    },
+    {
       "path": "/api/cron/gbp-post-drafter",
-      "schedule": "30 11 * * 1"
+      "schedule": "0 12 * * 1"
     },
     {
       "path": "/api/cron/blog-drafter",
