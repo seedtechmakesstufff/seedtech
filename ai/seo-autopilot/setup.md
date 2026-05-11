@@ -42,10 +42,12 @@ export DATABASE_URL=$(grep ^DATABASE_URL .env.local | cut -d= -f2- | sed 's/^"//
 psql "$DATABASE_URL" -f prisma/migrations/manual/phase8-gbp-ga4-oauth-foundation.sql
 psql "$DATABASE_URL" -f prisma/migrations/manual/phase8-event-log.sql
 psql "$DATABASE_URL" -f prisma/migrations/manual/phase8-agent-artifacts.sql
+psql "$DATABASE_URL" -f prisma/migrations/manual/phase9-research-signals.sql
+psql "$DATABASE_URL" -f prisma/migrations/manual/phase10-agent-runs.sql
 npx prisma generate
 ```
 
-The `ResearchSignal` model was added later — confirm it exists, or run `npx prisma db push` to sync.
+All manual migrations are idempotent (`IF NOT EXISTS`). Safe to re-run.
 
 ---
 

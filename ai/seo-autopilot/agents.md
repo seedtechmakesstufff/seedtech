@@ -23,7 +23,7 @@ See [architecture.md](architecture.md) for cross-cutting concerns (schema, lifec
 | 9 | Internal Link Agent | `src/lib/agents/internal-link-agent.ts` | Daily 12:00 UTC | `InternalLinkSuggestion` rows |
 | 10 | Weekly Digest Email | `src/lib/weekly-digest.ts` | Mon 11:00 UTC | Email via Resend |
 
-Static metadata (display labels, settings, tuning context for the AI tuning modal) lives in `src/lib/agent-configs.ts`.
+Static metadata (display labels, settings, tuning context for the AI tuning modal) lives in `src/lib/agent-configs.ts`. Every agent invocation goes through `runRegisteredAgent` in `src/lib/agent-registry.ts` so an `AgentRun` row is recorded (status, duration, model, tokens, cost, artifacts, error). See [architecture.md](architecture.md#agentrun-observability) for the observability layer.
 
 ---
 
@@ -273,16 +273,23 @@ Static metadata (display labels, settings, tuning context for the AI tuning moda
 
 ## Manual triggers
 
-Every agent has a manual run endpoint at `/api/admin/agents/<key>/run` (POST, requires admin session, rate limited). The Agents tab in `/admin/seo/agents` exposes a button per agent and a "Run all weekly agents" button (`/api/admin/agents/run-all`) that fires the Monday lineup in dependency order.
+Every agent has a manual run endpoint at `/api/admin/agents/<key>/run` (POST, requires admin session, rate limited). The Agents tab in `/admin/seo/agents` exposes a button per agent and a "Run all weekly agents" button (`/api/admin/agents/run-all`) that fires the Monday lineup in dependency order. All three trigger types (`cron`, `manual`, `run_all`) write `AgentRun` rows tagged with their trigger.
+
+## Observability
+
+`/admin/seo/agent-runs` shows totals + per-agent rollup (runs, success rate, p50/p95 duration, tokens, cost, artifacts) for the last 7d / 30d / all-time, plus the 50 most recent runs with expandable error rows. A condensed widget appears on the admin dashboard at `/admin`.
+
+API: `GET /api/admin/agents/runs?window=7d|30d|all&agent=<key>` returns the same shape the UI consumes.
 
 ## Tests
 
-41 tests across 6 files (vitest, pure logic only — no DB/network):
+48 tests across 7 files (vitest, pure logic only — no DB/network):
 
 - `src/lib/credential-encryption.test.ts` (5)
 - `src/lib/iso-week.test.ts` (3)
 - `src/lib/dedup.test.ts` (7)
 - `src/lib/gbp.test.ts` (7, mocks Prisma)
+- `src/lib/claude.test.ts` (7) — usage helpers + cost estimator
 - `src/lib/agents/keyword-scout.test.ts` (12)
 - `src/lib/agents/internal-link-agent.test.ts` (7)
 
