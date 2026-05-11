@@ -54,9 +54,10 @@ interface RunResult {
 }
 
 interface RunAllStep {
-  step: string;
+  agent: string;
   success: boolean;
   durationMs: number;
+  runId?: string;
   result?: unknown;
   error?: string;
 }
@@ -111,8 +112,7 @@ export function AgentsTab() {
               Run all weekly agents
             </h2>
             <p className="text-xs text-white/60 mt-1 max-w-xl">
-              Fires Industry Researcher → Keyword Scout → Decay Watcher → Internal Link Agent → Strategy Analyst → Brief
-              Generator → GBP Post Drafter → Weekly Digest, in order. Skips Blog Drafter (consumes
+              Fires Industry Researcher → Keyword Scout → Decay Watcher → Page Opportunity Scout → Internal Link Agent → Strategy Analyst → Brief Generator → Page Drafter → GBP Post Drafter → Weekly Digest, in order. Skips Blog Drafter (consumes
               briefs you&apos;ve already approved — use <Link href="/admin/inbox" className="underline">Inbox</Link>).
             </p>
           </div>
@@ -130,15 +130,15 @@ export function AgentsTab() {
           <div className="mt-4 space-y-1.5">
             <p className="text-[11px] text-white/50">Total time: {Math.round((runAllResult.durationMs ?? 0) / 1000)}s</p>
             {runAllResult.steps.map((s) => (
-              <div key={s.step} className="flex items-center gap-2 text-xs">
+              <div key={s.agent} className="flex items-center gap-2 text-xs">
                 {s.success ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />
                 ) : (
                   <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
                 )}
-                <span className="text-white font-mono">{s.step}</span>
+                <span className="text-white font-mono">{s.agent}</span>
                 <span className="text-white/40">— {Math.round(s.durationMs / 1000)}s</span>
-                {s.error && <span className="text-red-300">— {s.error}</span>}
+                {s.error && <span className="text-red-300 truncate max-w-xs" title={s.error}>— {s.error}</span>}
               </div>
             ))}
           </div>
