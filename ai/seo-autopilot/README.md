@@ -4,10 +4,16 @@ Agentic SEO layer on top of the SeedTech platform. Ten agents run on cron, produ
 
 ## Docs
 
+- **[onboarding.md](onboarding.md)** — Per-client playbook: provision the site, seed business profile, keywords, strategy docs, run the first audit cycle, activate the autopilot.
+- **[setup.md](setup.md)** — Per-environment infra: env vars, encryption key, Google Cloud OAuth client, API enablement, DB migrations. Run this once per deployment.
 - **[agents.md](agents.md)** — Imperative spec for every agent (reads, writes, schedule, file path).
-- **[architecture.md](architecture.md)** — Schema, lifecycle, events, dedup, rate limits, integrations, file map.
-- **[setup.md](setup.md)** — Env vars, Google OAuth, migrations, onboarding a site.
+- **[architecture.md](architecture.md)** — Schema, artifact lifecycle, events, dedup, rate limits, integrations, file map.
 - **[seo-strategy.md](seo-strategy.md)** — Page-build playbook for SEO landing pages (separate concern from the autopilot).
+
+**Which doc do I read first?**
+- Setting up a fresh deployment → `setup.md`.
+- Onboarding a new client onto an existing deployment → `onboarding.md`.
+- Editing an agent or adding a new one → `agents.md` + `architecture.md`.
 
 ## Core idea
 
