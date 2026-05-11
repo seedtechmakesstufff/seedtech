@@ -25,7 +25,7 @@ export const AGENT_CONFIGS: Record<string, AgentConfig> = {
   "industry-researcher": {
     key: "industry-researcher",
     label: "Industry Researcher",
-    cadence: "Monday 5:00 AM UTC",
+    cadence: "Monday 8:00 AM UTC",
     cronPath: "/api/cron/industry-researcher",
     manualEndpoint: "/api/admin/agents/industry-researcher/run",
     what: "Fetches primary/authoritative RSS sources across your client verticals, sends batches to Claude for novelty evaluation, and stores actionable research signals the Brief Generator consumes first.",
@@ -70,7 +70,7 @@ Claude extraction prompt instructs Claude to:
   "strategy-analyst": {
     key: "strategy-analyst",
     label: "Strategy Analyst",
-    cadence: "Monday 8:00 AM UTC",
+    cadence: "Monday 10:00 AM UTC",
     cronPath: "/api/cron/strategy-analyst",
     manualEndpoint: "/api/admin/agents/strategy-analyst/run",
     what: "Reads all available data and writes a weekly strategy brief explaining what keywords to prioritise, what content gaps exist, and what actions to take. This brief feeds into the Brief Generator.",
@@ -106,7 +106,7 @@ The Brief Generator reads this doc and uses it as its primary strategic context.
   "brief-generator": {
     key: "brief-generator",
     label: "Brief Generator",
-    cadence: "Monday 8:30 AM UTC",
+    cadence: "Monday 10:30 AM UTC",
     cronPath: "/api/cron/brief-generator",
     manualEndpoint: "/api/admin/agents/brief-generator/run",
     what: "Produces 2–3 structured content briefs per week. Prioritises fresh research signals over pure keyword analysis. Each brief is a detailed plan for one blog post (refresh or new).",
@@ -155,7 +155,7 @@ The prompt rules include:
   "blog-drafter": {
     key: "blog-drafter",
     label: "Blog Drafter",
-    cadence: "Daily 10:00 AM UTC",
+    cadence: "Daily 12:00 PM UTC",
     cronPath: "/api/cron/blog-drafter",
     manualEndpoint: "/api/admin/agents/blog-drafter/run",
     what: "Picks up approved content_brief artifacts and writes full blog posts in Markdown. Queues them as blog_draft artifacts for human review before publishing.",
@@ -189,7 +189,7 @@ The blog drafter prompt instructs Claude to write a complete, publish-ready blog
   "gbp-post-drafter": {
     key: "gbp-post-drafter",
     label: "GBP Post Drafter",
-    cadence: "Monday 9:30 AM UTC",
+    cadence: "Monday 11:30 AM UTC",
     cronPath: "/api/cron/gbp-post-drafter",
     manualEndpoint: "/api/admin/agents/gbp-post-drafter/run",
     what: "Drafts 1–2 Google Business Profile post ideas per location. Human must upload an image and edit the copy before the Approve button is enabled. On approval, publishes to the GBP API.",
@@ -232,7 +232,7 @@ If score > threshold: converts to a different angle or flags a warning.`,
   "keyword-scout": {
     key: "keyword-scout",
     label: "Keyword Scout",
-    cadence: "Monday 7:00 AM UTC",
+    cadence: "Monday 9:00 AM UTC",
     cronPath: "/api/cron/keyword-scout",
     manualEndpoint: "/api/admin/agents/keyword-scout/run",
     what: "Mines GSC query data to surface queries that get impressions but aren't tracked yet. Adds them as TrackedKeyword rows for the Strategy Analyst to prioritise.",
@@ -262,7 +262,7 @@ navigational if contains brand name, else informational).`,
   "content-decay-watcher": {
     key: "content-decay-watcher",
     label: "Content Decay Watcher",
-    cadence: "Daily 6:30 AM UTC",
+    cadence: "Daily 5:30 AM UTC",
     cronPath: "/api/cron/content-decay-watcher",
     manualEndpoint: "/api/admin/agents/content-decay-watcher/run",
     what: "Detects published blog posts that are losing traffic or positions over time and creates SeoInsight rows flagging them for refresh.",
@@ -290,7 +290,7 @@ Decay detection logic:
   "internal-link-agent": {
     key: "internal-link-agent",
     label: "Internal Link Agent",
-    cadence: "Daily 12:00 PM UTC",
+    cadence: "Daily 7:00 AM UTC",
     cronPath: "/api/cron/internal-link-agent",
     manualEndpoint: "/api/admin/agents/internal-link-agent/run",
     what: "Suggests internal links between pages and posts that share topic clusters but don't currently cross-link. Surfaces them as InternalLinkSuggestion rows.",
@@ -323,7 +323,7 @@ Suggestions include: sourcePageUrl, targetPageUrl, anchorText, context (surround
   "weekly-digest": {
     key: "weekly-digest",
     label: "Weekly Digest Email",
-    cadence: "Monday 11:00 AM UTC",
+    cadence: "Monday 1:00 PM UTC (9 AM EDT)",
     cronPath: "/api/cron/weekly-digest",
     manualEndpoint: "/api/admin/agents/weekly-digest/run",
     what: "Assembles a Monday-morning summary email covering pending inbox items, GBP ideas, keyword movements, decay alerts, and the strategy brief. Sends via Resend to configured recipients.",

@@ -31,15 +31,15 @@ interface AgentDef {
 }
 
 const AGENTS: AgentDef[] = [
-  { key: "industry-researcher", label: "Industry Researcher", description: "Fetches primary sources (FMCSA, ABA, FDA, NRA…) across your client verticals and extracts novel insights. Runs first so the Brief Generator has fresh real-world signals.", endpoint: "/api/admin/agents/industry-researcher/run", icon: Newspaper, cadence: "Mon 5 AM UTC" },
-  { key: "strategy-analyst", label: "Strategy Analyst", description: "Reads everything (GSC, GA4, GBP, events, citations) and writes the weekly priority brief.", endpoint: "/api/admin/agents/strategy-analyst/run", icon: Sparkles, cadence: "Mon 8 AM UTC" },
-  { key: "brief-generator", label: "Brief Generator", description: "Turns research signals + analyst priorities into structured content briefs queued for approval.", endpoint: "/api/admin/agents/brief-generator/run", icon: FileText, cadence: "Mon 8:30 AM UTC" },
-  { key: "blog-drafter", label: "Blog Drafter", description: "Drafts full posts from approved briefs. Approve in Inbox to publish.", endpoint: "/api/admin/agents/blog-drafter/run", icon: FileText, cadence: "daily 10 AM UTC" },
-  { key: "gbp-post-drafter", label: "GBP Post Drafter", description: "Drafts 1-2 Google Business Profile posts per location.", endpoint: "/api/admin/agents/gbp-post-drafter/run", icon: MapPin, cadence: "Mon 9:30 AM UTC" },
-  { key: "keyword-scout", label: "Keyword Scout", description: "Surfaces queries from GSC you don't track yet.", endpoint: "/api/admin/agents/keyword-scout/run", icon: Search, cadence: "Mon 7 AM UTC" },
-  { key: "content-decay-watcher", label: "Content Decay Watcher", description: "Detects posts losing traffic/conversions and queues refresh briefs.", endpoint: "/api/admin/agents/content-decay-watcher/run", icon: Activity, cadence: "daily 6:30 AM UTC" },
-  { key: "internal-link-agent", label: "Internal Link Agent", description: "Suggests internal-link insertions across recent posts.", endpoint: "/api/admin/agents/internal-link-agent/run", icon: Link2, cadence: "daily 12 PM UTC" },
-  { key: "weekly-digest", label: "Weekly Digest Email", description: "Sends the Monday-morning summary email.", endpoint: "/api/admin/agents/weekly-digest/run", icon: Mail, cadence: "Mon 11 AM UTC" },
+  { key: "industry-researcher", label: "Industry Researcher", description: "Fetches primary sources (FMCSA, ABA, FDA, NRA…) across your client verticals and extracts novel insights. Runs first so the Brief Generator has fresh real-world signals.", endpoint: "/api/admin/agents/industry-researcher/run", icon: Newspaper, cadence: "Mon 8 AM UTC" },
+  { key: "strategy-analyst", label: "Strategy Analyst", description: "Reads everything (GSC, GA4, GBP, events, citations) and writes the weekly priority brief.", endpoint: "/api/admin/agents/strategy-analyst/run", icon: Sparkles, cadence: "Mon 10 AM UTC" },
+  { key: "brief-generator", label: "Brief Generator", description: "Turns research signals + analyst priorities into structured content briefs queued for approval.", endpoint: "/api/admin/agents/brief-generator/run", icon: FileText, cadence: "Mon 10:30 AM UTC" },
+  { key: "blog-drafter", label: "Blog Drafter", description: "Drafts full posts from approved briefs. Approve in Inbox to publish.", endpoint: "/api/admin/agents/blog-drafter/run", icon: FileText, cadence: "daily 12 PM UTC" },
+  { key: "gbp-post-drafter", label: "GBP Post Drafter", description: "Drafts 1-2 Google Business Profile posts per location.", endpoint: "/api/admin/agents/gbp-post-drafter/run", icon: MapPin, cadence: "Mon 11:30 AM UTC" },
+  { key: "keyword-scout", label: "Keyword Scout", description: "Surfaces queries from GSC you don't track yet.", endpoint: "/api/admin/agents/keyword-scout/run", icon: Search, cadence: "Mon 9 AM UTC" },
+  { key: "content-decay-watcher", label: "Content Decay Watcher", description: "Detects posts losing traffic/conversions and queues refresh briefs.", endpoint: "/api/admin/agents/content-decay-watcher/run", icon: Activity, cadence: "daily 5:30 AM UTC" },
+  { key: "internal-link-agent", label: "Internal Link Agent", description: "Suggests internal-link insertions across recent posts.", endpoint: "/api/admin/agents/internal-link-agent/run", icon: Link2, cadence: "daily 7 AM UTC" },
+  { key: "weekly-digest", label: "Weekly Digest Email", description: "Sends the Monday-morning summary email.", endpoint: "/api/admin/agents/weekly-digest/run", icon: Mail, cadence: "Mon 1 PM UTC · 9 AM EDT" },
 ];
 
 interface RunResult {
