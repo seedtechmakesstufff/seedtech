@@ -37,7 +37,7 @@ Cross-cutting reference for the agentic layer. For per-agent specs see [agents.m
 |---|---|
 | `content_brief` | Mark consumed → Blog Drafter picks up next run |
 | `blog_draft` | Create `BlogPost` row (status=draft) for final review |
-| `gbp_post_draft` | Validate CTA URL → `createGbpLocalPost` |
+| `gbp_post_draft` | Validate CTA URL → `createGbpLocalPost` ⚠️ (API approval pending — see setup.md) |
 | `review_reply_draft` | `replyToGbpReview` |
 | `link_suggestions` | Apply link insertions or mark suggestions accepted |
 | `keyword_candidate` | Upsert into `TrackedKeyword` |

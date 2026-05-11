@@ -76,6 +76,13 @@ Add the admin email as a test user while in dev. Production verification with Go
 
 **Apply for GBP API access.** https://developers.google.com/my-business/content/prereqs#request-access — 1–2 week approval. GSC + GA4 work without it; GBP calls will 403 until approved.
 
+> ⚠️ **STATUS (May 2026): GBP Posts API access is PENDING REVIEW.**
+> Application submitted 2026-05-10 for Google Cloud project `109976704072` (SeedTech SEO Autopilot).
+> The legacy `mybusiness.googleapis.com/v4` API was deprecated by Google and is no longer available in the API Library.
+> All GBP post publishing will fail with 403 until Google approves access.
+> **GSC, GA4, GBP sync (read), and review replies are unaffected — only post publishing is blocked.**
+> Once approved, re-approve any `failed` gbp_post_draft artifacts from the Inbox to publish them.
+
 ---
 
 ## 4. Connect a WordPress site (optional)

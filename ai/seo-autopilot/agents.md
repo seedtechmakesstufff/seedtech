@@ -148,6 +148,8 @@ Static metadata (display labels, settings, tuning context for the AI tuning moda
 **Writes:**
 - `gbp_post_draft` artifacts. On approval → publisher calls `createGbpLocalPost`.
 
+> ⚠️ **GBP Posts API access pending (as of May 2026).** The legacy `mybusiness.googleapis.com/v4/localPosts` endpoint requires Google's manual API approval. Application submitted 2026-05-10. Approvals take 1–2 weeks. Until then, all publish attempts will fail with 403. Once approved, failed artifacts can be re-approved from the Inbox.
+
 **Payload per idea:** `summary` (100–300 chars), `topicType` (STANDARD | OFFER | EVENT | ALERT), `ctaType` + `ctaUrl`, `imagePrompt`, `reasoning`.
 
 **Performance analysis** (`analysePostPerformance`): groups past posts by `topicType`, computes CTR (`clickCount/viewCount`), identifies top-performing type, high-CTR inspirations, low-CTR patterns to avoid. Injected into prompt as structured blocks.
