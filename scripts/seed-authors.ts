@@ -17,7 +17,7 @@ async function main() {
       slug: "matt-oliva",
       jobTitle: "CEO & Director of Managed IT",
       bio: "Matt Oliva is the CEO of SeedTech and leads the managed IT services division. With over 15 years of experience in IT infrastructure, cybersecurity, and business technology consulting, Matt specializes in designing proactive IT support strategies for small and mid-size businesses across Northern New Jersey. He holds CompTIA A+, Network+, and Security+ certifications.",
-      imageUrl: "/images/team/matt-oliva.jpg",
+      imageUrl: "/img/seed%20graphics/about/matt_oliva_3x.webp",
       canonicalUrl: "/about#matt-oliva",
       sameAs: ["https://www.linkedin.com/in/mattoliva/"],
       expertise: [
@@ -46,7 +46,7 @@ async function main() {
       slug: "sam-swaynos",
       jobTitle: "Co-Owner & Product Director",
       bio: "Sam Swaynos is the Co-Owner and Product Director at SeedTech, overseeing web development, digital marketing, and product strategy. With a background in full-stack development and SEO, Sam builds custom web applications and marketing systems that drive measurable business results for clients in Northern New Jersey.",
-      imageUrl: "/images/team/sam-swaynos.jpg",
+      imageUrl: "/img/seed%20graphics/about/sam_swaynos_3x.webp",
       canonicalUrl: "/about#sam-swaynos",
       sameAs: ["https://www.linkedin.com/in/samswaynos/"],
       expertise: [
