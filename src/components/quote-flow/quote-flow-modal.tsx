@@ -560,8 +560,8 @@ export function QuoteFlowModal() {
                               SEO
                             </h3>
                             <p className="text-body-sm text-light-base/50 leading-relaxed">
-                              Restaurant + business SEO. Local rankings, AI
-                              search citations, and a free website rebuild.
+                              Local rankings, AI search citations, and a free
+                              website rebuild.
                             </p>
                           </div>
                           <div className="flex items-center gap-2 text-sm font-medium text-amber-300 group-hover:gap-3 transition-all">
