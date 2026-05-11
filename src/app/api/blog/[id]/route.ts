@@ -6,6 +6,7 @@ import { getBusinessContextForSite } from "@/lib/business-context";
 import { prisma } from "@/lib/prisma";
 import { requireSiteContext } from "@/lib/site-context";
 import type { SiteContext } from "@/lib/site-context";
+import { EVENT_TYPES, logEvent } from "@/lib/events";
 
 /** GET /api/blog/[id] — get single post */
 export async function GET(
@@ -78,6 +79,48 @@ export async function PUT(
     } catch {
       // Non-blocking
     }
+  }
+
+  // Emit event log entries so the Strategy Analyst agent has a memory of changes
+  const wasPublished = existing?.status === "published";
+  const isPublished = updated.status === "published";
+  if (!wasPublished && isPublished) {
+    await logEvent({
+      siteId,
+      type: EVENT_TYPES.CONTENT_PUBLISHED,
+      title: `Published: ${updated.title}`,
+      payload: { slug: updated.slug, title: updated.title, targetKeyword: updated.targetKeyword },
+      entityType: "BlogPost",
+      entityId: updated.id,
+    });
+    // Fire-and-forget internal link analysis for the newly published post
+    void (async () => {
+      try {
+        const { runInternalLinkAgent } = await import("@/lib/agents/internal-link-agent");
+        await runInternalLinkAgent(siteId, { mode: "post", postId: updated.id });
+      } catch (e) {
+        console.error("[internal-link-agent] publish hook failed", e);
+      }
+    })();
+  } else if (wasPublished && isPublished && (data.body || data.title || data.slug)) {
+    await logEvent({
+      siteId,
+      type: EVENT_TYPES.CONTENT_UPDATED,
+      title: `Updated: ${updated.title}`,
+      payload: { slug: updated.slug, fields: Object.keys(data) },
+      entityType: "BlogPost",
+      entityId: updated.id,
+    });
+  } else if (wasPublished && !isPublished) {
+    await logEvent({
+      siteId,
+      type: EVENT_TYPES.CONTENT_UNPUBLISHED,
+      severity: "warn",
+      title: `Unpublished: ${updated.title}`,
+      payload: { slug: updated.slug },
+      entityType: "BlogPost",
+      entityId: updated.id,
+    });
   }
 
   return NextResponse.json({ ...updated, indexNow: indexNowResult, aiVisibilityGrade });

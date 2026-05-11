@@ -212,6 +212,25 @@ function ConnectionsSection({ envVars, envLoaded }: { envVars: Record<string, bo
 
   return (
     <div className="space-y-6">
+      {/* Google Workspace OAuth (multi-tenant) */}
+      <Link
+        href="/admin/seo/settings/integrations"
+        className="block bg-dark-elevated border border-white/[0.06] rounded-xl px-6 py-5 hover:border-seed-500/30 hover:bg-seed-500/[0.03] transition-all"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-seed-500/10 flex items-center justify-center">
+            <Globe className="w-5 h-5 text-seed-400" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-white">Google Workspace Integrations →</p>
+            <p className="text-xs text-white/50 mt-0.5">
+              OAuth-based connections for Search Console, Analytics 4, and Business Profile. Used by every Autopilot agent.
+            </p>
+          </div>
+          <ExternalLink className="w-4 h-4 text-white/30" />
+        </div>
+      </Link>
+
       {/* Claude AI */}
       <ConnectionCard
         title="Claude AI (Anthropic)"

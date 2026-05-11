@@ -96,6 +96,11 @@ model Site {
   gscDailyPages    GscDailyPage[]
   reportPrefs      ReportPreference[]
   strategyDocs     SeoStrategyDoc[]
+  gbpLocations     GbpLocation[]
+  pageMetrics      PageMetrics[]
+  events           Event[]
+  agentArtifacts   AgentArtifact[]
+  researchSignals  ResearchSignal[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -147,8 +152,9 @@ model BusinessProfile {
 
 enum IntegrationType {
   google_search_console
-  google_analytics
+  google_analytics          // GA4 — used by PageMetrics ingestion
   google_pagespeed
+  google_business_profile   // GBP — locations, posts, reviews, performance
 }
 
 // ── Email Template Overrides ────────────────────────────────
@@ -1098,4 +1104,243 @@ model SeoStrategyDoc {
   @@index([siteId, isActive])
   @@index([siteId, category])
   @@map("seo_strategy_docs")
+}
+
+// ── Google Business Profile (GBP) ───────────────────────────
+// Per-site locations, posts, reviews, and daily performance metrics.
+// Populated by GBP sync agent (read) and GBP publishing agent (write).
+
+model GbpLocation {
+  id                String   @id @default(cuid())
+  siteId            String
+  accountId         String                  // Google account/business resource ("accounts/12345")
+  locationId        String                  // Google location resource ("locations/67890")
+  title             String
+  primaryCategory   String?
+  storefrontAddress String?  @db.Text       // JSON
+  primaryPhone      String?
+  websiteUri        String?
+  serviceArea       String?  @db.Text       // JSON array
+  labels            String?  @db.Text       // JSON array
+  metadata          String?  @db.Text       // JSON full snapshot for fields we don't model individually
+  isPrimary         Boolean  @default(false)
+  lastSyncedAt      DateTime?
+
+  site    Site               @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  posts   GbpPost[]
+  reviews GbpReview[]
+  metrics GbpMetricsDaily[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([siteId, locationId])
+  @@index([siteId, isPrimary])
+  @@map("gbp_locations")
+}
+
+model GbpPost {
+  id           String    @id @default(cuid())
+  locationId   String
+  postName     String?                 // Google's resource name once published
+  topicType    String                  // STANDARD | EVENT | OFFER | ALERT
+  summary      String    @db.Text
+  ctaType      String?                 // LEARN_MORE | CALL | ORDER | BOOK | SHOP | SIGN_UP
+  ctaUrl       String?
+  mediaUrl     String?                 // Image URL (uploaded to GBP or external)
+  viewCount    Int?                    // Per-post impressions from GBP Post Insights
+  clickCount   Int?                    // Per-post CTA clicks from GBP Post Insights
+  state        String    @default("draft") // draft | pending_review | published | rejected | failed
+  publishedAt  DateTime?
+  searchUrl    String?                 // Public URL of the published post
+  errorMessage String?   @db.Text
+  metadata     String?   @db.Text      // JSON (offer dates, event start/end, etc.)
+
+  location GbpLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([locationId, state])
+  @@index([locationId, publishedAt])
+  @@map("gbp_posts")
+}
+
+model GbpReview {
+  id           String    @id @default(cuid())
+  locationId   String
+  reviewName   String                  // Google's resource name (unique per review)
+  reviewerName String?
+  rating       Int                     // 1-5 (Google returns STAR_RATING enum; we store the int)
+  comment      String?   @db.Text
+  reply        String?   @db.Text
+  replyAt      DateTime?
+  createTime   DateTime
+  updateTime   DateTime
+
+  location GbpLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([locationId, reviewName])
+  @@index([locationId, createTime])
+  @@index([locationId, rating])
+  @@map("gbp_reviews")
+}
+
+model GbpMetricsDaily {
+  id         String   @id @default(cuid())
+  locationId String
+  date       DateTime @db.Date
+
+  // GBP Performance API metric names — kept verbose so they map 1:1 to the API
+  businessImpressionsDesktopMaps   Int @default(0)
+  businessImpressionsDesktopSearch Int @default(0)
+  businessImpressionsMobileMaps    Int @default(0)
+  businessImpressionsMobileSearch  Int @default(0)
+  callClicks                       Int @default(0)
+  websiteClicks                    Int @default(0)
+  drivingDirections                Int @default(0)
+  businessBookings                 Int @default(0)
+  businessConversations            Int @default(0)
+  businessFoodOrders               Int @default(0)
+  businessFoodMenuClicks           Int @default(0)
+
+  location GbpLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([locationId, date])
+  @@index([locationId, date])
+  @@map("gbp_metrics_daily")
+}
+
+// ── GA4 Page Metrics ────────────────────────────────────────
+// Daily per-URL behavior + conversion data. Source = "ga4" today;
+// "manual" reserved for backfill / non-GA tracking later.
+
+model PageMetrics {
+  id                    String   @id @default(cuid())
+  siteId                String
+  url                   String                          // Full URL or path; pick one and stay consistent
+  date                  DateTime @db.Date
+  sessions              Int      @default(0)
+  users                 Int      @default(0)
+  engagedSessions       Int      @default(0)
+  engagementRate        Float    @default(0)
+  averageEngagementTime Float    @default(0)            // seconds
+  bounceRate            Float    @default(0)
+  conversions           Int      @default(0)
+  revenue               Float    @default(0)
+  source                String   @default("ga4")        // ga4 | manual
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([siteId, url, date, source])
+  @@index([siteId, date])
+  @@index([siteId, url])
+  @@map("page_metrics")
+}
+
+// ── Event Log ───────────────────────────────────────────────
+// Append-only feed of meaningful changes per site. Read by agents to know
+// "what's different since last run." Examples: content.published,
+// keyword.moved, metrics.conversion_drop, citation.lost, gbp.review_received.
+
+model Event {
+  id         String   @id @default(cuid())
+  siteId     String
+  type       String                       // dotted hierarchy (see EVENT_TYPES in src/lib/events.ts)
+  severity   String   @default("info")    // info | warn | critical
+  title      String                       // human-readable summary
+  body       String?  @db.Text
+  payload    Json?                        // structured data agents can read
+  entityType String?                      // "BlogPost", "TrackedKeyword", "AICitation", etc.
+  entityId   String?                      // FK by convention; entityType disambiguates
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, occurredAt])
+  @@index([siteId, type, occurredAt])
+  @@index([siteId, severity, occurredAt])
+  @@index([entityType, entityId])
+  @@map("events")
+}
+
+// ── Agent Artifacts ─────────────────────────────────────────
+// Items produced by agents that need human review before they take effect
+// (publishing a GBP post, replying to a review, queueing a brief). Strategy
+// briefs and analyses go into SeoStrategyDoc instead — those are advisory.
+
+model AgentArtifact {
+  id           String    @id @default(cuid())
+  siteId       String
+  agent        String                          // "gbp-review-reply", "gbp-post-drafter", "blog-drafter", "brief-generator"
+  type         String                          // "review_reply_draft" | "gbp_post_draft" | "content_brief" | "blog_draft"
+  state        String    @default("pending_review") // pending_review | approved | rejected | published | failed
+  title        String
+  summary      String?   @db.Text
+  payload      Json                            // structured artifact (draft text, target IDs, suggested CTAs, etc.)
+  entityType   String?                         // "GbpReview", "BlogPost", etc.
+  entityId     String?
+  reviewedBy   String?                         // user email/id
+  reviewedAt   DateTime?
+  reviewNotes  String?   @db.Text
+  publishedAt  DateTime?
+  publishError String?   @db.Text
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([siteId, state])
+  @@index([siteId, agent])
+  @@index([siteId, type])
+  @@index([entityType, entityId])
+  @@map("agent_artifacts")
+}
+
+// ── Research Signals (Industry Researcher Agent) ─────────────────────────────
+// Each row is a novel insight fetched from a primary/credible external source.
+// Signals feed into the Brief Generator so content is grounded in real-world
+// events rather than recycled keyword ideas.
+
+enum ResearchSignalStatus {
+  fresh      // Not yet consumed by any brief
+  consumed   // A content brief has been created from this signal
+  dismissed  // Manually dismissed (low quality / not relevant)
+}
+
+model ResearchSignal {
+  id            String              @id @default(cuid())
+  siteId        String
+  // Source metadata
+  sourceUrl     String              // Canonical URL of the original article/rule/document
+  sourceDomain  String              // e.g. "fmcsa.dot.gov"
+  sourceTitle   String              // Title of the source article/document
+  publishedAt   DateTime?           // When the source item was published (if known)
+  // Extracted insight
+  industry      String              // "trucking" | "law" | "restaurant" | "general"
+  headline      String              // 1-line plain-English summary of the insight
+  insight       String              @db.Text // 2-4 sentence explanation of why this matters to the client's clients
+  contentAngle  String              @db.Text // Specific article angle/thesis derived from this insight
+  keywords      String[]            @default([]) // Relevant search queries this insight maps to
+  shareScore    Int                 @default(50) // 0-100 estimate of share-worthiness / novelty
+  recencyScore  Int                 @default(50) // 0-100 how fresh the source is
+  status        ResearchSignalStatus @default(fresh)
+  consumedBy    String?             // AgentArtifact.id of the brief that consumed this
+  site          Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([siteId, status])
+  @@index([siteId, industry])
+  @@index([siteId, shareScore])
+  @@map("research_signals")
 }

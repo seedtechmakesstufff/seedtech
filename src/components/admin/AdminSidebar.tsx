@@ -16,6 +16,8 @@ import {
   Mail,
   Brain,
   LineChart,
+  Bot,
+  ListChecks,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiteSwitcher } from "./SiteSwitcher";
@@ -47,6 +49,16 @@ const NAV_ITEMS: NavItem[] = [
         label: "AI Context",
         href: "/admin/seo/context",
         icon: Brain,
+      },
+      {
+        label: "Agents",
+        href: "/admin/seo/agents",
+        icon: Bot,
+      },
+      {
+        label: "Inbox",
+        href: "/admin/inbox",
+        icon: ListChecks,
       },
       {
         label: "Blog Manager",

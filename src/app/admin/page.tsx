@@ -5,6 +5,8 @@ import {
   Search,
   Clock,
   ArrowUpRight,
+  Inbox,
+  Bot,
 } from "lucide-react";
 
 const STATS = [
@@ -39,6 +41,8 @@ const STATS = [
 ];
 
 const QUICK_ACTIONS = [
+  { label: "Inbox", href: "/admin/inbox", icon: Inbox },
+  { label: "SEO Agents", href: "/admin/seo/agents", icon: Bot },
   { label: "Write a Blog Post", href: "/admin/blog/new", icon: FileText },
   { label: "SEO Dashboard", href: "/admin/seo", icon: Search },
   { label: "View Analytics", href: "/admin/analytics", icon: TrendingUp },
