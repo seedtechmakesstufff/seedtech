@@ -18,6 +18,7 @@ import {
   LineChart,
   Bot,
   ListChecks,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiteSwitcher } from "./SiteSwitcher";
@@ -69,6 +70,11 @@ const NAV_ITEMS: NavItem[] = [
         label: "Reports",
         href: "/admin/seo/reports",
         icon: LineChart,
+      },
+      {
+        label: "Agent Runs",
+        href: "/admin/seo/agent-runs",
+        icon: Activity,
       },
       {
         label: "SEO Settings",

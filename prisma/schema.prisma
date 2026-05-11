@@ -101,6 +101,7 @@ model Site {
   events           Event[]
   agentArtifacts   AgentArtifact[]
   researchSignals  ResearchSignal[]
+  agentRuns        AgentRun[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -849,6 +850,57 @@ model CronJobRun {
   @@index([siteId, jobType])
   @@index([startedAt])
   @@map("cron_job_runs")
+}
+
+// ── AgentRun ───────────────────────────────────────────────────────────────
+// One row per agent invocation (cron or manual). Observability layer:
+// answers "which agent is expensive, noisy, or actually useful?"
+// inputSnapshotHash lets you dedupe identical inputs across runs.
+
+enum AgentRunStatus {
+  running
+  completed
+  failed
+}
+
+enum AgentRunTrigger {
+  cron
+  manual
+  run_all
+  chained
+}
+
+model AgentRun {
+  id                 String          @id @default(cuid())
+  siteId             String
+  agentKey           String          // "industry-researcher", "blog-drafter", ...
+  trigger            AgentRunTrigger @default(cron)
+  status             AgentRunStatus  @default(running)
+  startedAt          DateTime        @default(now())
+  completedAt        DateTime?
+  durationMs         Int?
+  // Input fingerprint — sha256 of the inputs the agent read. Optional.
+  inputSnapshotHash  String?
+  // LLM accounting
+  model              String?         // e.g. "claude-sonnet-4-20250514"
+  tokensIn           Int?
+  tokensOut          Int?
+  costEstimateUsd    Decimal?        @db.Decimal(10, 6)
+  // Output accounting
+  artifactsCreated   Int             @default(0)
+  artifactIds        String[]        @default([])
+  resultSummary      String?         // short human-readable summary
+  error              String?         @db.Text
+  // Free-form structured metadata (counts, flags, source agent for chained runs)
+  metadata           Json?
+  site               Site            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt          DateTime        @default(now())
+
+  @@index([siteId, agentKey])
+  @@index([siteId, startedAt])
+  @@index([startedAt])
+  @@index([agentKey, status])
+  @@map("agent_runs")
 }
 
 // ── User Invites ──

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireSiteContext } from "@/lib/site-context";
 import { checkAgentRateLimit } from "@/lib/agent-rate-limit";
-import { runTrackedJob } from "@/lib/cron-runner";
-import { runIndustryResearcher } from "@/lib/agents/industry-researcher";
+import { runRegisteredAgent } from "@/lib/agent-registry";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -13,6 +12,12 @@ export async function POST() {
   const limited = checkAgentRateLimit(ctx.siteId);
   if (limited) return limited;
 
-  const job = await runTrackedJob(ctx.siteId, "industry_researcher_manual", () => runIndustryResearcher(ctx.siteId));
-  return NextResponse.json({ ok: job.success, result: job.result, error: job.error, durationMs: job.durationMs });
+  const run = await runRegisteredAgent("industry-researcher", {
+    siteId: ctx.siteId,
+    trigger: "manual",
+  });
+  if (!run.success) {
+    return NextResponse.json({ error: run.error, runId: run.runId, durationMs: run.durationMs }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true, runId: run.runId, durationMs: run.durationMs, ...(run.result as object) });
 }

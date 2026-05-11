@@ -3,11 +3,11 @@ import {
   FileText,
   TrendingUp,
   Search,
-  Clock,
   ArrowUpRight,
   Inbox,
   Bot,
 } from "lucide-react";
+import { AgentRunsWidget } from "@/components/admin/AgentRunsWidget";
 
 const STATS = [
   {
@@ -104,13 +104,10 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activity Placeholder */}
+      {/* Agent activity */}
       <div>
         <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
-        <div className="bg-dark-elevated border border-white/[0.06] rounded-xl p-8 text-center">
-          <Clock className="w-8 h-8 text-white/20 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">Activity feed will appear here as you publish content and track SEO metrics.</p>
-        </div>
+        <AgentRunsWidget />
       </div>
 
       {/* SEO Health Summary */}

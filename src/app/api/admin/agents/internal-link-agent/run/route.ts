@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSiteContext } from "@/lib/site-context";
 import { checkAgentRateLimit } from "@/lib/agent-rate-limit";
-import { runTrackedJob } from "@/lib/cron-runner";
-import { runInternalLinkAgent } from "@/lib/agents/internal-link-agent";
+import { runRegisteredAgent } from "@/lib/agent-registry";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -10,7 +9,6 @@ export const maxDuration = 120;
 /**
  * POST /api/admin/agents/internal-link-agent/run
  * Body (optional): { postId?: string }
- *   - postId: scan only this post; otherwise daily-sweep mode
  */
 export async function POST(req: NextRequest) {
   const ctx = await requireSiteContext();
@@ -19,15 +17,17 @@ export async function POST(req: NextRequest) {
   if (limited) return limited;
 
   const body = (await req.json().catch(() => ({}))) as { postId?: string };
-  const scope = body.postId
-    ? ({ mode: "post", postId: body.postId } as const)
-    : ({ mode: "daily" } as const);
+  const params = body.postId
+    ? ({ mode: "post" as const, postId: body.postId })
+    : ({ mode: "daily" as const });
 
-  const job = await runTrackedJob(ctx.siteId, "internal_link_agent_manual", () =>
-    runInternalLinkAgent(ctx.siteId, scope)
-  );
-  if (!job.success) {
-    return NextResponse.json({ error: job.error ?? "Agent failed" }, { status: 500 });
+  const run = await runRegisteredAgent("internal-link-agent", {
+    siteId: ctx.siteId,
+    trigger: "manual",
+    params,
+  });
+  if (!run.success) {
+    return NextResponse.json({ error: run.error, runId: run.runId, durationMs: run.durationMs }, { status: 500 });
   }
-  return NextResponse.json({ ok: true, ...job.result });
+  return NextResponse.json({ ok: true, runId: run.runId, durationMs: run.durationMs, ...(run.result as object) });
 }

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSiteContext } from "@/lib/site-context";
 import { checkAgentRateLimit } from "@/lib/agent-rate-limit";
-import { runTrackedJob } from "@/lib/cron-runner";
-import { runBlogDrafter } from "@/lib/agents/blog-drafter";
+import { runRegisteredAgent } from "@/lib/agent-registry";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 600;
@@ -10,9 +9,6 @@ export const maxDuration = 600;
 /**
  * POST /api/admin/agents/blog-drafter/run
  * Body (optional): { briefId?: string, fast?: boolean, max?: number }
- *   - briefId: draft a single specific brief
- *   - fast: use Haiku (3-5x faster, less polish)
- *   - max: override default cap
  */
 export async function POST(req: NextRequest) {
   const ctx = await requireSiteContext();
@@ -26,15 +22,17 @@ export async function POST(req: NextRequest) {
     max?: number;
   };
 
-  const job = await runTrackedJob(ctx.siteId, "blog_drafter_manual", () =>
-    runBlogDrafter(ctx.siteId, {
+  const run = await runRegisteredAgent("blog-drafter", {
+    siteId: ctx.siteId,
+    trigger: "manual",
+    params: {
       briefArtifactIds: body.briefId ? [body.briefId] : undefined,
       fast: body.fast,
       max: body.max,
-    })
-  );
-  if (!job.success) {
-    return NextResponse.json({ error: job.error ?? "Blog Drafter failed" }, { status: 500 });
+    },
+  });
+  if (!run.success) {
+    return NextResponse.json({ error: run.error, runId: run.runId, durationMs: run.durationMs }, { status: 500 });
   }
-  return NextResponse.json({ ok: true, durationMs: job.durationMs, ...job.result });
+  return NextResponse.json({ ok: true, runId: run.runId, durationMs: run.durationMs, ...(run.result as object) });
 }
