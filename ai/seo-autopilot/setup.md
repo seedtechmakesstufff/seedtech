@@ -44,6 +44,7 @@ psql "$DATABASE_URL" -f prisma/migrations/manual/phase8-event-log.sql
 psql "$DATABASE_URL" -f prisma/migrations/manual/phase8-agent-artifacts.sql
 psql "$DATABASE_URL" -f prisma/migrations/manual/phase9-research-signals.sql
 psql "$DATABASE_URL" -f prisma/migrations/manual/phase10-agent-runs.sql
+psql "$DATABASE_URL" -f prisma/migrations/manual/phase11-wordpress.sql
 npx prisma generate
 ```
 
@@ -77,7 +78,22 @@ Add the admin email as a test user while in dev. Production verification with Go
 
 ---
 
-## 4. Connect a site
+## 4. Connect a WordPress site (optional)
+
+For clients with an existing WordPress site:
+
+1. In WordPress admin: **Users → Profile → Application Passwords** → create a password named "SeedTech SEO Autopilot".
+2. In SeedTech: `/admin/seo/settings/integrations` → **WordPress** panel → enter Site URL, username, and Application Password → **Connect & Test**.
+3. Click **Sync now** to pull posts immediately, or wait for the daily cron (06:00 UTC).
+4. Verify: `SELECT COUNT(*) FROM blog_posts WHERE "wordPressSiteUrl" IS NOT NULL AND "siteId" = '<id>';`
+
+**Path prefix:** If the client's WordPress posts live at `/slug` (not `/blog/slug`), set path prefix to empty string in the connect form.
+
+**Yoast SEO:** If the client has Yoast, focus keywords and meta fields sync automatically. Otherwise, `targetKeyword` is derived from the post slug.
+
+---
+
+## 5. Connect a site (Google integrations)
 
 1. Sign in as admin, switch to the target site.
 2. `/admin/seo/settings/integrations` → click **Connect Google** → consent screen → redirect back with success.
@@ -88,7 +104,7 @@ Add the admin email as a test user while in dev. Production verification with Go
 
 ---
 
-## 5. Smoke-test the agent pipeline
+## 6. Smoke-test the agent pipeline
 
 From `/admin/seo/agents`:
 
@@ -103,13 +119,13 @@ Or hit **Run all weekly agents** to chain steps 1–6 in dependency order.
 
 ---
 
-## 6. Configure per-tenant digest recipients
+## 7. Configure per-tenant digest recipients
 
 `/admin/seo/agents` → **Digest** tab → Recipients. Backed by `EmailConfig.notifyRecipients` (comma-separated). Without DB config, falls back to the `DIGEST_RECIPIENTS` env var.
 
 ---
 
-## 7. Local development
+## 8. Local development
 
 ```bash
 npm install

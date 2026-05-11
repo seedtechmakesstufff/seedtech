@@ -45,6 +45,10 @@ export const EVENT_TYPES = {
   GBP_REVIEW_RECEIVED: "gbp.review_received",
   GBP_POST_PUBLISHED: "gbp.post_published",
 
+  // WordPress sync
+  WORDPRESS_SYNC_COMPLETED: "wordpress.sync_completed",
+  WORDPRESS_SYNC_FAILED: "wordpress.sync_failed",
+
   // Agent runs
   AGENT_RUN_COMPLETED: "agent.run_completed",
   AGENT_ARTIFACT_CREATED: "agent.artifact_created",

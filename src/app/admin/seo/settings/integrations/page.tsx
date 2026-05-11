@@ -12,10 +12,12 @@ import {
   MapPin,
   ArrowUpRight,
   Loader2,
+  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { Ga4Panel } from "./Ga4Panel";
 import { GbpPanel } from "./GbpPanel";
+import { WordPressPanel } from "./WordPressPanel";
 
 type IntegrationType =
   | "google_search_console"
@@ -147,6 +149,27 @@ function IntegrationsInner() {
           <code className="font-mono">GOOGLE_OAUTH_REDIRECT_URI</code> in Vercel env vars, then redeploy.
         </Banner>
       )}
+
+      <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/[0.06]">
+          <h2 className="font-semibold text-white">WordPress</h2>
+          <p className="text-xs text-white/40 mt-0.5">
+            Pull existing posts and pages from a self-hosted WordPress site so agents can analyze content.
+          </p>
+        </div>
+        <div className="px-6 py-5 flex items-center gap-4 border-b border-white/[0.06]">
+          <div className="w-10 h-10 rounded-lg bg-seed-500/10 flex items-center justify-center shrink-0">
+            <Globe className="w-5 h-5 text-seed-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white">WordPress REST API</p>
+            <p className="text-xs text-white/40 mt-0.5">
+              Syncs published posts and pages into the platform daily. Requires an Application Password.
+            </p>
+          </div>
+        </div>
+        <WordPressPanel />
+      </section>
 
       <section className="bg-dark-elevated border border-white/[0.06] rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">

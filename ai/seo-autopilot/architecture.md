@@ -140,6 +140,7 @@ Reserved (not yet wired): `keyword.moved`, `keyword.lost`, `metrics.traffic_spik
 |---|---|---|
 | Mon 05:00 | `/api/cron/industry-researcher` | Fetch RSS, extract signals |
 | Mon 06:00 | `/api/cron/seo` | Existing weekly snapshot + crawl + insights + citations |
+| Daily 06:00 | `/api/cron/wordpress-sync` | Pull WP posts/pages (skips sites without WP integration) |
 | Daily 06:30 | `/api/cron/content-decay-watcher` | |
 | Daily 07:00 | `/api/cron/ga4-sync` | |
 | Mon 07:00 | `/api/cron/keyword-scout` | |
@@ -152,6 +153,37 @@ Reserved (not yet wired): `keyword.moved`, `keyword.lost`, `metrics.traffic_spik
 | Daily 12:00 | `/api/cron/internal-link-agent` | |
 
 All cron endpoints use `authenticateCron()` and wrap work in `runTrackedJob(siteId, jobType, fn)` from `cron-runner.ts`.
+
+---
+
+## WordPress integration
+
+**Read-only content sync.** Pulls published posts + pages from a self-hosted WordPress site into `BlogPost` / `SitePage` tables so all agents can run against real client content without a CMS migration.
+
+**Auth.** WordPress Application Password (Basic auth over HTTPS). Credentials stored encrypted in `IntegrationCredential` with `type = "wordpress"`. No OAuth redirect — credentials entered directly in the integrations UI.
+
+**Credential payload** (encrypted JSON in `encryptedCredentials`):
+```json
+{ "siteUrl": "https://client.com", "username": "admin", "appPassword": "xxxx xxxx xxxx", "pathPrefix": "/blog" }
+```
+`pathPrefix` controls how blog post slugs become `SitePage.path` (default `"/blog"` → `/blog/slug`; set to `""` for flat WordPress installs).
+
+**Sync (`src/lib/wordpress-sync.ts`).** `syncWordPressForSite(siteId)` fetches all published posts + pages via `src/lib/wordpress.ts` (paginated, 100/page). Each post is upserted into `BlogPost` matched on `(siteId, slug)`. Posts are skipped when `wordPressPostId` + `updatedAt` match — keeping syncs idempotent. Yoast SEO fields (`yoast_head_json`) map to `metaTitle`, `metaDescription`, `targetKeyword` when present; falls back to slug-derived keyword. After sync, calls `syncBlogPostsToSitePages()` to ensure SitePage inventory is complete. Logs `wordpress.sync_completed` event.
+
+**New BlogPost fields:**
+- `wordPressPostId Int?` — WP post ID for reconciliation; null for SeedTech-native posts
+- `wordPressSiteUrl String?` — source WP site URL
+
+**API surface:**
+```
+GET/POST/DELETE /api/admin/integrations/wordpress/connect  — check status, connect, disconnect
+POST            /api/admin/integrations/wordpress/sync     — manual sync trigger
+GET             /api/cron/wordpress-sync                   — daily cron (06:00 UTC)
+```
+
+**UI.** WordPress panel added to `/admin/seo/settings/integrations` (above Google Workspace). Connect form with site URL, username, application password, path prefix. "Connect & Test" validates before saving. Connected state shows post count, last sync, and "Sync now" button.
+
+**Agent compatibility.** No agent changes required. All agents read `BlogPost` rows regardless of `wordPressPostId`. `SitePage.source = "wordpress"` for synced pages.
 
 ---
 
@@ -221,6 +253,8 @@ src/lib/
     content-decay-watcher.ts
     internal-link-agent.ts
   credential-encryption.ts      AES-256-GCM
+  wordpress.ts                  WordPress REST API client (fetchWpPosts, fetchWpPages, testWpConnection)
+  wordpress-sync.ts             Sync orchestrator — pulls WP content into BlogPost/SitePage tables
   dedup.ts                      TF-IDF threshold decisions
   events.ts                     EVENT_TYPES + logEvent/queryEvents
   ga4.ts, ga4-sync.ts

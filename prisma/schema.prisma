@@ -156,6 +156,7 @@ enum IntegrationType {
   google_analytics          // GA4 — used by PageMetrics ingestion
   google_pagespeed
   google_business_profile   // GBP — locations, posts, reviews, performance
+  wordpress                 // WordPress REST API (Application Password auth)
 }
 
 // ── Email Template Overrides ────────────────────────────────
@@ -242,6 +243,8 @@ model BlogPost {
   wordCount       Int        @default(0)
   publishedAt     DateTime?
   scheduledAt     DateTime?
+  wordPressPostId Int?                               // Set on WordPress sync; null for SeedTech-native posts
+  wordPressSiteUrl String?                           // Source WP site URL (e.g. "https://client.com")
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   site            Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
