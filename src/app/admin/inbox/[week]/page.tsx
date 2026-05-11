@@ -68,7 +68,33 @@ const GROUPS: GroupDef[] = [
   { type: "blog_draft", label: "Blog drafts ready to publish", description: "Full posts written by the Blog Drafter. Approve to publish.", icon: BookOpen, accent: "text-green-300", bg: "bg-green-400/10" },
   { type: "keyword_candidate", label: "New keywords to track", description: "GSC queries that are ranking but not in TrackedKeywords yet.", icon: Search, accent: "text-cyan-300", bg: "bg-cyan-400/10" },
   { type: "link_suggestions", label: "Internal link suggestions", description: "Anchors the Internal Link Agent wants to add to existing posts.", icon: Link2, accent: "text-orange-300", bg: "bg-orange-400/10" },
+  { type: "page_draft", label: "Page copy drafts", description: "Optimised title, meta, H1 and body copy for service/location pages. Approve to apply metadata.", icon: FileText, accent: "text-teal-300", bg: "bg-teal-400/10" },
 ];
+
+const AGENT_LABELS: Record<string, string> = {
+  "gbp-post-drafter": "GBP Post Drafter",
+  "gbp-review-reply": "Review Reply Agent",
+  "blog-drafter": "Blog Drafter",
+  "brief-generator": "Brief Generator",
+  "keyword-scout": "Keyword Scout",
+  "internal-link-agent": "Internal Link Agent",
+  "content-decay-watcher": "Content Decay Watcher",
+  "page-drafter": "Page Drafter",
+  "page-opportunity-scout": "Page Opportunity Scout",
+  "strategy-analyst": "Strategy Analyst",
+  "weekly-digest": "Weekly Digest",
+  "industry-researcher": "Industry Researcher",
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  "gbp_post_draft": "GBP Post",
+  "review_reply_draft": "Review Reply",
+  "blog_draft": "Blog Draft",
+  "content_brief": "Content Brief",
+  "keyword_candidate": "Keyword",
+  "link_suggestions": "Link Suggestion",
+  "page_draft": "Page Draft",
+};
 
 export default function InboxWeekPage() {
   const params = useParams<{ week: string }>();
@@ -510,7 +536,7 @@ function ArtifactCard({
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate">{artifact.title}</p>
             <p className="text-[11px] text-white/40 mt-0.5 truncate">
-              {artifact.agent} · {artifact.type} · {new Date(artifact.createdAt).toLocaleString()}
+              {AGENT_LABELS[artifact.agent] ?? artifact.agent} · {TYPE_LABELS[artifact.type] ?? artifact.type} · {new Date(artifact.createdAt).toLocaleString()}
             </p>
           </div>
           <StateBadge state={artifact.state} />
