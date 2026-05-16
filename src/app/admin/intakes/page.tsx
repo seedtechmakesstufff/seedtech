@@ -233,7 +233,7 @@ function IntakeRow({ intake, onDelete, onStatusChange }: {
   const [showSubmission, setShowSubmission] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  const formUrl = `${window.location.origin}/intake/${intake.token}`;
+  const formUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/intake/${intake.token}`;
   const meta = STATUS_META[intake.status];
   const StatusIcon = meta.icon;
 
