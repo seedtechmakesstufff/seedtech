@@ -147,17 +147,12 @@ function SubmissionDrawer({ intake, onClose, onStatusChange }: {
   onClose: () => void;
   onStatusChange: (id: string, status: string) => void;
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [data, setData] = useState<Record<string, any> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`/api/admin/intakes`)
       .then(r => r.json())
-      .then((all: ClientIntake[]) => {
-        // We'll fetch the full submission via a detail endpoint
-        // For now show what we have
-        setData(null);
+      .then((_all: ClientIntake[]) => {
         setLoading(false);
       });
   }, [intake.id]);

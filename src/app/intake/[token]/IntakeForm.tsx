@@ -331,7 +331,7 @@ export default function IntakeForm({ token }: { token: string }) {
         <div className="text-center space-y-3">
           <CheckCircle2 className="w-12 h-12 text-green-400 mx-auto" />
           <p className="text-white font-medium">Already submitted</p>
-          <p className="text-white/40 text-sm">We've received your answers and will be in touch soon.</p>
+          <p className="text-white/40 text-sm">We&apos;ve received your answers and will be in touch soon.</p>
         </div>
       </div>
     );
@@ -343,9 +343,9 @@ export default function IntakeForm({ token }: { token: string }) {
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
         <div className="text-center space-y-4 max-w-md">
           <CheckCircle2 className="w-14 h-14 text-green-400 mx-auto" />
-          <h2 className="text-xl font-semibold text-white">You're all set!</h2>
+          <h2 className="text-xl font-semibold text-white">You&apos;re all set!</h2>
           <p className="text-white/50 text-sm leading-relaxed">
-            We've received your onboarding answers. We'll review everything before your kick-off call.
+            We&apos;ve received your onboarding answers. We&apos;ll review everything before your kick-off call.
           </p>
           {meta?.assetDriveUrl && (
             <a
