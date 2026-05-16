@@ -22,6 +22,7 @@ export async function GET() {
       siteId: true,
       createdAt: true,
       submittedAt: true,
+      formType: true,
     },
   });
 
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { companyName, contactEmail, assetDriveUrl, notes, siteId } = body;
+  const { companyName, contactEmail, assetDriveUrl, notes, siteId, formType } = body;
 
   if (!companyName?.trim()) {
     return NextResponse.json({ error: "companyName is required" }, { status: 400 });
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
       assetDriveUrl: assetDriveUrl?.trim() || null,
       notes: notes?.trim() || null,
       siteId: siteId || null,
+      formType: formType || "service",
     },
   });
 

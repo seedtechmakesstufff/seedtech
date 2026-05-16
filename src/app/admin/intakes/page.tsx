@@ -32,6 +32,7 @@ interface ClientIntake {
   siteId: string | null;
   createdAt: string;
   submittedAt: string | null;
+  formType: string;
 }
 
 const STATUS_META = {
@@ -47,6 +48,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
   const [contactEmail, setContactEmail] = useState("");
   const [assetDriveUrl, setAssetDriveUrl] = useState("");
   const [notes, setNotes] = useState("");
+  const [formType, setFormType] = useState("service");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -59,7 +61,7 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
       const res = await fetch("/api/admin/intakes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyName, contactEmail, assetDriveUrl, notes }),
+        body: JSON.stringify({ companyName, contactEmail, assetDriveUrl, notes, formType }),
       });
       if (!res.ok) throw new Error("Failed to create");
       const intake = await res.json();
@@ -110,6 +112,31 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
               placeholder="https://drive.google.com/drive/folders/..."
               className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-seed-500"
             />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-1.5">Form Type</label>
+            <div className="flex gap-3">
+              {[
+                { value: "service", label: "Service Business" },
+                { value: "ecommerce", label: "Ecommerce (coming soon)", disabled: true },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  disabled={opt.disabled}
+                  onClick={() => !opt.disabled && setFormType(opt.value)}
+                  className={cn(
+                    "flex-1 py-2 px-3 rounded-lg border text-sm transition-colors",
+                    opt.disabled ? "opacity-30 cursor-not-allowed border-white/10 text-white/40" :
+                    formType === opt.value
+                      ? "border-seed-500 bg-seed-500/10 text-white"
+                      : "border-white/10 text-white/60 hover:border-white/20 hover:text-white"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div>
             <label className="block text-xs font-medium text-white/60 mb-1.5">Internal Notes</label>
@@ -233,6 +260,9 @@ function IntakeRow({ intake, onDelete, onStatusChange }: {
               <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border", meta.color)}>
                 <StatusIcon className="w-3 h-3" />
                 {meta.label}
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs border border-white/10 text-white/30">
+                {intake.formType === "ecommerce" ? "Ecommerce" : "Service"}
               </span>
             </div>
             {intake.contactEmail && (

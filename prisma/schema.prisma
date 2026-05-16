@@ -1418,6 +1418,7 @@ model ClientIntake {
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
   submittedAt     DateTime? @map("submitted_at")
+  formType        String    @default("service") @map("form_type")
 
   @@index([status])
   @@map("client_intakes")

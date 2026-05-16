@@ -13,6 +13,7 @@ export async function GET(
       companyName: true,
       assetDriveUrl: true,
       status: true,
+      formType: true,
     },
   });
 
