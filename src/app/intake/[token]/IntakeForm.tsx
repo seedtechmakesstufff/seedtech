@@ -367,49 +367,44 @@ export default function IntakeForm({ token }: { token: string }) {
   const section = SECTIONS[currentSection];
   const isLast = currentSection === SECTIONS.length - 1;
   const canAdvance = validateSection(currentSection);
-  const progress = ((currentSection + 1) / SECTIONS.length) * 100;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* Top bar */}
-      <div className="sticky top-0 z-10 bg-[#0a0a0a]/80 backdrop-blur-sm border-b border-white/8">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
+
+      {/* ── Sticky header ─────────────────────────────────── */}
+      <div className="sticky top-0 z-10 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-white/8">
+        {/* Brand + step counter */}
+        <div className="max-w-2xl mx-auto px-4 pt-4 pb-3 flex items-center justify-between">
           <div>
-            <p className="text-xs text-white/30 font-medium tracking-wide uppercase">SeedTech</p>
-            <p className="text-sm font-medium text-white">{meta?.companyName} — Website Onboarding</p>
+            <p className="text-[10px] font-semibold tracking-widest text-white/30 uppercase">SeedTech</p>
+            <p className="text-sm font-medium text-white leading-tight">{meta?.companyName} — Website Onboarding</p>
           </div>
-          <span className="text-xs text-white/30">{currentSection + 1} / {SECTIONS.length}</span>
+          <span className="text-xs text-white/30 tabular-nums">{currentSection + 1} / {SECTIONS.length}</span>
         </div>
-        {/* Progress bar */}
-        <div className="h-0.5 bg-white/5">
-          <div
-            className="h-full bg-seed-500 transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+
+        {/* Step bars */}
+        <div className="max-w-2xl mx-auto px-4 pb-3 flex items-center gap-1">
+          {SECTIONS.map((s, i) => (
+            <div
+              key={s.id}
+              className={cn(
+                "h-1 flex-1 rounded-full transition-all duration-300",
+                i < currentSection ? "bg-seed-500" : i === currentSection ? "bg-seed-400" : "bg-white/10"
+              )}
+            />
+          ))}
+        </div>
+
+        {/* Section title */}
+        <div className="max-w-2xl mx-auto px-4 pb-4 border-t border-white/5 pt-3">
+          <h2 className="text-base font-semibold text-white">{section.title}</h2>
+          <p className="text-xs text-white/40 mt-0.5">{section.subtitle}</p>
         </div>
       </div>
 
-      {/* Form body */}
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        {/* Section header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            {SECTIONS.map((s, i) => (
-              <div
-                key={s.id}
-                className={cn(
-                  "h-1 flex-1 rounded-full transition-colors",
-                  i < currentSection ? "bg-seed-500" : i === currentSection ? "bg-seed-400" : "bg-white/10"
-                )}
-              />
-            ))}
-          </div>
-          <h2 className="text-xl font-semibold text-white mt-4">{section.title}</h2>
-          <p className="text-sm text-white/40 mt-1">{section.subtitle}</p>
-        </div>
-
-        {/* Fields */}
-        <div className="space-y-6">
+      {/* ── Scrollable form body ───────────────────────────── */}
+      <div className="flex-1 overflow-y-auto pb-32">
+        <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
           {section.fields.map(field => (
             <Field
               key={field.id}
@@ -418,38 +413,39 @@ export default function IntakeForm({ token }: { token: string }) {
               onChange={val => setField(field.id, val)}
             />
           ))}
-        </div>
 
-        {/* Asset drive callout */}
-        {section.id === "assets" && meta?.assetDriveUrl && (
-          <div className="mt-6 p-4 rounded-xl border border-seed-500/20 bg-seed-500/5">
-            <div className="flex items-start gap-3">
-              <FolderOpen className="w-5 h-5 text-seed-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-white">Upload files to your Google Drive folder</p>
-                <p className="text-xs text-white/40 mt-0.5 mb-2">Logos, photos, existing copy, brand guidelines — add them here.</p>
-                <a
-                  href={meta.assetDriveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-seed-400 hover:text-seed-300 transition-colors"
-                >
-                  Open Drive folder <ChevronRight className="w-3 h-3" />
-                </a>
+          {/* Asset drive callout */}
+          {section.id === "assets" && meta?.assetDriveUrl && (
+            <div className="p-4 rounded-xl border border-seed-500/20 bg-seed-500/5">
+              <div className="flex items-start gap-3">
+                <FolderOpen className="w-5 h-5 text-seed-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-white">Upload files to your Google Drive folder</p>
+                  <p className="text-xs text-white/40 mt-0.5 mb-2">Logos, photos, existing copy, brand guidelines — add them here.</p>
+                  <a
+                    href={meta.assetDriveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-seed-400 hover:text-seed-300 transition-colors"
+                  >
+                    Open Drive folder <ChevronRight className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Error */}
-        {error && <p className="mt-4 text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+        </div>
+      </div>
 
-        {/* Navigation */}
-        <div className="flex gap-3 mt-10">
+      {/* ── Pinned bottom nav ──────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 bg-[#0a0a0a]/95 backdrop-blur-sm border-t border-white/8">
+        <div className="max-w-2xl mx-auto px-4 py-4 flex gap-3">
           {currentSection > 0 && (
             <button
               onClick={() => setCurrentSection(v => v - 1)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-white/60 hover:text-white hover:border-white/20 transition-colors"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white hover:border-white/20 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
               Back
@@ -458,7 +454,7 @@ export default function IntakeForm({ token }: { token: string }) {
           <button
             onClick={isLast ? handleSubmit : () => setCurrentSection(v => v + 1)}
             disabled={!canAdvance || submitting}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium transition-colors disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-seed-500 hover:bg-seed-600 text-white text-sm font-medium transition-colors disabled:opacity-40"
           >
             {submitting ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
@@ -470,6 +466,7 @@ export default function IntakeForm({ token }: { token: string }) {
           </button>
         </div>
       </div>
+
     </div>
   );
 }

@@ -10,9 +10,10 @@ import { PageBlurOverlay } from "./PageBlurOverlay";
 export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isIntake = pathname.startsWith("/intake");
   const isSalesRepPage = pathname.startsWith("/work-with-seedtech");
 
-  if (isAdmin) {
+  if (isAdmin || isIntake) {
     return <>{children}</>;
   }
 
