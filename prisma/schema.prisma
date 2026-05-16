@@ -102,6 +102,7 @@ model Site {
   agentArtifacts   AgentArtifact[]
   researchSignals  ResearchSignal[]
   agentRuns        AgentRun[]
+  clientIntakes    ClientIntake[]
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
 
@@ -1399,4 +1400,25 @@ model ResearchSignal {
   @@index([siteId, industry])
   @@index([siteId, shareScore])
   @@map("research_signals")
+}
+
+// ── Client Intake ───────────────────────────────────────
+
+model ClientIntake {
+  id              String    @id @default(cuid())
+  token           String    @unique
+  companyName     String
+  contactEmail    String?
+  assetDriveUrl   String?   // Google Drive folder link
+  status          String    @default("sent") // sent | submitted | reviewed
+  notes           String?   @db.Text         // internal admin notes
+  siteId          String?
+  site            Site?     @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  submissionData  Json?                       // full form answers
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  submittedAt     DateTime?
+
+  @@index([status])
+  @@map("client_intakes")
 }
