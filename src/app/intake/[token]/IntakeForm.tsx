@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, ChevronRight, ChevronLeft, FolderOpen, Loader2, Maximize2, X, Check } from "lucide-react";
+import { CheckCircle2, ChevronRight, ChevronLeft, FolderOpen, Loader2, Maximize2, X, Check, Pencil, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface IntakeMeta {
@@ -252,6 +252,82 @@ function MultiSelectField({
   );
 }
 
+// ── Review Field (inline editable) ────────────────────
+
+function ReviewField({
+  field,
+  value,
+  onChange,
+}: {
+  field: SectionField;
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const isEmpty = !value.trim();
+
+  const base =
+    "w-full bg-white border border-gray-200 rounded-xl px-3.5 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all";
+
+  // Render multiselect values as comma-separated badges
+  function renderValue() {
+    if (!value.trim()) return <span className="text-gray-300 italic">Not answered</span>;
+    if (field.type === "multiselect") {
+      const parts = value.split("\n").filter(Boolean);
+      return (
+        <div className="flex flex-wrap gap-1.5 mt-1">
+          {parts.map(p => (
+            <span key={p} className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">{p}</span>
+          ))}
+        </div>
+      );
+    }
+    return <span className="text-gray-800 text-sm whitespace-pre-wrap">{value}</span>;
+  }
+
+  return (
+    <div className="group rounded-xl border border-gray-100 bg-white px-4 py-3.5 hover:border-gray-200 transition-all">
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <span className="text-xs font-medium text-gray-500">
+          {field.label}
+          {field.required && !value.trim() && <span className="ml-1 text-red-400">Required</span>}
+        </span>
+        <button
+          type="button"
+          onClick={() => setEditing(v => !v)}
+          className={cn(
+            "flex items-center gap-1 text-xs font-medium transition-colors shrink-0",
+            editing ? "text-emerald-600" : "text-gray-300 group-hover:text-gray-400 hover:text-emerald-500"
+          )}
+        >
+          {editing ? <><X className="w-3 h-3" /> Done</> : <><Pencil className="w-3 h-3" /> Edit</>}
+        </button>
+      </div>
+
+      {editing ? (
+        <div className="mt-2">
+          {field.type === "textarea" ? (
+            <ExpandableTextarea value={value} onChange={onChange} label={field.label} baseClass={base} />
+          ) : field.type === "multiselect" ? (
+            <MultiSelectField field={field} value={value} onChange={onChange} />
+          ) : field.type === "select" ? (
+            <select value={value} onChange={e => onChange(e.target.value)} className={cn(base, "cursor-pointer")}>
+              <option value="">Select…</option>
+              {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+          ) : (
+            <input type={field.type} value={value} onChange={e => onChange(e.target.value)} className={base} autoFocus />
+          )}
+        </div>
+      ) : (
+        <div className={cn("mt-0.5", isEmpty && "mt-1")}>
+          {renderValue()}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Field ──────────────────────────────────────────────
 
 function Field({
@@ -299,6 +375,7 @@ export default function IntakeForm({ token }: { token: string }) {
   const [formData, setFormData] = useState<FormData>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
   const [error, setError] = useState("");
 
   const draftKey = `intake-draft-${token}`;
@@ -407,6 +484,118 @@ export default function IntakeForm({ token }: { token: string }) {
   const section = sections[currentSection];
   const isLast = currentSection === sections.length - 1;
   const canAdvance = validateSection(currentSection);
+
+  // ── Review page ────────────────────────────────────────
+  if (reviewing) {
+    return (
+      <div className="flex h-screen bg-[#f5f5f7]">
+        {/* Sidebar */}
+        <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-gray-100 h-screen">
+          <div className="px-6 pt-7 pb-6">
+            <p className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold mb-1">Onboarding for</p>
+            <p className="text-base font-bold text-gray-900 truncate">{meta?.companyName}</p>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-4 space-y-1">
+            {sections.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => { setReviewing(false); setCurrentSection(i); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all"
+              >
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 bg-emerald-100 text-emerald-600">
+                  <Check className="w-3 h-3" />
+                </div>
+                <span className="text-sm font-medium">{s.title}</span>
+              </button>
+            ))}
+          </nav>
+          {meta?.assetDriveUrl && (
+            <div className="p-4 border-t border-gray-100">
+              <a href={meta.assetDriveUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
+                <FolderOpen className="w-4 h-4 shrink-0 text-emerald-500" />
+                <span className="font-medium">Upload to Drive</span>
+                <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-300" />
+              </a>
+            </div>
+          )}
+        </aside>
+
+        {/* Main */}
+        <div className="flex-1 min-w-0 flex flex-col h-screen">
+          {/* Header */}
+          <div className="shrink-0 bg-white border-b border-gray-100">
+            <div className="px-8 py-5 flex items-center gap-3">
+              <ClipboardList className="w-5 h-5 text-emerald-500 shrink-0" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 leading-tight">Review your answers</h1>
+                <p className="text-sm text-gray-400 mt-0.5">Everything looks good? Hit confirm below — or click any answer to edit it.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Scrollable answers */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-8 py-8 max-w-2xl space-y-10">
+              {sections.map((sec, si) => (
+                <div key={sec.id}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-semibold text-gray-900">{sec.title}</h2>
+                    <button
+                      type="button"
+                      onClick={() => { setReviewing(false); setCurrentSection(si); }}
+                      className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+                    >
+                      <Pencil className="w-3 h-3" /> Edit section
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {sec.fields.map(field => {
+                      const val = formData[field.id] || "";
+                      return (
+                        <ReviewField
+                          key={field.id}
+                          field={field}
+                          value={val}
+                          onChange={v => setField(field.id, v)}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="shrink-0 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+            <div className="px-8 py-4 flex gap-3 max-w-2xl">
+              <button
+                type="button"
+                onClick={() => setReviewing(false)}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 hover:text-gray-800 hover:border-gray-300 bg-white transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" /> Back
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shadow-emerald-200"
+              >
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
+                ) : (
+                  <><CheckCircle2 className="w-4 h-4" /> Confirm &amp; Submit</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-[#f5f5f7]">
@@ -539,14 +728,14 @@ export default function IntakeForm({ token }: { token: string }) {
             </button>
           )}
           <button
-            onClick={isLast ? handleSubmit : () => setCurrentSection(v => v + 1)}
+              onClick={isLast ? () => setReviewing(true) : () => setCurrentSection(v => v + 1)}
             disabled={!canAdvance || submitting}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shadow-emerald-200"
           >
             {submitting ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
             ) : isLast ? (
-              <><CheckCircle2 className="w-4 h-4" /> Submit</>
+              <><ClipboardList className="w-4 h-4" /> Review answers</>
             ) : (
               <>Continue <ChevronRight className="w-4 h-4" /></>
             )}
