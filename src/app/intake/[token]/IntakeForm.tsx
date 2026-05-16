@@ -10,6 +10,7 @@ interface IntakeMeta {
   assetDriveUrl: string | null;
   status: string;
   formType: string;
+  submissionData?: Record<string, string> | null;
 }
 
 type FormData = Record<string, string>;
@@ -376,7 +377,6 @@ function Field({
 export default function IntakeForm({ token }: { token: string }) {
   const [meta, setMeta] = useState<IntakeMeta | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
   const [submitting, setSubmitting] = useState(false);
@@ -411,7 +411,6 @@ export default function IntakeForm({ token }: { token: string }) {
       .then(r => { if (!r.ok) { setNotFound(true); return null; } return r.json(); })
       .then(data => {
         if (!data) return;
-        if (data.status === "submitted" || data.status === "reviewed") setAlreadySubmitted(true);
         setMeta(data);
       });
   }, [token]);
@@ -452,35 +451,79 @@ export default function IntakeForm({ token }: { token: string }) {
     return <div className="min-h-screen bg-white flex items-center justify-center p-6"><p className="text-gray-400 text-sm">This link is invalid or has expired.</p></div>;
   }
 
-  if (alreadySubmitted) {
+  // Show read-only summary when already submitted or just submitted
+  const isSubmittedState = submitted || (meta && (meta.status === "submitted" || meta.status === "reviewed"));
+  if (isSubmittedState && meta) {
+    const sections = getSections(meta.formType ?? "service");
+    // Use in-memory formData if just submitted, otherwise use server-stored submissionData
+    const answers: Record<string, string> = submitted ? formData : (meta.submissionData ?? {});
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-6">
-        <div className="text-center space-y-3">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-          <p className="text-gray-900 font-medium">Already submitted</p>
-          <p className="text-gray-400 text-sm">We&apos;ve received your answers and will be in touch soon.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-6">
-        <div className="text-center space-y-4 max-w-md">
-          <CheckCircle2 className="w-14 h-14 text-emerald-500 mx-auto" />
-          <h2 className="text-xl font-semibold text-gray-900">You&apos;re all set!</h2>
-          <p className="text-gray-400 text-sm leading-relaxed">
-            We&apos;ve received your onboarding answers. We&apos;ll review everything before your kick-off call.
-          </p>
-          {meta?.assetDriveUrl && (
-            <a href={meta.assetDriveUrl} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 text-sm hover:bg-gray-100 transition-colors">
-              <FolderOpen className="w-4 h-4 text-emerald-500" />
-              Upload your assets to Google Drive
-              <ChevronRight className="w-4 h-4 text-gray-300" />
-            </a>
+      <div className="flex h-screen bg-[#f5f5f7]">
+        {/* Sidebar */}
+        <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-gray-100 h-screen">
+          <div className="px-6 pt-7 pb-4">
+            <p className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold mb-1">Onboarding for</p>
+            <p className="text-base font-bold text-gray-900 truncate">{meta.companyName}</p>
+            <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="text-xs font-semibold text-emerald-600">Submitted</span>
+            </div>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-4 space-y-1">
+            {sections.map((s) => (
+              <a key={s.id} href={`#section-${s.id}`}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-emerald-100">
+                  <Check className="w-3 h-3 text-emerald-600" />
+                </div>
+                <span className="text-sm font-medium">{s.title}</span>
+              </a>
+            ))}
+          </nav>
+          {meta.assetDriveUrl && (
+            <div className="p-4 border-t border-gray-100">
+              <a href={meta.assetDriveUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
+                <FolderOpen className="w-4 h-4 shrink-0 text-emerald-500" />
+                <span className="font-medium">Upload to Drive</span>
+                <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-300" />
+              </a>
+            </div>
           )}
+        </aside>
+
+        {/* Main */}
+        <div className="flex-1 min-w-0 flex flex-col h-screen">
+          <div className="shrink-0 bg-white border-b border-gray-100 px-8 py-5">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Your answers are in!</h1>
+                <p className="text-sm text-gray-400 mt-0.5">Here&apos;s everything you submitted. We&apos;ll review before your kick-off call.</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-8 py-8 max-w-2xl space-y-10">
+              {sections.map(sec => {
+                const answered = sec.fields.filter(f => answers[f.id]?.trim());
+                if (answered.length === 0) return null;
+                return (
+                  <div key={sec.id} id={`section-${sec.id}`}>
+                    <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">{sec.title}</h2>
+                    <div className="space-y-4">
+                      {answered.map(field => (
+                        <div key={field.id} className="rounded-xl bg-white border border-gray-100 px-4 py-3.5">
+                          <p className="text-xs font-medium text-gray-400 mb-1">{field.label}</p>
+                          <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{answers[field.id]}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -14,6 +14,7 @@ export async function GET(
       assetDriveUrl: true,
       status: true,
       formType: true,
+      submissionData: true,
     },
   });
 
