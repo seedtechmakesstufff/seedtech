@@ -1407,17 +1407,17 @@ model ResearchSignal {
 model ClientIntake {
   id              String    @id @default(cuid())
   token           String    @unique
-  companyName     String
-  contactEmail    String?
-  assetDriveUrl   String?   // Google Drive folder link
-  status          String    @default("sent") // sent | submitted | reviewed
-  notes           String?   @db.Text         // internal admin notes
-  siteId          String?
+  companyName     String    @map("company_name")
+  contactEmail    String?   @map("contact_email")
+  assetDriveUrl   String?   @map("asset_drive_url")
+  status          String    @default("sent")
+  notes           String?   @db.Text
+  siteId          String?   @map("site_id")
   site            Site?     @relation(fields: [siteId], references: [id], onDelete: SetNull)
-  submissionData  Json?                       // full form answers
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  submittedAt     DateTime?
+  submissionData  Json?     @map("submission_data")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  submittedAt     DateTime? @map("submitted_at")
 
   @@index([status])
   @@map("client_intakes")
