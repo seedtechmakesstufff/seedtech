@@ -15,6 +15,8 @@ import {
   ChevronDown,
   ChevronUp,
   Link2,
+  ChevronRight,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -169,17 +171,86 @@ function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
 
 // ── Submission Viewer ──────────────────────────────────
 
+// ── Section definitions (mirrors IntakeForm) ──────────
+
+const REVIEW_SECTIONS = [
+  { id: "business", title: "Your Business", fields: [
+    { id: "legalName", label: "Legal business name" },
+    { id: "preferredName", label: "Display name" },
+    { id: "contactName", label: "Name & role" },
+    { id: "contactEmail", label: "Email" },
+    { id: "phone", label: "Phone" },
+    { id: "address", label: "Address" },
+    { id: "serviceAreas", label: "Service areas" },
+    { id: "industry", label: "Industry" },
+    { id: "oneLiner", label: "One-liner" },
+    { id: "allServices", label: "All services" },
+    { id: "notDo", label: "What they don't do" },
+    { id: "billingContact", label: "Billing contact" },
+  ]},
+  { id: "customers", title: "Your Customers", fields: [
+    { id: "idealCustomer", label: "Ideal customer" },
+    { id: "buyingTrigger", label: "Why they hire you" },
+    { id: "differentiators", label: "Differentiators" },
+    { id: "proudResult", label: "Best result delivered" },
+    { id: "credentials", label: "Credentials / certifications" },
+    { id: "testimonials", label: "Reviews / testimonials" },
+  ]},
+  { id: "brand", title: "Brand & Style", fields: [
+    { id: "brandVoice", label: "Brand voice" },
+    { id: "sitesLove", label: "Sites they love" },
+    { id: "colorPalette", label: "Brand colors" },
+    { id: "hasBrandGuide", label: "Logo / brand guide" },
+    { id: "pricingModel", label: "Pricing model" },
+    { id: "showPricing", label: "Show pricing on site?" },
+    { id: "startingPrice", label: "Pricing details" },
+  ]},
+  { id: "website", title: "Your Website", fields: [
+    { id: "primaryGoal", label: "Primary goal" },
+    { id: "servicePages", label: "Service pages needed" },
+    { id: "otherPages", label: "Other pages" },
+    { id: "story", label: "Business story" },
+    { id: "teamMembers", label: "Team members" },
+    { id: "competitors", label: "Competitors" },
+  ]},
+  { id: "tech", title: "Tech & SEO", fields: [
+    { id: "hasDomain", label: "Has domain?" },
+    { id: "domainName", label: "Domain name" },
+    { id: "domainProvider", label: "Domain registrar" },
+    { id: "hasExistingSite", label: "Existing website?" },
+    { id: "existingPlatform", label: "Current platform" },
+    { id: "existingHost", label: "Current host" },
+    { id: "existingCmsAccess", label: "CMS access" },
+    { id: "formsNeeded", label: "Forms / CTAs needed" },
+    { id: "bookingTool", label: "Booking tool" },
+    { id: "crm", label: "CRM / email platform" },
+    { id: "hasGa4", label: "Google Analytics ID" },
+    { id: "hasGbp", label: "Google Business Profile" },
+    { id: "trackingPixels", label: "Ad pixels" },
+  ]},
+  { id: "assets", title: "Assets & Launch", fields: [
+    { id: "hasPhotos", label: "Professional photos?" },
+    { id: "hasExistingCopy", label: "Existing written content?" },
+    { id: "socialProfiles", label: "Social profiles" },
+    { id: "anythingElse", label: "Anything else" },
+  ]},
+];
+
+// ── Submission Drawer ──────────────────────────────────
+
 function SubmissionDrawer({ intake, onClose, onStatusChange }: {
   intake: ClientIntake;
   onClose: () => void;
   onStatusChange: (id: string, status: string) => void;
 }) {
-  const [_loading, setLoading] = useState(true);
+  const [data, setData] = useState<Record<string, string> | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/admin/intakes`)
+    fetch(`/api/admin/intakes/${intake.id}`)
       .then(r => r.json())
-      .then((_all: ClientIntake[]) => {
+      .then(full => {
+        setData((full.submissionData as Record<string, string>) ?? {});
         setLoading(false);
       });
   }, [intake.id]);
@@ -195,28 +266,86 @@ function SubmissionDrawer({ intake, onClose, onStatusChange }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-auto shadow-2xl">
-        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-2xl flex flex-col shadow-2xl" style={{ maxHeight: "88vh" }}>
+
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="text-lg font-semibold text-white">{intake.companyName}</h2>
-            <p className="text-xs text-white/40 mt-0.5">Submitted {intake.submittedAt ? format(new Date(intake.submittedAt), "MMM d, yyyy 'at' h:mm a") : "—"}</p>
+            <h2 className="text-base font-semibold text-white">{intake.companyName}</h2>
+            <p className="text-xs text-white/40 mt-0.5">
+              Submitted {intake.submittedAt ? format(new Date(intake.submittedAt), "MMM d, yyyy 'at' h:mm a") : "—"}
+            </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             {intake.status !== "reviewed" && (
-              <button onClick={markReviewed} className="px-3 py-1.5 text-xs rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors">
-                Mark Reviewed
+              <button
+                onClick={markReviewed}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors font-medium"
+              >
+                <Eye className="w-3.5 h-3.5" /> Mark reviewed
               </button>
             )}
-            <button onClick={onClose} className="px-3 py-1.5 text-xs rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/20 transition-colors">
-              Close
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/20 transition-colors"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
-        <div className="p-6">
-          <p className="text-sm text-white/40 text-center py-8">
-            Submission data — view via <code className="text-white/60">/api/admin/intakes/{intake.id}</code>
-          </p>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-8">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+            </div>
+          ) : !data || Object.keys(data).length === 0 ? (
+            <p className="text-sm text-white/30 text-center py-12">No submission data found.</p>
+          ) : (
+            REVIEW_SECTIONS.map(sec => {
+              const answered = sec.fields.filter(f => data[f.id]?.trim());
+              if (answered.length === 0) return null;
+              return (
+                <div key={sec.id}>
+                  <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">{sec.title}</h3>
+                  <div className="space-y-3">
+                    {answered.map(f => (
+                      <div key={f.id} className="rounded-xl bg-white/5 border border-white/8 px-4 py-3">
+                        <p className="text-[11px] text-white/40 font-medium mb-1">{f.label}</p>
+                        <p className="text-sm text-white/90 whitespace-pre-wrap leading-relaxed">
+                          {data[f.id].split("\n").map((line, i) =>
+                            line.startsWith("Other:") ? (
+                              <span key={i} className="block">{line}</span>
+                            ) : (
+                              <span key={i} className="block">{line}</span>
+                            )
+                          )}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
+
+        {/* Footer */}
+        {intake.assetDriveUrl && (
+          <div className="px-6 py-4 border-t border-white/10 shrink-0">
+            <a
+              href={intake.assetDriveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
+            >
+              <FolderOpen className="w-4 h-4 text-emerald-400 shrink-0" />
+              Open asset Drive folder
+              <ChevronRight className="w-3.5 h-3.5 ml-auto text-white/20" />
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
