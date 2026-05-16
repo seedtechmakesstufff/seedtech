@@ -238,6 +238,21 @@ const REVIEW_SECTIONS = [
 
 // ── Submission Drawer ──────────────────────────────────
 
+function buildRawText(data: Record<string, string>, companyName: string): string {
+  const lines: string[] = [`CLIENT INTAKE — ${companyName.toUpperCase()}`, ""];
+  for (const sec of REVIEW_SECTIONS) {
+    const answered = sec.fields.filter(f => data[f.id]?.trim());
+    if (answered.length === 0) continue;
+    lines.push(`── ${sec.title.toUpperCase()} ──`);
+    for (const f of answered) {
+      lines.push(`${f.label}:`);
+      lines.push(data[f.id].trim());
+      lines.push("");
+    }
+  }
+  return lines.join("\n").trim();
+}
+
 function SubmissionDrawer({ intake, onClose, onStatusChange }: {
   intake: ClientIntake;
   onClose: () => void;
@@ -245,6 +260,7 @@ function SubmissionDrawer({ intake, onClose, onStatusChange }: {
 }) {
   const [data, setData] = useState<Record<string, string> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch(`/api/admin/intakes/${intake.id}`)
@@ -264,19 +280,46 @@ function SubmissionDrawer({ intake, onClose, onStatusChange }: {
     onStatusChange(intake.id, "reviewed");
   }
 
+  function copyAll() {
+    if (!data) return;
+    navigator.clipboard.writeText(buildRawText(data, intake.companyName));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  const rawText = data ? buildRawText(data, intake.companyName) : "";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-2xl flex flex-col shadow-2xl" style={{ maxHeight: "88vh" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="bg-[#0e0e0e] border border-white/10 rounded-2xl w-full max-w-3xl flex flex-col shadow-2xl" style={{ height: "88vh" }}>
 
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
+        <div className="px-5 py-3.5 border-b border-white/10 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="text-base font-semibold text-white">{intake.companyName}</h2>
-            <p className="text-xs text-white/40 mt-0.5">
-              Submitted {intake.submittedAt ? format(new Date(intake.submittedAt), "MMM d, yyyy 'at' h:mm a") : "—"}
-            </p>
+            <span className="text-sm font-semibold text-white">{intake.companyName}</span>
+            <span className="text-xs text-white/30 ml-3">
+              {intake.submittedAt ? format(new Date(intake.submittedAt), "MMM d, yyyy 'at' h:mm a") : "—"}
+            </span>
           </div>
           <div className="flex items-center gap-2">
+            {intake.assetDriveUrl && (
+              <a
+                href={intake.assetDriveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/20 transition-colors"
+              >
+                <FolderOpen className="w-3.5 h-3.5 text-emerald-400" /> Drive
+              </a>
+            )}
+            {!loading && data && (
+              <button
+                onClick={copyAll}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/20 transition-colors font-medium"
+              >
+                {copied ? <><Check className="w-3.5 h-3.5 text-green-400" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy all</>}
+              </button>
+            )}
             {intake.status !== "reviewed" && (
               <button
                 onClick={markReviewed}
@@ -294,58 +337,18 @@ function SubmissionDrawer({ intake, onClose, onStatusChange }: {
           </div>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-8">
+        {/* Body — raw text */}
+        <div className="flex-1 overflow-y-auto p-5">
           {loading ? (
-            <div className="flex items-center justify-center py-16">
+            <div className="flex items-center justify-center h-full">
               <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
             </div>
           ) : !data || Object.keys(data).length === 0 ? (
             <p className="text-sm text-white/30 text-center py-12">No submission data found.</p>
           ) : (
-            REVIEW_SECTIONS.map(sec => {
-              const answered = sec.fields.filter(f => data[f.id]?.trim());
-              if (answered.length === 0) return null;
-              return (
-                <div key={sec.id}>
-                  <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">{sec.title}</h3>
-                  <div className="space-y-3">
-                    {answered.map(f => (
-                      <div key={f.id} className="rounded-xl bg-white/5 border border-white/8 px-4 py-3">
-                        <p className="text-[11px] text-white/40 font-medium mb-1">{f.label}</p>
-                        <p className="text-sm text-white/90 whitespace-pre-wrap leading-relaxed">
-                          {data[f.id].split("\n").map((line, i) =>
-                            line.startsWith("Other:") ? (
-                              <span key={i} className="block">{line}</span>
-                            ) : (
-                              <span key={i} className="block">{line}</span>
-                            )
-                          )}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })
+            <pre className="text-sm text-white/80 font-mono whitespace-pre-wrap leading-relaxed">{rawText}</pre>
           )}
         </div>
-
-        {/* Footer */}
-        {intake.assetDriveUrl && (
-          <div className="px-6 py-4 border-t border-white/10 shrink-0">
-            <a
-              href={intake.assetDriveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-            >
-              <FolderOpen className="w-4 h-4 text-emerald-400 shrink-0" />
-              Open asset Drive folder
-              <ChevronRight className="w-3.5 h-3.5 ml-auto text-white/20" />
-            </a>
-          </div>
-        )}
       </div>
     </div>
   );
