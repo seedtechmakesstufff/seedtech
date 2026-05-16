@@ -15,7 +15,6 @@ import {
   ChevronDown,
   ChevronUp,
   Link2,
-  ChevronRight,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
