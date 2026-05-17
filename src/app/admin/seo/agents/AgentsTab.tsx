@@ -131,15 +131,24 @@ export function AgentsTab() {
           <div className="mt-4 space-y-1.5">
             <p className="text-[11px] text-white/50">Total time: {Math.round((runAllResult.durationMs ?? 0) / 1000)}s</p>
             {runAllResult.steps.map((s) => (
-              <div key={s.agent} className="flex items-center gap-2 text-xs">
-                {s.success ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />
-                ) : (
-                  <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+              <div key={s.agent} className="text-xs">
+                <div className="flex items-center gap-2">
+                  {s.success ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />
+                  ) : (
+                    <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                  )}
+                  <span className="text-white font-mono">{s.agent}</span>
+                  <span className="text-white/40">— {Math.round(s.durationMs / 1000)}s</span>
+                </div>
+                {s.error && (
+                  <details className="mt-1 ml-5.5">
+                    <summary className="text-red-300 cursor-pointer hover:text-red-200">
+                      {s.error.length > 120 ? `${s.error.slice(0, 120)}…` : s.error}
+                    </summary>
+                    <pre className="mt-1.5 p-2 bg-red-500/5 border border-red-500/20 rounded text-red-200 whitespace-pre-wrap break-all font-mono text-[10px]">{s.error}</pre>
+                  </details>
                 )}
-                <span className="text-white font-mono">{s.agent}</span>
-                <span className="text-white/40">— {Math.round(s.durationMs / 1000)}s</span>
-                {s.error && <span className="text-red-300 truncate max-w-xs" title={s.error}>— {s.error}</span>}
               </div>
             ))}
           </div>
