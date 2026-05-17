@@ -1,10 +1,11 @@
 export default function IntakeLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      {/* Override the global dark scrollbar inside intake routes so the inner
-          overflow-y-auto containers show a light scrollbar that matches the
-          light theme. */}
+      {/* Lock the document so anchor navigation and autoFocus scrolling can't
+          scroll the body and expose the dark site-wide background. The inner
+          .intake-shell container becomes the only scroll context. */}
       <style>{`
+        html, body { overflow: hidden !important; height: 100% !important; overscroll-behavior: none; }
         .intake-shell ::-webkit-scrollbar { width: 8px; }
         .intake-shell ::-webkit-scrollbar-track { background: transparent; }
         .intake-shell ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
