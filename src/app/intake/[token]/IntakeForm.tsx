@@ -372,6 +372,121 @@ function Field({
   );
 }
 
+// ── Submitted Summary (editable) ──────────────────────
+
+function SubmittedSummary({
+  token,
+  meta,
+  sections,
+  initialAnswers,
+}: {
+  token: string;
+  meta: IntakeMeta;
+  sections: { id: string; title: string; subtitle: string; fields: SectionField[] }[];
+  initialAnswers: Record<string, string>;
+}) {
+  const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers);
+  const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const saveTimer = useState<ReturnType<typeof setTimeout> | null>(null);
+
+  function updateField(id: string, val: string) {
+    setAnswers(prev => ({ ...prev, [id]: val }));
+    // Debounce save: 800ms after last keystroke
+    if (saveTimer[0]) clearTimeout(saveTimer[0]);
+    saveTimer[1](setTimeout(() => saveField(id, val), 800));
+  }
+
+  async function saveField(id: string, val: string) {
+    setSaving(true);
+    try {
+      await fetch(`/api/intake/${token}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [id]: val }),
+      });
+      setSavedAt(new Date());
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="flex h-screen bg-[#f5f5f7]">
+      {/* Sidebar */}
+      <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-gray-100 h-screen">
+        <div className="px-6 pt-7 pb-4">
+          <p className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold mb-1">Onboarding for</p>
+          <p className="text-base font-bold text-gray-900 truncate">{meta.companyName}</p>
+          <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-xs font-semibold text-emerald-600">Submitted</span>
+          </div>
+        </div>
+        <nav className="flex-1 overflow-y-auto px-4 space-y-1">
+          {sections.map((s) => (
+            <a key={s.id} href={`#section-${s.id}`}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-emerald-100">
+                <Check className="w-3 h-3 text-emerald-600" />
+              </div>
+              <span className="text-sm font-medium">{s.title}</span>
+            </a>
+          ))}
+        </nav>
+        {meta.assetDriveUrl && (
+          <div className="p-4 border-t border-gray-100">
+            <a href={meta.assetDriveUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
+              <FolderOpen className="w-4 h-4 shrink-0 text-emerald-500" />
+              <span className="font-medium">Upload to Drive</span>
+              <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-300" />
+            </a>
+          </div>
+        )}
+      </aside>
+
+      {/* Main */}
+      <div className="flex-1 min-w-0 flex flex-col h-screen">
+        {/* Header */}
+        <div className="shrink-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Your answers are in!</h1>
+              <p className="text-sm text-gray-400 mt-0.5">You can still update any answer below — changes save automatically.</p>
+            </div>
+          </div>
+          <span className="text-xs text-gray-300 shrink-0">
+            {saving ? "Saving…" : savedAt ? `Saved ${savedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}
+          </span>
+        </div>
+
+        {/* Editable answers */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-8 py-8 max-w-2xl space-y-10">
+            {sections.map(sec => (
+              <div key={sec.id} id={`section-${sec.id}`}>
+                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">{sec.title}</h2>
+                <div className="space-y-6">
+                  {sec.fields.map(field => (
+                    <Field
+                      key={field.id}
+                      field={field}
+                      value={answers[field.id] || ""}
+                      onChange={val => updateField(field.id, val)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ─────────────────────────────────────
 
 export default function IntakeForm({ token }: { token: string }) {
@@ -451,82 +566,13 @@ export default function IntakeForm({ token }: { token: string }) {
     return <div className="min-h-screen bg-white flex items-center justify-center p-6"><p className="text-gray-400 text-sm">This link is invalid or has expired.</p></div>;
   }
 
-  // Show read-only summary when already submitted or just submitted
+  // Show editable summary when already submitted or just submitted
   const isSubmittedState = submitted || (meta && (meta.status === "submitted" || meta.status === "reviewed"));
   if (isSubmittedState && meta) {
     const sections = getSections(meta.formType ?? "service");
     // Use in-memory formData if just submitted, otherwise use server-stored submissionData
-    const answers: Record<string, string> = submitted ? formData : (meta.submissionData ?? {});
-    return (
-      <div className="flex h-screen bg-[#f5f5f7]">
-        {/* Sidebar */}
-        <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-gray-100 h-screen">
-          <div className="px-6 pt-7 pb-4">
-            <p className="text-[11px] text-gray-400 uppercase tracking-widest font-semibold mb-1">Onboarding for</p>
-            <p className="text-base font-bold text-gray-900 truncate">{meta.companyName}</p>
-            <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="text-xs font-semibold text-emerald-600">Submitted</span>
-            </div>
-          </div>
-          <nav className="flex-1 overflow-y-auto px-4 space-y-1">
-            {sections.map((s) => (
-              <a key={s.id} href={`#section-${s.id}`}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-emerald-100">
-                  <Check className="w-3 h-3 text-emerald-600" />
-                </div>
-                <span className="text-sm font-medium">{s.title}</span>
-              </a>
-            ))}
-          </nav>
-          {meta.assetDriveUrl && (
-            <div className="p-4 border-t border-gray-100">
-              <a href={meta.assetDriveUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
-                <FolderOpen className="w-4 h-4 shrink-0 text-emerald-500" />
-                <span className="font-medium">Upload to Drive</span>
-                <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-300" />
-              </a>
-            </div>
-          )}
-        </aside>
-
-        {/* Main */}
-        <div className="flex-1 min-w-0 flex flex-col h-screen">
-          <div className="shrink-0 bg-white border-b border-gray-100 px-8 py-5">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Your answers are in!</h1>
-                <p className="text-sm text-gray-400 mt-0.5">Here&apos;s everything you submitted. We&apos;ll review before your kick-off call.</p>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <div className="px-8 py-8 max-w-2xl space-y-10">
-              {sections.map(sec => {
-                const answered = sec.fields.filter(f => answers[f.id]?.trim());
-                if (answered.length === 0) return null;
-                return (
-                  <div key={sec.id} id={`section-${sec.id}`}>
-                    <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">{sec.title}</h2>
-                    <div className="space-y-4">
-                      {answered.map(field => (
-                        <div key={field.id} className="rounded-xl bg-white border border-gray-100 px-4 py-3.5">
-                          <p className="text-xs font-medium text-gray-400 mb-1">{field.label}</p>
-                          <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{answers[field.id]}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    const initialAnswers: Record<string, string> = submitted ? formData : (meta.submissionData ?? {});
+    return <SubmittedSummary token={token} meta={meta} sections={sections} initialAnswers={initialAnswers} />;
   }
 
   const sections = getSections(meta?.formType ?? "service");
