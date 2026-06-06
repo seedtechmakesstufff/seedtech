@@ -426,3 +426,229 @@ export function teamInviteTemplate(data: TeamInviteData, branding: EmailBranding
 
   return layout(`You've been invited to ${data.teamName}`, body, branding);
 }
+
+/* ── Template: Band / Touring Website Intake Notification ────── */
+
+function intakeSection(title: string, rows: string): string {
+  if (!rows.trim()) return "";
+  return `
+    <tr><td style="padding:20px 0 6px;">
+      <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;border-bottom:1px solid #e5e7eb;padding-bottom:8px;">${title}</p>
+    </td></tr>
+    ${rows}`;
+}
+
+function intakeRow(label: string, value: unknown): string {
+  if (value === "" || value === null || value === undefined) return "";
+  if (Array.isArray(value) && value.length === 0) return "";
+  const display = Array.isArray(value) ? (value as string[]).join(", ") : String(value);
+  return `<tr>
+    <td style="padding:5px 12px 5px 0;width:38%;vertical-align:top;font-size:12px;color:#6b7280;">${label}</td>
+    <td style="padding:5px 0;font-size:13px;color:#111827;">${display}</td>
+  </tr>`;
+}
+
+export function bandIntakeNotificationTemplate(
+  data: Record<string, unknown>,
+  branding: EmailBranding = DEFAULT_BRANDING
+): string {
+  const t = (key: string) => data[key];
+
+  const body = `
+    ${h1(`New Band Website Intake — ${t("bandName") || "Unknown Band"}`)}
+    ${subheading(`Submitted ${new Date().toLocaleString()} · Contact: ${t("contactName") || ""} &lt;${t("contactEmail") || ""}&gt;`)}
+    ${divider()}
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      ${intakeSection("Contact", [
+        intakeRow("Name", t("contactName")),
+        intakeRow("Role", t("contactRole")),
+        intakeRow("Email", t("contactEmail")),
+        intakeRow("Phone", t("contactPhone")),
+        intakeRow("Preferred Contact", t("preferredContact")),
+        intakeRow("Best Time", t("bestTime")),
+      ].join(""))}
+
+      ${intakeSection("Band / Artist", [
+        intakeRow("Band Name", t("bandName")),
+        intakeRow("Genre", t("genre")),
+        intakeRow("Location", t("bandLocation")),
+        intakeRow("Description", t("bandDescription")),
+        intakeRow("Current Website", t("currentWebsite")),
+        intakeRow("Owns Domain", t("ownsDomain")),
+        intakeRow("Domain Name", t("domainName")),
+        intakeRow("Domain Access", t("domainAccess")),
+      ].join(""))}
+
+      ${intakeSection("Project Goals & Pages", [
+        intakeRow("Main Goals", t("mainGoals")),
+        intakeRow("Success Criteria", t("successCriteria")),
+        intakeRow("Website Type", t("websiteType")),
+        intakeRow("Pages Needed", t("pagesNeeded")),
+        intakeRow("Needs EPK", t("needsEPK")),
+        intakeRow("EPK Contents", t("epkContents")),
+      ].join(""))}
+
+      ${intakeSection("Tour Dates", [
+        intakeRow("Has Upcoming Shows", t("hasShows")),
+        intakeRow("Show Count", t("showCount")),
+        intakeRow("Tour Management", t("tourManagement")),
+        intakeRow("Date Preference", t("tourDatePref")),
+        intakeRow("Show Display Info", t("showDisplayInfo")),
+        intakeRow("Archive Past Shows", t("archivePastShows")),
+      ].join(""))}
+
+      ${intakeSection("Fan Voting / Request-a-Show", [
+        intakeRow("Wants Fan Request Feature", t("wantsFanRequest")),
+        intakeRow("Request Types", t("fanRequestTypes")),
+        intakeRow("Target Venues", t("targetVenues")),
+        intakeRow("Example Venues", t("exampleVenues")),
+        intakeRow("Show Vote Totals", t("showVoteTotals")),
+        intakeRow("Require Email for Vote", t("requireEmailVote")),
+        intakeRow("Fan Submit Fields", t("fanSubmitFields")),
+        intakeRow("Export Fan Requests", t("exportFanRequests")),
+        intakeRow("Build Admin Dashboard", t("buildAdminDash")),
+      ].join(""))}
+
+      ${intakeSection("Merchandise", [
+        intakeRow("Sells Merch Online", t("sellsMerch")),
+        intakeRow("Current Platforms", t("currentMerchPlatforms")),
+        intakeRow("Merch Types", t("merchTypes")),
+        intakeRow("Launch Product Count", t("launchProductCount")),
+        intakeRow("Inventory Tracking", t("inventoryTracking")),
+        intakeRow("Shipping / Tax Setup", t("shippingTax")),
+        intakeRow("Fulfillment Method", t("fulfillmentMethod")),
+        intakeRow("Help Selecting Platform", t("helpSelectPlatform")),
+      ].join(""))}
+
+      ${intakeSection("Music & Video", [
+        intakeRow("Music Platforms", t("musicPlatforms")),
+        intakeRow("Music Links", t("musicLinks")),
+        intakeRow("Embedded Players", t("embeddedPlayers")),
+        intakeRow("Video Hosting", t("videoHosting")),
+        intakeRow("Embedded Videos", t("embeddedVideos")),
+      ].join(""))}
+
+      ${intakeSection("Social Media", [
+        intakeRow("Social Platforms", t("socialPlatforms")),
+        intakeRow("Social URLs", t("socialUrls")),
+        intakeRow("Display Social Posts", t("displaySocialPosts")),
+        intakeRow("Social Manager", t("socialManager")),
+      ].join(""))}
+
+      ${intakeSection("Fan List & Email", [
+        intakeRow("Has Email List", t("hasEmailList")),
+        intakeRow("Email Platforms", t("emailPlatforms")),
+        intakeRow("Fan Signup Enabled", t("fanSignup")),
+        intakeRow("Fan Signup For", t("fanSignupFor")),
+        intakeRow("Help w/ Email Platform", t("helpEmailPlatform")),
+      ].join(""))}
+
+      ${intakeSection("Design & Branding", [
+        intakeRow("Branding Assets", t("brandingAssets")),
+        intakeRow("Design Description", t("designDescription")),
+        intakeRow("Sites They Like", t("sitesLike")),
+        intakeRow("Sites They Dislike", t("sitesDislike")),
+      ].join(""))}
+
+      ${intakeSection("Content", [
+        intakeRow("Has Content", t("hasContent")),
+        intakeRow("Needs Content Help", t("needsContentHelp")),
+        intakeRow("Band Bio", t("bandBio")),
+        intakeRow("Booking Copy", t("bookingCopy")),
+        intakeRow("Press Quotes", t("pressQuotes")),
+        intakeRow("Must Mention", t("mustMention")),
+        intakeRow("Must NOT Mention", t("mustNotMention")),
+      ].join(""))}
+
+      ${intakeSection("Booking & Contact", [
+        intakeRow("Inquiries Go To", t("inquiriesGoTo")),
+        intakeRow("Inquiry Types", t("inquiryTypes")),
+        intakeRow("Separate Forms", t("separateForms")),
+        intakeRow("Form Tickets", t("formTickets")),
+        intakeRow("Notification Channels", t("notifChannels")),
+      ].join(""))}
+
+      ${intakeSection("Technical Access", [
+        intakeRow("Who Controls Access", t("whoControls")),
+        intakeRow("Domain Registrar", t("domainAccess2")),
+        intakeRow("Website Admin", t("siteAdminAccess")),
+        intakeRow("Hosting", t("hostingAccess")),
+        intakeRow("DNS", t("dnsAccess")),
+        intakeRow("Google Analytics", t("hasAnalytics")),
+        intakeRow("Search Console", t("hasSearchConsole")),
+        intakeRow("Needs Access Help", t("needsAccessHelp")),
+      ].join(""))}
+
+      ${intakeSection("Integrations", [
+        intakeRow("Integrations Needed", t("integrationsNeeded")),
+        intakeRow("Required Integrations", t("requiredIntegrations")),
+      ].join(""))}
+
+      ${intakeSection("Admin & Management", [
+        intakeRow("Site Updater", t("siteUpdater")),
+        intakeRow("Team Can Update", t("teamCanUpdate")),
+        intakeRow("Team Comfort", t("teamComfort")),
+        intakeRow("Recorded Handoff", t("recordedHandoff")),
+      ].join(""))}
+
+      ${intakeSection("Timeline & Budget", [
+        intakeRow("Target Launch Date", t("targetLaunchDate")),
+        intakeRow("Launch Date Reason", t("launchDateReason")),
+        intakeRow("Urgency", t("urgency")),
+        intakeRow("Immovable Deadlines", t("immovableDeadlines")),
+        intakeRow("Budget Range", t("budgetRange")),
+        intakeRow("Priority", t("priorityMatter")),
+        intakeRow("Open to Phased", t("openToPhased")),
+        intakeRow("Phased First", t("phasedFirst")),
+      ].join(""))}
+
+      ${intakeSection("Ongoing Support", [
+        intakeRow("Wants Ongoing Support", t("wantsOngoingSupport")),
+        intakeRow("Support Types", t("supportTypes")),
+        intakeRow("Update Frequency", t("updateFrequency")),
+      ].join(""))}
+
+      ${intakeSection("Additional Notes", [
+        intakeRow("Additional Notes", t("additionalNotes")),
+        intakeRow("Concerns / Risks", t("concerns")),
+        intakeRow("How They Heard About Us", t("hearAboutUs")),
+      ].join(""))}
+    </table>
+
+    ${divider()}
+    <p style="margin:0;font-size:12px;color:#9ca3af;">
+      Internal tags: Web Development · Band Website · Entertainment · Tour Dates · Intake Submitted<br />
+      Suggested priority: Normal (urgent if launch date within 30 days)
+    </p>
+  `;
+
+  return layout(
+    `Band Intake — ${t("bandName") || "Unknown"}`,
+    body,
+    branding
+  );
+}
+
+export function bandIntakeAutoReplyTemplate(
+  contactName: string,
+  bandName: string,
+  branding: EmailBranding = DEFAULT_BRANDING
+): string {
+  const firstName = contactName?.split(" ")[0] || "there";
+  const body = `
+    ${h1("We received your intake!")}
+    ${subheading(`Hi ${firstName}, thanks for reaching out about ${bandName || "your project"}.`)}
+    ${divider()}
+    <p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 20px;">
+      We've received your Band & Touring Website intake form and will review it within <strong>1–2 business days</strong>.
+      Our team will reach out to discuss scope, timeline, and next steps.
+    </p>
+    <p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 20px;">
+      If you have logos, band photos, or other files to share, feel free to reply to this email with your attachments.
+    </p>
+    ${divider()}
+    ${note("Questions in the meantime? Reply directly to this email.")}
+  `;
+  return layout(`We got your intake — ${branding.companyName}`, body, branding);
+}
