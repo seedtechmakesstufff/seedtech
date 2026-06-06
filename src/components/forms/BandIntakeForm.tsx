@@ -215,7 +215,7 @@ function Step1({ fd, set, setArr }: { fd: FD; set: (k: keyof FD, v: string) => v
   );
 }
 
-function Step2({ fd, set, setArr }: { fd: FD; set: (k: keyof FD, v: string) => void; setArr: (k: keyof FD, v: string[]) => void }) {
+function Step2({ fd, set }: { fd: FD; set: (k: keyof FD, v: string) => void; setArr?: (k: keyof FD, v: string[]) => void }) {
   return (
     <div className={cls.section}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -568,7 +568,7 @@ function Step7({ fd, set, setArr }: { fd: FD; set: (k: keyof FD, v: string) => v
           selected={fd.brandingAssets} onChange={v => setArr("brandingAssets", v)}
         />
       </Field>
-      <p className="text-xs text-white/30 mt-1">File uploads (logos, photos, artwork) can be sent separately — we'll follow up after you submit.</p>
+      <p className="text-xs text-white/30 mt-1">File uploads (logos, photos, artwork) can be sent separately — we&apos;ll follow up after you submit.</p>
       <Field label="Describe the Look and Feel You Want" hint="e.g. gritty, polished, punk, retro, dark, clean, cinematic, high-energy, minimalist…">
         <textarea rows={3} value={fd.designDescription} onChange={e => set("designDescription", e.target.value)}
           placeholder="Describe the vibe, mood, and aesthetic you're going for…" className={cls.input} />
