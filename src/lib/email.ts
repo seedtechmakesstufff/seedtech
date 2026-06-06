@@ -20,6 +20,8 @@ import {
   salesRepApplicationNotificationTemplate,
   salesRepApplicationAutoReplyTemplate,
   teamInviteTemplate,
+  bandIntakeNotificationTemplate,
+  bandIntakeAutoReplyTemplate,
   type ContactNotificationData,
   type QuoteNotificationData,
   type SalesRepApplicationNotificationData,
@@ -262,4 +264,37 @@ export async function sendSeoDigest(opts: SeoDigestOptions): Promise<EmailResult
     subject: opts.subject,
     html: opts.html,
   });
+}
+
+/* ── Band / Touring Website Intake ───────────────────────────── */
+
+export async function sendBandIntakeNotification(
+  data: Record<string, unknown>
+): Promise<{ notification: EmailResult; autoReply: EmailResult }> {
+  const [admins, branding] = await Promise.all([notifyRecipients(), getEmailBranding()]);
+
+  const bandName = String(data.bandName || "");
+  const contactName = String(data.contactName || "");
+  const contactEmail = String(data.contactEmail || "");
+
+  const [notification, autoReply] = await Promise.all([
+    admins.length > 0
+      ? sendEmail({
+          to: admins,
+          subject: `🎸 New Band Website Intake — ${bandName || contactName}`,
+          html: bandIntakeNotificationTemplate(data, branding),
+          replyTo: contactEmail || undefined,
+        })
+      : Promise.resolve<EmailResult>({ success: false, error: "No admin recipients configured" }),
+
+    contactEmail
+      ? sendEmail({
+          to: contactEmail,
+          subject: `We received your intake — ${branding.companyName}`,
+          html: bandIntakeAutoReplyTemplate(contactName, bandName, branding),
+        })
+      : Promise.resolve<EmailResult>({ success: false, error: "No contact email provided" }),
+  ]);
+
+  return { notification, autoReply };
 }
