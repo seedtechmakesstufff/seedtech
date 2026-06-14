@@ -9,6 +9,8 @@ import {
   Building2,
   Globe,
   Monitor,
+  Music,
+  Mic2,
   MessageSquare,
   CheckCircle2,
   Clock,
@@ -24,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 interface Submission {
   id: string;
-  source: "contact_page" | "quote_it" | "quote_web";
+  source: "contact_page" | "quote_it" | "quote_web" | "artist_intake" | "comedian_intake";
   status: "new" | "read" | "replied" | "archived";
   fullName: string;
   email: string;
@@ -41,7 +43,21 @@ const SOURCE_LABELS: Record<string, { label: string; icon: React.ComponentType<{
   contact_page: { label: "Contact Form", icon: MessageSquare, color: "text-blue-400 bg-blue-500/10" },
   quote_it: { label: "IT Quote", icon: Monitor, color: "text-purple-400 bg-purple-500/10" },
   quote_web: { label: "Web Quote", icon: Globe, color: "text-seed-400 bg-seed-500/10" },
+  artist_intake: { label: "Artist Intake", icon: Music, color: "text-pink-400 bg-pink-500/10" },
+  comedian_intake: { label: "Comedian Intake", icon: Mic2, color: "text-amber-400 bg-amber-500/10" },
 };
+
+/** Sources whose metadata is a project intake (vs. a quote config). */
+const INTAKE_SOURCES = new Set(["artist_intake", "comedian_intake"]);
+
+/** camelCase metadata key → "Title Case" label for the detail grid. */
+function humanizeKey(key: string): string {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+}
 
 const STATUS_LABELS: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; color: string }> = {
   new: { label: "New", icon: Inbox, color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
@@ -160,6 +176,8 @@ export default function SubmissionsPage() {
             <option value="contact_page">Contact Form</option>
             <option value="quote_it">IT Quote</option>
             <option value="quote_web">Web Quote</option>
+            <option value="artist_intake">Artist Intake</option>
+            <option value="comedian_intake">Comedian Intake</option>
           </select>
           <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30 pointer-events-none" />
         </div>
@@ -342,17 +360,21 @@ export default function SubmissionsPage() {
                       </div>
                     )}
 
-                    {/* Quote metadata */}
+                    {/* Quote / intake metadata */}
                     {sub.metadata && Object.keys(sub.metadata).length > 0 && (
                       <div className="rounded-lg bg-dark-base/50 p-4">
-                        <h4 className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Quote Details</h4>
+                        <h4 className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">
+                          {INTAKE_SOURCES.has(sub.source) ? "Intake Details" : "Quote Details"}
+                        </h4>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
-                          {Object.entries(sub.metadata).map(([key, val]) => (
-                            <div key={key}>
-                              <span className="text-white/30 text-xs">{key}: </span>
-                              <span className="text-white/60">{String(val)}</span>
-                            </div>
-                          ))}
+                          {Object.entries(sub.metadata)
+                            .filter(([, val]) => (Array.isArray(val) ? val.length > 0 : val !== "" && val != null))
+                            .map(([key, val]) => (
+                              <div key={key}>
+                                <span className="text-white/30 text-xs">{humanizeKey(key)}: </span>
+                                <span className="text-white/60">{Array.isArray(val) ? val.join(", ") : String(val)}</span>
+                              </div>
+                            ))}
                         </div>
                       </div>
                     )}

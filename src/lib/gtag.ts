@@ -35,7 +35,7 @@ function gtag(...args: unknown[]) {
  * @param meta    — optional key/value pairs (tier, email, service, etc.)
  */
 export function trackLead(
-  source: "quote_web" | "quote_it" | "quote_seo" | "contact" | "audit",
+  source: "quote_web" | "quote_it" | "quote_seo" | "contact" | "audit" | "artist_intake" | "comedian_intake",
   meta?: Record<string, string | number | boolean | undefined>
 ) {
   // 1️⃣  GA4 — generate_lead event (shows up in GA4 → Events → generate_lead)
