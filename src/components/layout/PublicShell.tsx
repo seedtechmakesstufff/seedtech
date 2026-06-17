@@ -11,9 +11,12 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
   const isIntake = pathname.startsWith("/intake");
+  const isBooking = pathname.startsWith("/booking");
   const isSalesRepPage = pathname.startsWith("/work-with-seedtech");
 
-  if (isAdmin || isIntake) {
+  // Booking lives on its own subdomain (booking.seedtechllc.com) and ships a
+  // self-contained header/footer — skip the main site chrome entirely.
+  if (isAdmin || isIntake || isBooking) {
     return <>{children}</>;
   }
 
