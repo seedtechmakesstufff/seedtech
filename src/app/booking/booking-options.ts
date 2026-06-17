@@ -23,6 +23,8 @@ export interface BookingOption {
   url: string;
   icon: BookingIconKey;
   accent: BookingAccent;
+  /** When true, the visitor must enter a support ticket number before booking. */
+  requiresTicket?: boolean;
 }
 
 export interface BookingGroup {
@@ -77,6 +79,7 @@ export const bookingGroups: BookingGroup[] = [
         url: "https://calendar.app.google/jnSVBdRUk9VCaYGz8",
         icon: "wrench",
         accent: "blue",
+        requiresTicket: true,
       },
       {
         id: "remote-support",
@@ -86,6 +89,7 @@ export const bookingGroups: BookingGroup[] = [
         url: "https://calendar.app.google/iTguSsANvh4uRJyb6",
         icon: "laptop",
         accent: "blue",
+        requiresTicket: true,
       },
     ],
   },
