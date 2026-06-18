@@ -20,14 +20,15 @@ import {
   salesRepApplicationNotificationTemplate,
   salesRepApplicationAutoReplyTemplate,
   teamInviteTemplate,
-  bandIntakeNotificationTemplate,
-  bandIntakeAutoReplyTemplate,
+  intakeNotificationTemplate,
+  intakeAutoReplyTemplate,
   type ContactNotificationData,
   type QuoteNotificationData,
   type SalesRepApplicationNotificationData,
   type TeamInviteData,
   type EmailBranding,
 } from "./email-templates";
+import type { IntakeConfig } from "./intake/types";
 
 /* ── Singleton Resend client ─────────────────────────────────── */
 
@@ -266,14 +267,15 @@ export async function sendSeoDigest(opts: SeoDigestOptions): Promise<EmailResult
   });
 }
 
-/* ── Band / Touring Website Intake ───────────────────────────── */
+/* ── Intake (config-driven: Artist, Comedian, …) ─────────────── */
 
-export async function sendBandIntakeNotification(
+export async function sendIntakeNotification(
+  config: IntakeConfig,
   data: Record<string, unknown>
 ): Promise<{ notification: EmailResult; autoReply: EmailResult }> {
   const [admins, branding] = await Promise.all([notifyRecipients(), getEmailBranding()]);
 
-  const bandName = String(data.bandName || "");
+  const entityName = String(data[config.entityNameKey] || "");
   const contactName = String(data.contactName || "");
   const contactEmail = String(data.contactEmail || "");
 
@@ -281,8 +283,8 @@ export async function sendBandIntakeNotification(
     admins.length > 0
       ? sendEmail({
           to: admins,
-          subject: `🎸 New Band Website Intake — ${bandName || contactName}`,
-          html: bandIntakeNotificationTemplate(data, branding),
+          subject: `${config.notifyEmoji} New ${config.entityTitle} Website Intake — ${entityName || contactName}`,
+          html: intakeNotificationTemplate(config, data, branding),
           replyTo: contactEmail || undefined,
         })
       : Promise.resolve<EmailResult>({ success: false, error: "No admin recipients configured" }),
@@ -291,7 +293,7 @@ export async function sendBandIntakeNotification(
       ? sendEmail({
           to: contactEmail,
           subject: `We received your intake — ${branding.companyName}`,
-          html: bandIntakeAutoReplyTemplate(contactName, bandName, branding),
+          html: intakeAutoReplyTemplate(contactName, entityName, config, branding),
         })
       : Promise.resolve<EmailResult>({ success: false, error: "No contact email provided" }),
   ]);

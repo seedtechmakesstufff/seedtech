@@ -1,7 +1,7 @@
 import { buildMetadata } from "@/lib/page-metadata";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Rocket, ShoppingCart, SquareTerminal, Music } from "lucide-react";
+import { ArrowRight, CheckCircle2, Rocket, ShoppingCart, SquareTerminal, Music, Mic2 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { GradientOrb, GridPattern, LiquidGlassPill, AnimatedH1, AnimatedH2 } from "@/components/kit";
 
@@ -536,18 +536,33 @@ export default function WebDevelopmentPage() {
             </Link>
           </div>
 
-          <Link
-              href="/services/web-development/band-intake"
+          <div className="space-y-3">
+            <Link
+              href="/services/web-development/artist-intake"
               className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
             >
               <div className="flex items-center gap-3">
                 <Music className="w-4 h-4 text-seed-400 shrink-0" />
                 <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
-                  Band or touring act? Start your project intake →
+                  Artist or touring act? Start your project intake →
                 </span>
               </div>
               <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
             </Link>
+
+            <Link
+              href="/services/web-development/comedian-intake"
+              className="group flex items-center justify-between px-6 py-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:border-seed-500/30 hover:bg-seed-500/[0.04] transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <Mic2 className="w-4 h-4 text-seed-400 shrink-0" />
+                <span className="text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                  Comedian or live comedy act? Start your project intake →
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-seed-400 transition-colors shrink-0" />
+            </Link>
+          </div>
 
           <p className="text-center text-sm text-white/25 mt-8">
             Not sure which fits your project?{" "}

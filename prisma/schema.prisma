@@ -281,6 +281,8 @@ enum FormSource {
   contact_page        // /contact page form
   quote_it            // IT Support quote flow
   quote_web           // Web Dev quote flow
+  artist_intake       // Artist / touring website intake
+  comedian_intake     // Comedian / live comedy website intake
 }
 
 enum SubmissionStatus {
