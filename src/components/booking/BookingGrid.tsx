@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Ticket,
   X,
+  Loader2,
   Compass,
   Ruler,
   Wrench,
@@ -111,20 +112,60 @@ function CardFace({ opt }: { opt: BookingOption }) {
   );
 }
 
+/* Map a validation response to a human message for the gate. */
+function ticketErrorMessage(status: number, reason?: string): string {
+  if (status === 429 || reason === "rate_limited")
+    return "Too many attempts — please wait a minute and try again.";
+  if (reason === "not_open")
+    return "That ticket is already closed. Open a new ticket to book support.";
+  if (reason === "error")
+    return "We couldn't verify your ticket right now — please try again in a moment.";
+  // not_found / bad_request / anything else
+  return "We couldn't find an open ticket with that number. Double-check it and try again.";
+}
+
 export function BookingGrid({ groups }: { groups: BookingGroup[] }) {
   // The support option currently being booked through the ticket gate.
   const [ticketOpt, setTicketOpt] = useState<BookingOption | null>(null);
   const [ticketValue, setTicketValue] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const closeTicket = () => {
     setTicketOpt(null);
     setTicketValue("");
+    setChecking(false);
+    setError(null);
   };
 
-  const proceed = () => {
-    if (!ticketOpt || !ticketValue.trim()) return;
-    window.open(ticketOpt.url, "_blank", "noopener,noreferrer");
-    closeTicket();
+  // Verify the ticket number against the helpdesk before sending the visitor to
+  // the calendar. On success we navigate in the same tab (no popup-blocker
+  // surprises after the async check); on failure we show an inline message.
+  const proceed = async () => {
+    if (!ticketOpt || !ticketValue.trim() || checking) return;
+    setChecking(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/booking/validate-ticket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketNumber: ticketValue.trim() }),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | { valid?: boolean; reason?: string }
+        | null;
+
+      if (data?.valid) {
+        window.location.href = ticketOpt.url; // navigating away; keep spinner
+        return;
+      }
+      setError(ticketErrorMessage(res.status, data?.reason));
+    } catch {
+      setError(
+        "We couldn't verify your ticket right now — please try again in a moment."
+      );
+    }
+    setChecking(false); // only reached on failure (success returns above)
   };
 
   // Esc to close + lock body scroll while the gate is open.
@@ -172,6 +213,7 @@ export function BookingGrid({ groups }: { groups: BookingGroup[] }) {
                   variants={fadeUp}
                   onClick={() => {
                     setTicketValue("");
+                    setError(null);
                     setTicketOpt(opt);
                   }}
                   className={cn(cardClass(opt), "w-full")}
@@ -240,15 +282,17 @@ export function BookingGrid({ groups }: { groups: BookingGroup[] }) {
             </div>
 
             <p className="mt-4 text-body-sm leading-relaxed text-white/55">
-              Enter your support ticket number to continue to scheduling. Don&apos;t
-              have one yet? Call{" "}
+              Enter your support ticket number to continue to scheduling.
+              Don&apos;t have a ticket yet? Open one at{" "}
               <a
-                href="tel:+12016209002"
-                className="font-medium text-white/80 hover:text-white"
+                href="https://helpdesk.seedtechllc.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-brand-blue transition-colors hover:text-brand-blue/80"
               >
-                (201) 620-9002
-              </a>{" "}
-              and we&apos;ll open one.
+                helpdesk.seedtechllc.com
+              </a>
+              .
             </p>
 
             <label
@@ -257,17 +301,40 @@ export function BookingGrid({ groups }: { groups: BookingGroup[] }) {
             >
               Ticket number
             </label>
-            <input
-              id="ticket-number"
-              autoFocus
-              value={ticketValue}
-              onChange={(e) => setTicketValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") proceed();
-              }}
-              placeholder="e.g. ST-10432"
-              className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/30 outline-none transition-colors focus:border-brand-blue/50"
-            />
+            <div
+              className={cn(
+                "mt-2 flex items-center rounded-xl border bg-white/[0.04] transition-colors focus-within:border-brand-blue/50",
+                error
+                  ? "border-red-500/60 focus-within:border-red-500/60"
+                  : "border-white/10"
+              )}
+            >
+              <span className="select-none pl-4 pr-1 font-medium text-white/40">
+                TKT-
+              </span>
+              <input
+                id="ticket-number"
+                autoFocus
+                inputMode="numeric"
+                value={ticketValue}
+                onChange={(e) => {
+                  setTicketValue(e.target.value.replace(/\D/g, "").slice(0, 6));
+                  if (error) setError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") proceed();
+                }}
+                placeholder="000862"
+                aria-invalid={!!error}
+                className="w-full flex-1 bg-transparent py-3 pr-4 text-white placeholder:text-white/30 outline-none"
+              />
+            </div>
+
+            {error && (
+              <p role="alert" className="mt-3 text-body-sm text-red-400">
+                {error}
+              </p>
+            )}
 
             <div className="mt-5 flex gap-3">
               <button
@@ -280,11 +347,20 @@ export function BookingGrid({ groups }: { groups: BookingGroup[] }) {
               <button
                 type="button"
                 onClick={proceed}
-                disabled={!ticketValue.trim()}
+                disabled={!ticketValue.trim() || checking}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-brand px-5 py-3 text-sm font-medium text-white transition-all hover:shadow-glowSeed disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-none"
               >
-                Continue to booking
-                <ArrowUpRight className="h-4 w-4" aria-hidden />
+                {checking ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    Checking…
+                  </>
+                ) : (
+                  <>
+                    Continue to booking
+                    <ArrowUpRight className="h-4 w-4" aria-hidden />
+                  </>
+                )}
               </button>
             </div>
 

@@ -24,6 +24,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^4.1.0",
+    "firebase-admin": "^14.0.0",
     "framer-motion": "^12.35.2",
     "googleapis": "^171.4.0",
     "gray-matter": "^4.0.3",
